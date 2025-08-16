@@ -4,13 +4,16 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 public class Entry
 {
-    public List<KanjiForm> KanjiForms = [];
-    public List<Reading> Readings = [];
+    public required List<Reading> Readings { get; set; }
+    public List<KanjiForm>? KanjiForms { get; set; }
     public const string XmlTagName = "entry";
 
     public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
     {
-        var entry = new Entry();
+        var entry = new Entry
+        {
+            Readings = [],
+        };
         var exit = false;
         string currentTagName;
 
@@ -36,6 +39,7 @@ public class Entry
         {
             case KanjiForm.XmlTagName:
                 var kanjiForm = await KanjiForm.FromXmlAsync(reader, docMeta);
+                entry.KanjiForms ??= [];
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:

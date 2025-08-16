@@ -1,13 +1,11 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
 public class ReadingMeaning
 {
-    public List<ReadingMeaningGroup> Groups = [];
-    public List<string> Nanori = [];
+    public List<ReadingMeaningGroup>? Groups { get; set; }
+    public List<string>? Nanori { get; set; }
     public const string XmlTagName = "reading_meaning";
 
     public async static Task<ReadingMeaning> FromXmlAsync(XmlReader reader)
@@ -25,6 +23,7 @@ public class ReadingMeaning
                     if (currentTagName == "rmgroup")
                     {
                         var group = await ReadingMeaningGroup.FromXmlAsync(reader);
+                        readingMeaning.Groups ??= [];
                         readingMeaning.Groups.Add(group);
                     }
                     break;
@@ -32,6 +31,7 @@ public class ReadingMeaning
                     if (currentTagName == "nanori")
                     {
                         var text = await reader.GetValueAsync();
+                        readingMeaning.Nanori ??= [];
                         readingMeaning.Nanori.Add(text);
                     }
                     break;

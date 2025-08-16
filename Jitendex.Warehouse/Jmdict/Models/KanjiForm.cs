@@ -4,13 +4,16 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 public class KanjiForm
 {
-    public string Text;
-    public List<string> InfoTags = [];
+    public required string Text { get; set; }
+    public List<string>? InfoTags { get; set; }
     public const string XmlTagName = "k_ele";
 
     public async static Task<KanjiForm> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
     {
-        var kanjiForm = new KanjiForm();
+        var kanjiForm = new KanjiForm
+        {
+            Text = string.Empty
+        };
         var exit = false;
         string currentTagName = XmlTagName;
 
@@ -42,6 +45,7 @@ public class KanjiForm
             case "ke_inf":
                 var infoValue = await reader.GetValueAsync();
                 var infoName = docMeta.EntityValueToName[infoValue];
+                kanjiForm.InfoTags ??= [];
                 kanjiForm.InfoTags.Add(infoName);
                 break;
         }

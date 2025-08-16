@@ -4,15 +4,19 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 public class Reading
 {
-    public string Text;
-    public List<string> InfoTags = [];
-    public List<string> ConstraintKanjiFormTexts = [];
-    public bool NoKanji = false;
+    public required string Text { get; set; }
+    public required bool NoKanji { get; set; }
+    public List<string>? InfoTags { get; set; }
+    public List<string>? ConstraintKanjiFormTexts { get; set; }
     public const string XmlTagName = "r_ele";
 
     public async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
     {
-        var reading = new Reading();
+        var reading = new Reading
+        {
+            Text = string.Empty,
+            NoKanji = false,
+        };
         var exit = false;
         string currentTagName = XmlTagName;
 
@@ -56,10 +60,12 @@ public class Reading
             case "re_inf":
                 var infoValue = await reader.GetValueAsync();
                 var infoName = docMeta.EntityValueToName[infoValue];
+                reading.InfoTags ??= [];
                 reading.InfoTags.Add(infoName);
                 break;
             case "re_restr":
                 var kanjiFormText = await reader.GetValueAsync();
+                reading.ConstraintKanjiFormTexts ??= [];
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
         }

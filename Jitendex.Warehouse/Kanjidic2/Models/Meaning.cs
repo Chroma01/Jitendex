@@ -4,14 +4,15 @@ namespace Jitendex.Warehouse.Kanjidic2.Models;
 
 public class Meaning
 {
-    public string Text;
-    public string Language;
+    public required string Text { get; set; }
+    public required string Language { get; set; }
     public const string XmlTagName = "meaning";
 
     public async static Task<Meaning> FromXmlAsync(XmlReader reader)
     {
         var meaning = new Meaning()
         {
+            Text = string.Empty,
             Language = reader.GetAttribute("m_lang") ?? "en"
         };
         var exit = false;

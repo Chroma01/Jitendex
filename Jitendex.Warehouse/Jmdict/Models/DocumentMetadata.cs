@@ -5,8 +5,8 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 public partial class DocumentMetadata
 {
-    public string Name;
-    public Dictionary<string, string> EntityValueToName;
+    public required string Name { get; set; }
+    public required Dictionary<string, string> EntityValueToName { get; set; }
 
     public async static Task<DocumentMetadata> FromXmlAsync(XmlReader reader)
     {
@@ -33,7 +33,7 @@ public partial class DocumentMetadata
             {
                 valueToName.Add(entityValue, entityName);
             }
-            catch (System.ArgumentException)
+            catch (ArgumentException)
             {
                 // The "ik" name is reused with the same value.
                 // As long as the Name/Value pair is the same,

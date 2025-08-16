@@ -4,8 +4,8 @@ namespace Jitendex.Warehouse.Kanjidic2.Models;
 
 public class ReadingMeaningGroup
 {
-    public List<Reading> Readings = [];
-    public List<Meaning> Meanings = [];
+    public List<Reading>? Readings { get; set; }
+    public List<Meaning>? Meanings { get; set; }
     public const string XmlTagName = "rmgroup";
 
     public async static Task<ReadingMeaningGroup> FromXmlAsync(XmlReader reader)
@@ -36,10 +36,12 @@ public class ReadingMeaningGroup
         {
             case Reading.XmlTagName:
                 var reading = await Reading.FromXmlAsync(reader);
+                group.Readings ??= [];
                 group.Readings.Add(reading);
                 break;
             case Meaning.XmlTagName:
                 var meaning = await Meaning.FromXmlAsync(reader);
+                group.Meanings ??= [];
                 group.Meanings.Add(meaning);
                 break;
         }

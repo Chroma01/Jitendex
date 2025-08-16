@@ -4,13 +4,16 @@ namespace Jitendex.Warehouse.Kanjidic2.Models;
 
 public class Entry
 {
-    public string Literal;
-    public ReadingMeaning ReadingMeaning;
+    public required string Literal { get; set; }
+    public ReadingMeaning? ReadingMeaning { get; set; }
     public const string XmlTagName = "character";
 
     public async static Task<Entry> FromXmlAsync(XmlReader reader)
     {
-        var entry = new Entry();
+        var entry = new Entry
+        {
+            Literal = string.Empty
+        };
         var exit = false;
         string currentTagName = XmlTagName;
 
