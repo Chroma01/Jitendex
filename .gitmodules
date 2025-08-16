@@ -1,0 +1,3 @@
+[submodule "Jitendex.Warehouse/Resources"]
+	path = Jitendex.Warehouse/Resources
+	url = https://github.com/stephenmk/jitendex-warehouse-resources
