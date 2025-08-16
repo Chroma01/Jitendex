@@ -4,6 +4,7 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 public class Entry
 {
+    public required int Sequence { get; set; }
     public required List<Reading> Readings { get; set; }
     public List<KanjiForm>? KanjiForms { get; set; }
     public const string XmlTagName = "entry";
@@ -12,10 +13,11 @@ public class Entry
     {
         var entry = new Entry
         {
+            Sequence = -1,
             Readings = [],
         };
         var exit = false;
-        string currentTagName;
+        string currentTagName = XmlTagName;
 
         while (!exit && await reader.ReadAsync())
         {
@@ -24,6 +26,9 @@ public class Entry
                 case XmlNodeType.Element:
                     currentTagName = reader.Name;
                     await ProcessElementAsync(reader, docMeta, currentTagName, entry);
+                    break;
+                case XmlNodeType.Text:
+                    await ProcessTextAsync(reader, currentTagName, entry);
                     break;
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
@@ -45,6 +50,30 @@ public class Entry
             case Reading.XmlTagName:
                 var reading = await Reading.FromXmlAsync(reader, docMeta);
                 entry.Readings.Add(reading);
+                break;
+            default:
+                // TODO: Log warning.
+                break;
+        }
+    }
+
+    private async static Task ProcessTextAsync(XmlReader reader, string tagName, Entry entry)
+    {
+        switch (tagName)
+        {
+            case "ent_seq":
+                var text = await reader.GetValueAsync();
+                if (int.TryParse(text, out int sequence))
+                {
+                    entry.Sequence = sequence;
+                }
+                else
+                {
+                    // TODO: Log warning.
+                }
+                break;
+            default:
+                // TODO: Log warning.
                 break;
         }
     }

@@ -48,6 +48,9 @@ public class KanjiForm
                 kanjiForm.InfoTags ??= [];
                 kanjiForm.InfoTags.Add(infoName);
                 break;
+            default:
+                // TODO: Log warning.
+                break;
         }
     }
 }

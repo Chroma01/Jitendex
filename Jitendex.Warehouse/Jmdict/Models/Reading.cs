@@ -46,7 +46,9 @@ public class Reading
             case "re_nokanji":
                 reading.NoKanji = true;
                 break;
-                // Potentially more cases here later.
+            default:
+                // TODO: Log warning.
+                break;
         }
     }
 
@@ -67,6 +69,9 @@ public class Reading
                 var kanjiFormText = await reader.GetValueAsync();
                 reading.ConstraintKanjiFormTexts ??= [];
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
+                break;
+            default:
+                // TODO: Log warning.
                 break;
         }
     }
