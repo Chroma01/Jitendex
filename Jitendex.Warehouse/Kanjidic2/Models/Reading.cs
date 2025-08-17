@@ -22,7 +22,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
-[Table("Kanjidic2.Readings")]
 [PrimaryKey(nameof(Character), nameof(GroupOrder), nameof(Order))]
 public class Reading
 {

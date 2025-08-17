@@ -16,8 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Jitendex.Warehouse.Jmdict.Models;
 
 public interface ITagDescription
@@ -32,14 +30,12 @@ want to use these classes as type parameters with the `new()` constraint.
 https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required
 */
 
-[Table("Jmdict.ReadingInfoTagDescriptions")]
 public class ReadingInfoTagDescription : ITagDescription
 {
     public string Id { get; set; } = null!;
     public string Text { get; set; } = null!;
 }
 
-[Table("Jmdict.KanjiFormInfoTagDescriptions")]
 public class KanjiFormInfoTagDescription : ITagDescription
 {
     public string Id { get; set; } = null!;

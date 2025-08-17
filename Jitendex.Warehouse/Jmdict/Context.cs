@@ -17,25 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using JmdictEntry = Jitendex.Warehouse.Jmdict.Models.Entry;
-using Kanjidic2Entry = Jitendex.Warehouse.Kanjidic2.Models.Entry;
+using Jitendex.Warehouse.Jmdict.Models;
 
-namespace Jitendex.Warehouse;
+namespace Jitendex.Warehouse.Jmdict;
 
-public class WarehouseContext : DbContext
+public class JmdictContext : DbContext
 {
-    public DbSet<JmdictEntry> JmdictEntries { get; set; } = null!;
-    public DbSet<Kanjidic2Entry> Kanjidic2Entries { get; set; } = null!;
+    public DbSet<Entry> Entries { get; set; } = null!;
 
     public string DbPath { get; }
 
-    public WarehouseContext()
+    public JmdictContext()
     {
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         var dbFolder = Path.Join(path, "Jitendex");
         Directory.CreateDirectory(dbFolder);
-        DbPath = Path.Join(dbFolder, "warehouse.db");
+        DbPath = Path.Join(dbFolder, "jmdict.db");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)

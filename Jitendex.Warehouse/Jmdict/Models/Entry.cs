@@ -16,12 +16,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-[Table("Jmdict.Entries")]
 public class Entry
 {
     public required int Id { get; set; }

@@ -21,7 +21,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-[Table("Jmdict.ReadingInfoTags")]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
 public class ReadingInfoTag
 {
@@ -36,7 +35,6 @@ public class ReadingInfoTag
     public virtual ReadingInfoTagDescription Description { get; set; } = null!;
 }
 
-[Table("Jmdict.KanjiFormInfoTags")]
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
 public class KanjiFormInfoTag
 {

@@ -17,26 +17,25 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-using Jitendex.Warehouse.Kanjidic2.Models;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.Warehouse.Kanjidic2.Models;
 
 namespace Jitendex.Warehouse.Kanjidic2;
 
 public class Loader
 {
-    public async static Task ImportAsync(WarehouseContext db)
+    public async static Task ImportAsync()
     {
-        await db.Database.ExecuteSqlRawAsync(@"
-            DELETE FROM 'Kanjidic2.Readings';
-            DELETE FROM 'Kanjidic2.Meanings';
-            DELETE FROM 'Kanjidic2.ReadingMeaningGroups';
-            DELETE FROM 'Kanjidic2.ReadingMeanings';
-            DELETE FROM 'Kanjidic2.Entries';");
+        var db = new Kanjidic2Context();
+        Console.WriteLine($"Kanjidic2 database path: {db.DbPath}.");
+
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.EnsureCreatedAsync();
 
         var kanjidic2Path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
         await foreach (var entry in EntriesAsync(kanjidic2Path))
         {
-            await db.Kanjidic2Entries.AddAsync(entry);
+            await db.Entries.AddAsync(entry);
         }
         await db.SaveChangesAsync();
     }

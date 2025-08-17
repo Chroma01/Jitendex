@@ -22,7 +22,6 @@ using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
-[Table("Kanjidic2.ReadingMeanings")]
 public class ReadingMeaning
 {
     [Key]

@@ -16,21 +16,28 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.Warehouse.Kanjidic2.Models;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Kanjidic2;
 
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(KanjiFormOrder))]
-public class ReadingKanjiFormBridge
+public class Kanjidic2Context : DbContext
 {
-    public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public DbSet<Entry> Entries { get; set; } = null!;
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    public string DbPath { get; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    public Kanjidic2Context()
+    {
+        var folder = Environment.SpecialFolder.LocalApplicationData;
+        var path = Environment.GetFolderPath(folder);
+        var dbFolder = Path.Join(path, "Jitendex");
+        Directory.CreateDirectory(dbFolder);
+        DbPath = Path.Join(dbFolder, "kanjidic2.db");
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        options.UseSqlite($"Data Source={DbPath}");
+    }
 }

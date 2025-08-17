@@ -17,12 +17,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
-[Table("Kanjidic2.Entries")]
 public class Entry
 {
     [Key]

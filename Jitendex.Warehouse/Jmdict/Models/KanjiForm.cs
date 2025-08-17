@@ -22,7 +22,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-[Table("Jmdict.KanjiForms")]
 [PrimaryKey(nameof(EntryId), nameof(Order))]
 public class KanjiForm
 {
