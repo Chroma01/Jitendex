@@ -130,8 +130,8 @@ public class Entry
                     Reading = reading,
                     KanjiForm = kanjiForm,
                 };
-                reading.KanjiBridges ??= [];
-                reading.KanjiBridges.Add(bridge);
+                reading.KanjiFormBridges ??= [];
+                reading.KanjiFormBridges.Add(bridge);
 
                 kanjiForm.ReadingBridges ??= [];
                 kanjiForm.ReadingBridges.Add(bridge);

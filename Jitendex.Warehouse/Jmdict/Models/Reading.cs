@@ -29,7 +29,7 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<ReadingKanjiFormBridge>? KanjiBridges { get; set; }
+    public List<ReadingKanjiFormBridge>? KanjiFormBridges { get; set; }
     public List<ReadingInfoTag>? InfoTags { get; set; }
 
     [ForeignKey(nameof(EntryId))]
