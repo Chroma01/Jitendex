@@ -18,12 +18,30 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Jitendex.Warehouse.Jmdict.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict;
 
 public static class Loader
 {
-    public async static IAsyncEnumerable<Entry> Entries(string path)
+    public async static Task ImportAsync(WarehouseContext db, string jmdictPath)
+    {
+        await db.Database.ExecuteSqlRawAsync(@"
+            DELETE FROM 'Jmdict.ReadingKanjiBridges';
+            DELETE FROM 'Jmdict.KanjiForms';
+            DELETE FROM 'Jmdict.Readings';
+            DELETE FROM 'Jmdict.Entries';
+            DELETE FROM sqlite_sequence WHERE name = 'Jmdict.Entries';");
+
+        jmdictPath ??= Path.Combine("Resources", "edrdg", "JMdict");
+        await foreach (var entry in EntriesAsync(jmdictPath))
+        {
+            await db.JmdictEntries.AddAsync(entry);
+        }
+        await db.SaveChangesAsync();
+    }
+
+    private async static IAsyncEnumerable<Entry> EntriesAsync(string path)
     {
         await using var stream = File.OpenRead(path);
 

@@ -31,7 +31,12 @@ public class Reading
     public required string Text { get; set; }
     public required bool NoKanji { get; set; }
     public List<string>? InfoTags { get; set; }
+
+    public List<ReadingKanjiBridge>? ReadingKanjiBridges { get; set; }
+
+    [NotMapped]
     public List<string>? ConstraintKanjiFormTexts { get; set; }
+
     public const string XmlTagName = "r_ele";
 
     [ForeignKey(nameof(EntryId))]

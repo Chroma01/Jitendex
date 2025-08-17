@@ -55,7 +55,7 @@ public class Entry
                     break;
             }
         }
-        return entry;
+        return PostProcess(entry);
     }
 
     private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, string tagName, Entry entry)
@@ -96,6 +96,44 @@ public class Entry
             default:
                 // TODO: Log warning.
                 break;
+        }
+    }
+
+    private static Entry PostProcess(Entry entry)
+    {
+        BridgeReadingsAndKanjiForms(entry);
+        return entry;
+    }
+
+    private static void BridgeReadingsAndKanjiForms(Entry entry)
+    {
+        foreach (var reading in entry.Readings)
+        {
+            if (reading.NoKanji)
+                continue;
+            if (reading.InfoTags?.Any(i => i == "sk") ?? false)
+                continue;
+
+            foreach (var kanjiForm in entry.KanjiForms ?? [])
+            {
+                if (kanjiForm.InfoTags?.Any(i => i == "sK") ?? false)
+                    continue;
+                if (reading.ConstraintKanjiFormTexts != null && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
+                    continue;
+                var bridge = new ReadingKanjiBridge
+                {
+                    EntryId = entry.Id,
+                    ReadingOrder = reading.Order,
+                    KanjiOrder = kanjiForm.Order,
+                    Reading = reading,
+                    KanjiForm = kanjiForm,
+                };
+                reading.ReadingKanjiBridges ??= [];
+                reading.ReadingKanjiBridges.Add(bridge);
+
+                kanjiForm.ReadingKanjiBridges ??= [];
+                kanjiForm.ReadingKanjiBridges.Add(bridge);
+            }
         }
     }
 }

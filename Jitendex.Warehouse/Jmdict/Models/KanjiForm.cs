@@ -30,6 +30,8 @@ public class KanjiForm
     public required int Order { get; set; }
     public required string Text { get; set; }
     public List<string>? InfoTags { get; set; }
+    public List<ReadingKanjiBridge>? ReadingKanjiBridges { get; set; }
+
     public const string XmlTagName = "k_ele";
 
     [ForeignKey(nameof(EntryId))]
