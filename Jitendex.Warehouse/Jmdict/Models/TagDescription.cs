@@ -17,21 +17,31 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-[Table("Jmdict.ReadingKanjiBridges")]
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(KanjiOrder))]
-public class ReadingKanjiBridge
+public interface ITagDescription
 {
-    public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
-    public required int KanjiOrder { get; set; }
+    string Id { get; set; }
+    string Text { get; set; }
+}
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+/*
+Cannot use the `required` modifier on the class properties below because we
+want to use these classes as type parameters with the `new()` constraint.
+https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required
+*/
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+[Table("Jmdict.ReadingInfoTagDescriptions")]
+public class ReadingInfoTagDescription : ITagDescription
+{
+    public string Id { get; set; } = null!;
+    public string Text { get; set; } = null!;
+}
+
+[Table("Jmdict.KanjiFormInfoTagDescriptions")]
+public class KanjiFormInfoTagDescription : ITagDescription
+{
+    public string Id { get; set; } = null!;
+    public string Text { get; set; } = null!;
 }

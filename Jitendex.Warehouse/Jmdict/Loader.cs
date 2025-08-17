@@ -27,9 +27,11 @@ public static class Loader
     public async static Task ImportAsync(WarehouseContext db)
     {
         await db.Database.ExecuteSqlRawAsync(@"
-            DELETE FROM 'Jmdict.ReadingInfoTagBridges';
             DELETE FROM 'Jmdict.ReadingInfoTags';
-            DELETE FROM 'Jmdict.ReadingKanjiBridges';
+            DELETE FROM 'Jmdict.ReadingInfoTagDescriptions';
+            DELETE FROM 'Jmdict.KanjiFormInfoTags';
+            DELETE FROM 'Jmdict.KanjiFormInfoTagDescriptions';
+            DELETE FROM 'Jmdict.ReadingKanjiFormBridges';
             DELETE FROM 'Jmdict.KanjiForms';
             DELETE FROM 'Jmdict.Readings';
             DELETE FROM 'Jmdict.Entries';

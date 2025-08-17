@@ -26,13 +26,13 @@ public partial class DocumentMetadata
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
 
-    private Dictionary<(string, string), ITag> Tags { get; set; } = [];
+    private Dictionary<(string, string), ITagDescription> Tags { get; set; } = [];
 
-    public T GetTag<T>(string entityValue) where T : ITag, new()
+    public T GetTagDescription<T>(string entityValue) where T : ITagDescription, new()
     {
         var tagTypeName = typeof(T).Name;
         var entityName = EntityValueToName[entityValue];
-        if (Tags.TryGetValue((tagTypeName, entityName), out ITag? tag))
+        if (Tags.TryGetValue((tagTypeName, entityName), out ITagDescription? tag))
         {
             return (T)tag;
         }
@@ -40,8 +40,8 @@ public partial class DocumentMetadata
         {
             var newTag = new T
             {
-                Code = entityName,
-                Description = entityValue,
+                Id = entityName,
+                Text = entityValue,
             };
             Tags[(tagTypeName, entityName)] = newTag;
             return newTag;

@@ -29,8 +29,8 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<ReadingKanjiBridge>? KanjiBridges { get; set; }
-    public List<ReadingInfoTagBridge>? InfoTagBridges { get; set; }
+    public List<ReadingKanjiFormBridge>? KanjiBridges { get; set; }
+    public List<ReadingInfoTag>? InfoTags { get; set; }
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
@@ -97,18 +97,18 @@ public class Reading
                 reading.Text = await reader.GetValueAsync();
                 break;
             case "re_inf":
-                var infoDescription = await reader.GetValueAsync();
-                var tag = docMeta.GetTag<ReadingInfoTag>(infoDescription);
-                var bridge = new ReadingInfoTagBridge
+                var entityValue = await reader.GetValueAsync();
+                var tagDescription = docMeta.GetTagDescription<ReadingInfoTagDescription>(entityValue);
+                var infoTag = new ReadingInfoTag
                 {
                     EntryId = reading.EntryId,
                     ReadingOrder = reading.Order,
-                    TagCode = tag.Code,
+                    TagId = tagDescription.Id,
                     Reading = reading,
-                    InfoTag = tag,
+                    Description = tagDescription,
                 };
-                reading.InfoTagBridges ??= [];
-                reading.InfoTagBridges.Add(bridge);
+                reading.InfoTags ??= [];
+                reading.InfoTags.Add(infoTag);
                 break;
             case "re_restr":
                 var kanjiFormText = await reader.GetValueAsync();

@@ -21,32 +21,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-[Table("Jmdict.ReadingInfoTagBridges")]
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagCode))]
-public class ReadingInfoTagBridge
+[Table("Jmdict.ReadingKanjiFormBridges")]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(KanjiFormOrder))]
+public class ReadingKanjiFormBridge
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }
-    public required string TagCode { get; set; }
+    public required int KanjiFormOrder { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public virtual Reading Reading { get; set; } = null!;
 
-    [ForeignKey(nameof(TagCode))]
-    public virtual ReadingInfoTag InfoTag { get; set; } = null!;
-}
-
-[Table("Jmdict.KanjiFormInfoTagBridges")]
-[PrimaryKey(nameof(EntryId), nameof(KanjiOrder), nameof(TagCode))]
-public class KanjiFormInfoTagBridge
-{
-    public required int EntryId { get; set; }
-    public required int KanjiOrder { get; set; }
-    public required string TagCode { get; set; }
-
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiOrder)}")]
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
-
-    [ForeignKey(nameof(TagCode))]
-    public virtual KanjiInfoTag InfoTag { get; set; } = null!;
 }

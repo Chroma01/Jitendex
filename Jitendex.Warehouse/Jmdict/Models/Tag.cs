@@ -16,35 +16,37 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-public interface ITag
-{
-    string Code { get; set; }
-    string Description { get; set; }
-}
-
-/*
-Cannot use the `required` modifier on the class properties below because we
-want to use these classes as type parameters with the `new()` constraint.
-https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required
-*/
-
 [Table("Jmdict.ReadingInfoTags")]
-public class ReadingInfoTag : ITag
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+public class ReadingInfoTag
 {
-    [Key]
-    public string Code { get; set; } = null!;
-    public string Description { get; set; } = null!;
+    public required int EntryId { get; set; }
+    public required int ReadingOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
+
+    [ForeignKey(nameof(TagId))]
+    public virtual ReadingInfoTagDescription Description { get; set; } = null!;
 }
 
-[Table("Jmdict.KanjiInfoTags")]
-public class KanjiInfoTag : ITag
+[Table("Jmdict.KanjiFormInfoTags")]
+[PrimaryKey(nameof(EntryId), nameof(KanjiOrder), nameof(TagId))]
+public class KanjiFormInfoTag
 {
-    [Key]
-    public string Code { get; set; } = null!;
-    public string Description { get; set; } = null!;
+    public required int EntryId { get; set; }
+    public required int KanjiOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
+
+    [ForeignKey(nameof(TagId))]
+    public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
 }
