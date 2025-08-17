@@ -29,8 +29,8 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<string>? InfoTags { get; set; }
-    public List<ReadingKanjiBridge>? ReadingKanjiBridges { get; set; }
+    public List<KanjiFormInfoTagBridge>? InfoTagBridges { get; set; }
+    public List<ReadingKanjiBridge>? ReadingBridges { get; set; }
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
@@ -46,6 +46,7 @@ public class KanjiForm
             EntryId = entry.Id,
             Order = (entry.KanjiForms?.Count ?? 0) + 1,
             Text = string.Empty,
+            Entry = entry,
         };
         var exit = false;
         string currentTagName = XmlTagName;
@@ -76,10 +77,18 @@ public class KanjiForm
                 kanjiForm.Text = await reader.GetValueAsync();
                 break;
             case "ke_inf":
-                var infoValue = await reader.GetValueAsync();
-                var infoName = docMeta.EntityValueToName[infoValue];
-                kanjiForm.InfoTags ??= [];
-                kanjiForm.InfoTags.Add(infoName);
+                var infoDescription = await reader.GetValueAsync();
+                var tag = docMeta.GetTag<KanjiInfoTag>(infoDescription);
+                var bridge = new KanjiFormInfoTagBridge
+                {
+                    EntryId = kanjiForm.EntryId,
+                    KanjiOrder = kanjiForm.Order,
+                    TagCode = tag.Code,
+                    KanjiForm = kanjiForm,
+                    InfoTag = tag,
+                };
+                kanjiForm.InfoTagBridges ??= [];
+                kanjiForm.InfoTagBridges.Add(bridge);
                 break;
             default:
                 // TODO: Log warning.

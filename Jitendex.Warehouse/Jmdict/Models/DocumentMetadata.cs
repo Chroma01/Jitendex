@@ -26,6 +26,28 @@ public partial class DocumentMetadata
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
 
+    private Dictionary<(string, string), ITag> Tags { get; set; } = [];
+
+    public T GetTag<T>(string entityValue) where T : ITag, new()
+    {
+        var tagTypeName = typeof(T).Name;
+        var entityName = EntityValueToName[entityValue];
+        if (Tags.TryGetValue((tagTypeName, entityName), out ITag? tag))
+        {
+            return (T)tag;
+        }
+        else
+        {
+            var newTag = new T
+            {
+                Code = entityName,
+                Description = entityValue,
+            };
+            Tags[(tagTypeName, entityName)] = newTag;
+            return newTag;
+        }
+    }
+
     #region Static XML Factory
 
     public async static Task<DocumentMetadata> FromXmlAsync(XmlReader reader)

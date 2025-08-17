@@ -24,16 +24,18 @@ namespace Jitendex.Warehouse.Jmdict;
 
 public static class Loader
 {
-    public async static Task ImportAsync(WarehouseContext db, string jmdictPath)
+    public async static Task ImportAsync(WarehouseContext db)
     {
         await db.Database.ExecuteSqlRawAsync(@"
+            DELETE FROM 'Jmdict.ReadingInfoTagBridges';
+            DELETE FROM 'Jmdict.ReadingInfoTags';
             DELETE FROM 'Jmdict.ReadingKanjiBridges';
             DELETE FROM 'Jmdict.KanjiForms';
             DELETE FROM 'Jmdict.Readings';
             DELETE FROM 'Jmdict.Entries';
             DELETE FROM sqlite_sequence WHERE name = 'Jmdict.Entries';");
 
-        jmdictPath ??= Path.Combine("Resources", "edrdg", "JMdict");
+        var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
         await foreach (var entry in EntriesAsync(jmdictPath))
         {
             await db.JmdictEntries.AddAsync(entry);

@@ -30,8 +30,8 @@ public class Program
         var db = new WarehouseContext();
         Console.WriteLine($"Database path: {db.DbPath}.");
 
-        await Kanjidic2.Loader.ImportAsync(db, null);
-        await Jmdict.Loader.ImportAsync(db, null);
+        await Kanjidic2.Loader.ImportAsync(db);
+        await Jmdict.Loader.ImportAsync(db);
 
         sw.Stop();
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");

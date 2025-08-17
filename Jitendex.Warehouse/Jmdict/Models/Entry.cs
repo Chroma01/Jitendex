@@ -113,12 +113,12 @@ public class Entry
         {
             if (reading.NoKanji)
                 continue;
-            if (reading.InfoTags?.Any(i => i == "sk") ?? false)
+            if (reading.InfoTagBridges?.Any(x => x.TagCode == "sk") ?? false)
                 continue;
 
             foreach (var kanjiForm in entry.KanjiForms ?? [])
             {
-                if (kanjiForm.InfoTags?.Any(i => i == "sK") ?? false)
+                if (kanjiForm.InfoTagBridges?.Any(x => x.TagCode == "sK") ?? false)
                     continue;
                 if (reading.ConstraintKanjiFormTexts != null && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
                     continue;
@@ -130,11 +130,11 @@ public class Entry
                     Reading = reading,
                     KanjiForm = kanjiForm,
                 };
-                reading.ReadingKanjiBridges ??= [];
-                reading.ReadingKanjiBridges.Add(bridge);
+                reading.KanjiBridges ??= [];
+                reading.KanjiBridges.Add(bridge);
 
-                kanjiForm.ReadingKanjiBridges ??= [];
-                kanjiForm.ReadingKanjiBridges.Add(bridge);
+                kanjiForm.ReadingBridges ??= [];
+                kanjiForm.ReadingBridges.Add(bridge);
             }
         }
     }

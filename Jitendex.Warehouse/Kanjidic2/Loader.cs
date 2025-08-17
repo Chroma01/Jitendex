@@ -24,7 +24,7 @@ namespace Jitendex.Warehouse.Kanjidic2;
 
 public class Loader
 {
-    public async static Task ImportAsync(WarehouseContext db, string kanjidic2Path)
+    public async static Task ImportAsync(WarehouseContext db)
     {
         await db.Database.ExecuteSqlRawAsync(@"
             DELETE FROM 'Kanjidic2.Readings';
@@ -33,8 +33,8 @@ public class Loader
             DELETE FROM 'Kanjidic2.ReadingMeanings';
             DELETE FROM 'Kanjidic2.Entries';");
 
-        var Kanjidic2Path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
-        await foreach (var entry in EntriesAsync(Kanjidic2Path))
+        var kanjidic2Path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
+        await foreach (var entry in EntriesAsync(kanjidic2Path))
         {
             await db.Kanjidic2Entries.AddAsync(entry);
         }
@@ -71,5 +71,4 @@ public class Loader
             }
         }
     }
-
 }
