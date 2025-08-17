@@ -27,7 +27,7 @@ public class ReadingMeaning
     [Key]
     public required string Character { get; set; }
     public List<ReadingMeaningGroup>? Groups { get; set; }
-    public List<string>? Nanori { get; set; }
+    public List<Nanori>? Nanoris { get; set; }
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
@@ -62,9 +62,14 @@ public class ReadingMeaning
                 case XmlNodeType.Text:
                     if (currentTagName == "nanori")
                     {
-                        var text = await reader.GetValueAsync();
-                        readingMeaning.Nanori ??= [];
-                        readingMeaning.Nanori.Add(text);
+                        var nanori = new Nanori
+                        {
+                            Character = readingMeaning.Character,
+                            Order = (readingMeaning.Nanoris?.Count ?? 0) + 1,
+                            Text = await reader.GetValueAsync(),
+                        };
+                        readingMeaning.Nanoris ??= [];
+                        readingMeaning.Nanoris.Add(nanori);
                     }
                     break;
                 case XmlNodeType.EndElement:
