@@ -37,14 +37,14 @@ public class ReadingInfoTag
 }
 
 [Table("Jmdict.KanjiFormInfoTags")]
-[PrimaryKey(nameof(EntryId), nameof(KanjiOrder), nameof(TagId))]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
 public class KanjiFormInfoTag
 {
     public required int EntryId { get; set; }
-    public required int KanjiOrder { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiOrder)}")]
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]

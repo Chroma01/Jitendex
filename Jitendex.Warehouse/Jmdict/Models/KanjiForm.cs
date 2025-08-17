@@ -79,16 +79,16 @@ public class KanjiForm
             case "ke_inf":
                 var entityValue = await reader.GetValueAsync();
                 var tagDescription = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(entityValue);
-                var bridge = new KanjiFormInfoTag
+                var infoTag = new KanjiFormInfoTag
                 {
                     EntryId = kanjiForm.EntryId,
-                    KanjiOrder = kanjiForm.Order,
+                    KanjiFormOrder = kanjiForm.Order,
                     TagId = tagDescription.Id,
                     KanjiForm = kanjiForm,
                     Description = tagDescription,
                 };
                 kanjiForm.InfoTags ??= [];
-                kanjiForm.InfoTags.Add(bridge);
+                kanjiForm.InfoTags.Add(infoTag);
                 break;
             default:
                 // TODO: Log warning.
