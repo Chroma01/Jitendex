@@ -1,21 +1,33 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
+[Table("Jmdict.Readings")]
+[PrimaryKey(nameof(EntryId), nameof(Order))]
 public class Reading
 {
+    public required int EntryId { get; set; }
+    public required int Order { get; set; }
     public required string Text { get; set; }
     public required bool NoKanji { get; set; }
     public List<string>? InfoTags { get; set; }
     public List<string>? ConstraintKanjiFormTexts { get; set; }
     public const string XmlTagName = "r_ele";
 
-    public async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
+    [ForeignKey(nameof(EntryId))]
+    public virtual Entry Entry { get; set; } = null!;
+
+    public async static Task<Reading> FromXmlAsync(XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
         var reading = new Reading
         {
+            EntryId = entry.Id,
+            Order = entry.Readings.Count + 1,
             Text = string.Empty,
             NoKanji = false,
+            Entry = entry,
         };
         var exit = false;
         string currentTagName = XmlTagName;

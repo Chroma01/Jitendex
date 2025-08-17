@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
+[Table("Jmdict.Entries")]
 public class Entry
 {
-    public required int Sequence { get; set; }
+    public required int Id { get; set; }
     public required List<Reading> Readings { get; set; }
     public List<KanjiForm>? KanjiForms { get; set; }
     public const string XmlTagName = "entry";
@@ -13,7 +15,7 @@ public class Entry
     {
         var entry = new Entry
         {
-            Sequence = -1,
+            Id = -1,
             Readings = [],
         };
         var exit = false;
@@ -43,12 +45,13 @@ public class Entry
         switch (tagName)
         {
             case KanjiForm.XmlTagName:
-                var kanjiForm = await KanjiForm.FromXmlAsync(reader, docMeta);
+                var kanjiForm = await KanjiForm.FromXmlAsync(reader, entry, docMeta);
                 entry.KanjiForms ??= [];
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await Reading.FromXmlAsync(reader, docMeta);
+                var reading = await Reading.FromXmlAsync(reader, entry, docMeta);
+
                 entry.Readings.Add(reading);
                 break;
             default:
@@ -65,7 +68,7 @@ public class Entry
                 var text = await reader.GetValueAsync();
                 if (int.TryParse(text, out int sequence))
                 {
-                    entry.Sequence = sequence;
+                    entry.Id = sequence;
                 }
                 else
                 {

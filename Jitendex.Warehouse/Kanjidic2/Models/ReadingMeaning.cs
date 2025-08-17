@@ -1,16 +1,28 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
+[Table("Kanjidic2.ReadingMeanings")]
 public class ReadingMeaning
 {
+    [Key]
+    public required string Character { get; set; }
     public List<ReadingMeaningGroup>? Groups { get; set; }
     public List<string>? Nanori { get; set; }
     public const string XmlTagName = "reading_meaning";
 
-    public async static Task<ReadingMeaning> FromXmlAsync(XmlReader reader)
+    [ForeignKey(nameof(Character))]
+    public virtual Entry Entry { get; set; } = null!;
+
+    public async static Task<ReadingMeaning> FromXmlAsync(XmlReader reader, Entry entry)
     {
-        var readingMeaning = new ReadingMeaning();
+        var readingMeaning = new ReadingMeaning
+        {
+            Character = entry.Character,
+            Entry = entry,
+        };
         var exit = false;
         string currentTagName = XmlTagName;
 
@@ -22,7 +34,7 @@ public class ReadingMeaning
                     currentTagName = reader.Name;
                     if (currentTagName == "rmgroup")
                     {
-                        var group = await ReadingMeaningGroup.FromXmlAsync(reader);
+                        var group = await ReadingMeaningGroup.FromXmlAsync(reader, readingMeaning);
                         readingMeaning.Groups ??= [];
                         readingMeaning.Groups.Add(group);
                     }
