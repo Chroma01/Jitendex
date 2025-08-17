@@ -30,9 +30,12 @@ public partial class DocumentMetadata
 
     public T GetTagDescription<T>(string entityValue) where T : ITagDescription, new()
     {
-        var tagTypeName = typeof(T).Name;
-        var entityName = EntityValueToName[entityValue];
-        if (Tags.TryGetValue((tagTypeName, entityName), out ITagDescription? tag))
+        var key =
+        (
+            tagTypeName: typeof(T).Name,
+            entityName: EntityValueToName[entityValue]
+        );
+        if (Tags.TryGetValue(key, out ITagDescription? tag))
         {
             return (T)tag;
         }
@@ -40,10 +43,10 @@ public partial class DocumentMetadata
         {
             var newTag = new T
             {
-                Id = entityName,
+                Id = key.entityName,
                 Text = entityValue,
             };
-            Tags[(tagTypeName, entityName)] = newTag;
+            Tags[key] = newTag;
             return newTag;
         }
     }
