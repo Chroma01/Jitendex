@@ -32,10 +32,12 @@ public class KanjiForm
     public List<string>? InfoTags { get; set; }
     public List<ReadingKanjiBridge>? ReadingKanjiBridges { get; set; }
 
-    public const string XmlTagName = "k_ele";
-
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "k_ele";
 
     public async static Task<KanjiForm> FromXmlAsync(XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
@@ -84,4 +86,6 @@ public class KanjiForm
                 break;
         }
     }
+
+    #endregion
 }

@@ -26,6 +26,8 @@ public partial class DocumentMetadata
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
 
+    #region Static XML Factory
+
     public async static Task<DocumentMetadata> FromXmlAsync(XmlReader reader)
     {
         var dtd = await reader.GetValueAsync();
@@ -64,4 +66,6 @@ public partial class DocumentMetadata
         }
         return valueToName;
     }
+
+    #endregion
 }

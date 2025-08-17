@@ -31,10 +31,13 @@ public class Meaning
     public required int Order { get; set; }
     public required string Text { get; set; }
     public required string Language { get; set; }
-    public const string XmlTagName = "meaning";
 
     [ForeignKey($"{nameof(Character)}, {nameof(GroupOrder)}")]
     public virtual ReadingMeaningGroup Group { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "meaning";
 
     public async static Task<Meaning> FromXmlAsync(XmlReader reader, ReadingMeaningGroup group)
     {
@@ -70,4 +73,6 @@ public class Meaning
         }
         return meaning;
     }
+
+    #endregion
 }

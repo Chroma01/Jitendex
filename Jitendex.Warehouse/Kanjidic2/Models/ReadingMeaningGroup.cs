@@ -30,10 +30,13 @@ public class ReadingMeaningGroup
     public required int Order { get; set; }
     public List<Reading>? Readings { get; set; }
     public List<Meaning>? Meanings { get; set; }
-    public const string XmlTagName = "rmgroup";
 
     [ForeignKey(nameof(Character))]
     public virtual ReadingMeaning ReadingMeaning { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "rmgroup";
 
     public async static Task<ReadingMeaningGroup> FromXmlAsync(XmlReader reader, ReadingMeaning readingMeaning)
     {
@@ -78,4 +81,6 @@ public class ReadingMeaningGroup
                 break;
         }
     }
+
+    #endregion
 }

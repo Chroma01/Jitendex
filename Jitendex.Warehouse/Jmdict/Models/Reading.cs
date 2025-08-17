@@ -29,18 +29,20 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public required bool NoKanji { get; set; }
     public List<string>? InfoTags { get; set; }
-
     public List<ReadingKanjiBridge>? ReadingKanjiBridges { get; set; }
-
-    [NotMapped]
-    public List<string>? ConstraintKanjiFormTexts { get; set; }
-
-    public const string XmlTagName = "r_ele";
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
+
+    [NotMapped]
+    public required bool NoKanji { get; set; }
+    [NotMapped]
+    public List<string>? ConstraintKanjiFormTexts { get; set; }
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "r_ele";
 
     public async static Task<Reading> FromXmlAsync(XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
@@ -110,4 +112,6 @@ public class Reading
                 break;
         }
     }
+
+    #endregion
 }

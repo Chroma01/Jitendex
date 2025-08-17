@@ -29,6 +29,8 @@ public class Entry
     public required string Character { get; set; }
     public ReadingMeaning? ReadingMeaning { get; set; }
 
+    #region Static XML Factory
+
     public const string XmlTagName = "character";
 
     public async static Task<Entry> FromXmlAsync(XmlReader reader)
@@ -64,4 +66,6 @@ public class Entry
         }
         return entry;
     }
+
+    #endregion
 }

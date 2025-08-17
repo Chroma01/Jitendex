@@ -29,10 +29,13 @@ public class ReadingMeaning
     public required string Character { get; set; }
     public List<ReadingMeaningGroup>? Groups { get; set; }
     public List<string>? Nanori { get; set; }
-    public const string XmlTagName = "reading_meaning";
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "reading_meaning";
 
     public async static Task<ReadingMeaning> FromXmlAsync(XmlReader reader, Entry entry)
     {
@@ -72,4 +75,6 @@ public class ReadingMeaning
         }
         return readingMeaning;
     }
+
+    #endregion
 }

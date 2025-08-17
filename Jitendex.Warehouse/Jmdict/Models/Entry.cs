@@ -27,6 +27,9 @@ public class Entry
     public required int Id { get; set; }
     public required List<Reading> Readings { get; set; }
     public List<KanjiForm>? KanjiForms { get; set; }
+
+    #region Static XML Factory
+
     public const string XmlTagName = "entry";
 
     public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
@@ -69,7 +72,6 @@ public class Entry
                 break;
             case Reading.XmlTagName:
                 var reading = await Reading.FromXmlAsync(reader, entry, docMeta);
-
                 entry.Readings.Add(reading);
                 break;
             default:
@@ -136,4 +138,6 @@ public class Entry
             }
         }
     }
+
+    #endregion
 }
