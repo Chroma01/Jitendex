@@ -28,8 +28,9 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<ReadingKanjiFormBridge>? KanjiFormBridges { get; set; }
     public List<ReadingInfoTag>? InfoTags { get; set; }
+    public List<ReadingPriorityTag>? PriorityTags { get; set; }
+    public List<ReadingKanjiFormBridge>? KanjiFormBridges { get; set; }
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
@@ -90,14 +91,14 @@ public class Reading
 
     private async static Task ProcessTextAsync(XmlReader reader, DocumentMetadata docMeta, string tagName, Reading reading)
     {
+        var text = await reader.GetValueAsync();
         switch (tagName)
         {
             case "reb":
-                reading.Text = await reader.GetValueAsync();
+                reading.Text = text;
                 break;
             case "re_inf":
-                var entityValue = await reader.GetValueAsync();
-                var tagDescription = docMeta.GetTagDescription<ReadingInfoTagDescription>(entityValue);
+                var tagDescription = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
                 var infoTag = new ReadingInfoTag
                 {
                     EntryId = reading.EntryId,
@@ -109,10 +110,20 @@ public class Reading
                 reading.InfoTags ??= [];
                 reading.InfoTags.Add(infoTag);
                 break;
+            case "re_pri":
+                var priorityTag = new ReadingPriorityTag
+                {
+                    EntryId = reading.EntryId,
+                    ReadingOrder = reading.Order,
+                    TagId = text,
+                    Reading = reading,
+                };
+                reading.PriorityTags ??= [];
+                reading.PriorityTags.Add(priorityTag);
+                break;
             case "re_restr":
-                var kanjiFormText = await reader.GetValueAsync();
                 reading.ConstraintKanjiFormTexts ??= [];
-                reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
+                reading.ConstraintKanjiFormTexts.Add(text);
                 break;
             default:
                 // TODO: Log warning.

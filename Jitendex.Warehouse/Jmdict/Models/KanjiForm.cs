@@ -29,6 +29,7 @@ public class KanjiForm
     public required int Order { get; set; }
     public required string Text { get; set; }
     public List<KanjiFormInfoTag>? InfoTags { get; set; }
+    public List<KanjiFormPriorityTag>? PriorityTags { get; set; }
     public List<ReadingKanjiFormBridge>? ReadingBridges { get; set; }
 
     [ForeignKey(nameof(EntryId))]
@@ -70,14 +71,14 @@ public class KanjiForm
 
     private async static Task ProcessTextAsync(XmlReader reader, DocumentMetadata docMeta, string tagName, KanjiForm kanjiForm)
     {
+        var text = await reader.GetValueAsync();
         switch (tagName)
         {
             case "keb":
-                kanjiForm.Text = await reader.GetValueAsync();
+                kanjiForm.Text = text;
                 break;
             case "ke_inf":
-                var entityValue = await reader.GetValueAsync();
-                var tagDescription = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(entityValue);
+                var tagDescription = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
                 var infoTag = new KanjiFormInfoTag
                 {
                     EntryId = kanjiForm.EntryId,
@@ -88,6 +89,17 @@ public class KanjiForm
                 };
                 kanjiForm.InfoTags ??= [];
                 kanjiForm.InfoTags.Add(infoTag);
+                break;
+            case "ke_pri":
+                var priorityTag = new KanjiFormPriorityTag
+                {
+                    EntryId = kanjiForm.EntryId,
+                    KanjiFormOrder = kanjiForm.Order,
+                    TagId = text,
+                    KanjiForm = kanjiForm,
+                };
+                kanjiForm.PriorityTags ??= [];
+                kanjiForm.PriorityTags.Add(priorityTag);
                 break;
             default:
                 // TODO: Log warning.

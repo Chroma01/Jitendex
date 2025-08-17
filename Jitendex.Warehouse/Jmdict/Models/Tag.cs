@@ -35,6 +35,17 @@ public class ReadingInfoTag
     public virtual ReadingInfoTagDescription Description { get; set; } = null!;
 }
 
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+public class ReadingPriorityTag
+{
+    public required int EntryId { get; set; }
+    public required int ReadingOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
+}
+
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
 public class KanjiFormInfoTag
 {
@@ -47,4 +58,15 @@ public class KanjiFormInfoTag
 
     [ForeignKey(nameof(TagId))]
     public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
+}
+
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
+public class KanjiFormPriorityTag
+{
+    public required int EntryId { get; set; }
+    public required int KanjiFormOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
 }
