@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-using Microsoft.EntityFrameworkCore;
 using Jitendex.Warehouse.Kanjidic2.Models;
 
 namespace Jitendex.Warehouse.Kanjidic2;
