@@ -29,24 +29,24 @@ public class Sense
     public required int Order { get; set; }
     public string? Note { get; set; }
 
-    public List<PartOfSpeechTag>? PartOfSpeechTags { get; set; }
-    public List<FieldTag>? FieldTags { get; set; }
-    public List<MiscTag>? MiscTags { get; set; }
-    public List<DialectTag>? DialectTags { get; set; }
+    public List<PartOfSpeechTag> PartOfSpeechTags { get; set; } = [];
+    public List<FieldTag> FieldTags { get; set; } = [];
+    public List<MiscTag> MiscTags { get; set; } = [];
+    public List<DialectTag> DialectTags { get; set; } = [];
 
-    public List<Gloss>? Glosses { get; set; }
+    public List<Gloss> Glosses { get; set; } = [];
 
-    // public List<LanguageSource>? LanguageSources { get; set; }
-    // public List<CrossReference>? CrossReferences { get; set; }
-    // public List<ExampleSentence>? ExampleSentences { get; set; }
+    // public List<LanguageSource> LanguageSources { get; set; } = [];
+    // public List<CrossReference> CrossReferences { get; set; } = [];
+    // public List<ExampleSentence> ExampleSentences { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
     [NotMapped]
-    public List<string>? ReadingTextRestrictions { get; set; }
+    public List<string> ReadingTextRestrictions { get; set; } = [];
     [NotMapped]
-    public List<string>? KanjiFormTextRestrictions { get; set; }
+    public List<string> KanjiFormTextRestrictions { get; set; } = [];
 
     #region Static XML Factory
 
@@ -90,7 +90,6 @@ public class Sense
                 var gloss = await Gloss.FromXmlAsync(reader, sense, docMeta);
                 if (gloss.Language == "eng")
                 {
-                    sense.Glosses ??= [];
                     sense.Glosses.Add(gloss);
                 }
                 break;
@@ -112,6 +111,8 @@ public class Sense
         switch (tagName)
         {
             case "s_inf":
+                // The XML schema allows for more than one note per sense,
+                // but in practice there is only one or none.
                 if (sense.Note == null)
                 {
                     sense.Note = text;
@@ -123,64 +124,54 @@ public class Sense
                 }
                 break;
             case "stagk":
-                sense.KanjiFormTextRestrictions ??= [];
                 sense.KanjiFormTextRestrictions.Add(text);
                 break;
             case "stagr":
-                sense.ReadingTextRestrictions ??= [];
                 sense.ReadingTextRestrictions.Add(text);
                 break;
             case "pos":
                 var posTagDesc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
-                var posTag = new PartOfSpeechTag
+                sense.PartOfSpeechTags.Add(new PartOfSpeechTag
                 {
                     EntryId = sense.EntryId,
                     SenseOrder = sense.Order,
                     TagId = posTagDesc.Id,
                     Sense = sense,
                     Description = posTagDesc,
-                };
-                sense.PartOfSpeechTags ??= [];
-                sense.PartOfSpeechTags.Add(posTag);
+                });
                 break;
             case "field":
                 var fieldTagDesc = docMeta.GetTagDescription<FieldTagDescription>(text);
-                var fieldTag = new FieldTag
+                sense.FieldTags.Add(new FieldTag
                 {
                     EntryId = sense.EntryId,
                     SenseOrder = sense.Order,
                     TagId = fieldTagDesc.Id,
                     Sense = sense,
                     Description = fieldTagDesc,
-                };
-                sense.FieldTags ??= [];
-                sense.FieldTags.Add(fieldTag);
+                });
                 break;
             case "misc":
                 var miscTagDesc = docMeta.GetTagDescription<MiscTagDescription>(text);
-                var miscTag = new MiscTag
+                sense.MiscTags.Add(new MiscTag
                 {
                     EntryId = sense.EntryId,
                     SenseOrder = sense.Order,
                     TagId = miscTagDesc.Id,
                     Sense = sense,
                     Description = miscTagDesc,
-                };
-                sense.MiscTags ??= [];
-                sense.MiscTags.Add(miscTag);
+                });
                 break;
             case "dial":
                 var dialectTagDesc = docMeta.GetTagDescription<DialectTagDescription>(text);
-                var dialectTag = new DialectTag
+                sense.DialectTags.Add(new DialectTag
                 {
                     EntryId = sense.EntryId,
                     SenseOrder = sense.Order,
                     TagId = dialectTagDesc.Id,
                     Sense = sense,
                     Description = dialectTagDesc,
-                };
-                sense.DialectTags ??= [];
-                sense.DialectTags.Add(dialectTag);
+                });
                 break;
         }
     }

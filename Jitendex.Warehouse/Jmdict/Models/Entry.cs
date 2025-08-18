@@ -23,9 +23,9 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 public class Entry
 {
     public required int Id { get; set; }
-    public required List<Reading> Readings { get; set; }
-    public List<KanjiForm>? KanjiForms { get; set; }
-    public required List<Sense> Senses { get; set; }
+    public List<Reading> Readings { get; set; } = [];
+    public List<KanjiForm> KanjiForms { get; set; } = [];
+    public List<Sense> Senses { get; set; } = [];
 
     #region Static XML Factory
 
@@ -33,12 +33,7 @@ public class Entry
 
     public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
     {
-        var entry = new Entry
-        {
-            Id = -1,
-            Readings = [],
-            Senses = [],
-        };
+        var entry = new Entry { Id = -1 };
         var exit = false;
         string currentTagName = XmlTagName;
 
@@ -67,7 +62,6 @@ public class Entry
         {
             case KanjiForm.XmlTagName:
                 var kanjiForm = await KanjiForm.FromXmlAsync(reader, entry, docMeta);
-                entry.KanjiForms ??= [];
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
@@ -121,9 +115,9 @@ public class Entry
 
             foreach (var kanjiForm in entry.KanjiForms ?? [])
             {
-                if (kanjiForm.InfoTags?.Any(x => x.TagId == "sK") ?? false)
+                if (kanjiForm.InfoTags.Any(x => x.TagId == "sK"))
                     continue;
-                if (reading.ConstraintKanjiFormTexts != null && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
+                if (reading.ConstraintKanjiFormTexts.Count > 0 && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
                     continue;
                 var bridge = new ReadingKanjiFormBridge
                 {
@@ -133,10 +127,7 @@ public class Entry
                     Reading = reading,
                     KanjiForm = kanjiForm,
                 };
-                reading.KanjiFormBridges ??= [];
                 reading.KanjiFormBridges.Add(bridge);
-
-                kanjiForm.ReadingBridges ??= [];
                 kanjiForm.ReadingBridges.Add(bridge);
             }
         }

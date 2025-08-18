@@ -28,9 +28,9 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<KanjiFormInfoTag>? InfoTags { get; set; }
-    public List<KanjiFormPriorityTag>? PriorityTags { get; set; }
-    public List<ReadingKanjiFormBridge>? ReadingBridges { get; set; }
+    public List<KanjiFormInfoTag> InfoTags { get; set; } = [];
+    public List<KanjiFormPriorityTag> PriorityTags { get; set; } = [];
+    public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
@@ -44,7 +44,7 @@ public class KanjiForm
         var kanjiForm = new KanjiForm
         {
             EntryId = entry.Id,
-            Order = (entry.KanjiForms?.Count ?? 0) + 1,
+            Order = entry.KanjiForms.Count + 1,
             Text = string.Empty,
             Entry = entry,
         };
@@ -79,27 +79,23 @@ public class KanjiForm
                 break;
             case "ke_inf":
                 var tagDescription = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
-                var infoTag = new KanjiFormInfoTag
+                kanjiForm.InfoTags.Add(new KanjiFormInfoTag
                 {
                     EntryId = kanjiForm.EntryId,
                     KanjiFormOrder = kanjiForm.Order,
                     TagId = tagDescription.Id,
                     KanjiForm = kanjiForm,
                     Description = tagDescription,
-                };
-                kanjiForm.InfoTags ??= [];
-                kanjiForm.InfoTags.Add(infoTag);
+                });
                 break;
             case "ke_pri":
-                var priorityTag = new KanjiFormPriorityTag
+                kanjiForm.PriorityTags.Add(new KanjiFormPriorityTag
                 {
                     EntryId = kanjiForm.EntryId,
                     KanjiFormOrder = kanjiForm.Order,
                     TagId = text,
                     KanjiForm = kanjiForm,
-                };
-                kanjiForm.PriorityTags ??= [];
-                kanjiForm.PriorityTags.Add(priorityTag);
+                });
                 break;
             default:
                 // TODO: Log warning.

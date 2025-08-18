@@ -28,17 +28,17 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<ReadingInfoTag>? InfoTags { get; set; }
-    public List<ReadingPriorityTag>? PriorityTags { get; set; }
-    public List<ReadingKanjiFormBridge>? KanjiFormBridges { get; set; }
+    public List<ReadingInfoTag> InfoTags { get; set; } = [];
+    public List<ReadingPriorityTag> PriorityTags { get; set; } = [];
+    public List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
     [NotMapped]
-    public required bool NoKanji { get; set; }
+    public bool NoKanji { get; set; } = false;
     [NotMapped]
-    public List<string>? ConstraintKanjiFormTexts { get; set; }
+    public List<string> ConstraintKanjiFormTexts { get; set; } = [];
 
     #region Static XML Factory
 
@@ -83,9 +83,6 @@ public class Reading
             case "re_nokanji":
                 reading.NoKanji = true;
                 break;
-            default:
-                // TODO: Log warning.
-                break;
         }
     }
 
@@ -99,30 +96,25 @@ public class Reading
                 break;
             case "re_inf":
                 var tagDescription = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
-                var infoTag = new ReadingInfoTag
+                reading.InfoTags.Add(new ReadingInfoTag
                 {
                     EntryId = reading.EntryId,
                     ReadingOrder = reading.Order,
                     TagId = tagDescription.Id,
                     Reading = reading,
                     Description = tagDescription,
-                };
-                reading.InfoTags ??= [];
-                reading.InfoTags.Add(infoTag);
+                });
                 break;
             case "re_pri":
-                var priorityTag = new ReadingPriorityTag
+                reading.PriorityTags.Add(new ReadingPriorityTag
                 {
                     EntryId = reading.EntryId,
                     ReadingOrder = reading.Order,
                     TagId = text,
                     Reading = reading,
-                };
-                reading.PriorityTags ??= [];
-                reading.PriorityTags.Add(priorityTag);
+                });
                 break;
             case "re_restr":
-                reading.ConstraintKanjiFormTexts ??= [];
                 reading.ConstraintKanjiFormTexts.Add(text);
                 break;
             default:

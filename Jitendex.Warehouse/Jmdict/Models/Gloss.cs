@@ -48,7 +48,7 @@ public class Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = (sense.Glosses?.Count ?? 0) + 1,
+            Order = sense.Glosses.Count + 1,
             Text = string.Empty,
             Language = reader.GetAttribute("xml:lang") ?? "eng",
             Type = reader.GetAttribute("g_type"),
@@ -61,7 +61,6 @@ public class Gloss
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    // Warn?
                     currentTagName = reader.Name;
                     break;
                 case XmlNodeType.Text:
