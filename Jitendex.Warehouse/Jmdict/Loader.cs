@@ -16,8 +16,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Diagnostics;
 using System.Xml;
 using Jitendex.Warehouse.Jmdict.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict;
 
@@ -25,25 +27,51 @@ public static class Loader
 {
     public async static Task ImportAsync()
     {
-        var db = new JmdictContext();
+        await using var db = new JmdictContext();
         Console.WriteLine($"Jmdict database path: {db.DbPath}.");
 
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
 
-        var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
+        await using (var connection = db.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText = @"
+                PRAGMA synchronous = OFF;
+                PRAGMA journal_mode = MEMORY;
+                PRAGMA temp_store = MEMORY;
+                PRAGMA cache_size = -200000;";
+            await command.ExecuteNonQueryAsync();
+        }
 
-        // TODO: Optimize.
         int i = 0;
+        int batchSize = 5000;
+
+        var importSw = new Stopwatch();
+        importSw.Start();
+        var batchSw = new Stopwatch();
+        batchSw.Start();
+
+        using var transaction = await db.Database.BeginTransactionAsync();
+
+        var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
         await foreach (var entry in EntriesAsync(jmdictPath))
         {
             await db.Entries.AddAsync(entry);
-            if (++i % 1000 == 0)
+            if (++i % batchSize == 0)
             {
                 await db.SaveChangesAsync();
-                break;
+                Console.WriteLine($"Imported batch of {batchSize} Jmdict entries in {double.Round(batchSw.Elapsed.TotalSeconds, 2):N2}s (avg {double.Round(1000 * batchSw.Elapsed.TotalSeconds / batchSize, 2):N2}ms / entry).");
+                batchSw.Restart();
             }
         }
+        await db.SaveChangesAsync();
+        Console.WriteLine($"Imported batch of {i % batchSize} Jmdict entries in {double.Round(batchSw.Elapsed.TotalSeconds, 2):N2}s (avg {double.Round(1000 * batchSw.Elapsed.TotalSeconds / batchSize, 2):N2}ms / entry).");
+
+        await transaction.CommitAsync();
+        importSw.Stop();
+        Console.WriteLine($"Imported {i} Jmdict entries in {double.Round(importSw.Elapsed.TotalSeconds, 2):N2}s (avg {double.Round(1000 * importSw.Elapsed.TotalSeconds / i, 2):N2}ms / entry).");
     }
 
     private async static IAsyncEnumerable<Entry> EntriesAsync(string path)
