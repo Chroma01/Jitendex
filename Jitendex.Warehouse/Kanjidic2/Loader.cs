@@ -25,7 +25,7 @@ public class Loader
 {
     public async static Task ImportAsync()
     {
-        var db = new Kanjidic2Context();
+        await using var db = new Kanjidic2Context();
         Console.WriteLine($"Kanjidic2 database path: {db.DbPath}.");
 
         await db.Database.EnsureDeletedAsync();
