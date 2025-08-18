@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Diagnostics;
 using System.Xml;
 using Jitendex.Warehouse.Jmdict.Models;
 using Microsoft.EntityFrameworkCore;
@@ -27,51 +26,43 @@ public static class Loader
 {
     public async static Task ImportAsync()
     {
+        var parseJmdictTask = ParseJmdict();
         await using var db = new JmdictContext();
-        Console.WriteLine($"Jmdict database path: {db.DbPath}.");
+        await InitializeDatabaseAsync(db);
 
+        var entries = await parseJmdictTask;
+        await db.Entries.AddRangeAsync(entries);
+        await db.SaveChangesAsync();
+    }
+
+    private async static Task InitializeDatabaseAsync(JmdictContext db)
+    {
+        // Delete and recreate database file.
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
 
-        await using (var connection = db.Database.GetDbConnection())
-        {
-            await connection.OpenAsync();
-            await using var command = connection.CreateCommand();
-            command.CommandText = @"
-                PRAGMA synchronous = OFF;
-                PRAGMA journal_mode = MEMORY;
-                PRAGMA temp_store = MEMORY;
-                PRAGMA cache_size = -200000;";
-            await command.ExecuteNonQueryAsync();
-        }
+        // For faster importing, write data to memory
+        // rather than to the disk during initial load.
+        await using var connection = db.Database.GetDbConnection();
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = @"
+            PRAGMA synchronous = OFF;
+            PRAGMA journal_mode = MEMORY;
+            PRAGMA temp_store = MEMORY;
+            PRAGMA cache_size = -200000;";
+        await command.ExecuteNonQueryAsync();
+    }
 
-        int i = 0;
-        int batchSize = 5000;
-
-        var importSw = new Stopwatch();
-        importSw.Start();
-        var batchSw = new Stopwatch();
-        batchSw.Start();
-
-        using var transaction = await db.Database.BeginTransactionAsync();
-
+    private async static Task<List<Entry>> ParseJmdict()
+    {
+        var entries = new List<Entry>();
         var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
         await foreach (var entry in EntriesAsync(jmdictPath))
         {
-            await db.Entries.AddAsync(entry);
-            if (++i % batchSize == 0)
-            {
-                await db.SaveChangesAsync();
-                Console.WriteLine($"Imported batch of {batchSize} Jmdict entries in {double.Round(batchSw.Elapsed.TotalSeconds, 2):N2}s (avg {double.Round(1000 * batchSw.Elapsed.TotalSeconds / batchSize, 2):N2}ms / entry).");
-                batchSw.Restart();
-            }
+            entries.Add(entry);
         }
-        await db.SaveChangesAsync();
-        Console.WriteLine($"Imported batch of {i % batchSize} Jmdict entries in {double.Round(batchSw.Elapsed.TotalSeconds, 2):N2}s (avg {double.Round(1000 * batchSw.Elapsed.TotalSeconds / batchSize, 2):N2}ms / entry).");
-
-        await transaction.CommitAsync();
-        importSw.Stop();
-        Console.WriteLine($"Imported {i} Jmdict entries in {double.Round(importSw.Elapsed.TotalSeconds, 2):N2}s (avg {double.Round(1000 * importSw.Elapsed.TotalSeconds / i, 2):N2}ms / entry).");
+        return entries;
     }
 
     private async static IAsyncEnumerable<Entry> EntriesAsync(string path)
@@ -87,11 +78,7 @@ public static class Loader
         };
 
         using var reader = XmlReader.Create(stream, readerSettings);
-        var docMeta = new DocumentMetadata
-        {
-            Name = string.Empty,
-            EntityValueToName = [],
-        };
+        DocumentMetadata docMeta = null!;
 
         while (await reader.ReadAsync())
         {
