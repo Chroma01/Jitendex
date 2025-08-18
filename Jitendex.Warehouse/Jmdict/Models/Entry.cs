@@ -110,7 +110,7 @@ public class Entry
         {
             if (reading.NoKanji)
                 continue;
-            if (reading.InfoTags?.Any(x => x.TagId == "sk") ?? false)
+            if (reading.InfoTags.Any(x => x.TagId == "sk"))
                 continue;
 
             foreach (var kanjiForm in entry.KanjiForms ?? [])
