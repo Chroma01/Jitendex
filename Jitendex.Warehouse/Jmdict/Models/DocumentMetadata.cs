@@ -64,7 +64,7 @@ public partial class DocumentMetadata
         return documentMetadata;
     }
 
-    [GeneratedRegex(@"<!ENTITY\s+(\w+)\s+""(.*?)"">", RegexOptions.None)]
+    [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdRegex();
 
     private static Dictionary<string, string> ParseEntityDeclarations(string dtd)
