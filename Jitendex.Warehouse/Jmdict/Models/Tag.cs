@@ -70,3 +70,59 @@ public class KanjiFormPriorityTag
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
 }
+
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class PartOfSpeechTag
+{
+    public required int EntryId { get; set; }
+    public required int SenseOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
+
+    [ForeignKey(nameof(TagId))]
+    public virtual PartOfSpeechTagDescription Description { get; set; } = null!;
+}
+
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class FieldTag
+{
+    public required int EntryId { get; set; }
+    public required int SenseOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
+
+    [ForeignKey(nameof(TagId))]
+    public virtual FieldTagDescription Description { get; set; } = null!;
+}
+
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class MiscTag
+{
+    public required int EntryId { get; set; }
+    public required int SenseOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
+
+    [ForeignKey(nameof(TagId))]
+    public virtual MiscTagDescription Description { get; set; } = null!;
+}
+
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class DialectTag
+{
+    public required int EntryId { get; set; }
+    public required int SenseOrder { get; set; }
+    public required string TagId { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
+
+    [ForeignKey(nameof(TagId))]
+    public virtual DialectTagDescription Description { get; set; } = null!;
+}

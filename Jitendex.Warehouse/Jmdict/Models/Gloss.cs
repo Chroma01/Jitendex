@@ -1,0 +1,82 @@
+/*
+Copyright (c) 2025 Stephen Kraus
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Xml;
+using Microsoft.EntityFrameworkCore;
+
+namespace Jitendex.Warehouse.Jmdict.Models;
+
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
+public class Gloss
+{
+    public required int EntryId { get; set; }
+    public required int SenseOrder { get; set; }
+    public required int Order { get; set; }
+
+    public required string Text { get; set; }
+    public string? Type { get; set; }
+
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
+
+    [NotMapped]
+    public required string Language { get; set; }
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "gloss";
+
+    public async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    {
+        var gloss = new Gloss
+        {
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            Order = (sense.Glosses?.Count ?? 0) + 1,
+            Text = string.Empty,
+            Language = reader.GetAttribute("xml:lang") ?? "eng",
+            Type = reader.GetAttribute("g_type"),
+        };
+        var exit = false;
+        string currentTagName = XmlTagName;
+
+        while (!exit && await reader.ReadAsync())
+        {
+            switch (reader.NodeType)
+            {
+                case XmlNodeType.Element:
+                    // Warn?
+                    currentTagName = reader.Name;
+                    break;
+                case XmlNodeType.Text:
+                    if (currentTagName == XmlTagName)
+                    {
+                        gloss.Text = await reader.GetValueAsync();
+                    }
+                    break;
+                case XmlNodeType.EndElement:
+                    exit = reader.Name == XmlTagName;
+                    break;
+            }
+        }
+        return gloss;
+    }
+
+    #endregion
+}

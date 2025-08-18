@@ -25,6 +25,7 @@ public class Entry
     public required int Id { get; set; }
     public required List<Reading> Readings { get; set; }
     public List<KanjiForm>? KanjiForms { get; set; }
+    public required List<Sense> Senses { get; set; }
 
     #region Static XML Factory
 
@@ -36,6 +37,7 @@ public class Entry
         {
             Id = -1,
             Readings = [],
+            Senses = [],
         };
         var exit = false;
         string currentTagName = XmlTagName;
@@ -46,7 +48,7 @@ public class Entry
             {
                 case XmlNodeType.Element:
                     currentTagName = reader.Name;
-                    await ProcessElementAsync(reader, docMeta, currentTagName, entry);
+                    await ProcessElementAsync(reader, docMeta, entry);
                     break;
                 case XmlNodeType.Text:
                     await ProcessTextAsync(reader, currentTagName, entry);
@@ -59,9 +61,9 @@ public class Entry
         return PostProcess(entry);
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, string tagName, Entry entry)
+    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
-        switch (tagName)
+        switch (reader.Name)
         {
             case KanjiForm.XmlTagName:
                 var kanjiForm = await KanjiForm.FromXmlAsync(reader, entry, docMeta);
@@ -71,6 +73,10 @@ public class Entry
             case Reading.XmlTagName:
                 var reading = await Reading.FromXmlAsync(reader, entry, docMeta);
                 entry.Readings.Add(reading);
+                break;
+            case Sense.XmlTagName:
+                var sense = await Sense.FromXmlAsync(reader, entry, docMeta);
+                entry.Senses.Add(sense);
                 break;
             default:
                 // TODO: Log warning.
@@ -94,7 +100,6 @@ public class Entry
                 }
                 break;
             default:
-                // TODO: Log warning.
                 break;
         }
     }

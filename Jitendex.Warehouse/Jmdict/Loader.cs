@@ -32,11 +32,18 @@ public static class Loader
         await db.Database.EnsureCreatedAsync();
 
         var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
+
+        // TODO: Optimize.
+        int i = 0;
         await foreach (var entry in EntriesAsync(jmdictPath))
         {
             await db.Entries.AddAsync(entry);
+            if (++i % 1000 == 0)
+            {
+                await db.SaveChangesAsync();
+                break;
+            }
         }
-        await db.SaveChangesAsync();
     }
 
     private async static IAsyncEnumerable<Entry> EntriesAsync(string path)

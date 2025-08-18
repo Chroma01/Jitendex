@@ -63,7 +63,7 @@ public class Reading
             {
                 case XmlNodeType.Element:
                     currentTagName = reader.Name;
-                    ProcessElement(currentTagName, reading);
+                    ProcessElement(reader, reading);
                     break;
                 case XmlNodeType.Text:
                     await ProcessTextAsync(reader, docMeta, currentTagName, reading);
@@ -76,9 +76,9 @@ public class Reading
         return reading;
     }
 
-    private static void ProcessElement(string tagName, Reading reading)
+    private static void ProcessElement(XmlReader reader, Reading reading)
     {
-        switch (tagName)
+        switch (reader.Name)
         {
             case "re_nokanji":
                 reading.NoKanji = true;

@@ -41,3 +41,27 @@ public class KanjiFormInfoTagDescription : ITagDescription
     public string Id { get; set; } = null!;
     public string Text { get; set; } = null!;
 }
+
+public class PartOfSpeechTagDescription : ITagDescription
+{
+    public string Id { get; set; } = null!;
+    public string Text { get; set; } = null!;
+}
+
+public class FieldTagDescription : ITagDescription
+{
+    public string Id { get; set; } = null!;
+    public string Text { get; set; } = null!;
+}
+
+public class MiscTagDescription : ITagDescription
+{
+    public string Id { get; set; } = null!;
+    public string Text { get; set; } = null!;
+}
+
+public class DialectTagDescription : ITagDescription
+{
+    public string Id { get; set; } = null!;
+    public string Text { get; set; } = null!;
+}
