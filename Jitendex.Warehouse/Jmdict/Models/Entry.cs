@@ -89,6 +89,7 @@ public class Entry
     private static Entry PostProcess(Entry entry)
     {
         BridgeReadingsAndKanjiForms(entry);
+        // Anticipating more operations here later.
         return entry;
     }
 
