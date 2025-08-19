@@ -35,11 +35,12 @@ public class MiscTag
     [ForeignKey(nameof(TagId))]
     public virtual MiscTagDescription Description { get; set; } = null!;
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "misc";
+}
 
-    internal async static Task<MiscTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+internal static class MiscTagReader
+{
+    public async static Task<MiscTag> ReadElementContentAsMiscTagAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<MiscTagDescription>(text);
@@ -52,6 +53,4 @@ public class MiscTag
             Description = desc,
         };
     }
-
-    #endregion
 }

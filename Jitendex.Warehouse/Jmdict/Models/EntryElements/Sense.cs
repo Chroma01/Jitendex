@@ -55,11 +55,12 @@ public class Sense
     [NotMapped]
     internal List<string> Lsources { get; set; } = [];
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "sense";
+}
 
-    internal async static Task<Sense> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+internal static class SenseReader
+{
+    public async static Task<Sense> ReadElementContentAsSenseAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var sense = new Sense
         {
@@ -74,13 +75,13 @@ public class Sense
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ProcessElementAsync(reader, docMeta, sense);
+                    await reader.ReadChildElementAsync(docMeta, sense);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected text node found in `{Sense.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == Sense.XmlTagName;
                     break;
             }
         }
@@ -88,7 +89,7 @@ public class Sense
         return sense;
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         switch (reader.Name)
         {
@@ -108,26 +109,26 @@ public class Sense
                 sense.Note = await reader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
-                var gloss = await Gloss.FromXmlAsync(reader, sense);
+                var gloss = await reader.ReadElementContentAsGlossAsync(sense);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }
                 break;
             case PartOfSpeechTag.XmlTagName:
-                var posTag = await PartOfSpeechTag.FromXmlAsync(reader, docMeta, sense);
+                var posTag = await reader.ReadElementContentAsPartOfSpeechTagAsync(docMeta, sense);
                 sense.PartOfSpeechTags.Add(posTag);
                 break;
             case FieldTag.XmlTagName:
-                var fieldTag = await FieldTag.FromXmlAsync(reader, docMeta, sense);
+                var fieldTag = await reader.ReadElementContentAsFieldTagAsync(docMeta, sense);
                 sense.FieldTags.Add(fieldTag);
                 break;
             case MiscTag.XmlTagName:
-                var miscTag = await MiscTag.FromXmlAsync(reader, docMeta, sense);
+                var miscTag = await reader.ReadElementContentAsMiscTagAsync(docMeta, sense);
                 sense.MiscTags.Add(miscTag);
                 break;
             case DialectTag.XmlTagName:
-                var dialTag = await DialectTag.FromXmlAsync(reader, docMeta, sense);
+                var dialTag = await reader.ReadElementContentAsDialectTagAsync(docMeta, sense);
                 sense.DialectTags.Add(dialTag);
                 break;
             case "xref":
@@ -149,9 +150,7 @@ public class Sense
                 // TODO
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Sense.XmlTagName}`");
         }
     }
-
-    #endregion
 }

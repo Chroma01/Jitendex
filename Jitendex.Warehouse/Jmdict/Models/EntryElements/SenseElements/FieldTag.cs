@@ -35,11 +35,12 @@ public class FieldTag
     [ForeignKey(nameof(TagId))]
     public virtual FieldTagDescription Description { get; set; } = null!;
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "field";
+}
 
-    internal async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+internal static class FieldTagReader
+{
+    public async static Task<FieldTag> ReadElementContentAsFieldTagAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<FieldTagDescription>(text);
@@ -52,6 +53,4 @@ public class FieldTag
             Description = desc,
         };
     }
-
-    #endregion
 }

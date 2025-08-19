@@ -28,11 +28,12 @@ public class Entry
     public List<KanjiForm> KanjiForms { get; set; } = [];
     public List<Sense> Senses { get; set; } = [];
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "entry";
+}
 
-    internal async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata? docMeta)
+internal static class EntryReader
+{
+    public async static Task<Entry> ReadElementContentAsEntryAsync(this XmlReader reader, DocumentMetadata? docMeta)
     {
         if (docMeta == null)
             throw new ArgumentNullException(nameof(docMeta),
@@ -46,45 +47,44 @@ public class Entry
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ProcessElementAsync(reader, docMeta, entry);
+                    await reader.ReadChildElementAsync(docMeta, entry);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == Entry.XmlTagName;
                     break;
             }
         }
         return PostProcess(entry);
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         switch (reader.Name)
         {
             case "ent_seq":
-                // XmlReader doesn't have a ReadElementContentAsIntAsync method.
                 var sequence = await reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await KanjiForm.FromXmlAsync(reader, docMeta, entry);
+                var kanjiForm = await reader.ReadElementContentAsKanjiFormAsync(docMeta, entry);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await Reading.FromXmlAsync(reader, docMeta, entry);
+                var reading = await reader.ReadElementContentAsReadingAsync(docMeta, entry);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await Sense.FromXmlAsync(reader, docMeta, entry);
+                var sense = await reader.ReadElementContentAsSenseAsync(docMeta, entry);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
 
@@ -123,6 +123,4 @@ public class Entry
             }
         }
     }
-
-    #endregion
 }

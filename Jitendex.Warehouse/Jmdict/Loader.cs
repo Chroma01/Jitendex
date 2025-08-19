@@ -85,12 +85,12 @@ public static class Loader
             switch (reader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    docMeta = await DocumentMetadata.FromXmlAsync(reader);
+                    docMeta = await reader.GetDocumentMetadataAsync();
                     break;
                 case XmlNodeType.Element:
                     if (reader.Name == Entry.XmlTagName)
                     {
-                        var entry = await Entry.FromXmlAsync(reader, docMeta);
+                        var entry = await reader.ReadElementContentAsEntryAsync(docMeta);
                         yield return entry;
                     }
                     break;

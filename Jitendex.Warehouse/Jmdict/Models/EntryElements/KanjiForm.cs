@@ -36,11 +36,12 @@ public class KanjiForm
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "k_ele";
+}
 
-    internal async static Task<KanjiForm> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+internal static class KanjiFormReader
+{
+    public async static Task<KanjiForm> ReadElementContentAsKanjiFormAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var kanjiForm = new KanjiForm
         {
@@ -56,20 +57,20 @@ public class KanjiForm
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ProcessElementAsync(reader, docMeta, kanjiForm);
+                    await reader.ReadChildElementAsync(docMeta, kanjiForm);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected text node found in `{KanjiForm.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == KanjiForm.XmlTagName;
                     break;
             }
         }
         return kanjiForm;
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
     {
         switch (reader.Name)
         {
@@ -77,17 +78,15 @@ public class KanjiForm
                 kanjiForm.Text = await reader.ReadElementContentAsStringAsync();
                 break;
             case InfoTag.XmlTagName:
-                var infoTag = await InfoTag.FromXmlAsync(reader, docMeta, kanjiForm);
+                var infoTag = await reader.ReadElementContentAsInfoTagAsync(docMeta, kanjiForm);
                 kanjiForm.InfoTags.Add(infoTag);
                 break;
             case PriorityTag.XmlTagName:
-                var priorityTag = await PriorityTag.FromXmlAsync(reader, kanjiForm);
+                var priorityTag = await reader.ReadElementContentAsPriorityTagAsync(kanjiForm);
                 kanjiForm.PriorityTags.Add(priorityTag);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{KanjiForm.XmlTagName}`");
         }
     }
-
-    #endregion
 }

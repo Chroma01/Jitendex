@@ -35,11 +35,12 @@ public class PartOfSpeechTag
     [ForeignKey(nameof(TagId))]
     public virtual PartOfSpeechTagDescription Description { get; set; } = null!;
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "pos";
+}
 
-    internal async static Task<PartOfSpeechTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+internal static class PartOfSpeechTagReader
+{
+    public async static Task<PartOfSpeechTag> ReadElementContentAsPartOfSpeechTagAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
@@ -52,6 +53,4 @@ public class PartOfSpeechTag
             Description = desc,
         };
     }
-
-    #endregion
 }

@@ -41,11 +41,12 @@ public class Reading
     [NotMapped]
     internal List<string> ConstraintKanjiFormTexts { get; set; } = [];
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "r_ele";
+}
 
-    internal async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+internal static class ReadingReader
+{
+    public async static Task<Reading> ReadElementContentAsReadingAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var reading = new Reading
         {
@@ -62,20 +63,20 @@ public class Reading
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ProcessElementAsync(reader, docMeta, reading);
+                    await reader.ReadChildElementAsync(docMeta, reading);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected text node found in `{Reading.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == Reading.XmlTagName;
                     break;
             }
         }
         return reading;
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
+    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, Reading reading)
     {
         switch (reader.Name)
         {
@@ -90,17 +91,15 @@ public class Reading
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case InfoTag.XmlTagName:
-                var readingInfoTag = await InfoTag.FromXmlAsync(reader, docMeta, reading);
+                var readingInfoTag = await reader.ReadElementContentAsInfoTagAsync(docMeta, reading);
                 reading.InfoTags.Add(readingInfoTag);
                 break;
             case PriorityTag.XmlTagName:
-                var priorityTag = await PriorityTag.FromXmlAsync(reader, reading);
+                var priorityTag = await reader.ReadElementContentAsPriorityTagAsync(reading);
                 reading.PriorityTags.Add(priorityTag);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Reading.XmlTagName}`");
         }
     }
-
-    #endregion
 }

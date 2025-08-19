@@ -21,7 +21,7 @@ using System.Xml;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-internal partial class DocumentMetadata
+internal class DocumentMetadata
 {
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
@@ -46,10 +46,11 @@ internal partial class DocumentMetadata
             return newTag;
         }
     }
+}
 
-    #region Static XML Factory
-
-    internal async static Task<DocumentMetadata> FromXmlAsync(XmlReader reader)
+internal static partial class DocumentMetadataReader
+{
+    public async static Task<DocumentMetadata> GetDocumentMetadataAsync(this XmlReader reader)
     {
         var dtd = await reader.GetValueAsync();
         var documentMetadata = new DocumentMetadata
@@ -87,6 +88,4 @@ internal partial class DocumentMetadata
         }
         return valueToName;
     }
-
-    #endregion
 }

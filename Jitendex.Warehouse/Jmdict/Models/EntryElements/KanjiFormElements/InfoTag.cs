@@ -36,11 +36,12 @@ public class InfoTag
     [ForeignKey(nameof(TagId))]
     public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "ke_inf";
+}
 
-    internal async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+internal static class InfoTagReader
+{
+    public async static Task<InfoTag> ReadElementContentAsInfoTagAsync(this XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
@@ -53,6 +54,4 @@ public class InfoTag
             Description = desc,
         };
     }
-
-    #endregion
 }

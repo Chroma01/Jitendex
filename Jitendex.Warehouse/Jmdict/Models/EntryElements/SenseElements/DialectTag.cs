@@ -35,11 +35,12 @@ public class DialectTag
     [ForeignKey(nameof(TagId))]
     public virtual DialectTagDescription Description { get; set; } = null!;
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "dial";
+}
 
-    internal async static Task<DialectTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+internal static class DialectTagReader
+{
+    public async static Task<DialectTag> ReadElementContentAsDialectTagAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<DialectTagDescription>(text);
@@ -52,6 +53,4 @@ public class DialectTag
             Description = desc,
         };
     }
-
-    #endregion
 }

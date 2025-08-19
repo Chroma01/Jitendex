@@ -38,11 +38,12 @@ public class Gloss
     [NotMapped]
     internal string? Language { get; set; }
 
-    #region Static XML Factory
-
     internal const string XmlTagName = "gloss";
+}
 
-    internal async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense)
+internal static class GlossReader
+{
+    public async static Task<Gloss> ReadElementContentAsGlossAsync(this XmlReader reader, Sense sense)
         => new Gloss
         {
             EntryId = sense.EntryId,
@@ -52,6 +53,4 @@ public class Gloss
             Type = reader.GetAttribute("g_type"),
             Text = await reader.ReadElementContentAsStringAsync(),
         };
-
-    #endregion
 }
