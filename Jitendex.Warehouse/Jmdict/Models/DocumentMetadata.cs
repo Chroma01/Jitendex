@@ -26,16 +26,16 @@ public partial class DocumentMetadata
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
 
-    private Dictionary<(string, string), ITagDescription> Tags { get; set; } = [];
+    private Dictionary<(string, string), object> Tags { get; set; } = [];
 
-    public T GetTagDescription<T>(string entityValue) where T : ITagDescription, ITagDescriptionFactory
+    public T GetTagDescription<T>(string entityValue) where T : ITagDescription
     {
         var key =
         (
             tagTypeName: typeof(T).Name,
             entityName: EntityValueToName[entityValue]
         );
-        if (Tags.TryGetValue(key, out ITagDescription? tag))
+        if (Tags.TryGetValue(key, out object? tag))
         {
             return (T)tag;
         }
