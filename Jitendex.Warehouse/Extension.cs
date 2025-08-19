@@ -31,7 +31,7 @@ public static class Extension
         var tagName = reader.Name;
         var text = string.Empty;
         var exit = false;
-        while (!exit && reader.Read())
+        while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
