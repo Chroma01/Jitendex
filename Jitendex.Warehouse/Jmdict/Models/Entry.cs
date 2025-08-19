@@ -32,7 +32,7 @@ public class Entry
 
     public const string XmlTagName = "entry";
 
-    public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
+    public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata? docMeta)
     {
         if (docMeta == null)
             throw new ArgumentNullException(nameof(docMeta),

@@ -78,7 +78,7 @@ public static class Loader
         };
 
         using var reader = XmlReader.Create(stream, readerSettings);
-        DocumentMetadata docMeta = null!;
+        DocumentMetadata? docMeta = null;
 
         while (await reader.ReadAsync())
         {
