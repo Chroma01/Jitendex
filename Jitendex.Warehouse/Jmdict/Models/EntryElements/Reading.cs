@@ -46,7 +46,7 @@ public class Reading
 
 internal static class ReadingReader
 {
-    public async static Task<Reading> ReadElementContentAsReadingAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    public async static Task<Reading> ReadElementContentAsReadingAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
         var reading = new Reading
         {
@@ -63,7 +63,7 @@ internal static class ReadingReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(docMeta, reading);
+                    await reader.ReadChildElementAsync(reading, docMeta);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -76,7 +76,7 @@ internal static class ReadingReader
         return reading;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, Reading reading)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
     {
         switch (reader.Name)
         {
@@ -91,7 +91,7 @@ internal static class ReadingReader
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case InfoTag.XmlTagName:
-                var readingInfoTag = await reader.ReadElementContentAsInfoTagAsync(docMeta, reading);
+                var readingInfoTag = await reader.ReadElementContentAsInfoTagAsync(reading, docMeta);
                 reading.InfoTags.Add(readingInfoTag);
                 break;
             case PriorityTag.XmlTagName:

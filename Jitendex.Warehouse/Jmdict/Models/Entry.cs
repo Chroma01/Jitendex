@@ -47,7 +47,7 @@ internal static class EntryReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(docMeta, entry);
+                    await reader.ReadChildElementAsync(entry, docMeta);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -60,7 +60,7 @@ internal static class EntryReader
         return PostProcess(entry);
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
         switch (reader.Name)
         {
@@ -69,15 +69,15 @@ internal static class EntryReader
                 entry.Id = int.Parse(sequence);
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await reader.ReadElementContentAsKanjiFormAsync(docMeta, entry);
+                var kanjiForm = await reader.ReadElementContentAsKanjiFormAsync(entry, docMeta);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await reader.ReadElementContentAsReadingAsync(docMeta, entry);
+                var reading = await reader.ReadElementContentAsReadingAsync(entry, docMeta);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await reader.ReadElementContentAsSenseAsync(docMeta, entry);
+                var sense = await reader.ReadElementContentAsSenseAsync(entry, docMeta);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);

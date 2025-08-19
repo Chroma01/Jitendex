@@ -40,7 +40,7 @@ public class PartOfSpeechTag
 
 internal static class PartOfSpeechTagReader
 {
-    public async static Task<PartOfSpeechTag> ReadElementContentAsPartOfSpeechTagAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    public async static Task<PartOfSpeechTag> ReadElementContentAsPartOfSpeechTagAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);

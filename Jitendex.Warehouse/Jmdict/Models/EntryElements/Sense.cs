@@ -60,7 +60,7 @@ public class Sense
 
 internal static class SenseReader
 {
-    public async static Task<Sense> ReadElementContentAsSenseAsync(this XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    public async static Task<Sense> ReadElementContentAsSenseAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
         var sense = new Sense
         {
@@ -75,7 +75,7 @@ internal static class SenseReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(docMeta, sense);
+                    await reader.ReadChildElementAsync(sense, docMeta);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -89,7 +89,7 @@ internal static class SenseReader
         return sense;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
         switch (reader.Name)
         {
@@ -116,19 +116,19 @@ internal static class SenseReader
                 }
                 break;
             case PartOfSpeechTag.XmlTagName:
-                var posTag = await reader.ReadElementContentAsPartOfSpeechTagAsync(docMeta, sense);
+                var posTag = await reader.ReadElementContentAsPartOfSpeechTagAsync(sense, docMeta);
                 sense.PartOfSpeechTags.Add(posTag);
                 break;
             case FieldTag.XmlTagName:
-                var fieldTag = await reader.ReadElementContentAsFieldTagAsync(docMeta, sense);
+                var fieldTag = await reader.ReadElementContentAsFieldTagAsync(sense, docMeta);
                 sense.FieldTags.Add(fieldTag);
                 break;
             case MiscTag.XmlTagName:
-                var miscTag = await reader.ReadElementContentAsMiscTagAsync(docMeta, sense);
+                var miscTag = await reader.ReadElementContentAsMiscTagAsync(sense, docMeta);
                 sense.MiscTags.Add(miscTag);
                 break;
             case DialectTag.XmlTagName:
-                var dialTag = await reader.ReadElementContentAsDialectTagAsync(docMeta, sense);
+                var dialTag = await reader.ReadElementContentAsDialectTagAsync(sense, docMeta);
                 sense.DialectTags.Add(dialTag);
                 break;
             case "xref":
