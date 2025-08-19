@@ -24,6 +24,8 @@ public static class Extension
 {
     public async static Task<string> ReadAndGetTextValueAsync(this XmlReader reader)
     {
+        if (reader.NodeType != XmlNodeType.Element)
+            throw new Exception($"Node `{reader.Name}` is not an element.");
         if (reader.IsEmptyElement)
             throw new Exception($"Tag `{reader.Name}` is empty.");
         var tagName = reader.Name;
