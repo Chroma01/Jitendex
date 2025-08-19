@@ -26,7 +26,7 @@ internal class DocumentMetadata
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
 
-    private Dictionary<(string, string), object> Tags { get; set; } = [];
+    private Dictionary<(string, string), object> TagDescriptions { get; set; } = [];
 
     public T GetTagDescription<T>(string entityValue) where T : ITagDescription
     {
@@ -35,15 +35,15 @@ internal class DocumentMetadata
             tagTypeName: typeof(T).Name,
             entityName: EntityValueToName[entityValue]
         );
-        if (Tags.TryGetValue(key, out object? tag))
+        if (TagDescriptions.TryGetValue(key, out object? tagDescription))
         {
-            return (T)tag;
+            return (T)tagDescription;
         }
         else
         {
-            var newTag = (T)T.Factory(key.entityName, entityValue);
-            Tags[key] = newTag;
-            return newTag;
+            var newTagDescription = (T)T.Factory(key.entityName, entityValue);
+            TagDescriptions[key] = newTagDescription;
+            return newTagDescription;
         }
     }
 }
