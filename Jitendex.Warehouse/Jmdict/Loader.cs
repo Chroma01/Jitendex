@@ -26,7 +26,7 @@ public static class Loader
 {
     public async static Task ImportAsync()
     {
-        var parseJmdictTask = ParseJmdict();
+        var parseJmdictTask = ParseJmdictAsync();
         await using var db = new JmdictContext();
         await InitializeDatabaseAsync(db);
 
@@ -54,7 +54,7 @@ public static class Loader
         await command.ExecuteNonQueryAsync();
     }
 
-    private async static Task<List<Entry>> ParseJmdict()
+    private async static Task<List<Entry>> ParseJmdictAsync()
     {
         var entries = new List<Entry>();
         var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
