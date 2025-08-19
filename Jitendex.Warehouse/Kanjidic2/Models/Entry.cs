@@ -25,6 +25,7 @@ public class Entry
 {
     [Key]
     public required string Character { get; set; }
+    public List<Codepoint> Codepoints { get; set; } = [];
     public ReadingMeaning? ReadingMeaning { get; set; }
 
     internal const string XmlTagName = "character";
@@ -64,6 +65,17 @@ internal static class EntryReader
         {
             case "literal":
                 entry.Character = await reader.ReadElementContentAsStringAsync();
+                break;
+            case CodepointGroup.XmlTagName:
+                var codepointGroup = await reader.ReadElementContentAsCodepointGroupAsync(entry);
+                if (entry.Codepoints.Count == 0)
+                {
+                    entry.Codepoints = codepointGroup.Codepoints;
+                }
+                else
+                {
+                    throw new Exception($"Character {entry.Character} has more than one codepoint group.");
+                }
                 break;
             case ReadingMeaning.XmlTagName:
                 entry.ReadingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(entry);
