@@ -42,7 +42,7 @@ public class InfoTag
 
     internal async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
     {
-        var text = await reader.ReadAndGetTextValueAsync();
+        var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
         return new InfoTag
         {

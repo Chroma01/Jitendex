@@ -64,8 +64,9 @@ public class Entry
         switch (reader.Name)
         {
             case "ent_seq":
-                var sequenceText = await reader.ReadAndGetTextValueAsync();
-                entry.Id = int.Parse(sequenceText);
+                // XmlReader doesn't have a ReadElementContentAsIntAsync method.
+                var sequence = await reader.ReadElementContentAsStringAsync();
+                entry.Id = int.Parse(sequence);
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await KanjiForm.FromXmlAsync(reader, docMeta, entry);

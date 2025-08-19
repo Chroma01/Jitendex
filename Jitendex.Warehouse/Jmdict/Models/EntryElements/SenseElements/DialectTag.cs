@@ -41,7 +41,7 @@ public class DialectTag
 
     internal async static Task<DialectTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
-        var text = await reader.ReadAndGetTextValueAsync();
+        var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<DialectTagDescription>(text);
         return new DialectTag
         {

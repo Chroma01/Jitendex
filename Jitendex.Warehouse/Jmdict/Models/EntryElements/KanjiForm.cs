@@ -74,7 +74,7 @@ public class KanjiForm
         switch (reader.Name)
         {
             case "keb":
-                kanjiForm.Text = await reader.ReadAndGetTextValueAsync();
+                kanjiForm.Text = await reader.ReadElementContentAsStringAsync();
                 break;
             case InfoTag.XmlTagName:
                 var infoTag = await InfoTag.FromXmlAsync(reader, docMeta, kanjiForm);

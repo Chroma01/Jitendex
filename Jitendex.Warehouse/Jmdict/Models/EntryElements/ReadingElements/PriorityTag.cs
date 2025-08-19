@@ -42,7 +42,7 @@ public class PriorityTag
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            TagId = await reader.ReadAndGetTextValueAsync(),
+            TagId = await reader.ReadElementContentAsStringAsync(),
             Reading = reading,
         };
 

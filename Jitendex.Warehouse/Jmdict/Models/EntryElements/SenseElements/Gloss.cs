@@ -50,7 +50,7 @@ public class Gloss
             Order = sense.Glosses.Count + 1,
             Language = reader.GetAttribute("xml:lang") ?? "eng",
             Type = reader.GetAttribute("g_type"),
-            Text = await reader.ReadAndGetTextValueAsync(),
+            Text = await reader.ReadElementContentAsStringAsync(),
         };
 
     #endregion

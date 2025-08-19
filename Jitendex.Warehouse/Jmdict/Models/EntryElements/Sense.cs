@@ -93,11 +93,11 @@ public class Sense
         switch (reader.Name)
         {
             case "stagk":
-                var kanjiFormTextRestriction = await reader.ReadAndGetTextValueAsync();
+                var kanjiFormTextRestriction = await reader.ReadElementContentAsStringAsync();
                 sense.KanjiFormTextRestrictions.Add(kanjiFormTextRestriction);
                 break;
             case "stagr":
-                var readingTextRestriction = await reader.ReadAndGetTextValueAsync();
+                var readingTextRestriction = await reader.ReadElementContentAsStringAsync();
                 sense.ReadingTextRestrictions.Add(readingTextRestriction);
                 break;
             case "s_inf":
@@ -105,7 +105,7 @@ public class Sense
                 // but in practice there is only one or none.
                 if (sense.Note != null)
                     throw new Exception($"Jmdict entry {sense.EntryId} has more than one sense note.");
-                sense.Note = await reader.ReadAndGetTextValueAsync();
+                sense.Note = await reader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
                 var gloss = await Gloss.FromXmlAsync(reader, sense);
@@ -131,17 +131,17 @@ public class Sense
                 sense.DialectTags.Add(dialTag);
                 break;
             case "xref":
-                var xref = await reader.ReadAndGetTextValueAsync();
+                var xref = await reader.ReadElementContentAsStringAsync();
                 sense.Xrefs.Add(xref);
                 break;
             case "ant":
-                var ant = await reader.ReadAndGetTextValueAsync();
+                var ant = await reader.ReadElementContentAsStringAsync();
                 sense.Xrefs.Add(ant);
                 break;
             case "lsource":
                 if (!reader.IsEmptyElement)
                 {
-                    var lsource = await reader.ReadAndGetTextValueAsync();
+                    var lsource = await reader.ReadElementContentAsStringAsync();
                     sense.Lsources.Add(lsource);
                 }
                 break;

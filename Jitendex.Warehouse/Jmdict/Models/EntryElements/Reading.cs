@@ -80,13 +80,13 @@ public class Reading
         switch (reader.Name)
         {
             case "reb":
-                reading.Text = await reader.ReadAndGetTextValueAsync();
+                reading.Text = await reader.ReadElementContentAsStringAsync();
                 break;
             case "re_nokanji":
                 reading.NoKanji = true;
                 break;
             case "re_restr":
-                var kanjiFormText = await reader.ReadAndGetTextValueAsync();
+                var kanjiFormText = await reader.ReadElementContentAsStringAsync();
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case InfoTag.XmlTagName:

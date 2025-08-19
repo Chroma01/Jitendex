@@ -41,7 +41,7 @@ public class MiscTag
 
     internal async static Task<MiscTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
-        var text = await reader.ReadAndGetTextValueAsync();
+        var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<MiscTagDescription>(text);
         return new MiscTag
         {

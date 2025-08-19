@@ -41,7 +41,7 @@ public class FieldTag
 
     internal async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
-        var text = await reader.ReadAndGetTextValueAsync();
+        var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<FieldTagDescription>(text);
         return new FieldTag
         {

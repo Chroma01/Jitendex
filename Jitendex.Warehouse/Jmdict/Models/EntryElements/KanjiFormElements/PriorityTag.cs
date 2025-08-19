@@ -42,7 +42,7 @@ public class PriorityTag
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            TagId = await reader.ReadAndGetTextValueAsync(),
+            TagId = await reader.ReadElementContentAsStringAsync(),
             KanjiForm = kanjiForm,
         };
 
