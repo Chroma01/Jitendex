@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[Table($"{nameof(KanjiForm)}{(nameof(InfoTag))}")]
+[Table($"{nameof(KanjiForm)}{nameof(InfoTag)}")]
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
 public class InfoTag
 {

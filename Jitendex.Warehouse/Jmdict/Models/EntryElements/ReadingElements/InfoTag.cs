@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
+[Table($"{nameof(Reading)}{nameof(InfoTag)}")]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
 public class InfoTag
 {
