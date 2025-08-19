@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[Table($"{nameof(Reading)}{(nameof(PriorityTag))}")]
+[Table($"{nameof(Reading)}{nameof(PriorityTag)}")]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
 public class PriorityTag
 {

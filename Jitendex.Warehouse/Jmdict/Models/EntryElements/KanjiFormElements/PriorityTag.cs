@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
+[Table($"{nameof(KanjiForm)}{nameof(PriorityTag)}")]
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
 public class PriorityTag
 {
