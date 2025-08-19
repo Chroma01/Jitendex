@@ -42,38 +42,21 @@ public class Gloss
 
     public const string XmlTagName = "gloss";
 
-    public async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense)
     {
+        var lang = reader.GetAttribute("xml:lang") ?? "eng";
+        var type = reader.GetAttribute("g_type");
+        var text = await reader.ReadAndGetTextValueAsync();
+
         var gloss = new Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.Glosses.Count + 1,
-            Text = string.Empty,
-            Language = reader.GetAttribute("xml:lang") ?? "eng",
-            Type = reader.GetAttribute("g_type"),
+            Text = text,
+            Language = lang,
+            Type = type,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
-
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    currentTagName = reader.Name;
-                    break;
-                case XmlNodeType.Text:
-                    if (currentTagName == XmlTagName)
-                    {
-                        gloss.Text = await reader.GetValueAsync();
-                    }
-                    break;
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
-                    break;
-            }
-        }
         return gloss;
     }
 

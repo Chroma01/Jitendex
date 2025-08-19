@@ -43,10 +43,17 @@ public class Sense
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
+    // TODO: Derive these [NotMapped] properties from mapped properties.
     [NotMapped]
     public List<string> ReadingTextRestrictions { get; set; } = [];
     [NotMapped]
     public List<string> KanjiFormTextRestrictions { get; set; } = [];
+    [NotMapped]
+    public List<string> Xrefs { get; set; } = [];
+    [NotMapped]
+    public List<string> Ants { get; set; } = [];
+    [NotMapped]
+    public List<string> Lsources { get; set; } = [];
 
     #region Static XML Factory
 
@@ -60,25 +67,24 @@ public class Sense
             Order = entry.Senses.Count + 1,
             Entry = entry,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
                     await ProcessElementAsync(reader, docMeta, sense);
                     break;
                 case XmlNodeType.Text:
-                    await ProcessTextAsync(reader, docMeta, sense, currentTagName);
-                    break;
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text found in tag `{XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
                     break;
             }
         }
+
         return sense;
     }
 
@@ -86,93 +92,70 @@ public class Sense
     {
         switch (reader.Name)
         {
+            case "stagk":
+                var kanjiFormTextRestriction = await reader.ReadAndGetTextValueAsync();
+                sense.KanjiFormTextRestrictions.Add(kanjiFormTextRestriction);
+                break;
+            case "stagr":
+                var readingTextRestriction = await reader.ReadAndGetTextValueAsync();
+                sense.ReadingTextRestrictions.Add(readingTextRestriction);
+                break;
+            case "s_inf":
+                var senseNote = await reader.ReadAndGetTextValueAsync();
+                if (sense.Note == null)
+                {
+                    sense.Note = senseNote;
+                }
+                else
+                {
+                    // The XML schema allows for more than one note per sense,
+                    // but in practice there is only one or none.
+                    throw new Exception($"Jmdict entry {sense.EntryId} has more than one sense note.");
+                }
+                break;
             case Gloss.XmlTagName:
-                var gloss = await Gloss.FromXmlAsync(reader, sense, docMeta);
+                var gloss = await Gloss.FromXmlAsync(reader, sense);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }
                 break;
+            case PartOfSpeechTag.XmlTagName:
+                var posTag = await PartOfSpeechTag.FromXmlAsync(reader, docMeta, sense);
+                sense.PartOfSpeechTags.Add(posTag);
+                break;
+            case FieldTag.XmlTagName:
+                var fieldTag = await FieldTag.FromXmlAsync(reader, docMeta, sense);
+                sense.FieldTags.Add(fieldTag);
+                break;
+            case MiscTag.XmlTagName:
+                var miscTag = await MiscTag.FromXmlAsync(reader, docMeta, sense);
+                sense.MiscTags.Add(miscTag);
+                break;
+            case DialectTag.XmlTagName:
+                var dialTag = await DialectTag.FromXmlAsync(reader, docMeta, sense);
+                sense.DialectTags.Add(dialTag);
+                break;
             case "xref":
-                // TODO
+                var xref = await reader.ReadAndGetTextValueAsync();
+                sense.Xrefs.Add(xref);
                 break;
             case "ant":
-                // TODO
+                var ant = await reader.ReadAndGetTextValueAsync();
+                sense.Xrefs.Add(ant);
+                break;
+            case "lsource":
+                if (!reader.IsEmptyElement)
+                {
+                    var lsource = await reader.ReadAndGetTextValueAsync();
+                    sense.Lsources.Add(lsource);
+                }
                 break;
             case "example":
                 // TODO
                 break;
-        }
-    }
-
-    private async static Task ProcessTextAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense, string tagName)
-    {
-        var text = await reader.GetValueAsync();
-        switch (tagName)
-        {
-            case "s_inf":
-                // The XML schema allows for more than one note per sense,
-                // but in practice there is only one or none.
-                if (sense.Note == null)
-                {
-                    sense.Note = text;
-                }
-                else
-                {
-                    // TODO: Properly log and warn
-                    Console.WriteLine($"Jmdict entry {sense.EntryId} has more than one sense note.");
-                }
-                break;
-            case "stagk":
-                sense.KanjiFormTextRestrictions.Add(text);
-                break;
-            case "stagr":
-                sense.ReadingTextRestrictions.Add(text);
-                break;
-            case "pos":
-                var posTagDesc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
-                sense.PartOfSpeechTags.Add(new PartOfSpeechTag
-                {
-                    EntryId = sense.EntryId,
-                    SenseOrder = sense.Order,
-                    TagId = posTagDesc.Id,
-                    Sense = sense,
-                    Description = posTagDesc,
-                });
-                break;
-            case "field":
-                var fieldTagDesc = docMeta.GetTagDescription<FieldTagDescription>(text);
-                sense.FieldTags.Add(new FieldTag
-                {
-                    EntryId = sense.EntryId,
-                    SenseOrder = sense.Order,
-                    TagId = fieldTagDesc.Id,
-                    Sense = sense,
-                    Description = fieldTagDesc,
-                });
-                break;
-            case "misc":
-                var miscTagDesc = docMeta.GetTagDescription<MiscTagDescription>(text);
-                sense.MiscTags.Add(new MiscTag
-                {
-                    EntryId = sense.EntryId,
-                    SenseOrder = sense.Order,
-                    TagId = miscTagDesc.Id,
-                    Sense = sense,
-                    Description = miscTagDesc,
-                });
-                break;
-            case "dial":
-                var dialectTagDesc = docMeta.GetTagDescription<DialectTagDescription>(text);
-                sense.DialectTags.Add(new DialectTag
-                {
-                    EntryId = sense.EntryId,
-                    SenseOrder = sense.Order,
-                    TagId = dialectTagDesc.Id,
-                    Sense = sense,
-                    Description = dialectTagDesc,
-                });
-                break;
+            default:
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
         }
     }
 

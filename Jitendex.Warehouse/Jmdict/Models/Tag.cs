@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
@@ -83,6 +84,25 @@ public class PartOfSpeechTag
 
     [ForeignKey(nameof(TagId))]
     public virtual PartOfSpeechTagDescription Description { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "pos";
+
+    public async static Task<PartOfSpeechTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    {
+        var text = await reader.ReadAndGetTextValueAsync();
+        var posTagDesc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
+        return new PartOfSpeechTag
+        {
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            TagId = posTagDesc.Id,
+            Sense = sense,
+            Description = posTagDesc,
+        };
+    }
+    #endregion
 }
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
@@ -97,6 +117,25 @@ public class FieldTag
 
     [ForeignKey(nameof(TagId))]
     public virtual FieldTagDescription Description { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "field";
+
+    public async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    {
+        var text = await reader.ReadAndGetTextValueAsync();
+        var desc = docMeta.GetTagDescription<FieldTagDescription>(text);
+        return new FieldTag
+        {
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            TagId = desc.Id,
+            Sense = sense,
+            Description = desc,
+        };
+    }
+    #endregion
 }
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
@@ -111,6 +150,25 @@ public class MiscTag
 
     [ForeignKey(nameof(TagId))]
     public virtual MiscTagDescription Description { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "misc";
+
+    public async static Task<MiscTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    {
+        var text = await reader.ReadAndGetTextValueAsync();
+        var desc = docMeta.GetTagDescription<MiscTagDescription>(text);
+        return new MiscTag
+        {
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            TagId = desc.Id,
+            Sense = sense,
+            Description = desc,
+        };
+    }
+    #endregion
 }
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
@@ -125,4 +183,23 @@ public class DialectTag
 
     [ForeignKey(nameof(TagId))]
     public virtual DialectTagDescription Description { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "dial";
+
+    public async static Task<DialectTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    {
+        var text = await reader.ReadAndGetTextValueAsync();
+        var desc = docMeta.GetTagDescription<DialectTagDescription>(text);
+        return new DialectTag
+        {
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            TagId = desc.Id,
+            Sense = sense,
+            Description = desc,
+        };
+    }
+    #endregion
 }

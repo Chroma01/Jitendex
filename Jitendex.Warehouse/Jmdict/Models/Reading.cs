@@ -35,6 +35,7 @@ public class Reading
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
+    // TODO: Derive these [NotMapped] properties from mapped properties.
     [NotMapped]
     public bool NoKanji { get; set; } = false;
     [NotMapped]

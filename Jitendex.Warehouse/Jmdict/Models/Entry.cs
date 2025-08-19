@@ -33,20 +33,22 @@ public class Entry
 
     public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta)
     {
+        if (docMeta == null)
+            throw new ArgumentNullException(nameof(docMeta),
+                "Metadata is null. It should have been parsed from the JMdict XML before any of the entries.");
+
         var entry = new Entry { Id = -1 };
         var exit = false;
-        string currentTagName = XmlTagName;
 
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
                     await ProcessElementAsync(reader, docMeta, entry);
                     break;
                 case XmlNodeType.Text:
-                    await ProcessTextAsync(reader, currentTagName, entry);
+                    // TODO: Warn
                     break;
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
@@ -60,6 +62,10 @@ public class Entry
     {
         switch (reader.Name)
         {
+            case "ent_seq":
+                var sequenceText = await reader.ReadAndGetTextValueAsync();
+                entry.Id = int.Parse(sequenceText);
+                break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await KanjiForm.FromXmlAsync(reader, entry, docMeta);
                 entry.KanjiForms.Add(kanjiForm);
@@ -70,30 +76,13 @@ public class Entry
                 break;
             case Sense.XmlTagName:
                 var sense = await Sense.FromXmlAsync(reader, entry, docMeta);
-                entry.Senses.Add(sense);
+                if (sense.Glosses.Any(g => g.Language == "eng"))
+                {
+                    entry.Senses.Add(sense);
+                }
                 break;
             default:
                 // TODO: Log warning.
-                break;
-        }
-    }
-
-    private async static Task ProcessTextAsync(XmlReader reader, string tagName, Entry entry)
-    {
-        switch (tagName)
-        {
-            case "ent_seq":
-                var text = await reader.GetValueAsync();
-                if (int.TryParse(text, out int sequence))
-                {
-                    entry.Id = sequence;
-                }
-                else
-                {
-                    // TODO: Log warning.
-                }
-                break;
-            default:
                 break;
         }
     }
