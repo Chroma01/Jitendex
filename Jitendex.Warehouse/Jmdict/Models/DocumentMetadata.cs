@@ -28,7 +28,7 @@ public partial class DocumentMetadata
 
     private Dictionary<(string, string), ITagDescription> Tags { get; set; } = [];
 
-    public T GetTagDescription<T>(string entityValue) where T : ITagDescription, new()
+    public T GetTagDescription<T>(string entityValue) where T : ITagDescription, ITagDescriptionFactory
     {
         var key =
         (
@@ -41,11 +41,7 @@ public partial class DocumentMetadata
         }
         else
         {
-            var newTag = new T
-            {
-                Id = key.entityName,
-                Text = entityValue,
-            };
+            var newTag = (T)T.Factory(key.entityName, entityValue);
             Tags[key] = newTag;
             return newTag;
         }

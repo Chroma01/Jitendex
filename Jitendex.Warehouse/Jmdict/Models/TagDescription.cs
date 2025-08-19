@@ -24,44 +24,61 @@ public interface ITagDescription
     string Text { get; set; }
 }
 
-/*
-Cannot use the `required` modifier on the class properties below because we
-want to use these classes as type parameters with the `new()` constraint.
-https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required
-*/
-
-public class ReadingInfoTagDescription : ITagDescription
+public interface ITagDescriptionFactory
 {
-    public string Id { get; set; } = null!;
-    public string Text { get; set; } = null!;
+    static abstract ITagDescription Factory(string id, string text);
 }
 
-public class KanjiFormInfoTagDescription : ITagDescription
+public class ReadingInfoTagDescription : ITagDescription, ITagDescriptionFactory
 {
-    public string Id { get; set; } = null!;
-    public string Text { get; set; } = null!;
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+
+    public static ITagDescription Factory(string id, string text)
+        => new ReadingInfoTagDescription { Id = id, Text = text };
 }
 
-public class PartOfSpeechTagDescription : ITagDescription
+public class KanjiFormInfoTagDescription : ITagDescription, ITagDescriptionFactory
 {
-    public string Id { get; set; } = null!;
-    public string Text { get; set; } = null!;
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+
+    public static ITagDescription Factory(string id, string text)
+        => new KanjiFormInfoTagDescription { Id = id, Text = text };
 }
 
-public class FieldTagDescription : ITagDescription
+public class PartOfSpeechTagDescription : ITagDescription, ITagDescriptionFactory
 {
-    public string Id { get; set; } = null!;
-    public string Text { get; set; } = null!;
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+
+    public static ITagDescription Factory(string id, string text)
+        => new PartOfSpeechTagDescription { Id = id, Text = text };
 }
 
-public class MiscTagDescription : ITagDescription
+public class FieldTagDescription : ITagDescription, ITagDescriptionFactory
 {
-    public string Id { get; set; } = null!;
-    public string Text { get; set; } = null!;
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+
+    public static ITagDescription Factory(string id, string text)
+        => new FieldTagDescription { Id = id, Text = text };
 }
 
-public class DialectTagDescription : ITagDescription
+public class MiscTagDescription : ITagDescription, ITagDescriptionFactory
 {
-    public string Id { get; set; } = null!;
-    public string Text { get; set; } = null!;
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+
+    public static ITagDescription Factory(string id, string text)
+        => new MiscTagDescription { Id = id, Text = text };
+}
+
+public class DialectTagDescription : ITagDescription, ITagDescriptionFactory
+{
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+
+    public static ITagDescription Factory(string id, string text)
+        => new DialectTagDescription { Id = id, Text = text };
 }
