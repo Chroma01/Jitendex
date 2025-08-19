@@ -31,4 +31,19 @@ public class ReadingPriorityTag
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public virtual Reading Reading { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "re_pri";
+
+    public async static Task<ReadingPriorityTag> FromXmlAsync(XmlReader reader, Reading reading)
+        => new ReadingPriorityTag
+        {
+            EntryId = reading.EntryId,
+            ReadingOrder = reading.Order,
+            TagId = await reader.ReadAndGetTextValueAsync(),
+            Reading = reading,
+        };
+
+    #endregion
 }

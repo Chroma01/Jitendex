@@ -93,14 +93,9 @@ public class Reading
                 var readingInfoTag = await ReadingInfoTag.FromXmlAsync(reader, docMeta, reading);
                 reading.InfoTags.Add(readingInfoTag);
                 break;
-            case "re_pri":
-                reading.PriorityTags.Add(new ReadingPriorityTag
-                {
-                    EntryId = reading.EntryId,
-                    ReadingOrder = reading.Order,
-                    TagId = await reader.ReadAndGetTextValueAsync(),
-                    Reading = reading,
-                });
+            case ReadingPriorityTag.XmlTagName:
+                var priorityTag = await ReadingPriorityTag.FromXmlAsync(reader, reading);
+                reading.PriorityTags.Add(priorityTag);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");

@@ -79,14 +79,9 @@ public class KanjiForm
                 var infoTag = await KanjiFormInfoTag.FromXmlAsync(reader, docMeta, kanjiForm);
                 kanjiForm.InfoTags.Add(infoTag);
                 break;
-            case "ke_pri":
-                kanjiForm.PriorityTags.Add(new KanjiFormPriorityTag
-                {
-                    EntryId = kanjiForm.EntryId,
-                    KanjiFormOrder = kanjiForm.Order,
-                    TagId = await reader.ReadAndGetTextValueAsync(),
-                    KanjiForm = kanjiForm,
-                });
+            case KanjiFormPriorityTag.XmlTagName:
+                var priorityTag = await KanjiFormPriorityTag.FromXmlAsync(reader, kanjiForm);
+                kanjiForm.PriorityTags.Add(priorityTag);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");

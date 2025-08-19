@@ -31,4 +31,19 @@ public class KanjiFormPriorityTag
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "ke_pri";
+
+    public async static Task<KanjiFormPriorityTag> FromXmlAsync(XmlReader reader, KanjiForm kanjiForm)
+        => new KanjiFormPriorityTag
+        {
+            EntryId = kanjiForm.EntryId,
+            KanjiFormOrder = kanjiForm.Order,
+            TagId = await reader.ReadAndGetTextValueAsync(),
+            KanjiForm = kanjiForm,
+        };
+
+    #endregion
 }
