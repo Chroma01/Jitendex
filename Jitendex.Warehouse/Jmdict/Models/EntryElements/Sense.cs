@@ -109,7 +109,7 @@ public class Sense
                 break;
             case Gloss.XmlTagName:
                 var gloss = await Gloss.FromXmlAsync(reader, sense);
-                if (gloss.Language != null && gloss.Language == "eng")
+                if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }
