@@ -45,7 +45,7 @@ public class Reading
 
     public const string XmlTagName = "r_ele";
 
-    public async static Task<Reading> FromXmlAsync(XmlReader reader, Entry entry, DocumentMetadata docMeta)
+    public async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var reading = new Reading
         {
@@ -55,20 +55,18 @@ public class Reading
             NoKanji = false,
             Entry = entry,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
-                    ProcessElement(reader, reading);
+                    await ProcessElementAsync(reader, docMeta, reading);
                     break;
                 case XmlNodeType.Text:
-                    await ProcessTextAsync(reader, docMeta, currentTagName, reading);
-                    break;
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
                     break;
@@ -77,50 +75,35 @@ public class Reading
         return reading;
     }
 
-    private static void ProcessElement(XmlReader reader, Reading reading)
+    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
     {
         switch (reader.Name)
         {
+            case "reb":
+                reading.Text = await reader.ReadAndGetTextValueAsync();
+                break;
             case "re_nokanji":
                 reading.NoKanji = true;
                 break;
-        }
-    }
-
-    private async static Task ProcessTextAsync(XmlReader reader, DocumentMetadata docMeta, string tagName, Reading reading)
-    {
-        var text = await reader.GetValueAsync();
-        switch (tagName)
-        {
-            case "reb":
-                reading.Text = text;
+            case "re_restr":
+                var kanjiFormText = await reader.ReadAndGetTextValueAsync();
+                reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
-            case "re_inf":
-                var tagDescription = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
-                reading.InfoTags.Add(new ReadingInfoTag
-                {
-                    EntryId = reading.EntryId,
-                    ReadingOrder = reading.Order,
-                    TagId = tagDescription.Id,
-                    Reading = reading,
-                    Description = tagDescription,
-                });
+            case ReadingInfoTag.XmlTagName:
+                var readingInfoTag = await ReadingInfoTag.FromXmlAsync(reader, docMeta, reading);
+                reading.InfoTags.Add(readingInfoTag);
                 break;
             case "re_pri":
                 reading.PriorityTags.Add(new ReadingPriorityTag
                 {
                     EntryId = reading.EntryId,
                     ReadingOrder = reading.Order,
-                    TagId = text,
+                    TagId = await reader.ReadAndGetTextValueAsync(),
                     Reading = reading,
                 });
                 break;
-            case "re_restr":
-                reading.ConstraintKanjiFormTexts.Add(text);
-                break;
             default:
-                // TODO: Log warning.
-                break;
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
         }
     }
 

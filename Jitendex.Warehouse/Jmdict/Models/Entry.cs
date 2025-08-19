@@ -38,8 +38,8 @@ public class Entry
                 "Metadata is null. It should have been parsed from the JMdict XML before any of the entries.");
 
         var entry = new Entry { Id = -1 };
-        var exit = false;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
@@ -48,8 +48,8 @@ public class Entry
                     await ProcessElementAsync(reader, docMeta, entry);
                     break;
                 case XmlNodeType.Text:
-                    // TODO: Warn
-                    break;
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
                     break;
@@ -67,23 +67,22 @@ public class Entry
                 entry.Id = int.Parse(sequenceText);
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await KanjiForm.FromXmlAsync(reader, entry, docMeta);
+                var kanjiForm = await KanjiForm.FromXmlAsync(reader, docMeta, entry);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await Reading.FromXmlAsync(reader, entry, docMeta);
+                var reading = await Reading.FromXmlAsync(reader, docMeta, entry);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await Sense.FromXmlAsync(reader, entry, docMeta);
+                var sense = await Sense.FromXmlAsync(reader, docMeta, entry);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);
                 }
                 break;
             default:
-                // TODO: Log warning.
-                break;
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
         }
     }
 
@@ -102,7 +101,7 @@ public class Entry
             if (reading.InfoTags.Any(x => x.TagId == "sk"))
                 continue;
 
-            foreach (var kanjiForm in entry.KanjiForms ?? [])
+            foreach (var kanjiForm in entry.KanjiForms)
             {
                 if (kanjiForm.InfoTags.Any(x => x.TagId == "sK"))
                     continue;

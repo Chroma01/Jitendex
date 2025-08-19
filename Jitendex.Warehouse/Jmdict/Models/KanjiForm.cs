@@ -39,7 +39,7 @@ public class KanjiForm
 
     public const string XmlTagName = "k_ele";
 
-    public async static Task<KanjiForm> FromXmlAsync(XmlReader reader, Entry entry, DocumentMetadata docMeta)
+    public async static Task<KanjiForm> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var kanjiForm = new KanjiForm
         {
@@ -48,19 +48,18 @@ public class KanjiForm
             Text = string.Empty,
             Entry = entry,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
+                    await ProcessElementAsync(reader, docMeta, kanjiForm);
                     break;
                 case XmlNodeType.Text:
-                    await ProcessTextAsync(reader, docMeta, currentTagName, kanjiForm);
-                    break;
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
                     break;
@@ -69,37 +68,28 @@ public class KanjiForm
         return kanjiForm;
     }
 
-    private async static Task ProcessTextAsync(XmlReader reader, DocumentMetadata docMeta, string tagName, KanjiForm kanjiForm)
+    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
     {
-        var text = await reader.GetValueAsync();
-        switch (tagName)
+        switch (reader.Name)
         {
             case "keb":
-                kanjiForm.Text = text;
+                kanjiForm.Text = await reader.ReadAndGetTextValueAsync();
                 break;
-            case "ke_inf":
-                var tagDescription = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
-                kanjiForm.InfoTags.Add(new KanjiFormInfoTag
-                {
-                    EntryId = kanjiForm.EntryId,
-                    KanjiFormOrder = kanjiForm.Order,
-                    TagId = tagDescription.Id,
-                    KanjiForm = kanjiForm,
-                    Description = tagDescription,
-                });
+            case KanjiFormInfoTag.XmlTagName:
+                var infoTag = await KanjiFormInfoTag.FromXmlAsync(reader, docMeta, kanjiForm);
+                kanjiForm.InfoTags.Add(infoTag);
                 break;
             case "ke_pri":
                 kanjiForm.PriorityTags.Add(new KanjiFormPriorityTag
                 {
                     EntryId = kanjiForm.EntryId,
                     KanjiFormOrder = kanjiForm.Order,
-                    TagId = text,
+                    TagId = await reader.ReadAndGetTextValueAsync(),
                     KanjiForm = kanjiForm,
                 });
                 break;
             default:
-                // TODO: Log warning.
-                break;
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
         }
     }
 

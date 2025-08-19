@@ -34,6 +34,25 @@ public class ReadingInfoTag
 
     [ForeignKey(nameof(TagId))]
     public virtual ReadingInfoTagDescription Description { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "re_inf";
+
+    public async static Task<ReadingInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
+    {
+        var text = await reader.ReadAndGetTextValueAsync();
+        var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
+        return new ReadingInfoTag
+        {
+            EntryId = reading.EntryId,
+            ReadingOrder = reading.Order,
+            TagId = desc.Id,
+            Reading = reading,
+            Description = desc,
+        };
+    }
+    #endregion
 }
 
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
@@ -59,6 +78,25 @@ public class KanjiFormInfoTag
 
     [ForeignKey(nameof(TagId))]
     public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
+
+    #region Static XML Factory
+
+    public const string XmlTagName = "ke_inf";
+
+    public async static Task<KanjiFormInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+    {
+        var text = await reader.ReadAndGetTextValueAsync();
+        var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
+        return new KanjiFormInfoTag
+        {
+            EntryId = kanjiForm.EntryId,
+            KanjiFormOrder = kanjiForm.Order,
+            TagId = desc.Id,
+            KanjiForm = kanjiForm,
+            Description = desc,
+        };
+    }
+    #endregion
 }
 
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
@@ -92,14 +130,14 @@ public class PartOfSpeechTag
     public async static Task<PartOfSpeechTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
-        var posTagDesc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
+        var desc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
         return new PartOfSpeechTag
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            TagId = posTagDesc.Id,
+            TagId = desc.Id,
             Sense = sense,
-            Description = posTagDesc,
+            Description = desc,
         };
     }
     #endregion

@@ -43,22 +43,15 @@ public class Gloss
     public const string XmlTagName = "gloss";
 
     public async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense)
-    {
-        var lang = reader.GetAttribute("xml:lang") ?? "eng";
-        var type = reader.GetAttribute("g_type");
-        var text = await reader.ReadAndGetTextValueAsync();
-
-        var gloss = new Gloss
+        => new Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.Glosses.Count + 1,
-            Text = text,
-            Language = lang,
-            Type = type,
+            Language = reader.GetAttribute("xml:lang") ?? "eng",
+            Type = reader.GetAttribute("g_type"),
+            Text = await reader.ReadAndGetTextValueAsync(),
         };
-        return gloss;
-    }
 
     #endregion
 }

@@ -59,7 +59,7 @@ public class Sense
 
     public const string XmlTagName = "sense";
 
-    public async static Task<Sense> FromXmlAsync(XmlReader reader, Entry entry, DocumentMetadata docMeta)
+    public async static Task<Sense> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var sense = new Sense
         {
@@ -78,7 +78,7 @@ public class Sense
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text found in tag `{XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected text node found in `{XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
                     exit = reader.Name == XmlTagName;
                     break;
@@ -101,17 +101,11 @@ public class Sense
                 sense.ReadingTextRestrictions.Add(readingTextRestriction);
                 break;
             case "s_inf":
-                var senseNote = await reader.ReadAndGetTextValueAsync();
-                if (sense.Note == null)
-                {
-                    sense.Note = senseNote;
-                }
-                else
-                {
-                    // The XML schema allows for more than one note per sense,
-                    // but in practice there is only one or none.
+                // The XML schema allows for more than one note per sense,
+                // but in practice there is only one or none.
+                if (sense.Note != null)
                     throw new Exception($"Jmdict entry {sense.EntryId} has more than one sense note.");
-                }
+                sense.Note = await reader.ReadAndGetTextValueAsync();
                 break;
             case Gloss.XmlTagName:
                 var gloss = await Gloss.FromXmlAsync(reader, sense);
