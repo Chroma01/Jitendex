@@ -38,9 +38,9 @@ public class InfoTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "ke_inf";
+    internal const string XmlTagName = "ke_inf";
 
-    public async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+    internal async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
     {
         var text = await reader.ReadAndGetTextValueAsync();
         var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);

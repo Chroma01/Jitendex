@@ -30,9 +30,9 @@ public class Entry
 
     #region Static XML Factory
 
-    public const string XmlTagName = "entry";
+    internal const string XmlTagName = "entry";
 
-    public async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata? docMeta)
+    internal async static Task<Entry> FromXmlAsync(XmlReader reader, DocumentMetadata? docMeta)
     {
         if (docMeta == null)
             throw new ArgumentNullException(nameof(docMeta),

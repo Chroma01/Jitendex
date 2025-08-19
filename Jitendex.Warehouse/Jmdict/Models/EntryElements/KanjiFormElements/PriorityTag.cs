@@ -35,9 +35,9 @@ public class PriorityTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "ke_pri";
+    internal const string XmlTagName = "ke_pri";
 
-    public async static Task<PriorityTag> FromXmlAsync(XmlReader reader, KanjiForm kanjiForm)
+    internal async static Task<PriorityTag> FromXmlAsync(XmlReader reader, KanjiForm kanjiForm)
         => new PriorityTag
         {
             EntryId = kanjiForm.EntryId,

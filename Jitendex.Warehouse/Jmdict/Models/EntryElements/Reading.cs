@@ -36,17 +36,16 @@ public class Reading
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
-    // TODO: Derive these [NotMapped] properties from mapped properties.
     [NotMapped]
-    public bool NoKanji { get; set; } = false;
+    internal bool NoKanji { get; set; } = false;
     [NotMapped]
-    public List<string> ConstraintKanjiFormTexts { get; set; } = [];
+    internal List<string> ConstraintKanjiFormTexts { get; set; } = [];
 
     #region Static XML Factory
 
-    public const string XmlTagName = "r_ele";
+    internal const string XmlTagName = "r_ele";
 
-    public async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    internal async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var reading = new Reading
         {

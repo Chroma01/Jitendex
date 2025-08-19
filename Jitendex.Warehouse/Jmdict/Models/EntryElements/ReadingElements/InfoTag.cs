@@ -37,9 +37,9 @@ public class InfoTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "re_inf";
+    internal const string XmlTagName = "re_inf";
 
-    public async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
+    internal async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
     {
         var text = await reader.ReadAndGetTextValueAsync();
         var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);

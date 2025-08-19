@@ -35,9 +35,9 @@ public class PriorityTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "re_pri";
+    internal const string XmlTagName = "re_pri";
 
-    public async static Task<PriorityTag> FromXmlAsync(XmlReader reader, Reading reading)
+    internal async static Task<PriorityTag> FromXmlAsync(XmlReader reader, Reading reading)
         => new PriorityTag
         {
             EntryId = reading.EntryId,

@@ -37,9 +37,9 @@ public class PartOfSpeechTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "pos";
+    internal const string XmlTagName = "pos";
 
-    public async static Task<PartOfSpeechTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    internal async static Task<PartOfSpeechTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
         var desc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);

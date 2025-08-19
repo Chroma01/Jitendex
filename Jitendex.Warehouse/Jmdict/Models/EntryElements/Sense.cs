@@ -44,23 +44,22 @@ public class Sense
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
-    // TODO: Derive these [NotMapped] properties from mapped properties.
     [NotMapped]
-    public List<string> ReadingTextRestrictions { get; set; } = [];
+    internal List<string> ReadingTextRestrictions { get; set; } = [];
     [NotMapped]
-    public List<string> KanjiFormTextRestrictions { get; set; } = [];
+    internal List<string> KanjiFormTextRestrictions { get; set; } = [];
     [NotMapped]
-    public List<string> Xrefs { get; set; } = [];
+    internal List<string> Xrefs { get; set; } = [];
     [NotMapped]
-    public List<string> Ants { get; set; } = [];
+    internal List<string> Ants { get; set; } = [];
     [NotMapped]
-    public List<string> Lsources { get; set; } = [];
+    internal List<string> Lsources { get; set; } = [];
 
     #region Static XML Factory
 
-    public const string XmlTagName = "sense";
+    internal const string XmlTagName = "sense";
 
-    public async static Task<Sense> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    internal async static Task<Sense> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var sense = new Sense
         {
@@ -110,7 +109,7 @@ public class Sense
                 break;
             case Gloss.XmlTagName:
                 var gloss = await Gloss.FromXmlAsync(reader, sense);
-                if (gloss.Language == "eng")
+                if (gloss.Language != null && gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }

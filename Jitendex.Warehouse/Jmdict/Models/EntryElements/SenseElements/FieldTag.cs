@@ -37,9 +37,9 @@ public class FieldTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "field";
+    internal const string XmlTagName = "field";
 
-    public async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    internal async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
         var desc = docMeta.GetTagDescription<FieldTagDescription>(text);

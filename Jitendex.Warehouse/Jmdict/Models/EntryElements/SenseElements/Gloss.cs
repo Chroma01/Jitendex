@@ -36,13 +36,13 @@ public class Gloss
     public virtual Sense Sense { get; set; } = null!;
 
     [NotMapped]
-    public required string Language { get; set; }
+    internal string? Language { get; set; }
 
     #region Static XML Factory
 
-    public const string XmlTagName = "gloss";
+    internal const string XmlTagName = "gloss";
 
-    public async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense)
+    internal async static Task<Gloss> FromXmlAsync(XmlReader reader, Sense sense)
         => new Gloss
         {
             EntryId = sense.EntryId,

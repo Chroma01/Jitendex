@@ -37,9 +37,9 @@ public class DialectTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "dial";
+    internal const string XmlTagName = "dial";
 
-    public async static Task<DialectTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    internal async static Task<DialectTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
         var desc = docMeta.GetTagDescription<DialectTagDescription>(text);

@@ -38,9 +38,9 @@ public class KanjiForm
 
     #region Static XML Factory
 
-    public const string XmlTagName = "k_ele";
+    internal const string XmlTagName = "k_ele";
 
-    public async static Task<KanjiForm> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    internal async static Task<KanjiForm> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
         var kanjiForm = new KanjiForm
         {

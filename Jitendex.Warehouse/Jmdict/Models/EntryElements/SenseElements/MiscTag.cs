@@ -37,9 +37,9 @@ public class MiscTag
 
     #region Static XML Factory
 
-    public const string XmlTagName = "misc";
+    internal const string XmlTagName = "misc";
 
-    public async static Task<MiscTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    internal async static Task<MiscTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
         var desc = docMeta.GetTagDescription<MiscTagDescription>(text);
