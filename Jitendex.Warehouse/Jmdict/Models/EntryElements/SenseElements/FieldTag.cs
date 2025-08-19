@@ -20,35 +20,35 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
-public class KanjiFormInfoTag
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class FieldTag
 {
     public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public required int SenseOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
+    public virtual FieldTagDescription Description { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "ke_inf";
+    public const string XmlTagName = "field";
 
-    public async static Task<KanjiFormInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+    public async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
-        var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
-        return new KanjiFormInfoTag
+        var desc = docMeta.GetTagDescription<FieldTagDescription>(text);
+        return new FieldTag
         {
-            EntryId = kanjiForm.EntryId,
-            KanjiFormOrder = kanjiForm.Order,
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
             TagId = desc.Id,
-            KanjiForm = kanjiForm,
+            Sense = sense,
             Description = desc,
         };
     }

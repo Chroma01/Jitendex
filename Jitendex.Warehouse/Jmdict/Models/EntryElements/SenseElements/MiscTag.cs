@@ -20,7 +20,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
 public class MiscTag

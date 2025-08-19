@@ -20,35 +20,35 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
-public class FieldTag
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+public class ReadingInfoTag
 {
     public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
+    public required int ReadingOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual FieldTagDescription Description { get; set; } = null!;
+    public virtual ReadingInfoTagDescription Description { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "field";
+    public const string XmlTagName = "re_inf";
 
-    public async static Task<FieldTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
+    public async static Task<ReadingInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
     {
         var text = await reader.ReadAndGetTextValueAsync();
-        var desc = docMeta.GetTagDescription<FieldTagDescription>(text);
-        return new FieldTag
+        var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
+        return new ReadingInfoTag
         {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
+            EntryId = reading.EntryId,
+            ReadingOrder = reading.Order,
             TagId = desc.Id,
-            Sense = sense,
+            Reading = reading,
             Description = desc,
         };
     }

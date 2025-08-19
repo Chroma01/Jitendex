@@ -19,8 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
 public class Sense

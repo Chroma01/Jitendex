@@ -20,35 +20,35 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
-public class ReadingInfoTag
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class DialectTag
 {
     public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
+    public required int SenseOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual ReadingInfoTagDescription Description { get; set; } = null!;
+    public virtual DialectTagDescription Description { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "re_inf";
+    public const string XmlTagName = "dial";
 
-    public async static Task<ReadingInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
+    public async static Task<DialectTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
     {
         var text = await reader.ReadAndGetTextValueAsync();
-        var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
-        return new ReadingInfoTag
+        var desc = docMeta.GetTagDescription<DialectTagDescription>(text);
+        return new DialectTag
         {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
             TagId = desc.Id,
-            Reading = reading,
+            Sense = sense,
             Description = desc,
         };
     }

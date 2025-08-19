@@ -20,38 +20,30 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
-public class PartOfSpeechTag
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
+public class KanjiFormPriorityTag
 {
     public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
-
-    [ForeignKey(nameof(TagId))]
-    public virtual PartOfSpeechTagDescription Description { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "pos";
+    public const string XmlTagName = "ke_pri";
 
-    public async static Task<PartOfSpeechTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Sense sense)
-    {
-        var text = await reader.ReadAndGetTextValueAsync();
-        var desc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
-        return new PartOfSpeechTag
+    public async static Task<KanjiFormPriorityTag> FromXmlAsync(XmlReader reader, KanjiForm kanjiForm)
+        => new KanjiFormPriorityTag
         {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            TagId = desc.Id,
-            Sense = sense,
-            Description = desc,
+            EntryId = kanjiForm.EntryId,
+            KanjiFormOrder = kanjiForm.Order,
+            TagId = await reader.ReadAndGetTextValueAsync(),
+            KanjiForm = kanjiForm,
         };
-    }
 
     #endregion
 }

@@ -19,33 +19,41 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
-public class KanjiForm
+public class Reading
 {
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<KanjiFormInfoTag> InfoTags { get; set; } = [];
-    public List<KanjiFormPriorityTag> PriorityTags { get; set; } = [];
-    public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
+    public List<ReadingInfoTag> InfoTags { get; set; } = [];
+    public List<ReadingPriorityTag> PriorityTags { get; set; } = [];
+    public List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
+    // TODO: Derive these [NotMapped] properties from mapped properties.
+    [NotMapped]
+    public bool NoKanji { get; set; } = false;
+    [NotMapped]
+    public List<string> ConstraintKanjiFormTexts { get; set; } = [];
+
     #region Static XML Factory
 
-    public const string XmlTagName = "k_ele";
+    public const string XmlTagName = "r_ele";
 
-    public async static Task<KanjiForm> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
+    public async static Task<Reading> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Entry entry)
     {
-        var kanjiForm = new KanjiForm
+        var reading = new Reading
         {
             EntryId = entry.Id,
-            Order = entry.KanjiForms.Count + 1,
+            Order = entry.Readings.Count + 1,
             Text = string.Empty,
+            NoKanji = false,
             Entry = entry,
         };
 
@@ -55,7 +63,7 @@ public class KanjiForm
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ProcessElementAsync(reader, docMeta, kanjiForm);
+                    await ProcessElementAsync(reader, docMeta, reading);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -65,23 +73,30 @@ public class KanjiForm
                     break;
             }
         }
-        return kanjiForm;
+        return reading;
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+    private async static Task ProcessElementAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
     {
         switch (reader.Name)
         {
-            case "keb":
-                kanjiForm.Text = await reader.ReadAndGetTextValueAsync();
+            case "reb":
+                reading.Text = await reader.ReadAndGetTextValueAsync();
                 break;
-            case KanjiFormInfoTag.XmlTagName:
-                var infoTag = await KanjiFormInfoTag.FromXmlAsync(reader, docMeta, kanjiForm);
-                kanjiForm.InfoTags.Add(infoTag);
+            case "re_nokanji":
+                reading.NoKanji = true;
                 break;
-            case KanjiFormPriorityTag.XmlTagName:
-                var priorityTag = await KanjiFormPriorityTag.FromXmlAsync(reader, kanjiForm);
-                kanjiForm.PriorityTags.Add(priorityTag);
+            case "re_restr":
+                var kanjiFormText = await reader.ReadAndGetTextValueAsync();
+                reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
+                break;
+            case ReadingInfoTag.XmlTagName:
+                var readingInfoTag = await ReadingInfoTag.FromXmlAsync(reader, docMeta, reading);
+                reading.InfoTags.Add(readingInfoTag);
+                break;
+            case ReadingPriorityTag.XmlTagName:
+                var priorityTag = await ReadingPriorityTag.FromXmlAsync(reader, reading);
+                reading.PriorityTags.Add(priorityTag);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
