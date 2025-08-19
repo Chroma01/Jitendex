@@ -20,29 +20,30 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
-public class KanjiFormPriorityTag
+[Table($"{nameof(Reading)}{(nameof(PriorityTag))}")]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+public class PriorityTag
 {
     public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public required int ReadingOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "ke_pri";
+    public const string XmlTagName = "re_pri";
 
-    public async static Task<KanjiFormPriorityTag> FromXmlAsync(XmlReader reader, KanjiForm kanjiForm)
-        => new KanjiFormPriorityTag
+    public async static Task<PriorityTag> FromXmlAsync(XmlReader reader, Reading reading)
+        => new PriorityTag
         {
-            EntryId = kanjiForm.EntryId,
-            KanjiFormOrder = kanjiForm.Order,
+            EntryId = reading.EntryId,
+            ReadingOrder = reading.Order,
             TagId = await reader.ReadAndGetTextValueAsync(),
-            KanjiForm = kanjiForm,
+            Reading = reading,
         };
 
     #endregion

@@ -29,8 +29,8 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<KanjiFormInfoTag> InfoTags { get; set; } = [];
-    public List<KanjiFormPriorityTag> PriorityTags { get; set; } = [];
+    public List<InfoTag> InfoTags { get; set; } = [];
+    public List<PriorityTag> PriorityTags { get; set; } = [];
     public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
@@ -76,12 +76,12 @@ public class KanjiForm
             case "keb":
                 kanjiForm.Text = await reader.ReadAndGetTextValueAsync();
                 break;
-            case KanjiFormInfoTag.XmlTagName:
-                var infoTag = await KanjiFormInfoTag.FromXmlAsync(reader, docMeta, kanjiForm);
+            case InfoTag.XmlTagName:
+                var infoTag = await InfoTag.FromXmlAsync(reader, docMeta, kanjiForm);
                 kanjiForm.InfoTags.Add(infoTag);
                 break;
-            case KanjiFormPriorityTag.XmlTagName:
-                var priorityTag = await KanjiFormPriorityTag.FromXmlAsync(reader, kanjiForm);
+            case PriorityTag.XmlTagName:
+                var priorityTag = await PriorityTag.FromXmlAsync(reader, kanjiForm);
                 kanjiForm.PriorityTags.Add(priorityTag);
                 break;
             default:

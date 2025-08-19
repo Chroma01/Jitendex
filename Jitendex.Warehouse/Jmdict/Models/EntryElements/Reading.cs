@@ -29,8 +29,8 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<ReadingInfoTag> InfoTags { get; set; } = [];
-    public List<ReadingPriorityTag> PriorityTags { get; set; } = [];
+    public List<InfoTag> InfoTags { get; set; } = [];
+    public List<PriorityTag> PriorityTags { get; set; } = [];
     public List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
@@ -90,12 +90,12 @@ public class Reading
                 var kanjiFormText = await reader.ReadAndGetTextValueAsync();
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
-            case ReadingInfoTag.XmlTagName:
-                var readingInfoTag = await ReadingInfoTag.FromXmlAsync(reader, docMeta, reading);
+            case InfoTag.XmlTagName:
+                var readingInfoTag = await InfoTag.FromXmlAsync(reader, docMeta, reading);
                 reading.InfoTags.Add(readingInfoTag);
                 break;
-            case ReadingPriorityTag.XmlTagName:
-                var priorityTag = await ReadingPriorityTag.FromXmlAsync(reader, reading);
+            case PriorityTag.XmlTagName:
+                var priorityTag = await PriorityTag.FromXmlAsync(reader, reading);
                 reading.PriorityTags.Add(priorityTag);
                 break;
             default:

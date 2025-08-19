@@ -20,35 +20,35 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
-public class KanjiFormInfoTag
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+public class InfoTag
 {
     public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public required int ReadingOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
+    public virtual ReadingInfoTagDescription Description { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "ke_inf";
+    public const string XmlTagName = "re_inf";
 
-    public async static Task<KanjiFormInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
+    public async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
     {
         var text = await reader.ReadAndGetTextValueAsync();
-        var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
-        return new KanjiFormInfoTag
+        var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
+        return new InfoTag
         {
-            EntryId = kanjiForm.EntryId,
-            KanjiFormOrder = kanjiForm.Order,
+            EntryId = reading.EntryId,
+            ReadingOrder = reading.Order,
             TagId = desc.Id,
-            KanjiForm = kanjiForm,
+            Reading = reading,
             Description = desc,
         };
     }

@@ -20,35 +20,36 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
-public class ReadingInfoTag
+[Table($"{nameof(KanjiForm)}{(nameof(InfoTag))}")]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
+public class InfoTag
 {
     public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual ReadingInfoTagDescription Description { get; set; } = null!;
+    public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
 
     #region Static XML Factory
 
-    public const string XmlTagName = "re_inf";
+    public const string XmlTagName = "ke_inf";
 
-    public async static Task<ReadingInfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, Reading reading)
+    public async static Task<InfoTag> FromXmlAsync(XmlReader reader, DocumentMetadata docMeta, KanjiForm kanjiForm)
     {
         var text = await reader.ReadAndGetTextValueAsync();
-        var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
-        return new ReadingInfoTag
+        var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
+        return new InfoTag
         {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
+            EntryId = kanjiForm.EntryId,
+            KanjiFormOrder = kanjiForm.Order,
             TagId = desc.Id,
-            Reading = reading,
+            KanjiForm = kanjiForm,
             Description = desc,
         };
     }
