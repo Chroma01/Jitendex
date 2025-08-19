@@ -41,7 +41,7 @@ internal class DocumentMetadata
         }
         else
         {
-            var newTagDescription = (T)T.Factory(key.entityName, entityValue);
+            var newTagDescription = (T)T.New(key.entityName, entityValue);
             TagDescriptions[key] = newTagDescription;
             return newTagDescription;
         }
