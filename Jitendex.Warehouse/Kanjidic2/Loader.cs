@@ -60,11 +60,9 @@ public class Loader
                 case XmlNodeType.Element:
                     if (reader.Name == Entry.XmlTagName)
                     {
-                        var entry = await Entry.FromXmlAsync(reader);
+                        var entry = await reader.ReadElementContentAsEntryAsync();
                         yield return entry;
                     }
-                    break;
-                default:
                     break;
             }
         }

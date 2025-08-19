@@ -26,59 +26,63 @@ public class ReadingMeaning
 {
     [Key]
     public required string Character { get; set; }
-    public List<ReadingMeaningGroup>? Groups { get; set; }
-    public List<Nanori>? Nanoris { get; set; }
+    public List<ReadingMeaningGroup> Groups { get; set; } = [];
+    public List<Nanori> Nanoris { get; set; } = [];
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
 
-    #region Static XML Factory
+    internal const string XmlTagName = "reading_meaning";
+}
 
-    public const string XmlTagName = "reading_meaning";
-
-    public async static Task<ReadingMeaning> FromXmlAsync(XmlReader reader, Entry entry)
+internal static class ReadingMeaningReader
+{
+    public async static Task<ReadingMeaning> ReadElementContentAsReadingMeaningAsync(this XmlReader reader, Entry entry)
     {
         var readingMeaning = new ReadingMeaning
         {
             Character = entry.Character,
             Entry = entry,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
-                    if (currentTagName == "rmgroup")
-                    {
-                        var group = await ReadingMeaningGroup.FromXmlAsync(reader, readingMeaning);
-                        readingMeaning.Groups ??= [];
-                        readingMeaning.Groups.Add(group);
-                    }
+                    await reader.ReadChildElementAsync(readingMeaning);
                     break;
                 case XmlNodeType.Text:
-                    if (currentTagName == "nanori")
-                    {
-                        var nanori = new Nanori
-                        {
-                            Character = readingMeaning.Character,
-                            Order = (readingMeaning.Nanoris?.Count ?? 0) + 1,
-                            Text = await reader.GetValueAsync(),
-                        };
-                        readingMeaning.Nanoris ??= [];
-                        readingMeaning.Nanoris.Add(nanori);
-                    }
-                    break;
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text node found in `{ReadingMeaning.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == ReadingMeaning.XmlTagName;
                     break;
             }
         }
         return readingMeaning;
     }
 
-    #endregion
+    private async static Task ReadChildElementAsync(this XmlReader reader, ReadingMeaning readingMeaning)
+    {
+        switch (reader.Name)
+        {
+            case ReadingMeaningGroup.XmlTagName:
+                var group = await reader.ReadElementContentAsReadingMeaningGroupAsync(readingMeaning);
+                readingMeaning.Groups.Add(group);
+                break;
+            case Nanori.XmlTagName:
+                readingMeaning.Nanoris.Add(new Nanori
+                {
+                    Character = readingMeaning.Character,
+                    Order = readingMeaning.Nanoris.Count + 1,
+                    Text = await reader.ReadElementContentAsStringAsync(),
+                });
+                break;
+            default:
+                // throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+                break;
+        }
+    }
 }

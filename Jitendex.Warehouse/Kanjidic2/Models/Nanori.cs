@@ -30,4 +30,6 @@ public class Nanori
 
     [ForeignKey(nameof(Character))]
     public virtual ReadingMeaning ReadingMeaning { get; set; } = null!;
+
+    internal const string XmlTagName = "nanori";
 }

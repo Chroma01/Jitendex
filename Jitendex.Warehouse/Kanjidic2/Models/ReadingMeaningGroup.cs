@@ -27,59 +27,57 @@ public class ReadingMeaningGroup
 {
     public required string Character { get; set; }
     public required int Order { get; set; }
-    public List<Reading>? Readings { get; set; }
-    public List<Meaning>? Meanings { get; set; }
+    public List<Reading> Readings { get; set; } = [];
+    public List<Meaning> Meanings { get; set; } = [];
 
     [ForeignKey(nameof(Character))]
     public virtual ReadingMeaning ReadingMeaning { get; set; } = null!;
 
-    #region Static XML Factory
+    internal const string XmlTagName = "rmgroup";
+}
 
-    public const string XmlTagName = "rmgroup";
-
-    public async static Task<ReadingMeaningGroup> FromXmlAsync(XmlReader reader, ReadingMeaning readingMeaning)
+internal static class ReadingMeaningGroupReader
+{
+    public async static Task<ReadingMeaningGroup> ReadElementContentAsReadingMeaningGroupAsync(this XmlReader reader, ReadingMeaning readingMeaning)
     {
         var group = new ReadingMeaningGroup
         {
             Character = readingMeaning.Character,
-            Order = (readingMeaning.Groups?.Count ?? 0) + 1,
+            Order = readingMeaning.Groups.Count + 1,
             ReadingMeaning = readingMeaning,
         };
-        var exit = false;
-        string currentTagName;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
-                    await ProcessElementAsync(reader, currentTagName, group);
+                    await reader.ReadChildElementAsync(group);
                     break;
+                case XmlNodeType.Text:
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text node found in `{ReadingMeaningGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == ReadingMeaningGroup.XmlTagName;
                     break;
             }
         }
         return group;
     }
 
-    private async static Task ProcessElementAsync(XmlReader reader, string tagName, ReadingMeaningGroup group)
+    private async static Task ReadChildElementAsync(this XmlReader reader, ReadingMeaningGroup group)
     {
-        switch (tagName)
+        switch (reader.Name)
         {
             case Reading.XmlTagName:
-                var reading = await Reading.FromXmlAsync(reader, group);
-                group.Readings ??= [];
+                var reading = await reader.ReadElementContentAsReadingAsync(group);
                 group.Readings.Add(reading);
                 break;
             case Meaning.XmlTagName:
-                var meaning = await Meaning.FromXmlAsync(reader, group);
-                group.Meanings ??= [];
+                var meaning = await reader.ReadElementContentAsMeaningAsync(group);
                 group.Meanings.Add(meaning);
                 break;
         }
     }
-
-    #endregion
 }

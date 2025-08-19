@@ -27,43 +27,50 @@ public class Entry
     public required string Character { get; set; }
     public ReadingMeaning? ReadingMeaning { get; set; }
 
-    #region Static XML Factory
+    internal const string XmlTagName = "character";
+}
 
-    public const string XmlTagName = "character";
-
-    public async static Task<Entry> FromXmlAsync(XmlReader reader)
+internal static class EntryReader
+{
+    public async static Task<Entry> ReadElementContentAsEntryAsync(this XmlReader reader)
     {
         var entry = new Entry
         {
             Character = string.Empty,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
 
+        var exit = false;
         while (!exit && await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    currentTagName = reader.Name;
-                    if (currentTagName == ReadingMeaning.XmlTagName)
-                    {
-                        entry.ReadingMeaning = await ReadingMeaning.FromXmlAsync(reader, entry);
-                    }
+                    await reader.ReadChildElementAsync(entry);
                     break;
                 case XmlNodeType.Text:
-                    if (currentTagName == "literal")
-                    {
-                        entry.Character = await reader.GetValueAsync();
-                    }
-                    break;
+                    var text = await reader.GetValueAsync();
+                    throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
+                    exit = reader.Name == Entry.XmlTagName;
                     break;
             }
         }
         return entry;
     }
 
-    #endregion
+    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry)
+    {
+        switch (reader.Name)
+        {
+            case "literal":
+                entry.Character = await reader.ReadElementContentAsStringAsync();
+                break;
+            case ReadingMeaning.XmlTagName:
+                entry.ReadingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(entry);
+                break;
+            default:
+                // throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+                break;
+        }
+    }
 }

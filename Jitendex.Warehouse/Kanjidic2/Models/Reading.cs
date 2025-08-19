@@ -34,44 +34,19 @@ public class Reading
     [ForeignKey($"{nameof(Character)}, {nameof(GroupOrder)}")]
     public virtual ReadingMeaningGroup Group { get; set; } = null!;
 
-    #region Static XML Factory
+    internal const string XmlTagName = "reading";
+}
 
-    public const string XmlTagName = "reading";
-
-    public async static Task<Reading> FromXmlAsync(XmlReader reader, ReadingMeaningGroup group)
-    {
-        var reading = new Reading()
+internal static class ReadingReader
+{
+    public async static Task<Reading> ReadElementContentAsReadingAsync(this XmlReader reader, ReadingMeaningGroup group)
+        => new Reading
         {
             Character = group.Character,
             GroupOrder = group.Order,
-            Order = (group.Readings?.Count ?? 0) + 1,
-            Text = string.Empty,
+            Order = group.Readings.Count + 1,
             Type = reader.GetAttribute("r_type") ?? string.Empty,
+            Text = await reader.ReadElementContentAsStringAsync(),
             Group = group,
         };
-        var exit = false;
-        string currentTagName = XmlTagName;
-
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    currentTagName = reader.Name;
-                    break;
-                case XmlNodeType.Text:
-                    if (currentTagName == XmlTagName)
-                    {
-                        reading.Text = await reader.GetValueAsync();
-                    }
-                    break;
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == XmlTagName;
-                    break;
-            }
-        }
-        return reading;
-    }
-
-    #endregion
 }
