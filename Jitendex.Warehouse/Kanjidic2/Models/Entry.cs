@@ -30,6 +30,12 @@ public class Entry
     public List<Reading> Readings { get; set; } = [];
     public List<Meaning> Meanings { get; set; } = [];
     public List<Nanori> Nanoris { get; set; } = [];
+    public int? Grade { get; set; }
+    public int? Frequency { get; set; }
+    public int? JlptLevel { get; set; }
+    public List<StrokeCount> StrokeCounts { get; set; } = [];
+    public List<Variant> Variants { get; set; } = [];
+    public List<RadicalName> RadicalNames { get; set; } = [];
 
     internal const string XmlTagName = "character";
 }
@@ -88,6 +94,19 @@ internal static class EntryReader
                 entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
                 entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
                 entry.Nanoris = readingMeaningGroup.Nanoris;
+                break;
+            case MiscGroup.XmlTagName:
+                if (entry.Grade != null || entry.Frequency != null || entry.JlptLevel != null)
+                    throw new Exception($"Character {entry.Character} has more than one misc group.");
+                if (entry.StrokeCounts.Count != 0 || entry.Variants.Count != 0 || entry.RadicalNames.Count != 0)
+                    throw new Exception($"Character {entry.Character} has more than one misc group.");
+                var miscGroup = await reader.ReadElementContentAsMiscGroupAsync(entry);
+                entry.Grade = miscGroup.Grade;
+                entry.Frequency = miscGroup.Frequency;
+                entry.JlptLevel = miscGroup.JlptLevel;
+                entry.StrokeCounts = miscGroup.StrokeCounts;
+                entry.Variants = miscGroup.Variants;
+                entry.RadicalNames = miscGroup.RadicalNames;
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
