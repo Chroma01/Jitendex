@@ -71,15 +71,10 @@ internal static class ReadingMeaningGroupReader
         switch (reader.Name)
         {
             case ReadingMeaning.XmlTagName:
-                var readingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(group);
-                if (group.ReadingMeaning == null)
-                {
-                    group.ReadingMeaning = readingMeaning;
-                }
-                else
-                {
+                if (group.ReadingMeaning != null)
                     throw new Exception($"Reading-meaning group for character `{group.Character}` has more than one reading-meaning set.");
-                }
+                var readingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(group);
+                group.ReadingMeaning = readingMeaning;
                 break;
             case Nanori.XmlTagName:
                 group.Nanoris.Add(new Nanori
