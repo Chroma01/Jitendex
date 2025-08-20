@@ -19,17 +19,18 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models;
+namespace Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 [PrimaryKey(nameof(Character), nameof(Order))]
-public class StrokeCount
+public class Meaning
 {
     public required string Character { get; set; }
     public required int Order { get; set; }
-    public required int Value { get; set; }
+    public required string Text { get; set; }
+    public required string Language { get; set; }
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey($"{nameof(Character)}")]
     public virtual Entry Entry { get; set; } = null!;
 
-    internal const string XmlTagName = "stroke_count";
+    internal const string XmlTagName = "meaning";
 }

@@ -16,20 +16,21 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models;
+namespace Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
-[PrimaryKey(nameof(Character), nameof(Order))]
-public class RadicalName
+public class Radical
 {
+    [Key]
     public required string Character { get; set; }
     public required int Order { get; set; }
-    public required string Text { get; set; }
+    public required int Number { get; set; }
+    public required string Type { get; set; }
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
 
-    internal const string XmlTagName = "rad_name";
+    internal const string XmlTagName = "rad_value";
 }
