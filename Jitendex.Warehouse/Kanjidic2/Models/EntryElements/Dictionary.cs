@@ -28,6 +28,8 @@ public class Dictionary
     public required int Order { get; set; }
     public required string Text { get; set; }
     public required string Type { get; set; }
+    public string? Volume { get; set; }
+    public string? Page { get; set; }
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;

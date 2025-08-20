@@ -75,6 +75,8 @@ internal static class DictionaryGroupReader
                     Character = group.Character,
                     Order = group.Dictionaries.Count + 1,
                     Type = reader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
+                    Volume = reader.GetAttribute("m_vol"),
+                    Page = reader.GetAttribute("m_page"),
                     Text = await reader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
