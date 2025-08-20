@@ -38,7 +38,7 @@ public class PriorityTag
 
 internal static class PriorityTagReader
 {
-    public async static Task<PriorityTag> ReadElementContentAsPriorityTagAsync(this XmlReader reader, KanjiForm kanjiForm)
+    public async static Task<PriorityTag> ReadPriorityTagAsync(this XmlReader reader, KanjiForm kanjiForm)
         => new PriorityTag
         {
             EntryId = kanjiForm.EntryId,

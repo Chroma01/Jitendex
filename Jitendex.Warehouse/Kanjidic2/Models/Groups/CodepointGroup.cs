@@ -38,7 +38,7 @@ internal class CodepointGroup
 
 internal static class CodepointGroupReader
 {
-    public async static Task<CodepointGroup> ReadElementContentAsCodepointGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<CodepointGroup> ReadCodepointGroupAsync(this XmlReader reader, Entry entry)
     {
         var codepointGroup = new CodepointGroup
         {

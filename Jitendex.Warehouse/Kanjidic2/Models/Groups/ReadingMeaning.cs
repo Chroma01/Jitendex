@@ -38,7 +38,7 @@ internal class ReadingMeaning
 
 internal static class ReadingMeaningReader
 {
-    public async static Task<ReadingMeaning> ReadElementContentAsReadingMeaningAsync(this XmlReader reader, ReadingMeaningGroup group)
+    public async static Task<ReadingMeaning> ReadReadingMeaningAsync(this XmlReader reader, ReadingMeaningGroup group)
     {
         var readingMeaning = new ReadingMeaning
         {

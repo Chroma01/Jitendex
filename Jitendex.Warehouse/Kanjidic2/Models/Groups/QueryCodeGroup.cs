@@ -38,7 +38,7 @@ internal class QueryCodeGroup
 
 internal static class QueryCodeGroupReader
 {
-    public async static Task<QueryCodeGroup> ReadElementContentAsQueryCodeGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<QueryCodeGroup> ReadQueryCodeGroupAsync(this XmlReader reader, Entry entry)
     {
         var queryCodeGroup = new QueryCodeGroup
         {

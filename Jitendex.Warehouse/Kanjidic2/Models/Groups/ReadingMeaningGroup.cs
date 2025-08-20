@@ -39,7 +39,7 @@ internal class ReadingMeaningGroup
 
 internal static class ReadingMeaningGroupReader
 {
-    public async static Task<ReadingMeaningGroup> ReadElementContentAsReadingMeaningGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<ReadingMeaningGroup> ReadReadingMeaningGroupAsync(this XmlReader reader, Entry entry)
     {
         var group = new ReadingMeaningGroup
         {
@@ -74,7 +74,7 @@ internal static class ReadingMeaningGroupReader
             case ReadingMeaning.XmlTagName:
                 if (group.ReadingMeaning != null)
                     throw new Exception($"Reading-meaning group for character `{group.Character}` has more than one reading-meaning set.");
-                var readingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(group);
+                var readingMeaning = await reader.ReadReadingMeaningAsync(group);
                 group.ReadingMeaning = readingMeaning;
                 break;
             case Nanori.XmlTagName:

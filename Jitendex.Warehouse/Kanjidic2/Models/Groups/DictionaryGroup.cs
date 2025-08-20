@@ -38,7 +38,7 @@ internal class DictionaryGroup
 
 internal static class DictionaryGroupReader
 {
-    public async static Task<DictionaryGroup> ReadElementContentAsDictionaryGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<DictionaryGroup> ReadDictionaryGroupAsync(this XmlReader reader, Entry entry)
     {
         var dicNumberGroup = new DictionaryGroup
         {

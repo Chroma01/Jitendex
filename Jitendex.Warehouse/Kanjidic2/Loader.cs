@@ -86,7 +86,7 @@ public class Loader
                 case XmlNodeType.Element:
                     if (reader.Name == Entry.XmlTagName)
                     {
-                        var entry = await reader.ReadElementContentAsEntryAsync();
+                        var entry = await reader.ReadEntryAsync();
                         yield return entry;
                     }
                     break;

@@ -47,7 +47,7 @@ public class Entry
 
 internal static class EntryReader
 {
-    public async static Task<Entry> ReadElementContentAsEntryAsync(this XmlReader reader)
+    public async static Task<Entry> ReadEntryAsync(this XmlReader reader)
     {
         var entry = new Entry
         {
@@ -84,19 +84,19 @@ internal static class EntryReader
             case CodepointGroup.XmlTagName:
                 if (entry.Codepoints.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one codepoint group.");
-                var codepointGroup = await reader.ReadElementContentAsCodepointGroupAsync(entry);
+                var codepointGroup = await reader.ReadCodepointGroupAsync(entry);
                 entry.Codepoints = codepointGroup.Codepoints;
                 break;
             case RadicalGroup.XmlTagName:
                 if (entry.Radicals.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one radical group.");
-                var radicalGroup = await reader.ReadElementContentAsRadicalGroupAsync(entry);
+                var radicalGroup = await reader.ReadRadicalGroupAsync(entry);
                 entry.Radicals = radicalGroup.Radicals;
                 break;
             case ReadingMeaningGroup.XmlTagName:
                 if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0 || entry.IsKokuji)
                     throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
-                var readingMeaningGroup = await reader.ReadElementContentAsReadingMeaningGroupAsync(entry);
+                var readingMeaningGroup = await reader.ReadReadingMeaningGroupAsync(entry);
                 entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
                 entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
                 entry.IsKokuji = readingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
@@ -107,7 +107,7 @@ internal static class EntryReader
                     throw new Exception($"Character {entry.Character} has more than one misc group.");
                 if (entry.StrokeCounts.Count != 0 || entry.Variants.Count != 0 || entry.RadicalNames.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one misc group.");
-                var miscGroup = await reader.ReadElementContentAsMiscGroupAsync(entry);
+                var miscGroup = await reader.ReadMiscGroupAsync(entry);
                 entry.Grade = miscGroup.Grade;
                 entry.Frequency = miscGroup.Frequency;
                 entry.JlptLevel = miscGroup.JlptLevel;
@@ -118,13 +118,13 @@ internal static class EntryReader
             case DictionaryGroup.XmlTagName:
                 if (entry.Dictionaries.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one dictionary group.");
-                var dictionaryGroup = await reader.ReadElementContentAsDictionaryGroupAsync(entry);
+                var dictionaryGroup = await reader.ReadDictionaryGroupAsync(entry);
                 entry.Dictionaries = dictionaryGroup.Dictionaries;
                 break;
             case QueryCodeGroup.XmlTagName:
                 if (entry.QueryCodes.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one query code group.");
-                var queryCodeGroup = await reader.ReadElementContentAsQueryCodeGroupAsync(entry);
+                var queryCodeGroup = await reader.ReadQueryCodeGroupAsync(entry);
                 entry.QueryCodes = queryCodeGroup.QueryCodes;
                 break;
             default:

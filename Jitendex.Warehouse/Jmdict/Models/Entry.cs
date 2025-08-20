@@ -33,7 +33,7 @@ public class Entry
 
 internal static class EntryReader
 {
-    public async static Task<Entry> ReadElementContentAsEntryAsync(this XmlReader reader, DocumentMetadata? docMeta)
+    public async static Task<Entry> ReadEntryAsync(this XmlReader reader, DocumentMetadata? docMeta)
     {
         if (docMeta == null)
             throw new ArgumentNullException(nameof(docMeta),
@@ -69,15 +69,15 @@ internal static class EntryReader
                 entry.Id = int.Parse(sequence);
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await reader.ReadElementContentAsKanjiFormAsync(entry, docMeta);
+                var kanjiForm = await reader.ReadKanjiFormAsync(entry, docMeta);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await reader.ReadElementContentAsReadingAsync(entry, docMeta);
+                var reading = await reader.ReadReadingAsync(entry, docMeta);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await reader.ReadElementContentAsSenseAsync(entry, docMeta);
+                var sense = await reader.ReadSenseAsync(entry, docMeta);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);

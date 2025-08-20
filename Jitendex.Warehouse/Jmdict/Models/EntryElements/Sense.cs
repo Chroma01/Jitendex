@@ -60,7 +60,7 @@ public class Sense
 
 internal static class SenseReader
 {
-    public async static Task<Sense> ReadElementContentAsSenseAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
+    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
     {
         var sense = new Sense
         {
@@ -109,26 +109,26 @@ internal static class SenseReader
                 sense.Note = await reader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
-                var gloss = await reader.ReadElementContentAsGlossAsync(sense);
+                var gloss = await reader.ReadGlossAsync(sense);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }
                 break;
             case PartOfSpeechTag.XmlTagName:
-                var posTag = await reader.ReadElementContentAsPartOfSpeechTagAsync(sense, docMeta);
+                var posTag = await reader.ReadPartOfSpeechTagAsync(sense, docMeta);
                 sense.PartOfSpeechTags.Add(posTag);
                 break;
             case FieldTag.XmlTagName:
-                var fieldTag = await reader.ReadElementContentAsFieldTagAsync(sense, docMeta);
+                var fieldTag = await reader.ReadFieldTagAsync(sense, docMeta);
                 sense.FieldTags.Add(fieldTag);
                 break;
             case MiscTag.XmlTagName:
-                var miscTag = await reader.ReadElementContentAsMiscTagAsync(sense, docMeta);
+                var miscTag = await reader.ReadMiscTagAsync(sense, docMeta);
                 sense.MiscTags.Add(miscTag);
                 break;
             case DialectTag.XmlTagName:
-                var dialTag = await reader.ReadElementContentAsDialectTagAsync(sense, docMeta);
+                var dialTag = await reader.ReadDialectTagAsync(sense, docMeta);
                 sense.DialectTags.Add(dialTag);
                 break;
             case "xref":

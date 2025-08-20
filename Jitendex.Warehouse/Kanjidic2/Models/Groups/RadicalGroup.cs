@@ -38,7 +38,7 @@ internal class RadicalGroup
 
 internal static class RadicalGroupReader
 {
-    public async static Task<RadicalGroup> ReadElementContentAsRadicalGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<RadicalGroup> ReadRadicalGroupAsync(this XmlReader reader, Entry entry)
     {
         var radicalGroup = new RadicalGroup
         {

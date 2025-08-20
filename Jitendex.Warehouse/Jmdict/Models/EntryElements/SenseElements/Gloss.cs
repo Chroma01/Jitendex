@@ -43,7 +43,7 @@ public class Gloss
 
 internal static class GlossReader
 {
-    public async static Task<Gloss> ReadElementContentAsGlossAsync(this XmlReader reader, Sense sense)
+    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense)
         => new Gloss
         {
             EntryId = sense.EntryId,

@@ -38,7 +38,7 @@ public class PriorityTag
 
 internal static class PriorityTagReader
 {
-    public async static Task<PriorityTag> ReadElementContentAsPriorityTagAsync(this XmlReader reader, Reading reading)
+    public async static Task<PriorityTag> ReadPriorityTagAsync(this XmlReader reader, Reading reading)
         => new PriorityTag
         {
             EntryId = reading.EntryId,

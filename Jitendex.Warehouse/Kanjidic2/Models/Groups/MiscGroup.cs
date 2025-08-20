@@ -44,7 +44,7 @@ internal class MiscGroup
 
 internal static class MiscGroupReader
 {
-    public async static Task<MiscGroup> ReadElementContentAsMiscGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<MiscGroup> ReadMiscGroupAsync(this XmlReader reader, Entry entry)
     {
         var miscGroup = new MiscGroup
         {

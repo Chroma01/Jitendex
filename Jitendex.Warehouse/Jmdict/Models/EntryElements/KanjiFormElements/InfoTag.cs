@@ -41,7 +41,7 @@ public class InfoTag
 
 internal static class InfoTagReader
 {
-    public async static Task<InfoTag> ReadElementContentAsInfoTagAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
+    public async static Task<InfoTag> ReadInfoTagAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);

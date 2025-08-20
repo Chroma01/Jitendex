@@ -41,7 +41,7 @@ public class InfoTag
 
 internal static class InfoTagReader
 {
-    public async static Task<InfoTag> ReadElementContentAsInfoTagAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
+    public async static Task<InfoTag> ReadInfoTagAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
         var desc = docMeta.GetTagDescription<ReadingInfoTagDescription>(text);
