@@ -16,35 +16,35 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
-[PrimaryKey(nameof(Character), nameof(Order))]
-public class ReadingMeaningGroup
+[NotMapped]
+internal class ReadingMeaningGroup
 {
+    [Key]
     public required string Character { get; set; }
-    public required int Order { get; set; }
-    public List<Reading> Readings { get; set; } = [];
-    public List<Meaning> Meanings { get; set; } = [];
+    public ReadingMeaning? ReadingMeaning { get; set; }
+    public List<Nanori> Nanoris { get; set; } = [];
 
     [ForeignKey(nameof(Character))]
-    public virtual ReadingMeaning ReadingMeaning { get; set; } = null!;
+    public virtual Entry Entry { get; set; } = null!;
 
-    internal const string XmlTagName = "rmgroup";
+    internal const string XmlTagName = "reading_meaning";
 }
 
 internal static class ReadingMeaningGroupReader
 {
-    public async static Task<ReadingMeaningGroup> ReadElementContentAsReadingMeaningGroupAsync(this XmlReader reader, ReadingMeaning readingMeaning)
+    public async static Task<ReadingMeaningGroup> ReadElementContentAsReadingMeaningGroupAsync(this XmlReader reader, Entry entry)
     {
         var group = new ReadingMeaningGroup
         {
-            Character = readingMeaning.Character,
-            Order = readingMeaning.Groups.Count + 1,
-            ReadingMeaning = readingMeaning,
+            Character = entry.Character,
+            ReadingMeaning = null,
+            Entry = entry,
         };
 
         var exit = false;
@@ -70,14 +70,28 @@ internal static class ReadingMeaningGroupReader
     {
         switch (reader.Name)
         {
-            case Reading.XmlTagName:
-                var reading = await reader.ReadElementContentAsReadingAsync(group);
-                group.Readings.Add(reading);
+            case ReadingMeaning.XmlTagName:
+                var readingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(group);
+                if (group.ReadingMeaning == null)
+                {
+                    group.ReadingMeaning = readingMeaning;
+                }
+                else
+                {
+                    throw new Exception($"Reading-meaning group for character `{group.Character}` has more than one reading-meaning set.");
+                }
                 break;
-            case Meaning.XmlTagName:
-                var meaning = await reader.ReadElementContentAsMeaningAsync(group);
-                group.Meanings.Add(meaning);
+            case Nanori.XmlTagName:
+                group.Nanoris.Add(new Nanori
+                {
+                    Character = group.Character,
+                    Order = group.Nanoris.Count + 1,
+                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Entry = group.Entry,
+                });
                 break;
+            default:
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{ReadingMeaningGroup.XmlTagName}`");
         }
     }
 }

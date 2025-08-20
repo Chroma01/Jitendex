@@ -29,7 +29,7 @@ public class Nanori
     public required string Text { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual ReadingMeaning ReadingMeaning { get; set; } = null!;
+    public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "nanori";
 }

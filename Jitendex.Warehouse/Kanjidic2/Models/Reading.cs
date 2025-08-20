@@ -22,31 +22,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
-[PrimaryKey(nameof(Character), nameof(GroupOrder), nameof(Order))]
+[PrimaryKey(nameof(Character), nameof(Order))]
 public class Reading
 {
     public required string Character { get; set; }
-    public required int GroupOrder { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
     public required string Type { get; set; }
 
-    [ForeignKey($"{nameof(Character)}, {nameof(GroupOrder)}")]
-    public virtual ReadingMeaningGroup Group { get; set; } = null!;
+    [ForeignKey($"{nameof(Character)}")]
+    public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "reading";
 }
 
 internal static class ReadingReader
 {
-    public async static Task<Reading> ReadElementContentAsReadingAsync(this XmlReader reader, ReadingMeaningGroup group)
+    public async static Task<Reading> ReadElementContentAsReadingAsync(this XmlReader reader, ReadingMeaning readingMeaning)
         => new Reading
         {
-            Character = group.Character,
-            GroupOrder = group.Order,
-            Order = group.Readings.Count + 1,
+            Character = readingMeaning.Character,
+            Order = readingMeaning.Readings.Count + 1,
             Type = reader.GetAttribute("r_type") ?? string.Empty,
             Text = await reader.ReadElementContentAsStringAsync(),
-            Group = group,
+            Entry = readingMeaning.Entry,
         };
 }

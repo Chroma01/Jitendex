@@ -16,33 +16,32 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
-public class ReadingMeaning
+[NotMapped]
+internal class ReadingMeaning
 {
-    [Key]
     public required string Character { get; set; }
-    public List<ReadingMeaningGroup> Groups { get; set; } = [];
-    public List<Nanori> Nanoris { get; set; } = [];
+    public List<Reading> Readings { get; set; } = [];
+    public List<Meaning> Meanings { get; set; } = [];
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
 
-    internal const string XmlTagName = "reading_meaning";
+    internal const string XmlTagName = "rmgroup";
 }
 
 internal static class ReadingMeaningReader
 {
-    public async static Task<ReadingMeaning> ReadElementContentAsReadingMeaningAsync(this XmlReader reader, Entry entry)
+    public async static Task<ReadingMeaning> ReadElementContentAsReadingMeaningAsync(this XmlReader reader, ReadingMeaningGroup group)
     {
         var readingMeaning = new ReadingMeaning
         {
-            Character = entry.Character,
-            Entry = entry,
+            Character = group.Character,
+            Entry = group.Entry,
         };
 
         var exit = false;
@@ -68,20 +67,13 @@ internal static class ReadingMeaningReader
     {
         switch (reader.Name)
         {
-            case ReadingMeaningGroup.XmlTagName:
-                var group = await reader.ReadElementContentAsReadingMeaningGroupAsync(readingMeaning);
-                readingMeaning.Groups.Add(group);
+            case Reading.XmlTagName:
+                var reading = await reader.ReadElementContentAsReadingAsync(readingMeaning);
+                readingMeaning.Readings.Add(reading);
                 break;
-            case Nanori.XmlTagName:
-                readingMeaning.Nanoris.Add(new Nanori
-                {
-                    Character = readingMeaning.Character,
-                    Order = readingMeaning.Nanoris.Count + 1,
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                });
-                break;
-            default:
-                // throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
+            case Meaning.XmlTagName:
+                var meaning = await reader.ReadElementContentAsMeaningAsync(readingMeaning);
+                readingMeaning.Meanings.Add(meaning);
                 break;
         }
     }

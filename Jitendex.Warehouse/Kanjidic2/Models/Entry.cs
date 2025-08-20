@@ -26,7 +26,9 @@ public class Entry
     [Key]
     public required string Character { get; set; }
     public List<Codepoint> Codepoints { get; set; } = [];
-    public ReadingMeaning? ReadingMeaning { get; set; }
+    public List<Reading> Readings { get; set; } = [];
+    public List<Meaning> Meanings { get; set; } = [];
+    public List<Nanori> Nanoris { get; set; } = [];
 
     internal const string XmlTagName = "character";
 }
@@ -77,8 +79,18 @@ internal static class EntryReader
                     throw new Exception($"Character {entry.Character} has more than one codepoint group.");
                 }
                 break;
-            case ReadingMeaning.XmlTagName:
-                entry.ReadingMeaning = await reader.ReadElementContentAsReadingMeaningAsync(entry);
+            case ReadingMeaningGroup.XmlTagName:
+                var readingMeaningGroup = await reader.ReadElementContentAsReadingMeaningGroupAsync(entry);
+                if (entry.Readings.Count == 0 && entry.Meanings.Count == 0 && entry.Nanoris.Count == 0)
+                {
+                    entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
+                    entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
+                    entry.Nanoris = readingMeaningGroup.Nanoris;
+                }
+                else
+                {
+                    throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
+                }
                 break;
             default:
                 // throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
