@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models;
+namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
 
 [NotMapped]
 internal class ReadingMeaning
@@ -68,12 +68,24 @@ internal static class ReadingMeaningReader
         switch (reader.Name)
         {
             case Reading.XmlTagName:
-                var reading = await reader.ReadElementContentAsReadingAsync(readingMeaning);
-                readingMeaning.Readings.Add(reading);
+                readingMeaning.Readings.Add(new Reading
+                {
+                    Character = readingMeaning.Character,
+                    Order = readingMeaning.Readings.Count + 1,
+                    Type = reader.GetAttribute("r_type") ?? string.Empty,
+                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Entry = readingMeaning.Entry,
+                });
                 break;
             case Meaning.XmlTagName:
-                var meaning = await reader.ReadElementContentAsMeaningAsync(readingMeaning);
-                readingMeaning.Meanings.Add(meaning);
+                readingMeaning.Meanings.Add(new Meaning
+                {
+                    Character = readingMeaning.Character,
+                    Order = readingMeaning.Meanings.Count + 1,
+                    Language = reader.GetAttribute("m_lang") ?? "en",
+                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Entry = readingMeaning.Entry,
+                });
                 break;
         }
     }

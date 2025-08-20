@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
@@ -34,17 +33,4 @@ public class Radical
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "rad_value";
-}
-
-internal static class RadicalReader
-{
-    public async static Task<Radical> ReadElementContentAsRadicalAsync(this XmlReader reader, RadicalGroup group)
-        => new Radical
-        {
-            Character = group.Character,
-            Order = group.Radicals.Count + 1,
-            Type = reader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
-            Number = int.Parse(await reader.ReadElementContentAsStringAsync()),
-            Entry = group.Entry,
-        };
 }

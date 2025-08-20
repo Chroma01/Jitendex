@@ -20,7 +20,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models;
+namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
 
 [NotMapped]
 internal class ReadingMeaningGroup

@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.Xml;
+using Jitendex.Warehouse.Kanjidic2.Models.Groups;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 

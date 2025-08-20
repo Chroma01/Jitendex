@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
@@ -34,17 +33,4 @@ public class Codepoint
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "cp_value";
-}
-
-internal static class CodepointReader
-{
-    public async static Task<Codepoint> ReadElementContentAsCodepointAsync(this XmlReader reader, CodepointGroup group)
-        => new Codepoint
-        {
-            Character = group.Character,
-            Order = group.Codepoints.Count + 1,
-            Type = reader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
-            Text = await reader.ReadElementContentAsStringAsync(),
-            Entry = group.Entry,
-        };
 }

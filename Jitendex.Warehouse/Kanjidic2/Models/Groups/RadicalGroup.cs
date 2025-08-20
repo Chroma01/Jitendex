@@ -20,26 +20,26 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models;
+namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
 
 [NotMapped]
-internal class CodepointGroup
+internal class RadicalGroup
 {
     [Key]
     public required string Character { get; set; }
-    public List<Codepoint> Codepoints { get; set; } = [];
+    public List<Radical> Radicals { get; set; } = [];
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
 
-    internal const string XmlTagName = "codepoint";
+    internal const string XmlTagName = "radical";
 }
 
-internal static class CodepointGroupReader
+internal static class RadicalGroupReader
 {
-    public async static Task<CodepointGroup> ReadElementContentAsCodepointGroupAsync(this XmlReader reader, Entry entry)
+    public async static Task<RadicalGroup> ReadElementContentAsRadicalGroupAsync(this XmlReader reader, Entry entry)
     {
-        var codepointGroup = new CodepointGroup
+        var radicalGroup = new RadicalGroup
         {
             Character = entry.Character,
             Entry = entry,
@@ -51,29 +51,35 @@ internal static class CodepointGroupReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(codepointGroup);
+                    await reader.ReadChildElementAsync(radicalGroup);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{CodepointGroup.XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected text node found in `{RadicalGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == CodepointGroup.XmlTagName;
+                    exit = reader.Name == RadicalGroup.XmlTagName;
                     break;
             }
         }
-        return codepointGroup;
+        return radicalGroup;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, CodepointGroup codepointGroup)
+    private async static Task ReadChildElementAsync(this XmlReader reader, RadicalGroup group)
     {
         switch (reader.Name)
         {
-            case Codepoint.XmlTagName:
-                var codepoint = await reader.ReadElementContentAsCodepointAsync(codepointGroup);
-                codepointGroup.Codepoints.Add(codepoint);
+            case Radical.XmlTagName:
+                group.Radicals.Add(new Radical
+                {
+                    Character = group.Character,
+                    Order = group.Radicals.Count + 1,
+                    Type = reader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
+                    Number = int.Parse(await reader.ReadElementContentAsStringAsync()),
+                    Entry = group.Entry,
+                });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{CodepointGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{RadicalGroup.XmlTagName}`");
         }
     }
 }

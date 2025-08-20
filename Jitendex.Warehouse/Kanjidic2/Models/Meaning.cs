@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
@@ -34,17 +33,4 @@ public class Meaning
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "meaning";
-}
-
-internal static class MeaningReader
-{
-    public async static Task<Meaning> ReadElementContentAsMeaningAsync(this XmlReader reader, ReadingMeaning readingMeaning)
-        => new Meaning
-        {
-            Character = readingMeaning.Character,
-            Order = readingMeaning.Meanings.Count + 1,
-            Language = reader.GetAttribute("m_lang") ?? "en",
-            Text = await reader.ReadElementContentAsStringAsync(),
-            Entry = readingMeaning.Entry,
-        };
 }
