@@ -107,7 +107,7 @@ internal static class MiscGroupReader
                 group.RadicalNames.Add(new RadicalName
                 {
                     Character = group.Character,
-                    Order = group.Variants.Count + 1,
+                    Order = group.RadicalNames.Count + 1,
                     Text = await reader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
