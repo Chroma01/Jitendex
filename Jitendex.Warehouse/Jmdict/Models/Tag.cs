@@ -21,61 +21,61 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 public interface ITag
 {
     string Id { get; set; }
-    string Text { get; set; }
+    string Description { get; set; }
 
-    static abstract internal ITag New(string id, string text);
+    static abstract internal ITag New(string id, string description);
 }
 
 public class ReadingInfoTag : ITag
 {
     public required string Id { get; set; }
-    public required string Text { get; set; }
+    public required string Description { get; set; }
 
-    static ITag ITag.New(string id, string text)
-        => new ReadingInfoTag { Id = id, Text = text };
+    static ITag ITag.New(string id, string description)
+        => new ReadingInfoTag { Id = id, Description = description };
 }
 
 public class KanjiFormInfoTag : ITag
 {
     public required string Id { get; set; }
-    public required string Text { get; set; }
+    public required string Description { get; set; }
 
-    static ITag ITag.New(string id, string text)
-        => new KanjiFormInfoTag { Id = id, Text = text };
+    static ITag ITag.New(string id, string description)
+        => new KanjiFormInfoTag { Id = id, Description = description };
 }
 
 public class PartOfSpeechTag : ITag
 {
     public required string Id { get; set; }
-    public required string Text { get; set; }
+    public required string Description { get; set; }
 
-    static ITag ITag.New(string id, string text)
-        => new PartOfSpeechTag { Id = id, Text = text };
+    static ITag ITag.New(string id, string description)
+        => new PartOfSpeechTag { Id = id, Description = description };
 }
 
 public class FieldTag : ITag
 {
     public required string Id { get; set; }
-    public required string Text { get; set; }
+    public required string Description { get; set; }
 
-    static ITag ITag.New(string id, string text)
-        => new FieldTag { Id = id, Text = text };
+    static ITag ITag.New(string id, string description)
+        => new FieldTag { Id = id, Description = description };
 }
 
 public class MiscTag : ITag
 {
     public required string Id { get; set; }
-    public required string Text { get; set; }
+    public required string Description { get; set; }
 
-    static ITag ITag.New(string id, string text)
-        => new MiscTag { Id = id, Text = text };
+    static ITag ITag.New(string id, string description)
+        => new MiscTag { Id = id, Description = description };
 }
 
 public class DialectTag : ITag
 {
     public required string Id { get; set; }
-    public required string Text { get; set; }
+    public required string Description { get; set; }
 
-    static ITag ITag.New(string id, string text)
-        => new DialectTag { Id = id, Text = text };
+    static ITag ITag.New(string id, string description)
+        => new DialectTag { Id = id, Description = description };
 }
