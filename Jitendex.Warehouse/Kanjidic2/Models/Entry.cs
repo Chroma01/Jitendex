@@ -32,6 +32,7 @@ public class Entry
     public List<Reading> Readings { get; set; } = [];
     public List<Meaning> Meanings { get; set; } = [];
     public List<Nanori> Nanoris { get; set; } = [];
+    public required bool IsKokuji { get; set; }
     public int? Grade { get; set; }
     public int? Frequency { get; set; }
     public int? JlptLevel { get; set; }
@@ -51,6 +52,7 @@ internal static class EntryReader
         var entry = new Entry
         {
             Character = string.Empty,
+            IsKokuji = false,
         };
 
         var exit = false;
@@ -92,11 +94,12 @@ internal static class EntryReader
                 entry.Radicals = radicalGroup.Radicals;
                 break;
             case ReadingMeaningGroup.XmlTagName:
-                if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0)
+                if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0 || entry.IsKokuji)
                     throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
                 var readingMeaningGroup = await reader.ReadElementContentAsReadingMeaningGroupAsync(entry);
                 entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
                 entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
+                entry.IsKokuji = readingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
                 entry.Nanoris = readingMeaningGroup.Nanoris;
                 break;
             case MiscGroup.XmlTagName:

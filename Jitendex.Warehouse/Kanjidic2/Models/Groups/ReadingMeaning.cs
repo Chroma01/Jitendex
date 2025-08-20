@@ -28,6 +28,7 @@ internal class ReadingMeaning
     public required string Character { get; set; }
     public List<Reading> Readings { get; set; } = [];
     public List<Meaning> Meanings { get; set; } = [];
+    public bool IsKokuji = false;
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
@@ -79,14 +80,24 @@ internal static class ReadingMeaningReader
                 });
                 break;
             case Meaning.XmlTagName:
-                readingMeaning.Meanings.Add(new Meaning
+                var meaning = new Meaning
                 {
                     Character = readingMeaning.Character,
                     Order = readingMeaning.Meanings.Count + 1,
                     Language = reader.GetAttribute("m_lang") ?? "en",
                     Text = await reader.ReadElementContentAsStringAsync(),
                     Entry = readingMeaning.Entry,
-                });
+                };
+                if (meaning.Language != "en")
+                {
+                    break;
+                }
+                if (meaning.Text == "(kokuji)")
+                {
+                    readingMeaning.IsKokuji = true;
+                    break;
+                }
+                readingMeaning.Meanings.Add(meaning);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{ReadingMeaning.XmlTagName}`");
