@@ -70,13 +70,15 @@ internal static class DictionaryGroupReader
         switch (reader.Name)
         {
             case Dictionary.XmlTagName:
+                var volume = reader.GetAttribute("m_vol");
+                var page = reader.GetAttribute("m_page");
                 group.Dictionaries.Add(new Dictionary
                 {
                     Character = group.Character,
                     Order = group.Dictionaries.Count + 1,
                     Type = reader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
-                    Volume = reader.GetAttribute("m_vol"),
-                    Page = reader.GetAttribute("m_page"),
+                    Volume = volume != null ? int.Parse(volume) : null,
+                    Page = page != null ? int.Parse(page) : null,
                     Text = await reader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
