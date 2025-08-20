@@ -26,6 +26,7 @@ public class Entry
     [Key]
     public required string Character { get; set; }
     public List<Codepoint> Codepoints { get; set; } = [];
+    public List<Radical> Radicals { get; set; } = [];
     public List<Reading> Readings { get; set; } = [];
     public List<Meaning> Meanings { get; set; } = [];
     public List<Nanori> Nanoris { get; set; } = [];
@@ -69,32 +70,27 @@ internal static class EntryReader
                 entry.Character = await reader.ReadElementContentAsStringAsync();
                 break;
             case CodepointGroup.XmlTagName:
-                var codepointGroup = await reader.ReadElementContentAsCodepointGroupAsync(entry);
-                if (entry.Codepoints.Count == 0)
-                {
-                    entry.Codepoints = codepointGroup.Codepoints;
-                }
-                else
-                {
+                if (entry.Codepoints.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one codepoint group.");
-                }
+                var codepointGroup = await reader.ReadElementContentAsCodepointGroupAsync(entry);
+                entry.Codepoints = codepointGroup.Codepoints;
+                break;
+            case RadicalGroup.XmlTagName:
+                if (entry.Radicals.Count != 0)
+                    throw new Exception($"Character {entry.Character} has more than one radical group.");
+                var radicalGroup = await reader.ReadElementContentAsRadicalGroupAsync(entry);
+                entry.Radicals = radicalGroup.Radicals;
                 break;
             case ReadingMeaningGroup.XmlTagName:
-                var readingMeaningGroup = await reader.ReadElementContentAsReadingMeaningGroupAsync(entry);
-                if (entry.Readings.Count == 0 && entry.Meanings.Count == 0 && entry.Nanoris.Count == 0)
-                {
-                    entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
-                    entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
-                    entry.Nanoris = readingMeaningGroup.Nanoris;
-                }
-                else
-                {
+                if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
-                }
+                var readingMeaningGroup = await reader.ReadElementContentAsReadingMeaningGroupAsync(entry);
+                entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
+                entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
+                entry.Nanoris = readingMeaningGroup.Nanoris;
                 break;
             default:
-                // throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{XmlTagName}`");
-                break;
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
 }
