@@ -42,8 +42,8 @@ internal static class MiscReader
 {
     public async static Task<Misc> ReadMiscAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
-        var text = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTag<MiscTag>(text);
+        var description = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTagByDescription<MiscTag>(description);
         return new Misc
         {
             EntryId = sense.EntryId,

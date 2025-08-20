@@ -23,7 +23,16 @@ public interface ITag
     string Id { get; set; }
     string Description { get; set; }
 
-    static abstract internal ITag New(string id, string description);
+    internal abstract static ITag New(string id, string description);
+}
+
+public class PriorityTag : ITag
+{
+    public required string Id { get; set; }
+    public required string Description { get; set; }
+
+    static ITag ITag.New(string id, string description)
+        => new PriorityTag { Id = id, Description = description };
 }
 
 public class ReadingInfoTag : ITag

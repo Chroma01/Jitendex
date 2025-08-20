@@ -33,17 +33,25 @@ public class Priority
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
 
+    [ForeignKey(nameof(TagId))]
+    public virtual PriorityTag Tag { get; set; } = null!;
+
     internal const string XmlTagName = "ke_pri";
 }
 
 internal static class PriorityReader
 {
-    public async static Task<Priority> ReadPriorityTagAsync(this XmlReader reader, KanjiForm kanjiForm)
-        => new Priority
+    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
+    {
+        var tagId = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTagById<PriorityTag>(tagId);
+        return new Priority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            TagId = await reader.ReadElementContentAsStringAsync(),
+            TagId = tagId,
             KanjiForm = kanjiForm,
+            Tag = tag,
         };
+    }
 }

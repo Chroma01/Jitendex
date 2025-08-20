@@ -33,17 +33,25 @@ public class Priority
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public virtual Reading Reading { get; set; } = null!;
 
+    [ForeignKey(nameof(TagId))]
+    public virtual PriorityTag Tag { get; set; } = null!;
+
     internal const string XmlTagName = "re_pri";
 }
 
 internal static class PriorityReader
 {
-    public async static Task<Priority> ReadPriorityTagAsync(this XmlReader reader, Reading reading)
-        => new Priority
+    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
+    {
+        var tagId = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTagById<PriorityTag>(tagId);
+        return new Priority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            TagId = await reader.ReadElementContentAsStringAsync(),
+            TagId = tagId,
             Reading = reading,
+            Tag = tag,
         };
+    }
 }

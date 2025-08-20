@@ -43,8 +43,8 @@ internal static class InfoReader
 {
     public async static Task<Info> ReadInfoAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
     {
-        var text = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTag<KanjiFormInfoTag>(text);
+        var description = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTagByDescription<KanjiFormInfoTag>(description);
         return new Info
         {
             EntryId = kanjiForm.EntryId,
