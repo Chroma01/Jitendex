@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Kanjidic2;
 
@@ -25,18 +26,43 @@ public class Loader
 {
     public async static Task ImportAsync()
     {
+        var parseTask = ParseKanjidic2Async();
         await using var db = new Kanjidic2Context();
-        Console.WriteLine($"Kanjidic2 database path: {db.DbPath}.");
+        await InitializeDatabaseAsync(db);
 
+        var entries = await parseTask;
+        await db.Entries.AddRangeAsync(entries);
+        await db.SaveChangesAsync();
+    }
+
+    private async static Task InitializeDatabaseAsync(Kanjidic2Context db)
+    {
+        // Delete and recreate database file.
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
 
+        // For faster importing, write data to memory
+        // rather than to the disk during initial load.
+        await using var connection = db.Database.GetDbConnection();
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = @"
+            PRAGMA synchronous = OFF;
+            PRAGMA journal_mode = MEMORY;
+            PRAGMA temp_store = MEMORY;
+            PRAGMA cache_size = -200000;";
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private async static Task<List<Entry>> ParseKanjidic2Async()
+    {
+        var entries = new List<Entry>();
         var kanjidic2Path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
         await foreach (var entry in EntriesAsync(kanjidic2Path))
         {
-            await db.Entries.AddAsync(entry);
+            entries.Add(entry);
         }
-        await db.SaveChangesAsync();
+        return entries;
     }
 
     private async static IAsyncEnumerable<Entry> EntriesAsync(string path)
