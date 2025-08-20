@@ -39,6 +39,7 @@ public class Entry
     public List<Variant> Variants { get; set; } = [];
     public List<RadicalName> RadicalNames { get; set; } = [];
     public List<Dictionary> Dictionaries { get; set; } = [];
+    public List<QueryCode> QueryCodes { get; set; } = [];
 
     internal const string XmlTagName = "character";
 }
@@ -116,6 +117,12 @@ internal static class EntryReader
                     throw new Exception($"Character {entry.Character} has more than one dictionary group.");
                 var dictionaryGroup = await reader.ReadElementContentAsDictionaryGroupAsync(entry);
                 entry.Dictionaries = dictionaryGroup.Dictionaries;
+                break;
+            case QueryCodeGroup.XmlTagName:
+                if (entry.QueryCodes.Count != 0)
+                    throw new Exception($"Character {entry.Character} has more than one query code group.");
+                var queryCodeGroup = await reader.ReadElementContentAsQueryCodeGroupAsync(entry);
+                entry.QueryCodes = queryCodeGroup.QueryCodes;
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
