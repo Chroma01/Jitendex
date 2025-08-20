@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +24,6 @@ namespace Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 [PrimaryKey(nameof(Character), nameof(Order))]
 public class Codepoint
 {
-    [Key]
     public required string Character { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
