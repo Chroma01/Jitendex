@@ -116,20 +116,20 @@ internal static class SenseReader
                 }
                 break;
             case PartOfSpeech.XmlTagName:
-                var posTag = await reader.ReadPartOfSpeechAsync(sense, docMeta);
-                sense.PartsOfSpeech.Add(posTag);
+                var pos = await reader.ReadPartOfSpeechAsync(sense, docMeta);
+                sense.PartsOfSpeech.Add(pos);
                 break;
             case Field.XmlTagName:
-                var fieldTag = await reader.ReadFieldAsync(sense, docMeta);
-                sense.Fields.Add(fieldTag);
+                var field = await reader.ReadFieldAsync(sense, docMeta);
+                sense.Fields.Add(field);
                 break;
             case Misc.XmlTagName:
-                var miscTag = await reader.ReadMiscAsync(sense, docMeta);
-                sense.Miscs.Add(miscTag);
+                var misc = await reader.ReadMiscAsync(sense, docMeta);
+                sense.Miscs.Add(misc);
                 break;
             case Dialect.XmlTagName:
-                var dialTag = await reader.ReadDialectAsync(sense, docMeta);
-                sense.Dialects.Add(dialTag);
+                var dial = await reader.ReadDialectAsync(sense, docMeta);
+                sense.Dialects.Add(dial);
                 break;
             case "xref":
                 var xref = await reader.ReadElementContentAsStringAsync();

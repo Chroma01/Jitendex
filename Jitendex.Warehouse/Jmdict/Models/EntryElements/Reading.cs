@@ -91,12 +91,12 @@ internal static class ReadingReader
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case Info.XmlTagName:
-                var readingInfoTag = await reader.ReadInfoAsync(reading, docMeta);
-                reading.Infos.Add(readingInfoTag);
+                var readingInfo = await reader.ReadInfoAsync(reading, docMeta);
+                reading.Infos.Add(readingInfo);
                 break;
             case Priority.XmlTagName:
-                var priorityTag = await reader.ReadPriorityAsync(reading, docMeta);
-                reading.Priorities.Add(priorityTag);
+                var priority = await reader.ReadPriorityAsync(reading, docMeta);
+                reading.Priorities.Add(priority);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Reading.XmlTagName}`");
