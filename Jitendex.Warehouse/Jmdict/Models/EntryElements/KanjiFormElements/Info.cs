@@ -20,37 +20,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
-public class PartOfSpeechTag
+[Table($"{nameof(KanjiForm)}{nameof(Info)}")]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
+public class Info
 {
     public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual PartOfSpeechTagDescription Description { get; set; } = null!;
+    public virtual KanjiFormInfoTag Tag { get; set; } = null!;
 
-    internal const string XmlTagName = "pos";
+    internal const string XmlTagName = "ke_inf";
 }
 
-internal static class PartOfSpeechTagReader
+internal static class InfoReader
 {
-    public async static Task<PartOfSpeechTag> ReadPartOfSpeechTagAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<Info> ReadInfoAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
-        var desc = docMeta.GetTagDescription<PartOfSpeechTagDescription>(text);
-        return new PartOfSpeechTag
+        var tag = docMeta.GetTag<KanjiFormInfoTag>(text);
+        return new Info
         {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            TagId = desc.Id,
-            Sense = sense,
-            Description = desc,
+            EntryId = kanjiForm.EntryId,
+            KanjiFormOrder = kanjiForm.Order,
+            TagId = tag.Id,
+            KanjiForm = kanjiForm,
+            Tag = tag,
         };
     }
 }

@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
-public class DialectTag
+public class PartOfSpeech
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
@@ -33,24 +33,24 @@ public class DialectTag
     public virtual Sense Sense { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual DialectTagDescription Description { get; set; } = null!;
+    public virtual PartOfSpeechTag Tag { get; set; } = null!;
 
-    internal const string XmlTagName = "dial";
+    internal const string XmlTagName = "pos";
 }
 
-internal static class DialectTagReader
+internal static class PartOfSpeechReader
 {
-    public async static Task<DialectTag> ReadDialectTagAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<PartOfSpeech> ReadPartOfSpeechAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
-        var desc = docMeta.GetTagDescription<DialectTagDescription>(text);
-        return new DialectTag
+        var tag = docMeta.GetTag<PartOfSpeechTag>(text);
+        return new PartOfSpeech
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            TagId = desc.Id,
+            TagId = tag.Id,
             Sense = sense,
-            Description = desc,
+            Tag = tag,
         };
     }
 }

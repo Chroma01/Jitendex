@@ -26,24 +26,24 @@ internal class DocumentMetadata
     public required string Name { get; set; }
     public required Dictionary<string, string> EntityValueToName { get; set; }
 
-    private Dictionary<(string, string), object> TagDescriptions { get; set; } = [];
+    private Dictionary<(string, string), object> Tags { get; set; } = [];
 
-    public T GetTagDescription<T>(string entityValue) where T : ITagDescription
+    public T GetTag<T>(string entityValue) where T : ITag
     {
         var key =
         (
             tagTypeName: typeof(T).Name,
             entityName: EntityValueToName[entityValue]
         );
-        if (TagDescriptions.TryGetValue(key, out object? tagDescription))
+        if (Tags.TryGetValue(key, out object? tag))
         {
-            return (T)tagDescription;
+            return (T)tag;
         }
         else
         {
-            var newTagDescription = (T)T.New(key.entityName, entityValue);
-            TagDescriptions[key] = newTagDescription;
-            return newTagDescription;
+            var newTag = (T)T.New(key.entityName, entityValue);
+            Tags[key] = newTag;
+            return newTag;
         }
     }
 }

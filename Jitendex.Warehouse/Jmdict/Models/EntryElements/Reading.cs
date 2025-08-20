@@ -29,8 +29,8 @@ public class Reading
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<InfoTag> InfoTags { get; set; } = [];
-    public List<PriorityTag> PriorityTags { get; set; } = [];
+    public List<Info> Infos { get; set; } = [];
+    public List<Priority> Priorities { get; set; } = [];
     public List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
@@ -90,13 +90,13 @@ internal static class ReadingReader
                 var kanjiFormText = await reader.ReadElementContentAsStringAsync();
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
-            case InfoTag.XmlTagName:
-                var readingInfoTag = await reader.ReadInfoTagAsync(reading, docMeta);
-                reading.InfoTags.Add(readingInfoTag);
+            case Info.XmlTagName:
+                var readingInfoTag = await reader.ReadInfoAsync(reading, docMeta);
+                reading.Infos.Add(readingInfoTag);
                 break;
-            case PriorityTag.XmlTagName:
+            case Priority.XmlTagName:
                 var priorityTag = await reader.ReadPriorityTagAsync(reading);
-                reading.PriorityTags.Add(priorityTag);
+                reading.Priorities.Add(priorityTag);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Reading.XmlTagName}`");

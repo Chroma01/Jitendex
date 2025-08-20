@@ -20,38 +20,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[Table($"{nameof(KanjiForm)}{nameof(InfoTag)}")]
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
-public class InfoTag
+[Table($"{nameof(Reading)}{nameof(Info)}")]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+public class Info
 {
     public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public required int ReadingOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual KanjiFormInfoTagDescription Description { get; set; } = null!;
+    public virtual ReadingInfoTag Tag { get; set; } = null!;
 
-    internal const string XmlTagName = "ke_inf";
+    internal const string XmlTagName = "re_inf";
 }
 
-internal static class InfoTagReader
+internal static class InfoReader
 {
-    public async static Task<InfoTag> ReadInfoTagAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
+    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
-        var desc = docMeta.GetTagDescription<KanjiFormInfoTagDescription>(text);
-        return new InfoTag
+        var tag = docMeta.GetTag<ReadingInfoTag>(text);
+        return new Info
         {
-            EntryId = kanjiForm.EntryId,
-            KanjiFormOrder = kanjiForm.Order,
-            TagId = desc.Id,
-            KanjiForm = kanjiForm,
-            Description = desc,
+            EntryId = reading.EntryId,
+            ReadingOrder = reading.Order,
+            TagId = tag.Id,
+            Reading = reading,
+            Tag = tag,
         };
     }
 }

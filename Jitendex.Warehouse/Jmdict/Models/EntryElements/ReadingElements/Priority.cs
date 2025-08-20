@@ -22,9 +22,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[Table($"{nameof(Reading)}{nameof(PriorityTag)}")]
+[Table($"{nameof(Reading)}{nameof(Priority)}")]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
-public class PriorityTag
+public class Priority
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }
@@ -36,10 +36,10 @@ public class PriorityTag
     internal const string XmlTagName = "re_pri";
 }
 
-internal static class PriorityTagReader
+internal static class PriorityReader
 {
-    public async static Task<PriorityTag> ReadPriorityTagAsync(this XmlReader reader, Reading reading)
-        => new PriorityTag
+    public async static Task<Priority> ReadPriorityTagAsync(this XmlReader reader, Reading reading)
+        => new Priority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,

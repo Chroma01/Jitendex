@@ -20,30 +20,37 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-[Table($"{nameof(KanjiForm)}{nameof(PriorityTag)}")]
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
-public class PriorityTag
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+public class Field
 {
     public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public required int SenseOrder { get; set; }
     public required string TagId { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public virtual Sense Sense { get; set; } = null!;
 
-    internal const string XmlTagName = "ke_pri";
+    [ForeignKey(nameof(TagId))]
+    public virtual FieldTag Tag { get; set; } = null!;
+
+    internal const string XmlTagName = "field";
 }
 
-internal static class PriorityTagReader
+internal static class FieldReader
 {
-    public async static Task<PriorityTag> ReadPriorityTagAsync(this XmlReader reader, KanjiForm kanjiForm)
-        => new PriorityTag
+    public async static Task<Field> ReadFieldAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    {
+        var text = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTag<FieldTag>(text);
+        return new Field
         {
-            EntryId = kanjiForm.EntryId,
-            KanjiFormOrder = kanjiForm.Order,
-            TagId = await reader.ReadElementContentAsStringAsync(),
-            KanjiForm = kanjiForm,
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            TagId = tag.Id,
+            Sense = sense,
+            Tag = tag,
         };
+    }
 }

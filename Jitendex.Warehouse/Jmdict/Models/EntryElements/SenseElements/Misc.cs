@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
-public class MiscTag
+public class Misc
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
@@ -33,24 +33,24 @@ public class MiscTag
     public virtual Sense Sense { get; set; } = null!;
 
     [ForeignKey(nameof(TagId))]
-    public virtual MiscTagDescription Description { get; set; } = null!;
+    public virtual MiscTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "misc";
 }
 
-internal static class MiscTagReader
+internal static class MiscReader
 {
-    public async static Task<MiscTag> ReadMiscTagAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<Misc> ReadMiscAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
         var text = await reader.ReadElementContentAsStringAsync();
-        var desc = docMeta.GetTagDescription<MiscTagDescription>(text);
-        return new MiscTag
+        var tag = docMeta.GetTag<MiscTag>(text);
+        return new Misc
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            TagId = desc.Id,
+            TagId = tag.Id,
             Sense = sense,
-            Description = desc,
+            Tag = tag,
         };
     }
 }

@@ -29,8 +29,8 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<InfoTag> InfoTags { get; set; } = [];
-    public List<PriorityTag> PriorityTags { get; set; } = [];
+    public List<Info> Infos { get; set; } = [];
+    public List<Priority> Priorities { get; set; } = [];
     public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
@@ -77,13 +77,13 @@ internal static class KanjiFormReader
             case "keb":
                 kanjiForm.Text = await reader.ReadElementContentAsStringAsync();
                 break;
-            case InfoTag.XmlTagName:
-                var infoTag = await reader.ReadInfoTagAsync(kanjiForm, docMeta);
-                kanjiForm.InfoTags.Add(infoTag);
+            case Info.XmlTagName:
+                var info = await reader.ReadInfoAsync(kanjiForm, docMeta);
+                kanjiForm.Infos.Add(info);
                 break;
-            case PriorityTag.XmlTagName:
-                var priorityTag = await reader.ReadPriorityTagAsync(kanjiForm);
-                kanjiForm.PriorityTags.Add(priorityTag);
+            case Priority.XmlTagName:
+                var priority = await reader.ReadPriorityTagAsync(kanjiForm);
+                kanjiForm.Priorities.Add(priority);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{KanjiForm.XmlTagName}`");
