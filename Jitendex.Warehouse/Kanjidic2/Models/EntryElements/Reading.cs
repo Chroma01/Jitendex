@@ -29,7 +29,7 @@ public class Reading
     public required string Text { get; set; }
     public required string Type { get; set; }
 
-    [ForeignKey($"{nameof(Character)}")]
+    [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "reading";
