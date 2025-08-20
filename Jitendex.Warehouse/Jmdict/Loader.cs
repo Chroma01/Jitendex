@@ -26,11 +26,11 @@ public static class Loader
 {
     public async static Task ImportAsync()
     {
-        var parseJmdictTask = ParseJmdictAsync();
+        var parseTask = ParseJmdictAsync();
         await using var db = new JmdictContext();
         await InitializeDatabaseAsync(db);
 
-        var entries = await parseJmdictTask;
+        var entries = await parseTask;
         await db.Entries.AddRangeAsync(entries);
         await db.SaveChangesAsync();
     }
