@@ -38,6 +38,7 @@ public class Entry
     public List<StrokeCount> StrokeCounts { get; set; } = [];
     public List<Variant> Variants { get; set; } = [];
     public List<RadicalName> RadicalNames { get; set; } = [];
+    public List<Dictionary> Dictionaries { get; set; } = [];
 
     internal const string XmlTagName = "character";
 }
@@ -109,6 +110,12 @@ internal static class EntryReader
                 entry.StrokeCounts = miscGroup.StrokeCounts;
                 entry.Variants = miscGroup.Variants;
                 entry.RadicalNames = miscGroup.RadicalNames;
+                break;
+            case DictionaryGroup.XmlTagName:
+                if (entry.Dictionaries.Count != 0)
+                    throw new Exception($"Character {entry.Character} has more than one dictionary group.");
+                var dictionaryGroup = await reader.ReadElementContentAsDictionaryGroupAsync(entry);
+                entry.Dictionaries = dictionaryGroup.Dictionaries;
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
