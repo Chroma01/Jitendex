@@ -88,6 +88,8 @@ internal static class ReadingMeaningReader
                     Entry = readingMeaning.Entry,
                 });
                 break;
+            default:
+                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{ReadingMeaning.XmlTagName}`");
         }
     }
 }
