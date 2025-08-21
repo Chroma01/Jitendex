@@ -123,57 +123,89 @@ public static class Loader
         foreach (var xref in crossReferences)
         {
             var key = (xref.RefText1, xref.RefText2);
-            var targetEntries = headwordToEntry[key]
+            var possibleTargetEntries = headwordToEntry[key]
                 .Where(e =>
                     e.Id != xref.EntryId &&  // Entries cannot reference themselves.
                     e.Corpus == Corpus.Jmdict &&  // Only Jmdict entries can be referenced.
-                    e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
+                    e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense ID.
                 .ToList();
 
             Entry? targetEntry;
-            if (targetEntries.Count == 0)
+            if (possibleTargetEntries.Count == 0)
             {
-                throw new Exception($"No entries found for cross reference {xref.RefText1} in entry {xref.EntryId}");
+                throw new Exception($"No entries found for cross reference `{xref.RawKey()}`");
             }
-            else if (targetEntries.Count == 1)
+            else if (possibleTargetEntries.Count == 1)
             {
-                targetEntry = targetEntries.First();
+                targetEntry = possibleTargetEntries.First();
             }
             else
             {
                 string cacheKey = xref.RawKey();
                 if (cachedSequences.TryGetValue(cacheKey, out int targetEntryId))
                 {
-                    targetEntry = targetEntries
+                    targetEntry = possibleTargetEntries
                         .Where(e => e.Id == targetEntryId)
                         .FirstOrDefault();
                     if (targetEntry is null)
                     {
-                        Console.WriteLine($"Entry {xref.EntryId} has a reference to form {xref.RefText1} that has a cached ID equal to {targetEntryId}, but this is not a valid ID for this reference.");
-                        targetEntry = targetEntries.First();
+                        Console.WriteLine($"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
+                        targetEntry = possibleTargetEntries.First();
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to form {xref.RefText1} that could belong to {targetEntries.Count} different entries:");
-                    Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", targetEntries.Select(e => e.Id.ToString()).ToList())},");
-                    Console.WriteLine();
-                    targetEntry = targetEntries.First();
+                    Console.WriteLine($"Reference could refer to {possibleTargetEntries.Count} possible entries:");
+                    Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())},");
+                    targetEntry = possibleTargetEntries.First();
                 }
             }
 
             xref.RefEntryId = targetEntry.Id;
+            xref.RefSense = targetEntry.Senses
+                .Where(s => s.Order == xref.RefSenseOrder).First();
+            xref.RefSense.ReverseCrossReferences.Add(xref);
 
-            if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
+            if (targetEntry.KanjiForms.All(k => k.Infos.Any(i => i.TagId == "sK")))
+            {
+                string searchText;
+                if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
+                {
+                    searchText = targetEntry.Readings
+                        .Where(r => !r.Infos.Any(i => i.TagId == "sk"))
+                        .First().Text;
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                }
+                else
+                {
+                    searchText = xref.RefText1;
+                }
+
+                var refReading = targetEntry.Readings
+                    .Where(b => b.Text == searchText).First();
+
+                if (refReading.Infos.Any(i => i.TagId == "sk"))
+                {
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    refReading = targetEntry.Readings
+                        .Where(r => !r.Infos.Any(i => i.TagId == "sk")).First();
+                }
+
+                xref.RefReading = refReading;
+                xref.RefReadingOrder = refReading.Order;
+            }
+            else if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
             {
                 var refKanjiForm = targetEntry.KanjiForms
                     .Where(k => k.Text == xref.RefText1).First();
+
                 if (refKanjiForm.Infos.Any(i => i.TagId == "sK"))
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refKanjiForm = targetEntry.KanjiForms.First();
                 }
-                // xref.RefKanjiForm = refKanjiForm;
+
+                xref.RefKanjiForm = refKanjiForm;
                 xref.RefKanjiFormOrder = refKanjiForm.Order;
 
                 var refReading = xref.RefText2 is null ?
@@ -181,11 +213,16 @@ public static class Loader
                     refKanjiForm.ReadingBridges
                         .Where(b => b.Reading.Text == xref.RefText2)
                         .FirstOrDefault()?.Reading;
-                // xref.RefReading = refReading;
+
                 if (refReading is not null)
+                {
+                    xref.RefReading = refReading;
                     xref.RefReadingOrder = refReading.Order;
+                }
                 else
+                {
                     xref.RefReadingOrder = -1;
+                }
             }
             else
             {
@@ -196,7 +233,7 @@ public static class Loader
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings.First();
                 }
-                // xref.RefReading = refReading;
+                xref.RefReading = refReading;
                 xref.RefReadingOrder = refReading.Order;
             }
         }

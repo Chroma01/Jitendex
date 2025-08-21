@@ -30,16 +30,21 @@ public class Sense
     public required int Order { get; set; }
     public string? Note { get; set; }
 
-    public List<PartOfSpeech> PartsOfSpeech { get; set; } = [];
-    public List<Field> Fields { get; set; } = [];
-    public List<Misc> Miscs { get; set; } = [];
-    public List<Dialect> Dialects { get; set; } = [];
+    public virtual List<PartOfSpeech> PartsOfSpeech { get; set; } = [];
+    public virtual List<Field> Fields { get; set; } = [];
+    public virtual List<Misc> Miscs { get; set; } = [];
+    public virtual List<Dialect> Dialects { get; set; } = [];
 
-    public List<Gloss> Glosses { get; set; } = [];
+    public virtual List<Gloss> Glosses { get; set; } = [];
 
     // public List<LanguageSource> LanguageSources { get; set; } = [];
-    public List<CrossReference> CrossReferences { get; set; } = [];
     // public List<ExampleSentence> ExampleSentences { get; set; } = [];
+
+    [InverseProperty(nameof(CrossReference.Sense))]
+    public virtual List<CrossReference> CrossReferences { get; set; } = [];
+
+    [InverseProperty(nameof(CrossReference.RefSense))]
+    public virtual List<CrossReference> ReverseCrossReferences { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;

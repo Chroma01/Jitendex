@@ -43,14 +43,14 @@ public class CrossReference
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public virtual Sense Sense { get; set; } = null!;
 
-    // [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefSenseOrder)}")]
-    // public virtual Sense RefSense { get; set; } = null!;
+    [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefSenseOrder)}")]
+    public virtual Sense RefSense { get; set; } = null!;
 
-    // [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefReadingOrder)}")]
-    // public virtual Reading RefReading { get; set; } = null!;
+    [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefReadingOrder)}")]
+    public virtual Reading RefReading { get; set; } = null!;
 
-    // [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefKanjiFormOrder)}")]
-    // public virtual KanjiForm? RefKanjiForm { get; set; }
+    [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefKanjiFormOrder)}")]
+    public virtual KanjiForm? RefKanjiForm { get; set; }
 
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.
