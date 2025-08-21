@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text.Json;
 using System.Xml;
 using Jitendex.Warehouse.Jmdict.Models;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ public static class Loader
         await InitializeDatabaseAsync(db);
 
         var entries = await parseTask;
+
         await db.Entries.AddRangeAsync(entries);
         await db.SaveChangesAsync();
     }
@@ -58,14 +60,15 @@ public static class Loader
     {
         var entries = new List<Entry>();
         var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
-        await foreach (var entry in EntriesAsync(jmdictPath))
+        await foreach (var entry in EnumerateEntriesAsync(jmdictPath))
         {
             entries.Add(entry);
         }
+        await PostProcessAsync(entries);
         return entries;
     }
 
-    private async static IAsyncEnumerable<Entry> EntriesAsync(string path)
+    private async static IAsyncEnumerable<Entry> EnumerateEntriesAsync(string path)
     {
         await using var stream = File.OpenRead(path);
 
@@ -96,5 +99,122 @@ public static class Loader
                     break;
             }
         }
+    }
+
+    private async static Task PostProcessAsync(List<Entry> entries)
+    {
+        await FixCrossReferencesAsync(entries);
+        // Anticipating more operations here later.
+    }
+
+    private async static Task FixCrossReferencesAsync(List<Entry> entries)
+    {
+        var headwordToEntry = MapHeadwordCombinationsToEntries(entries);
+
+        var crossReferences = entries
+            .SelectMany(e => e.Senses)
+            .SelectMany(s => s.CrossReferences);
+
+        var seqpath = Path.Combine("Resources", "jmdict", "cross_reference_sequences.json");
+        Dictionary<string, int> cachedSequences;
+        await using (var stream = File.OpenRead(seqpath))
+            cachedSequences = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
+
+        foreach(var xref in crossReferences)
+        {
+            var key = (xref.RefText1, xref.RefText2);
+            var targetEntries = headwordToEntry[key]
+                .Where(e => e.Id != xref.EntryId &&
+                            (e.Id < 5000000 || xref.EntryId >= 5000000) &&
+                            e.Senses.Count >= xref.RefSenseOrder)
+                .ToList();
+
+            Entry targetEntry;
+            if (targetEntries.Count == 0)
+            {
+                throw new Exception($"No entries found for cross reference {xref.RefText1} in entry {xref.EntryId}");
+            }
+            else if (targetEntries.Count == 1)
+            {
+                targetEntry = targetEntries.First();
+            }
+            else
+            {
+                var cacheKey = xref.RefText2 is null ?
+                    $"{xref.EntryId}・{xref.Sense.Order}・{xref.RefText1}・{xref.RefSenseOrder}" :
+                    $"{xref.EntryId}・{xref.Sense.Order}・{xref.RefText1}【{xref.RefText2}】・{xref.RefSenseOrder}";
+                var targetEntryId = cachedSequences[cacheKey];
+                targetEntry = targetEntries.Where(e => e.Id == targetEntryId).First();
+            }
+
+            if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
+            {
+                var refKanjiForm = targetEntry.KanjiForms
+                    .Where(k => k.Text == xref.RefText1).First();
+                if (refKanjiForm.Infos.Any(i => i.TagId == "sK"))
+                {
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    refKanjiForm = targetEntry.KanjiForms.First();
+                }
+                // xref.RefKanjiForm = refKanjiForm;
+                xref.RefKanjiFormOrder = refKanjiForm.Order;
+
+                var refReading = xref.RefText2 is null ?
+                    refKanjiForm.ReadingBridges.FirstOrDefault()?.Reading :
+                    refKanjiForm.ReadingBridges
+                        .Where(b => b.Reading.Text == xref.RefText2)
+                        .FirstOrDefault()?.Reading;
+                // xref.RefReading = refReading;
+                if (refReading is not null)
+                    xref.RefReadingOrder = refReading.Order;
+                else
+                    xref.RefReadingOrder = -1;
+            }
+            else
+            {
+                var refReading = targetEntry.Readings
+                    .Where(b => b.Text == xref.RefText1).First();
+                if (refReading.Infos.Any(i => i.TagId == "sk"))
+                {
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    refReading = targetEntry.Readings.First();
+                }
+                // xref.RefReading = refReading;
+                xref.RefReadingOrder = refReading.Order;
+            }
+        }
+    }
+
+    private static Dictionary<(string, string?), List<Entry>> MapHeadwordCombinationsToEntries(List<Entry> entries)
+    {
+        var map = new Dictionary<(string, string?), List<Entry>>();
+        foreach (var entry in entries)
+        {
+            var keys = new List<(string, string?)>();
+            foreach(var reading in entry.Readings)
+            {
+                keys.Add((reading.Text, null));
+            }
+            foreach (var kanjiForm in entry.KanjiForms)
+            {
+                keys.Add((kanjiForm.Text, null));
+                foreach (var reading in entry.Readings)
+                {
+                    keys.Add((kanjiForm.Text, reading.Text));
+                }
+            }
+            foreach (var key in keys)
+            {
+                if (map.TryGetValue(key, out List<Entry>? values))
+                {
+                    values.Add(entry);
+                }
+                else
+                {
+                    map[key] = [entry];
+                }
+            }
+        }
+        return map;
     }
 }

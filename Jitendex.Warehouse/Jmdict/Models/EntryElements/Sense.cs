@@ -38,7 +38,7 @@ public class Sense
     public List<Gloss> Glosses { get; set; } = [];
 
     // public List<LanguageSource> LanguageSources { get; set; } = [];
-    // public List<CrossReference> CrossReferences { get; set; } = [];
+    public List<CrossReference> CrossReferences { get; set; } = [];
     // public List<ExampleSentence> ExampleSentences { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
@@ -48,10 +48,6 @@ public class Sense
     internal List<string> ReadingTextRestrictions { get; set; } = [];
     [NotMapped]
     internal List<string> KanjiFormTextRestrictions { get; set; } = [];
-    [NotMapped]
-    internal List<string> Xrefs { get; set; } = [];
-    [NotMapped]
-    internal List<string> Ants { get; set; } = [];
     [NotMapped]
     internal List<string> Lsources { get; set; } = [];
 
@@ -132,12 +128,12 @@ internal static class SenseReader
                 sense.Dialects.Add(dial);
                 break;
             case "xref":
-                var xref = await reader.ReadElementContentAsStringAsync();
-                sense.Xrefs.Add(xref);
+                var xref = await reader.ReadCrossReferenceAsync(sense, docMeta);
+                sense.CrossReferences.Add(xref);
                 break;
             case "ant":
-                var ant = await reader.ReadElementContentAsStringAsync();
-                sense.Xrefs.Add(ant);
+                var ant = await reader.ReadCrossReferenceAsync(sense, docMeta);
+                sense.CrossReferences.Add(ant);
                 break;
             case "lsource":
                 if (!reader.IsEmptyElement)
