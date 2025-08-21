@@ -24,11 +24,20 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 public class Entry
 {
     public required int Id { get; set; }
+    public required Corpus Corpus { get; set; }
     public List<Reading> Readings { get; set; } = [];
     public List<KanjiForm> KanjiForms { get; set; } = [];
     public List<Sense> Senses { get; set; } = [];
 
     internal const string XmlTagName = "entry";
+}
+
+public enum Corpus
+{
+    Unknown,
+    Jmdict,
+    Jmnedict,
+    Metadata,
 }
 
 internal static class EntryReader
@@ -39,7 +48,11 @@ internal static class EntryReader
             throw new ArgumentNullException(nameof(docMeta),
                 "Metadata is null. It should have been parsed from the JMdict XML before any of the entries.");
 
-        var entry = new Entry { Id = -1 };
+        var entry = new Entry
+        {
+            Id = -1,
+            Corpus = Corpus.Unknown,
+        };
 
         var exit = false;
         while (!exit && await reader.ReadAsync())
@@ -67,6 +80,7 @@ internal static class EntryReader
             case "ent_seq":
                 var sequence = await reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
+                entry.Corpus = IdToCorpus(entry.Id);
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await reader.ReadKanjiFormAsync(entry, docMeta);
@@ -87,6 +101,18 @@ internal static class EntryReader
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
+
+    private static Corpus IdToCorpus(int id)
+        => id switch
+        {
+            < 1000000 => Corpus.Unknown,
+            < 3000000 => Corpus.Jmdict,
+            < 5000000 => Corpus.Unknown,
+            < 6000000 => Corpus.Jmnedict,
+            < 9999999 => Corpus.Unknown,
+              9999999 => Corpus.Metadata,
+            _ => Corpus.Unknown,
+        };
 
     private static Entry PostProcess(Entry entry)
     {

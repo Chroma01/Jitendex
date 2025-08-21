@@ -120,16 +120,17 @@ public static class Loader
         await using (var stream = File.OpenRead(seqpath))
             cachedSequences = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
 
-        foreach(var xref in crossReferences)
+        foreach (var xref in crossReferences)
         {
             var key = (xref.RefText1, xref.RefText2);
             var targetEntries = headwordToEntry[key]
-                .Where(e => e.Id != xref.EntryId &&
-                            (e.Id < 5000000 || xref.EntryId >= 5000000) &&
-                            e.Senses.Count >= xref.RefSenseOrder)
+                .Where(e =>
+                    e.Id != xref.EntryId &&  // Entries cannot reference themselves.
+                    e.Corpus == Corpus.Jmdict &&  // Only Jmdict entries can be referenced.
+                    e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
                 .ToList();
 
-            Entry targetEntry;
+            Entry? targetEntry;
             if (targetEntries.Count == 0)
             {
                 throw new Exception($"No entries found for cross reference {xref.RefText1} in entry {xref.EntryId}");
@@ -140,12 +141,28 @@ public static class Loader
             }
             else
             {
-                var cacheKey = xref.RefText2 is null ?
-                    $"{xref.EntryId}・{xref.Sense.Order}・{xref.RefText1}・{xref.RefSenseOrder}" :
-                    $"{xref.EntryId}・{xref.Sense.Order}・{xref.RefText1}【{xref.RefText2}】・{xref.RefSenseOrder}";
-                var targetEntryId = cachedSequences[cacheKey];
-                targetEntry = targetEntries.Where(e => e.Id == targetEntryId).First();
+                string cacheKey = xref.RawKey();
+                if (cachedSequences.TryGetValue(cacheKey, out int targetEntryId))
+                {
+                    targetEntry = targetEntries
+                        .Where(e => e.Id == targetEntryId)
+                        .FirstOrDefault();
+                    if (targetEntry is null)
+                    {
+                        Console.WriteLine($"Entry {xref.EntryId} has a reference to form {xref.RefText1} that has a cached ID equal to {targetEntryId}, but this is not a valid ID for this reference.");
+                        targetEntry = targetEntries.First();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to form {xref.RefText1} that could belong to {targetEntries.Count} different entries:");
+                    Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", targetEntries.Select(e => e.Id.ToString()).ToList())},");
+                    Console.WriteLine();
+                    targetEntry = targetEntries.First();
+                }
             }
+
+            xref.RefEntryId = targetEntry.Id;
 
             if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
             {
@@ -190,19 +207,7 @@ public static class Loader
         var map = new Dictionary<(string, string?), List<Entry>>();
         foreach (var entry in entries)
         {
-            var keys = new List<(string, string?)>();
-            foreach(var reading in entry.Readings)
-            {
-                keys.Add((reading.Text, null));
-            }
-            foreach (var kanjiForm in entry.KanjiForms)
-            {
-                keys.Add((kanjiForm.Text, null));
-                foreach (var reading in entry.Readings)
-                {
-                    keys.Add((kanjiForm.Text, reading.Text));
-                }
-            }
+            var keys = entry.HeadwordPermutations();
             foreach (var key in keys)
             {
                 if (map.TryGetValue(key, out List<Entry>? values))
@@ -216,5 +221,23 @@ public static class Loader
             }
         }
         return map;
+    }
+
+    private static List<(string, string?)> HeadwordPermutations(this Entry entry)
+    {
+        var keys = new List<(string, string?)>();
+        foreach (var reading in entry.Readings)
+        {
+            keys.Add((reading.Text, null));
+        }
+        foreach (var kanjiForm in entry.KanjiForms)
+        {
+            keys.Add((kanjiForm.Text, null));
+            foreach (var reading in entry.Readings)
+            {
+                keys.Add((kanjiForm.Text, reading.Text));
+            }
+        }
+        return keys;
     }
 }

@@ -51,15 +51,37 @@ public class CrossReference
 
     // [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefKanjiFormOrder)}")]
     // public virtual KanjiForm? RefKanjiForm { get; set; }
+
+    /// <summary>
+    /// Stable and unique identifier for this reference in the raw data.
+    /// </summary>
+    internal string RawKey()
+        => RefText2 is null ?
+        $"{EntryId}・{Sense.Order}・{RefText1}・{RefSenseOrder}" :
+        $"{EntryId}・{Sense.Order}・{RefText1}【{RefText2}】・{RefSenseOrder}";
 }
 
 internal static class CrossReferenceReader
 {
-    public async static Task<CrossReference> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
         var type = reader.Name;
         var text = await reader.ReadElementContentAsStringAsync();
-        var parsedText = ParseCrossReference(text);
+        if (sense.Entry.Corpus != Corpus.Jmdict)
+        {
+            // TODO: Log
+            return null;
+        }
+        (string, string?, int) parsedText;
+        try
+        {
+            parsedText = Parse(text);
+        }
+        catch
+        {
+            // TODO: Log
+            return null;
+        }
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,
@@ -76,22 +98,26 @@ internal static class CrossReferenceReader
         return crossRef;
     }
 
-    private static (string, string?, int) ParseCrossReference(string text)
+    private static (string, string?, int) Parse(string text)
     {
-        var split = text.Split('・');
+        const char separator = '・';
+        var split = text.Split(separator);
         switch(split.Length)
         {
             case 1:
                 return (split[0], null, 1);
             case 2:
-                if (int.TryParse(split[1], out int number))
-                    return (split[0], null, number);
+                if (int.TryParse(split[1], out int s1))
+                    return (split[0], null, s1);
                 else
                     return (split[0], split[1], 1);
             case 3:
-                return (split[0], split[1], int.Parse(split[2]));
+                if (int.TryParse(split[2], out int s2))
+                    return (split[0], split[1], s2);
+                else
+                    throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));    
             default:
-                throw new Exception($"Unable to parse cross-reference text: `{text}`");
+                throw new ArgumentException($"Too many separator characters `{separator}` in text `{text}`", nameof(text));
         }
     }
 }

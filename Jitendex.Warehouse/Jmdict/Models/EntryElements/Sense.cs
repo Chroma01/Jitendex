@@ -128,12 +128,12 @@ internal static class SenseReader
                 sense.Dialects.Add(dial);
                 break;
             case "xref":
-                var xref = await reader.ReadCrossReferenceAsync(sense, docMeta);
-                sense.CrossReferences.Add(xref);
-                break;
             case "ant":
-                var ant = await reader.ReadCrossReferenceAsync(sense, docMeta);
-                sense.CrossReferences.Add(ant);
+                var reference = await reader.ReadCrossReferenceAsync(sense, docMeta);
+                if (reference is not null)
+                {
+                    sense.CrossReferences.Add(reference);
+                }
                 break;
             case "lsource":
                 if (!reader.IsEmptyElement)
