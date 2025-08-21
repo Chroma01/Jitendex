@@ -29,9 +29,9 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<Info> Infos { get; set; } = [];
-    public List<Priority> Priorities { get; set; } = [];
-    public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
+    public virtual List<Info> Infos { get; set; } = [];
+    public virtual List<Priority> Priorities { get; set; } = [];
+    public virtual List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;

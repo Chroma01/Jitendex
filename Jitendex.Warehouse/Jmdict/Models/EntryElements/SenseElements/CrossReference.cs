@@ -35,11 +35,6 @@ public class CrossReference
     public required int RefReadingOrder { get; set; }
     public int? RefKanjiFormOrder { get; set; }
 
-    [NotMapped]
-    internal string RefText1 { get; set; } = null!;
-    [NotMapped]
-    internal string? RefText2 { get; set; }
-
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public virtual Sense Sense { get; set; } = null!;
 
@@ -51,6 +46,12 @@ public class CrossReference
 
     [ForeignKey($"{nameof(RefEntryId)}, {nameof(RefKanjiFormOrder)}")]
     public virtual KanjiForm? RefKanjiForm { get; set; }
+
+    [NotMapped]
+    internal string RefText1 { get; set; } = null!;
+    [NotMapped]
+    internal string? RefText2 { get; set; }
+
 
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.

@@ -25,9 +25,9 @@ public class Entry
 {
     public required int Id { get; set; }
     public required Corpus Corpus { get; set; }
-    public List<Reading> Readings { get; set; } = [];
-    public List<KanjiForm> KanjiForms { get; set; } = [];
-    public List<Sense> Senses { get; set; } = [];
+    public virtual List<Reading> Readings { get; set; } = [];
+    public virtual List<KanjiForm> KanjiForms { get; set; } = [];
+    public virtual List<Sense> Senses { get; set; } = [];
 
     internal const string XmlTagName = "entry";
 }
