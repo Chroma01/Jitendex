@@ -26,15 +26,6 @@ public interface ITag
     internal abstract static ITag New(string id, string description);
 }
 
-public class PriorityTag : ITag
-{
-    public required string Id { get; set; }
-    public required string Description { get; set; }
-
-    static ITag ITag.New(string id, string description)
-        => new PriorityTag { Id = id, Description = description };
-}
-
 public class ReadingInfoTag : ITag
 {
     public required string Id { get; set; }
@@ -87,4 +78,22 @@ public class DialectTag : ITag
 
     static ITag ITag.New(string id, string description)
         => new DialectTag { Id = id, Description = description };
+}
+
+public class PriorityTag : ITag
+{
+    public required string Id { get; set; }
+    public required string Description { get; set; }
+    public required bool IsHighPriority { get; set; }
+
+    private static readonly HashSet<string> HighPriorityIds =
+        ["gai1", "ichi1", "news1", "spec1", "spec2"];
+
+    static ITag ITag.New(string id, string description)
+        => new PriorityTag
+        {
+            Id = id,
+            Description = description,
+            IsHighPriority = HighPriorityIds.Contains(id),
+        };
 }
