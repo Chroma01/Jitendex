@@ -16,66 +16,33 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text.Json;
 using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
 internal static class ReferenceSequencer
 {
-    public async static Task FixCrossReferencesAsync(List<Entry> entries)
+    private record ReferenceText(string text1, string? text2);
+
+    public static void FixCrossReferences(List<Entry> entries, Dictionary<string, int> cache)
     {
-        var headwordToEntry = MapHeadwordCombinationsToEntries(entries);
+        var referenceTextToEntries = ReferenceTextToEntries(entries);
 
         var crossReferences = entries
             .SelectMany(e => e.Senses)
             .SelectMany(s => s.CrossReferences);
 
-        var seqpath = Path.Combine("Resources", "jmdict", "cross_reference_sequences.json");
-        Dictionary<string, int> cachedSequences;
-        await using (var stream = File.OpenRead(seqpath))
-            cachedSequences = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
-
         foreach (var xref in crossReferences)
         {
-            var key = (xref.RefText1, xref.RefText2);
-            var possibleTargetEntries = headwordToEntry[key]
+            var key = new ReferenceText(xref.RefText1, xref.RefText2);
+            var possibleTargetEntries = referenceTextToEntries[key]
                 .Where(e =>
                     e.Id != xref.EntryId &&  // Entries cannot reference themselves.
                     e.CorpusId == xref.Sense.Entry.CorpusId &&  // Assume references are within same corpus.
                     e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense ID.
                 .ToList();
 
-            Entry? targetEntry;
-            if (possibleTargetEntries.Count == 0)
-            {
-                throw new Exception($"No entries found for cross reference `{xref.RawKey()}`");
-            }
-            else if (possibleTargetEntries.Count == 1)
-            {
-                targetEntry = possibleTargetEntries.First();
-            }
-            else
-            {
-                string cacheKey = xref.RawKey();
-                if (cachedSequences.TryGetValue(cacheKey, out int targetEntryId))
-                {
-                    targetEntry = possibleTargetEntries
-                        .Where(e => e.Id == targetEntryId)
-                        .FirstOrDefault();
-                    if (targetEntry is null)
-                    {
-                        Console.WriteLine($"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
-                        targetEntry = possibleTargetEntries.First();
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Reference could refer to {possibleTargetEntries.Count} possible entries:");
-                    Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())},");
-                    targetEntry = possibleTargetEntries.First();
-                }
-            }
+            var targetEntry = FindTargetEntry(possibleTargetEntries, cache, xref.RawKey());
 
             xref.RefEntryId = targetEntry.Id;
             xref.RefSense = targetEntry.Senses
@@ -90,7 +57,7 @@ internal static class ReferenceSequencer
                     searchText = targetEntry.Readings
                         .Where(r => !r.IsHidden())
                         .First().Text;
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden kanji form {xref.RefText1} in entry {targetEntry.Id}");
                 }
                 else
                 {
@@ -102,7 +69,7 @@ internal static class ReferenceSequencer
 
                 if (refReading.IsHidden())
                 {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden reading {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings
                         .Where(r => !r.IsHidden()).First();
                 }
@@ -117,7 +84,7 @@ internal static class ReferenceSequencer
 
                 if (refKanjiForm.IsHidden())
                 {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden kanji form {xref.RefText1} in entry {targetEntry.Id}");
                     refKanjiForm = targetEntry.KanjiForms
                         .Where(k => !k.IsHidden()).First();
                 }
@@ -138,54 +105,83 @@ internal static class ReferenceSequencer
             {
                 var refReading = targetEntry.Readings
                     .Where(b => b.Text == xref.RefText1).First();
+
                 if (refReading.IsHidden())
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings
                         .Where(r => !r.IsHidden()).First();
                 }
+
                 xref.RefReading = refReading;
                 xref.RefReadingOrder = refReading.Order;
             }
         }
     }
 
-    private static Dictionary<(string, string?), List<Entry>> MapHeadwordCombinationsToEntries(List<Entry> entries)
+    private static Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
     {
-        var map = new Dictionary<(string, string?), List<Entry>>();
+        var map = new Dictionary<ReferenceText, List<Entry>>();
         foreach (var entry in entries)
         {
-            var keys = entry.HeadwordPermutations();
-            foreach (var key in keys)
+            foreach (var referenceText in entry.ReferenceTexts())
             {
-                if (map.TryGetValue(key, out List<Entry>? values))
+                if (map.TryGetValue(referenceText, out List<Entry>? values))
                 {
                     values.Add(entry);
                 }
                 else
                 {
-                    map[key] = [entry];
+                    map[referenceText] = [entry];
                 }
             }
         }
         return map;
     }
 
-    private static List<(string, string?)> HeadwordPermutations(this Entry entry)
+    private static IEnumerable<ReferenceText> ReferenceTexts(this Entry entry)
     {
-        var keys = new List<(string, string?)>();
         foreach (var reading in entry.Readings)
         {
-            keys.Add((reading.Text, null));
+            yield return new ReferenceText(reading.Text, null);
         }
         foreach (var kanjiForm in entry.KanjiForms)
         {
-            keys.Add((kanjiForm.Text, null));
+            yield return new ReferenceText(kanjiForm.Text, null);
             foreach (var reading in entry.Readings)
             {
-                keys.Add((kanjiForm.Text, reading.Text));
+                yield return new ReferenceText(kanjiForm.Text, reading.Text);
             }
         }
-        return keys;
+    }
+
+    private static Entry FindTargetEntry(List<Entry> possibleTargetEntries, Dictionary<string, int> cache, string cacheKey)
+    {
+        if (possibleTargetEntries.Count == 0)
+        {
+            throw new Exception($"No entries found for cross reference `{cacheKey}`");
+        }
+        if (possibleTargetEntries.Count == 1)
+        {
+            return possibleTargetEntries.First();
+        }
+
+        // If there are multiple target entries, then the reference is ambiguous.
+        // The correct entry ID must be recorded in the cache.
+        if (cache.TryGetValue(cacheKey, out int targetEntryId))
+        {
+            var targetEntry = possibleTargetEntries
+                .Where(e => e.Id == targetEntryId)
+                .FirstOrDefault();
+            if (targetEntry is not null)
+                return targetEntry;
+
+            Console.WriteLine($"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
+            return possibleTargetEntries.First();
+        }
+
+        Console.WriteLine($"Reference could refer to {possibleTargetEntries.Count} possible entries:");
+        Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())},");
+        return possibleTargetEntries.First();
     }
 }

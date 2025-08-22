@@ -17,8 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-using Jitendex.Warehouse.Jmdict.Models;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
@@ -104,7 +105,12 @@ public static class Loader
 
     private async static Task PostProcessAsync(List<Entry> entries)
     {
-        await ReferenceSequencer.FixCrossReferencesAsync(entries);
+        var seqpath = Path.Combine("Resources", "jmdict", "cross_reference_sequences.json");
+        Dictionary<string, int> cachedSequences;
+        await using (var stream = File.OpenRead(seqpath))
+            cachedSequences = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
+
+        ReferenceSequencer.FixCrossReferences(entries, cachedSequences);
         // Anticipating more operations here later.
     }
 }
