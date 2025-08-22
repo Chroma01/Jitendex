@@ -23,7 +23,6 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 internal class DocumentMetadata
 {
-    public required string Name { get; set; }
     public required Dictionary<string, string> TagNameToDescription
     {
         set
@@ -34,17 +33,18 @@ internal class DocumentMetadata
     }
     private Dictionary<string, string> _tagNameToDescription = null!;
     private Dictionary<string, string> _tagDescriptionToName = null!;
-    private readonly Dictionary<(string, string), object> Tags = [];
+
+    private readonly Dictionary<(string, string), object> TagCache = [];
     private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
 
     public T GetTagByName<T>(string name) where T : ITag
     {
         var key = (typeof(T).Name, name);
-        if (Tags.TryGetValue(key, out object? tag))
+        if (TagCache.TryGetValue(key, out object? tag))
             return (T)tag;
         var description = _tagNameToDescription[name];
         var newTag = (T)T.New(name, description);
-        Tags.Add(key, newTag);
+        TagCache.Add(key, newTag);
         return newTag;
     }
 
@@ -71,8 +71,9 @@ internal static partial class DocumentMetadataReader
         var dtd = await reader.GetValueAsync();
         var documentMetadata = new DocumentMetadata
         {
-            Name = reader.Name,
-            TagNameToDescription = ParseDtdEntities(dtd),
+            TagNameToDescription = ParseDtdEntities(dtd)
+                .Union(ExtraEntities())
+                .ToDictionary()
         };
         return documentMetadata;
     }
@@ -103,12 +104,19 @@ internal static partial class DocumentMetadataReader
                 }
             }
         }
+        return nameToDescription;
+    }
 
-        // Add entities that are not named explicitly in DTD.
+    /// <summary>
+    /// Entities that are not named explicitly in the DTD.
+    /// </summary>
+    /// <returns></returns>
+    private static Dictionary<string, string> ExtraEntities()
+    {
+        var nameToDescription = new Dictionary<string, string>();
         PriorityTag.AddEntities(nameToDescription);
         GlossType.AddEntities(nameToDescription);
         CrossReferenceType.AddEntities(nameToDescription);
-
         return nameToDescription;
     }
 }
