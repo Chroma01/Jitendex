@@ -35,6 +35,7 @@ internal class DocumentMetadata
     private Dictionary<string, string> _tagNameToDescription = null!;
     private Dictionary<string, string> _tagDescriptionToName = null!;
     private readonly Dictionary<(string, string), object> Tags = [];
+    private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
 
     public T GetTagByName<T>(string name) where T : ITag
     {
@@ -51,6 +52,15 @@ internal class DocumentMetadata
     {
         var name = _tagDescriptionToName[description];
         return GetTagByName<T>(name);
+    }
+
+    public Corpus GetCorpus(CorpusId id)
+    {
+        if (CorpusCache.TryGetValue(id, out Corpus? corpus))
+            return corpus;
+        var newCorpus = new Corpus { Id = id };
+        CorpusCache.Add(id, newCorpus);
+        return newCorpus;
     }
 }
 
@@ -98,7 +108,6 @@ internal static partial class DocumentMetadataReader
         PriorityTag.AddEntities(nameToDescription);
         GlossType.AddEntities(nameToDescription);
         CrossReferenceType.AddEntities(nameToDescription);
-        Corpus.AddEntities(nameToDescription);
 
         return nameToDescription;
     }

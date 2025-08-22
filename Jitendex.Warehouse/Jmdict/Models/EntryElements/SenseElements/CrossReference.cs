@@ -71,7 +71,7 @@ internal static class CrossReferenceReader
     {
         var typeName = reader.Name;
         var text = await reader.ReadElementContentAsStringAsync();
-        if (sense.Entry.CorpusName != "Jmdict")
+        if (sense.Entry.CorpusId != CorpusId.Jmdict)
         {
             // TODO: Log
             return null;

@@ -126,7 +126,7 @@ public static class Loader
             var possibleTargetEntries = headwordToEntry[key]
                 .Where(e =>
                     e.Id != xref.EntryId &&  // Entries cannot reference themselves.
-                    e.CorpusName == "Jmdict" &&  // Only Jmdict entries can be referenced.
+                    e.CorpusId == xref.Sense.Entry.CorpusId &&  // Assume references are within same corpus.
                     e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense ID.
                 .ToList();
 

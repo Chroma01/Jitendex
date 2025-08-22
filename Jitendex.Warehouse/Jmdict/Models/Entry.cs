@@ -22,15 +22,16 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
+[Table(nameof(Entry))]
 public class Entry
 {
     public required int Id { get; set; }
-    public required string CorpusName { get; set; }
+    public required CorpusId CorpusId { get; set; }
     public virtual List<Reading> Readings { get; set; } = [];
     public virtual List<KanjiForm> KanjiForms { get; set; } = [];
     public virtual List<Sense> Senses { get; set; } = [];
 
-    [ForeignKey(nameof(CorpusName))]
+    [ForeignKey(nameof(CorpusId))]
     public virtual Corpus Corpus { get; set; } = null!;
 
     internal const string XmlTagName = "entry";
@@ -47,7 +48,7 @@ internal static class EntryReader
         var entry = new Entry
         {
             Id = -1,
-            CorpusName = string.Empty,
+            CorpusId = CorpusId.Unknown,
         };
 
         var exit = false;
@@ -76,9 +77,8 @@ internal static class EntryReader
             case "ent_seq":
                 var sequence = await reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
-                var corpusName = Corpus.EntryIdToCorpusName(entry.Id);
-                entry.CorpusName = corpusName;
-                entry.Corpus = docMeta.GetTagByName<Corpus>(corpusName);
+                entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
+                entry.Corpus = docMeta.GetCorpus(entry.CorpusId);
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await reader.ReadKanjiFormAsync(entry, docMeta);
