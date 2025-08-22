@@ -21,33 +21,12 @@ using System.Xml;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-internal class DocumentMetadata
-{
-    public required Dictionary<string, string> EntityDescriptionToName { get; set; }
-    private readonly Dictionary<(string, string), object> ITagCache = [];
-
-    public T GetTagByDescription<T>(string desc) where T : ITag
-    {
-        var key = (typeof(T).Name, desc);
-        if (ITagCache.TryGetValue(key, out object? tag))
-            return (T)tag;
-        var name = EntityDescriptionToName[desc];
-        var newTag = (T)T.New(name, desc);
-        ITagCache.Add(key, newTag);
-        return newTag;
-    }
-}
-
 internal static partial class DocumentMetadataReader
 {
-    public async static Task<DocumentMetadata> GetDocumentMetadataAsync(this XmlReader reader)
+    public async static Task<Dictionary<string, string>> GetDocumentEntityNameToDescriptionAsync(this XmlReader reader)
     {
         var dtd = await reader.GetValueAsync();
-        var documentMetadata = new DocumentMetadata
-        {
-            EntityDescriptionToName = ParseDtdEntities(dtd),
-        };
-        return documentMetadata;
+        return ParseDtdEntities(dtd);
     }
 
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
@@ -55,18 +34,18 @@ internal static partial class DocumentMetadataReader
 
     private static Dictionary<string, string> ParseDtdEntities(string dtd)
     {
-        var descriptionToName = new Dictionary<string, string>();
+        var nameToDescription = new Dictionary<string, string>();
         foreach (Match match in DtdEntityRegex().Matches(dtd))
         {
             var name = match.Groups[1].Value;
             var description = match.Groups[2].Value;
             try
             {
-                descriptionToName.Add(description, name);
+                nameToDescription.Add(name, description);
             }
             catch (ArgumentException)
             {
-                if (descriptionToName[description] == name)
+                if (nameToDescription[name] == description)
                 {
                     // Ignore repeated definitions that are exact duplicates.
                 }
@@ -76,6 +55,6 @@ internal static partial class DocumentMetadataReader
                 }
             }
         }
-        return descriptionToName;
+        return nameToDescription;
     }
 }

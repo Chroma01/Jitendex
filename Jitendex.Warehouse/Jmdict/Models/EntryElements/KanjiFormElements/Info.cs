@@ -41,10 +41,10 @@ public class Info
 
 internal static class InfoReader
 {
-    public async static Task<Info> ReadInfoAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
+    public async static Task<Info> ReadInfoAsync(this XmlReader reader, KanjiForm kanjiForm)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagByDescription<KanjiFormInfoTag>(description);
+        var tag = ITag.FindByDescription<KanjiFormInfoTag>(description);
         return new Info
         {
             EntryId = kanjiForm.EntryId,

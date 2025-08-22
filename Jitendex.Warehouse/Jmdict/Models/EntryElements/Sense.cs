@@ -61,7 +61,7 @@ public class Sense
 
 internal static class SenseReader
 {
-    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
+    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry)
     {
         var sense = new Sense
         {
@@ -76,7 +76,7 @@ internal static class SenseReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(sense, docMeta);
+                    await reader.ReadChildElementAsync(sense);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -90,7 +90,7 @@ internal static class SenseReader
         return sense;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense)
     {
         switch (reader.Name)
         {
@@ -119,19 +119,19 @@ internal static class SenseReader
                 }
                 break;
             case PartOfSpeech.XmlTagName:
-                var pos = await reader.ReadPartOfSpeechAsync(sense, docMeta);
+                var pos = await reader.ReadPartOfSpeechAsync(sense);
                 sense.PartsOfSpeech.Add(pos);
                 break;
             case Field.XmlTagName:
-                var field = await reader.ReadFieldAsync(sense, docMeta);
+                var field = await reader.ReadFieldAsync(sense);
                 sense.Fields.Add(field);
                 break;
             case Misc.XmlTagName:
-                var misc = await reader.ReadMiscAsync(sense, docMeta);
+                var misc = await reader.ReadMiscAsync(sense);
                 sense.Miscs.Add(misc);
                 break;
             case Dialect.XmlTagName:
-                var dial = await reader.ReadDialectAsync(sense, docMeta);
+                var dial = await reader.ReadDialectAsync(sense);
                 sense.Dialects.Add(dial);
                 break;
             case "xref":

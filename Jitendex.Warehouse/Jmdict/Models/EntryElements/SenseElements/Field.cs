@@ -40,10 +40,10 @@ public class Field
 
 internal static class FieldReader
 {
-    public async static Task<Field> ReadFieldAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<Field> ReadFieldAsync(this XmlReader reader, Sense sense)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagByDescription<FieldTag>(description);
+        var tag = ITag.FindByDescription<FieldTag>(description);
         return new Field
         {
             EntryId = sense.EntryId,

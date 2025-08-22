@@ -39,11 +39,10 @@ public class Entry
 
 internal static class EntryReader
 {
-    public async static Task<Entry> ReadEntryAsync(this XmlReader reader, DocumentMetadata? docMeta)
+    public async static Task<Entry> ReadEntryAsync(this XmlReader reader)
     {
-        if (docMeta == null)
-            throw new ArgumentNullException(nameof(docMeta),
-                "Metadata is null. It should have been parsed from the JMdict XML before any of the entries.");
+        if (ITag.DescriptionToName.Count == 0)
+            throw new Exception("DTD should have been parsed from the JMdict XML before any entries.");
 
         var entry = new Entry
         {
@@ -57,7 +56,7 @@ internal static class EntryReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(entry, docMeta);
+                    await reader.ReadChildElementAsync(entry);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -70,7 +69,7 @@ internal static class EntryReader
         return PostProcess(entry);
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry, DocumentMetadata docMeta)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry)
     {
         switch (reader.Name)
         {
@@ -81,15 +80,15 @@ internal static class EntryReader
                 entry.CorpusId = entry.Corpus.Id;
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await reader.ReadKanjiFormAsync(entry, docMeta);
+                var kanjiForm = await reader.ReadKanjiFormAsync(entry);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await reader.ReadReadingAsync(entry, docMeta);
+                var reading = await reader.ReadReadingAsync(entry);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await reader.ReadSenseAsync(entry, docMeta);
+                var sense = await reader.ReadSenseAsync(entry);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);

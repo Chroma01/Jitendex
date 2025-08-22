@@ -41,10 +41,10 @@ public class Info
 
 internal static class InfoReader
 {
-    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
+    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagByDescription<ReadingInfoTag>(description);
+        var tag = ITag.FindByDescription<ReadingInfoTag>(description);
         return new Info
         {
             EntryId = reading.EntryId,

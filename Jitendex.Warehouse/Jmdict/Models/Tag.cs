@@ -20,12 +20,27 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-public interface ITag
+internal interface ITag
 {
     string Name { get; set; }
     string Description { get; set; }
 
-    internal abstract static ITag New(string name, string description);
+    static Dictionary<string, string> DescriptionToName { get; set; } = [];
+
+    private static readonly Dictionary<(string, string), object> Cache = [];
+
+    static T FindByDescription<T>(string desc) where T : ITag
+    {
+        var key = (typeof(T).Name, desc);
+        if (Cache.TryGetValue(key, out object? tag))
+            return (T)tag;
+        var name = DescriptionToName[desc];
+        var newTag = (T)T.New(name, desc);
+        Cache.Add(key, newTag);
+        return newTag;
+    }
+
+    abstract static ITag New(string name, string description);
 }
 
 public class ReadingInfoTag : ITag

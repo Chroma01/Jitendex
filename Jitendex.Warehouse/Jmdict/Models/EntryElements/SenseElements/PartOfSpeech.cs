@@ -40,10 +40,10 @@ public class PartOfSpeech
 
 internal static class PartOfSpeechReader
 {
-    public async static Task<PartOfSpeech> ReadPartOfSpeechAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<PartOfSpeech> ReadPartOfSpeechAsync(this XmlReader reader, Sense sense)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagByDescription<PartOfSpeechTag>(description);
+        var tag = ITag.FindByDescription<PartOfSpeechTag>(description);
         return new PartOfSpeech
         {
             EntryId = sense.EntryId,
