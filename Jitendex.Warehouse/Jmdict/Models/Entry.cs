@@ -77,8 +77,8 @@ internal static class EntryReader
             case "ent_seq":
                 var sequence = await reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
-                entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
-                entry.Corpus = Corpus.FindById(entry.CorpusId);
+                entry.Corpus = Corpus.FindByEntryId(entry.Id);
+                entry.CorpusId = entry.Corpus.Id;
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await reader.ReadKanjiFormAsync(entry, docMeta);

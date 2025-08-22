@@ -33,18 +33,19 @@ public class Corpus
 
     private static readonly Dictionary<CorpusId, Corpus> Cache = [];
 
-    internal static Corpus FindById(CorpusId id)
+    internal static Corpus FindByEntryId(int entryId)
     {
-        if (Cache.TryGetValue(id, out Corpus? corpus))
+        var corpusId = EntryIdToCorpusId(entryId);
+        if (Cache.TryGetValue(corpusId, out Corpus? corpus))
             return corpus;
-        var newCorpus = new Corpus { Id = id };
-        Cache.Add(id, newCorpus);
+        var newCorpus = new Corpus { Id = corpusId };
+        Cache.Add(corpusId, newCorpus);
         return newCorpus;
     }
 
-    internal static CorpusId EntryIdToCorpusId(int entryId)
+    private static CorpusId EntryIdToCorpusId(int entryId)
     {
-        var id = entryId switch
+        var corpusId = entryId switch
         {
             < 1000000 => CorpusId.Unknown,
             < 3000000 => CorpusId.Jmdict,
@@ -55,6 +56,6 @@ public class Corpus
                     _ => CorpusId.Unknown,
         };
         // TODO: Log warning if unknown.
-        return id;
+        return corpusId;
     }
 }
