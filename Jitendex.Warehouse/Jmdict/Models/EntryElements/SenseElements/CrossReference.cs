@@ -28,6 +28,7 @@ public class CrossReference
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
+
     public required string TypeName { get; set; }
 
     public required int RefEntryId { get; set; }
@@ -54,7 +55,6 @@ public class CrossReference
     internal string RefText1 { get; set; } = null!;
     [NotMapped]
     internal string? RefText2 { get; set; }
-
 
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.
@@ -86,7 +86,7 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        var type = docMeta.GetTagByName<CrossReferenceType>(typeName);
+        var type = docMeta.GetCrossReferenceType(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

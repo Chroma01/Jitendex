@@ -88,26 +88,19 @@ public class DialectTag : ITag
         => new DialectTag { Name = name, Description = description };
 }
 
-public class PriorityTag : ITag
+public class PriorityTag
 {
     [Key]
     public required string Name { get; set; }
     public required string Description { get; set; }
-    public required bool IsHighPriority { get; set; }
-
-    static ITag ITag.New(string name, string description)
-        => new PriorityTag
-        {
-            Name = name,
-            Description = description,
-            IsHighPriority = HighPriorityNames.Contains(name),
-        };
+    public bool IsHighPriority { get => HighPriorityNames.Contains(Name); set { } }
 
     private static readonly HashSet<string> HighPriorityNames =
         ["gai1", "ichi1", "news1", "spec1", "spec2"];
 
-    internal static void AddEntities(Dictionary<string, string> nameToDescription)
+    internal static Dictionary<string, string> Entities()
     {
+        var nameToDescription = new Dictionary<string, string>();
         foreach (var i in Enumerable.Range(1, 2))
         {
             nameToDescription.Add($"news{i}", $"Ranking in wordfreq file, {i} of 2");
@@ -119,39 +112,36 @@ public class PriorityTag : ITag
         {
             nameToDescription.Add($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48");
         }
+        return nameToDescription;
     }
 }
 
-public class GlossType : ITag
+public class GlossType
 {
     [Key]
     public required string Name { get; set; }
     public required string Description { get; set; }
 
-    static ITag ITag.New(string name, string description)
-        => new GlossType { Name = name, Description = description };
-
-    internal static void AddEntities(Dictionary<string, string> nameToDescription)
-    {
-        nameToDescription.Add("tm", "trademark gloss");
-        nameToDescription.Add("lit", "literal");
-        nameToDescription.Add("fig", "figurative");
-        nameToDescription.Add("expl", "explanation");
-    }
+    internal static Dictionary<string, string> Entities()
+        => new()
+        {
+            ["tm"] = "trademark",
+            ["lit"] = "literal",
+            ["fig"] = "figurative",
+            ["expl"] = "explanation",
+        };
 }
 
-public class CrossReferenceType : ITag
+public class CrossReferenceType
 {
     [Key]
     public required string Name { get; set; }
     public required string Description { get; set; }
 
-    static ITag ITag.New(string name, string description)
-        => new CrossReferenceType { Name = name, Description = description };
-
-    internal static void AddEntities(Dictionary<string, string> nameToDescription)
-    {
-        nameToDescription.Add("xref", "cross-reference");
-        nameToDescription.Add("ant", "antonym");
-    }
+    internal static Dictionary<string, string> Entities()
+        => new()
+        {
+            ["xref"] = "cross-reference",
+            ["ant"] = "antonym",
+        };
 }

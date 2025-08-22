@@ -23,35 +23,56 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 
 internal class DocumentMetadata
 {
-    public required Dictionary<string, string> TagNameToDescription
-    {
-        set
-        {
-            _tagNameToDescription = value;
-            _tagDescriptionToName = value.ToDictionary(x => x.Value, x => x.Key);
-        }
-    }
-    private Dictionary<string, string> _tagNameToDescription = null!;
-    private Dictionary<string, string> _tagDescriptionToName = null!;
+    public required Dictionary<string, string> EntityDescriptionToName { get; set; }
+    private readonly Dictionary<string, string> PriorityTagNameToDesctiption = PriorityTag.Entities();
+    private readonly Dictionary<string, string> CrossReferenceTypeNameToDesctiption = CrossReferenceType.Entities();
+    private readonly Dictionary<string, string> GlossTypeNameToDesctiption = GlossType.Entities();
 
-    private readonly Dictionary<(string, string), object> TagCache = [];
+    private readonly Dictionary<(string, string), object> ITagCache = [];
+    private readonly Dictionary<string, PriorityTag> PriorityTagCache = [];
+    private readonly Dictionary<string, CrossReferenceType> CrossReferenceTypeCache = [];
+    private readonly Dictionary<string, GlossType> GlossTypeCache = [];
     private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
 
-    public T GetTagByName<T>(string name) where T : ITag
+    public T GetTagByDescription<T>(string desc) where T : ITag
     {
-        var key = (typeof(T).Name, name);
-        if (TagCache.TryGetValue(key, out object? tag))
+        var key = (typeof(T).Name, desc);
+        if (ITagCache.TryGetValue(key, out object? tag))
             return (T)tag;
-        var description = _tagNameToDescription[name];
-        var newTag = (T)T.New(name, description);
-        TagCache.Add(key, newTag);
+        var name = EntityDescriptionToName[desc];
+        var newTag = (T)T.New(name, desc);
+        ITagCache.Add(key, newTag);
         return newTag;
     }
 
-    public T GetTagByDescription<T>(string description) where T : ITag
+    public PriorityTag GetPriorityTag(string name)
     {
-        var name = _tagDescriptionToName[description];
-        return GetTagByName<T>(name);
+        if (PriorityTagCache.TryGetValue(name, out PriorityTag? tag))
+            return tag;
+        var description = PriorityTagNameToDesctiption[name];
+        var newTag = new PriorityTag { Name = name, Description = description };
+        PriorityTagCache.Add(name, newTag);
+        return newTag;
+    }
+
+    public CrossReferenceType GetCrossReferenceType(string name)
+    {
+        if (CrossReferenceTypeCache.TryGetValue(name, out CrossReferenceType? type))
+            return type;
+        var description = CrossReferenceTypeNameToDesctiption[name];
+        var newType = new CrossReferenceType { Name = name, Description = description };
+        CrossReferenceTypeCache.Add(name, newType);
+        return newType;
+    }
+
+    public GlossType GetGlossType(string name)
+    {
+        if (GlossTypeCache.TryGetValue(name, out GlossType? type))
+            return type;
+        var description = GlossTypeNameToDesctiption[name];
+        var newType = new GlossType { Name = name, Description = description };
+        GlossTypeCache.Add(name, newType);
+        return newType;
     }
 
     public Corpus GetCorpus(CorpusId id)
@@ -71,9 +92,7 @@ internal static partial class DocumentMetadataReader
         var dtd = await reader.GetValueAsync();
         var documentMetadata = new DocumentMetadata
         {
-            TagNameToDescription = ParseDtdEntities(dtd)
-                .Union(ExtraEntities())
-                .ToDictionary()
+            EntityDescriptionToName = ParseDtdEntities(dtd),
         };
         return documentMetadata;
     }
@@ -83,18 +102,18 @@ internal static partial class DocumentMetadataReader
 
     private static Dictionary<string, string> ParseDtdEntities(string dtd)
     {
-        var nameToDescription = new Dictionary<string, string>();
+        var descriptionToName = new Dictionary<string, string>();
         foreach (Match match in DtdEntityRegex().Matches(dtd))
         {
             var name = match.Groups[1].Value;
             var description = match.Groups[2].Value;
             try
             {
-                nameToDescription.Add(name, description);
+                descriptionToName.Add(description, name);
             }
             catch (ArgumentException)
             {
-                if (nameToDescription[name] == description)
+                if (descriptionToName[description] == name)
                 {
                     // Ignore repeated definitions that are exact duplicates.
                 }
@@ -104,19 +123,6 @@ internal static partial class DocumentMetadataReader
                 }
             }
         }
-        return nameToDescription;
-    }
-
-    /// <summary>
-    /// Entities that are not named explicitly in the DTD.
-    /// </summary>
-    /// <returns></returns>
-    private static Dictionary<string, string> ExtraEntities()
-    {
-        var nameToDescription = new Dictionary<string, string>();
-        PriorityTag.AddEntities(nameToDescription);
-        GlossType.AddEntities(nameToDescription);
-        CrossReferenceType.AddEntities(nameToDescription);
-        return nameToDescription;
+        return descriptionToName;
     }
 }

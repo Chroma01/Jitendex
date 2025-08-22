@@ -56,7 +56,7 @@ internal static class GlossReader
             Order = sense.Glosses.Count + 1,
             Language = reader.GetAttribute("xml:lang") ?? "eng",
             TypeName = typeName,
-            Type = typeName is not null ? docMeta.GetTagByName<GlossType>(typeName) : null,
+            Type = typeName is not null ? docMeta.GetGlossType(typeName) : null,
             Text = await reader.ReadElementContentAsStringAsync(),
         };
     }

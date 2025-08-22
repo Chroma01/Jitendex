@@ -44,7 +44,7 @@ internal static class PriorityReader
     public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
     {
         var tagName = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagByName<PriorityTag>(tagName);
+        var tag = docMeta.GetPriorityTag(tagName);
         return new Priority
         {
             EntryId = reading.EntryId,
