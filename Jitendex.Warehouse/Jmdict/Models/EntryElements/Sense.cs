@@ -103,14 +103,16 @@ internal static class SenseReader
                 sense.ReadingTextRestrictions.Add(readingTextRestriction);
                 break;
             case "s_inf":
-                // The XML schema allows for more than one note per sense,
-                // but in practice there is only one or none.
                 if (sense.Note != null)
-                    throw new Exception($"Jmdict entry {sense.EntryId} has more than one sense note.");
+                {
+                    // The XML schema allows for more than one note per sense,
+                    // but in practice there is only one or none.
+                    // TODO: Log warning
+                }
                 sense.Note = await reader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
-                var gloss = await reader.ReadGlossAsync(sense, docMeta);
+                var gloss = await reader.ReadGlossAsync(sense);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
@@ -134,7 +136,7 @@ internal static class SenseReader
                 break;
             case "xref":
             case "ant":
-                var reference = await reader.ReadCrossReferenceAsync(sense, docMeta);
+                var reference = await reader.ReadCrossReferenceAsync(sense);
                 if (reference is not null)
                 {
                     sense.CrossReferences.Add(reference);

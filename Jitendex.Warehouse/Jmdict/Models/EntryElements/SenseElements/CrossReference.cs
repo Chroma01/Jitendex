@@ -67,7 +67,7 @@ public class CrossReference
 
 internal static class CrossReferenceReader
 {
-    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense)
     {
         var typeName = reader.Name;
         var text = await reader.ReadElementContentAsStringAsync();
@@ -86,7 +86,7 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        var type = docMeta.GetCrossReferenceType(typeName);
+        var type = CrossReferenceType.FindByName(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

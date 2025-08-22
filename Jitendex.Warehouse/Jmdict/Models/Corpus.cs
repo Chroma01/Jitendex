@@ -31,6 +31,17 @@ public class Corpus
     public required CorpusId Id { get; set; }
     public string Name { get => Id.ToString(); set { } }
 
+    private static readonly Dictionary<CorpusId, Corpus> Cache = [];
+
+    internal static Corpus FindById(CorpusId id)
+    {
+        if (Cache.TryGetValue(id, out Corpus? corpus))
+            return corpus;
+        var newCorpus = new Corpus { Id = id };
+        Cache.Add(id, newCorpus);
+        return newCorpus;
+    }
+
     internal static CorpusId EntryIdToCorpusId(int entryId)
     {
         var id = entryId switch

@@ -96,7 +96,7 @@ internal static class ReadingReader
                 reading.Infos.Add(readingInfo);
                 break;
             case Priority.XmlTagName:
-                var priority = await reader.ReadPriorityAsync(reading, docMeta);
+                var priority = await reader.ReadPriorityAsync(reading);
                 reading.Priorities.Add(priority);
                 break;
             default:

@@ -98,7 +98,19 @@ public class PriorityTag
     private static readonly HashSet<string> HighPriorityNames =
         ["gai1", "ichi1", "news1", "spec1", "spec2"];
 
-    internal static Dictionary<string, string> Entities()
+    private static readonly Dictionary<string, PriorityTag> Cache = [];
+
+    internal static PriorityTag FindByName(string name)
+    {
+        if (Cache.TryGetValue(name, out PriorityTag? tag))
+            return tag;
+        var description = NameToDescription[name];
+        var newTag = new PriorityTag { Name = name, Description = description };
+        Cache.Add(name, newTag);
+        return newTag;
+    }
+
+    private static readonly Dictionary<string, string> NameToDescription = ((Func<Dictionary<string, string>>)(() =>
     {
         var nameToDescription = new Dictionary<string, string>();
         foreach (var i in Enumerable.Range(1, 2))
@@ -113,7 +125,7 @@ public class PriorityTag
             nameToDescription.Add($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48");
         }
         return nameToDescription;
-    }
+    })).Invoke();
 }
 
 public class GlossType
@@ -122,14 +134,25 @@ public class GlossType
     public required string Name { get; set; }
     public required string Description { get; set; }
 
-    internal static Dictionary<string, string> Entities()
-        => new()
-        {
-            ["tm"] = "trademark",
-            ["lit"] = "literal",
-            ["fig"] = "figurative",
-            ["expl"] = "explanation",
-        };
+    private static readonly Dictionary<string, GlossType> Cache = [];
+
+    internal static GlossType FindByName(string name)
+    {
+        if (Cache.TryGetValue(name, out GlossType? tag))
+            return tag;
+        var description = NameToDescription[name];
+        var newTag = new GlossType { Name = name, Description = description };
+        Cache.Add(name, newTag);
+        return newTag;
+    }
+
+    private static readonly Dictionary<string, string> NameToDescription = new()
+    {
+        ["tm"] = "trademark",
+        ["lit"] = "literal",
+        ["fig"] = "figurative",
+        ["expl"] = "explanation",
+    };
 }
 
 public class CrossReferenceType
@@ -138,10 +161,21 @@ public class CrossReferenceType
     public required string Name { get; set; }
     public required string Description { get; set; }
 
-    internal static Dictionary<string, string> Entities()
-        => new()
-        {
-            ["xref"] = "cross-reference",
-            ["ant"] = "antonym",
-        };
+    private static readonly Dictionary<string, CrossReferenceType> Cache = [];
+
+    internal static CrossReferenceType FindByName(string name)
+    {
+        if (Cache.TryGetValue(name, out CrossReferenceType? tag))
+            return tag;
+        var description = NameToDescription[name];
+        var newTag = new CrossReferenceType { Name = name, Description = description };
+        Cache.Add(name, newTag);
+        return newTag;
+    }
+
+    private static readonly Dictionary<string, string> NameToDescription = new()
+    {
+        ["xref"] = "cross-reference",
+        ["ant"] = "antonym",
+    };
 }

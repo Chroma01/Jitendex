@@ -82,7 +82,7 @@ internal static class KanjiFormReader
                 kanjiForm.Infos.Add(info);
                 break;
             case Priority.XmlTagName:
-                var priority = await reader.ReadPriorityAsync(kanjiForm, docMeta);
+                var priority = await reader.ReadPriorityAsync(kanjiForm);
                 kanjiForm.Priorities.Add(priority);
                 break;
             default:

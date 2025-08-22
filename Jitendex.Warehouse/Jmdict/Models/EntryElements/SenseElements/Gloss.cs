@@ -46,7 +46,7 @@ public class Gloss
 
 internal static class GlossReader
 {
-    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense)
     {
         var typeName = reader.GetAttribute("g_type");
         return new Gloss
@@ -56,7 +56,7 @@ internal static class GlossReader
             Order = sense.Glosses.Count + 1,
             Language = reader.GetAttribute("xml:lang") ?? "eng",
             TypeName = typeName,
-            Type = typeName is not null ? docMeta.GetGlossType(typeName) : null,
+            Type = typeName is not null ? GlossType.FindByName(typeName) : null,
             Text = await reader.ReadElementContentAsStringAsync(),
         };
     }

@@ -24,15 +24,7 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 internal class DocumentMetadata
 {
     public required Dictionary<string, string> EntityDescriptionToName { get; set; }
-    private readonly Dictionary<string, string> PriorityTagNameToDesctiption = PriorityTag.Entities();
-    private readonly Dictionary<string, string> CrossReferenceTypeNameToDesctiption = CrossReferenceType.Entities();
-    private readonly Dictionary<string, string> GlossTypeNameToDesctiption = GlossType.Entities();
-
     private readonly Dictionary<(string, string), object> ITagCache = [];
-    private readonly Dictionary<string, PriorityTag> PriorityTagCache = [];
-    private readonly Dictionary<string, CrossReferenceType> CrossReferenceTypeCache = [];
-    private readonly Dictionary<string, GlossType> GlossTypeCache = [];
-    private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
 
     public T GetTagByDescription<T>(string desc) where T : ITag
     {
@@ -43,45 +35,6 @@ internal class DocumentMetadata
         var newTag = (T)T.New(name, desc);
         ITagCache.Add(key, newTag);
         return newTag;
-    }
-
-    public PriorityTag GetPriorityTag(string name)
-    {
-        if (PriorityTagCache.TryGetValue(name, out PriorityTag? tag))
-            return tag;
-        var description = PriorityTagNameToDesctiption[name];
-        var newTag = new PriorityTag { Name = name, Description = description };
-        PriorityTagCache.Add(name, newTag);
-        return newTag;
-    }
-
-    public CrossReferenceType GetCrossReferenceType(string name)
-    {
-        if (CrossReferenceTypeCache.TryGetValue(name, out CrossReferenceType? type))
-            return type;
-        var description = CrossReferenceTypeNameToDesctiption[name];
-        var newType = new CrossReferenceType { Name = name, Description = description };
-        CrossReferenceTypeCache.Add(name, newType);
-        return newType;
-    }
-
-    public GlossType GetGlossType(string name)
-    {
-        if (GlossTypeCache.TryGetValue(name, out GlossType? type))
-            return type;
-        var description = GlossTypeNameToDesctiption[name];
-        var newType = new GlossType { Name = name, Description = description };
-        GlossTypeCache.Add(name, newType);
-        return newType;
-    }
-
-    public Corpus GetCorpus(CorpusId id)
-    {
-        if (CorpusCache.TryGetValue(id, out Corpus? corpus))
-            return corpus;
-        var newCorpus = new Corpus { Id = id };
-        CorpusCache.Add(id, newCorpus);
-        return newCorpus;
     }
 }
 

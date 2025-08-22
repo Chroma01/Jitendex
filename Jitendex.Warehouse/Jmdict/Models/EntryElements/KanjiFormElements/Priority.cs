@@ -41,10 +41,10 @@ public class Priority
 
 internal static class PriorityReader
 {
-    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
+    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, KanjiForm kanjiForm)
     {
         var tagName = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetPriorityTag(tagName);
+        var tag = PriorityTag.FindByName(tagName);
         return new Priority
         {
             EntryId = kanjiForm.EntryId,
