@@ -81,19 +81,21 @@ public static class Loader
         };
 
         using var reader = XmlReader.Create(stream, readerSettings);
-        DocumentMetadata? docMeta = null;
 
         while (await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    docMeta = await reader.GetDocumentMetadataAsync();
+                    var entityNameToDescription = await reader
+                        .GetDocumentEntityNameToDescriptionAsync();
+                    ITag.DescriptionToName = entityNameToDescription
+                        .ToDictionary(x => x.Value, x => x.Key);
                     break;
                 case XmlNodeType.Element:
                     if (reader.Name == Entry.XmlTagName)
                     {
-                        var entry = await reader.ReadEntryAsync(docMeta);
+                        var entry = await reader.ReadEntryAsync();
                         yield return entry;
                     }
                     break;
@@ -166,13 +168,13 @@ public static class Loader
                 .Where(s => s.Order == xref.RefSenseOrder).First();
             xref.RefSense.ReverseCrossReferences.Add(xref);
 
-            if (targetEntry.KanjiForms.All(k => k.Infos.Any(i => i.TagName == "sK")))
+            if (targetEntry.KanjiForms.All(k => k.IsHidden()))
             {
                 string searchText;
                 if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
                 {
                     searchText = targetEntry.Readings
-                        .Where(r => !r.Infos.Any(i => i.TagName == "sk"))
+                        .Where(r => !r.IsHidden())
                         .First().Text;
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                 }
@@ -184,11 +186,11 @@ public static class Loader
                 var refReading = targetEntry.Readings
                     .Where(b => b.Text == searchText).First();
 
-                if (refReading.Infos.Any(i => i.TagName == "sk"))
+                if (refReading.IsHidden())
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings
-                        .Where(r => !r.Infos.Any(i => i.TagName == "sk")).First();
+                        .Where(r => !r.IsHidden()).First();
                 }
 
                 xref.RefReading = refReading;
@@ -199,39 +201,34 @@ public static class Loader
                 var refKanjiForm = targetEntry.KanjiForms
                     .Where(k => k.Text == xref.RefText1).First();
 
-                if (refKanjiForm.Infos.Any(i => i.TagName == "sK"))
+                if (refKanjiForm.IsHidden())
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
-                    refKanjiForm = targetEntry.KanjiForms.First();
+                    refKanjiForm = targetEntry.KanjiForms
+                        .Where(k => !k.IsHidden()).First();
                 }
 
                 xref.RefKanjiForm = refKanjiForm;
                 xref.RefKanjiFormOrder = refKanjiForm.Order;
 
                 var refReading = xref.RefText2 is null ?
-                    refKanjiForm.ReadingBridges.FirstOrDefault()?.Reading :
+                    refKanjiForm.ReadingBridges.First().Reading :
                     refKanjiForm.ReadingBridges
                         .Where(b => b.Reading.Text == xref.RefText2)
-                        .FirstOrDefault()?.Reading;
+                        .First().Reading;
 
-                if (refReading is not null)
-                {
-                    xref.RefReading = refReading;
-                    xref.RefReadingOrder = refReading.Order;
-                }
-                else
-                {
-                    xref.RefReadingOrder = -1;
-                }
+                xref.RefReading = refReading;
+                xref.RefReadingOrder = refReading.Order;
             }
             else
             {
                 var refReading = targetEntry.Readings
                     .Where(b => b.Text == xref.RefText1).First();
-                if (refReading.Infos.Any(i => i.TagName == "sk"))
+                if (refReading.IsHidden())
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
-                    refReading = targetEntry.Readings.First();
+                    refReading = targetEntry.Readings
+                        .Where(r => !r.IsHidden()).First();
                 }
                 xref.RefReading = refReading;
                 xref.RefReadingOrder = refReading.Order;

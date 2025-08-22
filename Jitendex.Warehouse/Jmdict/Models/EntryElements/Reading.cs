@@ -43,6 +43,8 @@ public class Reading
     internal List<string> ConstraintKanjiFormTexts { get; set; } = [];
 
     internal const string XmlTagName = "r_ele";
+
+    public bool IsHidden() => Infos.Any(x => x.TagName == "sk");
 }
 
 internal static class ReadingReader

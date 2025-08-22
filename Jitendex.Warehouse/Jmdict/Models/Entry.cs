@@ -112,12 +112,12 @@ internal static class EntryReader
         {
             if (reading.NoKanji)
                 continue;
-            if (reading.Infos.Any(x => x.TagName == "sk"))
+            if (reading.IsHidden())
                 continue;
 
             foreach (var kanjiForm in entry.KanjiForms)
             {
-                if (kanjiForm.Infos.Any(x => x.TagName == "sK"))
+                if (kanjiForm.IsHidden())
                     continue;
                 if (reading.ConstraintKanjiFormTexts.Count > 0 && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
                     continue;

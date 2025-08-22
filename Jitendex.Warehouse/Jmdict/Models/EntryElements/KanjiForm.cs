@@ -37,6 +37,8 @@ public class KanjiForm
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "k_ele";
+
+    public bool IsHidden() => Infos.Any(x => x.TagName == "sK");
 }
 
 internal static class KanjiFormReader
