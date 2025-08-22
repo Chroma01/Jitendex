@@ -30,10 +30,13 @@ public class Gloss
     public required int Order { get; set; }
 
     public required string Text { get; set; }
-    public string? Type { get; set; }
+    public string? TypeName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public virtual Sense Sense { get; set; } = null!;
+
+    [ForeignKey(nameof(TypeName))]
+    public virtual GlossType? Type { get; set; }
 
     [NotMapped]
     internal string? Language { get; set; }
@@ -43,14 +46,18 @@ public class Gloss
 
 internal static class GlossReader
 {
-    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense)
-        => new Gloss
+    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
+    {
+        var typeName = reader.GetAttribute("g_type");
+        return new Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.Glosses.Count + 1,
             Language = reader.GetAttribute("xml:lang") ?? "eng",
-            Type = reader.GetAttribute("g_type"),
+            TypeName = typeName,
+            Type = typeName is not null ? docMeta.GetTagByName<GlossType>(typeName) : null,
             Text = await reader.ReadElementContentAsStringAsync(),
         };
+    }
 }

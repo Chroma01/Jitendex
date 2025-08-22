@@ -23,17 +23,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 [Table($"{nameof(KanjiForm)}{nameof(Priority)}")]
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagName))]
 public class Priority
 {
     public required int EntryId { get; set; }
     public required int KanjiFormOrder { get; set; }
-    public required string TagId { get; set; }
+    public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
 
-    [ForeignKey(nameof(TagId))]
+    [ForeignKey(nameof(TagName))]
     public virtual PriorityTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "ke_pri";
@@ -43,13 +43,13 @@ internal static class PriorityReader
 {
     public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, KanjiForm kanjiForm, DocumentMetadata docMeta)
     {
-        var tagId = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagById<PriorityTag>(tagId);
+        var tagName = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTagByName<PriorityTag>(tagName);
         return new Priority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            TagId = tagId,
+            TagName = tagName,
             KanjiForm = kanjiForm,
             Tag = tag,
         };

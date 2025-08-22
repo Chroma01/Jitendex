@@ -126,7 +126,7 @@ public static class Loader
             var possibleTargetEntries = headwordToEntry[key]
                 .Where(e =>
                     e.Id != xref.EntryId &&  // Entries cannot reference themselves.
-                    e.Corpus == Corpus.Jmdict &&  // Only Jmdict entries can be referenced.
+                    e.CorpusName == "Jmdict" &&  // Only Jmdict entries can be referenced.
                     e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense ID.
                 .ToList();
 
@@ -166,13 +166,13 @@ public static class Loader
                 .Where(s => s.Order == xref.RefSenseOrder).First();
             xref.RefSense.ReverseCrossReferences.Add(xref);
 
-            if (targetEntry.KanjiForms.All(k => k.Infos.Any(i => i.TagId == "sK")))
+            if (targetEntry.KanjiForms.All(k => k.Infos.Any(i => i.TagName == "sK")))
             {
                 string searchText;
                 if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
                 {
                     searchText = targetEntry.Readings
-                        .Where(r => !r.Infos.Any(i => i.TagId == "sk"))
+                        .Where(r => !r.Infos.Any(i => i.TagName == "sk"))
                         .First().Text;
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                 }
@@ -184,11 +184,11 @@ public static class Loader
                 var refReading = targetEntry.Readings
                     .Where(b => b.Text == searchText).First();
 
-                if (refReading.Infos.Any(i => i.TagId == "sk"))
+                if (refReading.Infos.Any(i => i.TagName == "sk"))
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings
-                        .Where(r => !r.Infos.Any(i => i.TagId == "sk")).First();
+                        .Where(r => !r.Infos.Any(i => i.TagName == "sk")).First();
                 }
 
                 xref.RefReading = refReading;
@@ -199,7 +199,7 @@ public static class Loader
                 var refKanjiForm = targetEntry.KanjiForms
                     .Where(k => k.Text == xref.RefText1).First();
 
-                if (refKanjiForm.Infos.Any(i => i.TagId == "sK"))
+                if (refKanjiForm.Infos.Any(i => i.TagName == "sK"))
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refKanjiForm = targetEntry.KanjiForms.First();
@@ -228,7 +228,7 @@ public static class Loader
             {
                 var refReading = targetEntry.Readings
                     .Where(b => b.Text == xref.RefText1).First();
-                if (refReading.Infos.Any(i => i.TagId == "sk"))
+                if (refReading.Infos.Any(i => i.TagName == "sk"))
                 {
                     Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings.First();

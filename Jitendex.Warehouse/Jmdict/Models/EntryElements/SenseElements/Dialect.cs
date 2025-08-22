@@ -22,17 +22,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagId))]
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagName))]
 public class Dialect
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
-    public required string TagId { get; set; }
+    public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public virtual Sense Sense { get; set; } = null!;
 
-    [ForeignKey(nameof(TagId))]
+    [ForeignKey(nameof(TagName))]
     public virtual DialectTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "dial";
@@ -48,7 +48,7 @@ internal static class DialectReader
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            TagId = tag.Id,
+            TagName = tag.Name,
             Sense = sense,
             Tag = tag,
         };

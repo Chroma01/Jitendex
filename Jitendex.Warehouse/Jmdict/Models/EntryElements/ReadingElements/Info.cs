@@ -23,17 +23,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 [Table($"{nameof(Reading)}{nameof(Info)}")]
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagName))]
 public class Info
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }
-    public required string TagId { get; set; }
+    public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public virtual Reading Reading { get; set; } = null!;
 
-    [ForeignKey(nameof(TagId))]
+    [ForeignKey(nameof(TagName))]
     public virtual ReadingInfoTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "re_inf";
@@ -49,7 +49,7 @@ internal static class InfoReader
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            TagId = tag.Id,
+            TagName = tag.Name,
             Reading = reading,
             Tag = tag,
         };

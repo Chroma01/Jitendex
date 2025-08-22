@@ -28,12 +28,15 @@ public class CrossReference
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
-    public required string Type { get; set; }
+    public required string TypeName { get; set; }
 
     public required int RefEntryId { get; set; }
     public required int RefSenseOrder { get; set; }
     public required int RefReadingOrder { get; set; }
     public int? RefKanjiFormOrder { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public virtual CrossReferenceType Type { get; set; } = null!;
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public virtual Sense Sense { get; set; } = null!;
@@ -66,9 +69,9 @@ internal static class CrossReferenceReader
 {
     public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, DocumentMetadata docMeta)
     {
-        var type = reader.Name;
+        var typeName = reader.Name;
         var text = await reader.ReadElementContentAsStringAsync();
-        if (sense.Entry.Corpus != Corpus.Jmdict)
+        if (sense.Entry.CorpusName != "Jmdict")
         {
             // TODO: Log
             return null;
@@ -83,11 +86,13 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
+        var type = docMeta.GetTagByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.CrossReferences.Count + 1,
+            TypeName = typeName,
             Type = type,
             RefEntryId = -1,
             RefReadingOrder = -1,

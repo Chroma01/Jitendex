@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
@@ -24,20 +25,15 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 public class Entry
 {
     public required int Id { get; set; }
-    public required Corpus Corpus { get; set; }
+    public required string CorpusName { get; set; }
     public virtual List<Reading> Readings { get; set; } = [];
     public virtual List<KanjiForm> KanjiForms { get; set; } = [];
     public virtual List<Sense> Senses { get; set; } = [];
 
-    internal const string XmlTagName = "entry";
-}
+    [ForeignKey(nameof(CorpusName))]
+    public virtual Corpus Corpus { get; set; } = null!;
 
-public enum Corpus
-{
-    Unknown,
-    Jmdict,
-    Jmnedict,
-    Metadata,
+    internal const string XmlTagName = "entry";
 }
 
 internal static class EntryReader
@@ -51,7 +47,7 @@ internal static class EntryReader
         var entry = new Entry
         {
             Id = -1,
-            Corpus = Corpus.Unknown,
+            CorpusName = string.Empty,
         };
 
         var exit = false;
@@ -80,7 +76,8 @@ internal static class EntryReader
             case "ent_seq":
                 var sequence = await reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
-                entry.Corpus = IdToCorpus(entry.Id);
+                var corpusName = Corpus.EntryIdToCorpusName(entry.Id);
+                entry.Corpus = docMeta.GetTagByName<Corpus>(corpusName);
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await reader.ReadKanjiFormAsync(entry, docMeta);
@@ -102,18 +99,6 @@ internal static class EntryReader
         }
     }
 
-    private static Corpus IdToCorpus(int id)
-        => id switch
-        {
-            < 1000000 => Corpus.Unknown,
-            < 3000000 => Corpus.Jmdict,
-            < 5000000 => Corpus.Unknown,
-            < 6000000 => Corpus.Jmnedict,
-            < 9999999 => Corpus.Unknown,
-              9999999 => Corpus.Metadata,
-            _ => Corpus.Unknown,
-        };
-
     private static Entry PostProcess(Entry entry)
     {
         BridgeReadingsAndKanjiForms(entry);
@@ -127,12 +112,12 @@ internal static class EntryReader
         {
             if (reading.NoKanji)
                 continue;
-            if (reading.Infos.Any(x => x.TagId == "sk"))
+            if (reading.Infos.Any(x => x.TagName == "sk"))
                 continue;
 
             foreach (var kanjiForm in entry.KanjiForms)
             {
-                if (kanjiForm.Infos.Any(x => x.TagId == "sK"))
+                if (kanjiForm.Infos.Any(x => x.TagName == "sK"))
                     continue;
                 if (reading.ConstraintKanjiFormTexts.Count > 0 && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
                     continue;

@@ -23,17 +23,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 [Table($"{nameof(KanjiForm)}{nameof(Info)}")]
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagId))]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagName))]
 public class Info
 {
     public required int EntryId { get; set; }
     public required int KanjiFormOrder { get; set; }
-    public required string TagId { get; set; }
+    public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
 
-    [ForeignKey(nameof(TagId))]
+    [ForeignKey(nameof(TagName))]
     public virtual KanjiFormInfoTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "ke_inf";
@@ -49,7 +49,7 @@ internal static class InfoReader
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            TagId = tag.Id,
+            TagName = tag.Name,
             KanjiForm = kanjiForm,
             Tag = tag,
         };

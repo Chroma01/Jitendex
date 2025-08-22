@@ -23,17 +23,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 [Table($"{nameof(Reading)}{nameof(Priority)}")]
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagId))]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagName))]
 public class Priority
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }
-    public required string TagId { get; set; }
+    public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public virtual Reading Reading { get; set; } = null!;
 
-    [ForeignKey(nameof(TagId))]
+    [ForeignKey(nameof(TagName))]
     public virtual PriorityTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "re_pri";
@@ -43,13 +43,13 @@ internal static class PriorityReader
 {
     public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, Reading reading, DocumentMetadata docMeta)
     {
-        var tagId = await reader.ReadElementContentAsStringAsync();
-        var tag = docMeta.GetTagById<PriorityTag>(tagId);
+        var tagName = await reader.ReadElementContentAsStringAsync();
+        var tag = docMeta.GetTagByName<PriorityTag>(tagName);
         return new Priority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            TagId = tagId,
+            TagName = tagName,
             Reading = reading,
             Tag = tag,
         };

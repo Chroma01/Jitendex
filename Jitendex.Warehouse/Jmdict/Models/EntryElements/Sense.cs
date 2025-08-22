@@ -110,7 +110,7 @@ internal static class SenseReader
                 sense.Note = await reader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
-                var gloss = await reader.ReadGlossAsync(sense);
+                var gloss = await reader.ReadGlossAsync(sense, docMeta);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
