@@ -22,15 +22,17 @@ namespace Jitendex.Warehouse;
 
 public class Program
 {
-    public static void Main()
+    public static async Task Main()
     {
         var sw = new Stopwatch();
         sw.Start();
 
-        var t1 = Kanjidic2.Loader.ImportAsync();
-        var t2 = Jmdict.Loader.ImportAsync();
+        var resources = new Resources();
+        var loadJmdictEntries = Jmdict.Loader.EntriesAsync(resources, true);
+        var loadKanjidic2Entries = Kanjidic2.Loader.EntriesAsync(resources, true);
 
-        Task.WaitAll(t1, t2);
+        await loadJmdictEntries;
+        await loadKanjidic2Entries;
 
         sw.Stop();
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");

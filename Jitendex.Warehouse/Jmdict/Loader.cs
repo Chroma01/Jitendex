@@ -17,54 +17,35 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
 public static class Loader
 {
-    public async static Task ImportAsync()
+    public async static Task<List<Entry>> EntriesAsync(Resources resources, bool save)
     {
-        var parseTask = ParseJmdictAsync();
-        await using var db = new JmdictContext();
-        await InitializeDatabaseAsync(db);
+        var db = new JmdictContext();
+        var initializeDbTask = save ? BuildDb.InitializeAsync(db) : Task.CompletedTask;
 
-        var entries = await parseTask;
+        var loadReferenceCache = resources.JmdictCrossReferenceSequencesAsync();
 
-        await db.Entries.AddRangeAsync(entries);
-        await db.SaveChangesAsync();
-    }
-
-    private async static Task InitializeDatabaseAsync(JmdictContext db)
-    {
-        // Delete and recreate database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
-
-        // For faster importing, write data to memory
-        // rather than to the disk during initial load.
-        await using var connection = db.Database.GetDbConnection();
-        await connection.OpenAsync();
-        await using var command = connection.CreateCommand();
-        command.CommandText = @"
-            PRAGMA synchronous = OFF;
-            PRAGMA journal_mode = MEMORY;
-            PRAGMA temp_store = MEMORY;
-            PRAGMA cache_size = -200000;";
-        await command.ExecuteNonQueryAsync();
-    }
-
-    private async static Task<List<Entry>> ParseJmdictAsync()
-    {
         var entries = new List<Entry>();
-        var jmdictPath = Path.Combine("Resources", "edrdg", "JMdict");
-        await foreach (var entry in EnumerateEntriesAsync(jmdictPath))
+        await foreach (var entry in EnumerateEntriesAsync(resources.JmdictPath))
         {
             entries.Add(entry);
         }
-        await PostProcessAsync(entries);
+
+        var cachedReferences = await loadReferenceCache;
+        ReferenceSequencer.FixCrossReferences(entries, cachedReferences);
+
+        if (save)
+        {
+            await initializeDbTask;
+            await db.Entries.AddRangeAsync(entries);
+            await db.SaveChangesAsync();
+        }
+
         return entries;
     }
 
@@ -101,16 +82,5 @@ public static class Loader
                     break;
             }
         }
-    }
-
-    private async static Task PostProcessAsync(List<Entry> entries)
-    {
-        var seqpath = Path.Combine("Resources", "jmdict", "cross_reference_sequences.json");
-        Dictionary<string, int> cachedSequences;
-        await using (var stream = File.OpenRead(seqpath))
-            cachedSequences = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
-
-        ReferenceSequencer.FixCrossReferences(entries, cachedSequences);
-        // Anticipating more operations here later.
     }
 }
