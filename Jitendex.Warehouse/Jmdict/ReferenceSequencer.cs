@@ -28,18 +28,18 @@ internal static class ReferenceSequencer
     {
         var referenceTextToEntries = ReferenceTextToEntries(entries);
 
-        var crossReferences = entries
+        var allCrossReferences = entries
             .SelectMany(e => e.Senses)
             .SelectMany(s => s.CrossReferences);
 
-        foreach (var xref in crossReferences)
+        foreach (var xref in allCrossReferences)
         {
             var key = new ReferenceText(xref.RefText1, xref.RefText2);
             var possibleTargetEntries = referenceTextToEntries[key]
                 .Where(e =>
                     e.Id != xref.EntryId &&  // Entries cannot reference themselves.
                     e.CorpusId == xref.Sense.Entry.CorpusId &&  // Assume references are within same corpus.
-                    e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense ID.
+                    e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
                 .ToList();
 
             var targetEntry = FindTargetEntry(possibleTargetEntries, cache, xref.RawKey());
@@ -92,14 +92,20 @@ internal static class ReferenceSequencer
                 xref.RefKanjiForm = refKanjiForm;
                 xref.RefKanjiFormOrder = refKanjiForm.Order;
 
-                var refReading = xref.RefText2 is null ?
-                    refKanjiForm.ReadingBridges.First().Reading :
+                var bridge = xref.RefText2 is null ?
+                    refKanjiForm.ReadingBridges.First() :
                     refKanjiForm.ReadingBridges
                         .Where(b => b.Reading.Text == xref.RefText2)
-                        .First().Reading;
+                        .FirstOrDefault();
 
-                xref.RefReading = refReading;
-                xref.RefReadingOrder = refReading.Order;
+                if (bridge is null)
+                {
+                    Console.WriteLine($"Invalid reading {xref.RefText2} kanji form {xref.RefText1} in entry {xref.EntryId} reference to entry {targetEntry.Id}");
+                    bridge = refKanjiForm.ReadingBridges.First();
+                }
+
+                xref.RefReading = bridge.Reading;
+                xref.RefReadingOrder = bridge.Reading.Order;
             }
             else
             {
@@ -108,7 +114,7 @@ internal static class ReferenceSequencer
 
                 if (refReading.IsHidden())
                 {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden form {xref.RefText1} in entry {targetEntry.Id}");
+                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden reading {xref.RefText1} in entry {targetEntry.Id}");
                     refReading = targetEntry.Readings
                         .Where(r => !r.IsHidden()).First();
                 }
@@ -157,10 +163,6 @@ internal static class ReferenceSequencer
 
     private static Entry FindTargetEntry(List<Entry> possibleTargetEntries, Dictionary<string, int> cache, string cacheKey)
     {
-        if (possibleTargetEntries.Count == 0)
-        {
-            throw new Exception($"No entries found for cross reference `{cacheKey}`");
-        }
         if (possibleTargetEntries.Count == 1)
         {
             return possibleTargetEntries.First();
@@ -177,7 +179,11 @@ internal static class ReferenceSequencer
                 return targetEntry;
 
             Console.WriteLine($"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
-            return possibleTargetEntries.First();
+        }
+
+        if (possibleTargetEntries.Count == 0)
+        {
+            throw new Exception($"No entries found for cross reference `{cacheKey}`");
         }
 
         Console.WriteLine($"Reference could refer to {possibleTargetEntries.Count} possible entries:");
