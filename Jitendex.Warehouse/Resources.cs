@@ -22,7 +22,7 @@ namespace Jitendex.Warehouse;
 
 public class Resources
 {
-    public string JmdictPath { get; set; } = Path.Combine("Resources", "edrdg", "JMdict");
+    public string JmdictPath { get; set; } = Path.Combine("Resources", "edrdg", "JMdict_e_examp");
     public string Kanjidic2Path { get; set; } = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
 
     public string JmdictCrossReferenceSequencesPath { get; set; } =

@@ -37,8 +37,7 @@ public class Sense
 
     public virtual List<Gloss> Glosses { get; set; } = [];
     public virtual List<LanguageSource> LanguageSources { get; set; } = [];
-
-    // public List<ExampleSentence> ExampleSentences { get; set; } = [];
+    public virtual List<Example> Examples { get; set; } = [];
 
     [InverseProperty(nameof(CrossReference.Sense))]
     public virtual List<CrossReference> CrossReferences { get; set; } = [];
@@ -132,8 +131,7 @@ internal static class SenseReader
                 var dial = await reader.ReadDialectAsync(sense);
                 sense.Dialects.Add(dial);
                 break;
-            case "xref":
-            case "ant":
+            case "xref": case "ant":
                 var reference = await reader.ReadCrossReferenceAsync(sense);
                 if (reference is not null)
                 {
@@ -144,8 +142,9 @@ internal static class SenseReader
                 var languageSource = await reader.ReadLanguageSourceAsync(sense);
                 sense.LanguageSources.Add(languageSource);
                 break;
-            case "example":
-                // TODO
+            case Example.XmlTagName:
+                var example = await reader.ReadExampleAsync(sense);
+                sense.Examples.Add(example);
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Sense.XmlTagName}`");
