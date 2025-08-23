@@ -36,8 +36,8 @@ public class Sense
     public virtual List<Dialect> Dialects { get; set; } = [];
 
     public virtual List<Gloss> Glosses { get; set; } = [];
+    public virtual List<LanguageSource> LanguageSources { get; set; } = [];
 
-    // public List<LanguageSource> LanguageSources { get; set; } = [];
     // public List<ExampleSentence> ExampleSentences { get; set; } = [];
 
     [InverseProperty(nameof(CrossReference.Sense))]
@@ -53,8 +53,6 @@ public class Sense
     internal List<string> ReadingTextRestrictions { get; set; } = [];
     [NotMapped]
     internal List<string> KanjiFormTextRestrictions { get; set; } = [];
-    [NotMapped]
-    internal List<string> Lsources { get; set; } = [];
 
     internal const string XmlTagName = "sense";
 }
@@ -142,12 +140,9 @@ internal static class SenseReader
                     sense.CrossReferences.Add(reference);
                 }
                 break;
-            case "lsource":
-                if (!reader.IsEmptyElement)
-                {
-                    var lsource = await reader.ReadElementContentAsStringAsync();
-                    sense.Lsources.Add(lsource);
-                }
+            case LanguageSource.XmlTagName:
+                var languageSource = await reader.ReadLanguageSourceAsync(sense);
+                sense.LanguageSources.Add(languageSource);
                 break;
             case "example":
                 // TODO

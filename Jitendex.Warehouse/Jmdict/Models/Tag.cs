@@ -221,3 +221,57 @@ public class CrossReferenceType
         ["ant"] = "antonym",
     };
 }
+
+public class LanguageSourceType
+{
+    [Key]
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+
+    private static readonly Dictionary<string, LanguageSourceType> Cache = [];
+
+    internal static LanguageSourceType FindByName(string name)
+    {
+        if (Cache.TryGetValue(name, out LanguageSourceType? tag))
+            return tag;
+        string? description;
+        if (NameToDescription.TryGetValue(name, out string? value))
+        {
+            description = value;
+        }
+        else
+        {
+            // TODO: Log and warn.
+            description = string.Empty;
+        }
+        var newTag = new LanguageSourceType { Name = name, Description = description };
+        Cache.Add(name, newTag);
+        return newTag;
+    }
+
+    private static readonly Dictionary<string, string> NameToDescription = new()
+    {
+        ["full"] = "Full description of the source word or phrase of the loanword",
+        ["part"] = "Partial description of the source word or phrase of the loanword",
+    };
+}
+
+public class Language
+{
+    [Key]
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+
+    private static readonly Dictionary<string, Language> Cache = [];
+
+    internal static Language FindByName(string name)
+    {
+        if (Cache.TryGetValue(name, out Language? tag))
+            return tag;
+        var description = string.Empty;
+        var newTag = new Language { Name = name, Description = description };
+        Cache.Add(name, newTag);
+        return newTag;
+    }
+
+}
