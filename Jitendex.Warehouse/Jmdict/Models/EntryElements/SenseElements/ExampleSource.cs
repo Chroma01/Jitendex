@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -27,6 +28,9 @@ public class ExampleSource
     public required int Key { get; set; }
     public required string Text { get; set; }
     public required string Translation { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public virtual ExampleSourceType ExampleSourceType { get; set; } = null!;
 
     internal const string XmlTagName = "ex_srce";
 
@@ -44,6 +48,7 @@ public class ExampleSource
             Key = key,
             Text = string.Empty,
             Translation = string.Empty,
+            ExampleSourceType = ExampleSourceType.FindByName(typeName),
         };
         Cache.Add(primaryKey, newSource);
         return newSource;

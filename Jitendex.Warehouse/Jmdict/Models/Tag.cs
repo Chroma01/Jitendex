@@ -274,3 +274,36 @@ public class Language
         return newTag;
     }
 }
+
+public class ExampleSourceType
+{
+    [Key]
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+
+    private static readonly Dictionary<string, ExampleSourceType> Cache = [];
+
+    internal static ExampleSourceType FindByName(string name)
+    {
+        if (Cache.TryGetValue(name, out ExampleSourceType? tag))
+            return tag;
+        string? description;
+        if (NameToDescription.TryGetValue(name, out string? value))
+        {
+            description = value;
+        }
+        else
+        {
+            // TODO: Log and warn.
+            description = string.Empty;
+        }
+        var newTag = new ExampleSourceType { Name = name, Description = description };
+        Cache.Add(name, newTag);
+        return newTag;
+    }
+
+    private static readonly Dictionary<string, string> NameToDescription = new()
+    {
+        ["tat"] = "tatoeba.org",
+    };
+}
