@@ -67,6 +67,8 @@ public class CrossReference
 
 internal static class CrossReferenceReader
 {
+    private record ParsedText(string Text1, string? Text2, int SenseOrder);
+
     public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense)
     {
         var typeName = reader.Name;
@@ -76,7 +78,7 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        (string, string?, int) parsedText;
+        ParsedText parsedText;
         try
         {
             parsedText = Parse(text);
@@ -96,30 +98,30 @@ internal static class CrossReferenceReader
             Type = type,
             RefEntryId = -1,
             RefReadingOrder = -1,
-            RefText1 = parsedText.Item1,
-            RefText2 = parsedText.Item2,
-            RefSenseOrder = parsedText.Item3,
+            RefText1 = parsedText.Text1,
+            RefText2 = parsedText.Text2,
+            RefSenseOrder = parsedText.SenseOrder,
             Sense = sense,
         };
         return crossRef;
     }
 
-    private static (string, string?, int) Parse(string text)
+    private static ParsedText Parse(string text)
     {
         const char separator = '・';
         var split = text.Split(separator);
         switch(split.Length)
         {
             case 1:
-                return (split[0], null, 1);
+                return new ParsedText(split[0], null, 1);
             case 2:
                 if (int.TryParse(split[1], out int s1))
-                    return (split[0], null, s1);
+                    return new ParsedText(split[0], null, s1);
                 else
-                    return (split[0], split[1], 1);
+                    return new ParsedText(split[0], split[1], 1);
             case 3:
                 if (int.TryParse(split[2], out int s2))
-                    return (split[0], split[1], s2);
+                    return new ParsedText(split[0], split[1], s2);
                 else
                     throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));    
             default:
