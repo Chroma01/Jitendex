@@ -22,10 +22,10 @@ namespace Jitendex.Warehouse.Jmdict;
 
 internal static class ReferenceSequencer
 {
-    private record ReferenceText(string text1, string? text2)
+    private record ReferenceText(string Text1, string? Text2)
     {
         public override string ToString()
-            => text2 is null ? text1 : $"{text1}【{text2}】";
+            => Text2 is null ? Text1 : $"{Text1}【{Text2}】";
     }
 
     private record SpellingId(int ReadingOrder, int? KanjiFormOrder);
