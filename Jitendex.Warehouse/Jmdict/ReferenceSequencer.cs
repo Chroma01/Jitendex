@@ -22,7 +22,13 @@ namespace Jitendex.Warehouse.Jmdict;
 
 internal static class ReferenceSequencer
 {
-    private record ReferenceText(string text1, string? text2);
+    private record ReferenceText(string text1, string? text2)
+    {
+        public override string ToString()
+            => text2 is null ? text1 : $"{text1}【{text2}】";
+    }
+
+    private record SpellingId(int ReadingOrder, int? KanjiFormOrder);
 
     public static void FixCrossReferences(List<Entry> entries, Dictionary<string, int> cache)
     {
@@ -44,83 +50,33 @@ internal static class ReferenceSequencer
 
             var targetEntry = FindTargetEntry(possibleTargetEntries, cache, xref.RawKey());
 
+            // Assign Sense foreign key.
             xref.RefEntryId = targetEntry.Id;
             xref.RefSense = targetEntry.Senses
                 .Where(s => s.Order == xref.RefSenseOrder).First();
             xref.RefSense.ReverseCrossReferences.Add(xref);
 
-            if (targetEntry.KanjiForms.All(k => k.IsHidden()))
+            // Assign Reading and KanjiForm foreign keys.
+            var validSpellingIds = targetEntry.ValidSpellings();
+            if (validSpellingIds.TryGetValue(key, out SpellingId? id))
             {
-                string searchText;
-                if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
-                {
-                    searchText = targetEntry.Readings
-                        .Where(r => !r.IsHidden())
-                        .First().Text;
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden kanji form {xref.RefText1} in entry {targetEntry.Id}");
-                }
-                else
-                {
-                    searchText = xref.RefText1;
-                }
+                xref.RefKanjiFormOrder = id.KanjiFormOrder;
+                xref.RefKanjiForm = targetEntry.KanjiForms
+                    .Where(k => k.Order == id.KanjiFormOrder).FirstOrDefault();
 
-                var refReading = targetEntry.Readings
-                    .Where(b => b.Text == searchText).First();
-
-                if (refReading.IsHidden())
-                {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden reading {xref.RefText1} in entry {targetEntry.Id}");
-                    refReading = targetEntry.Readings
-                        .Where(r => !r.IsHidden()).First();
-                }
-
-                xref.RefReading = refReading;
-                xref.RefReadingOrder = refReading.Order;
-            }
-            else if (targetEntry.KanjiForms.Any(k => k.Text == xref.RefText1))
-            {
-                var refKanjiForm = targetEntry.KanjiForms
-                    .Where(k => k.Text == xref.RefText1).First();
-
-                if (refKanjiForm.IsHidden())
-                {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden kanji form {xref.RefText1} in entry {targetEntry.Id}");
-                    refKanjiForm = targetEntry.KanjiForms
-                        .Where(k => !k.IsHidden()).First();
-                }
-
-                xref.RefKanjiForm = refKanjiForm;
-                xref.RefKanjiFormOrder = refKanjiForm.Order;
-
-                var bridge = xref.RefText2 is null ?
-                    refKanjiForm.ReadingBridges.First() :
-                    refKanjiForm.ReadingBridges
-                        .Where(b => b.Reading.Text == xref.RefText2)
-                        .FirstOrDefault();
-
-                if (bridge is null)
-                {
-                    Console.WriteLine($"Invalid reading {xref.RefText2} kanji form {xref.RefText1} in entry {xref.EntryId} reference to entry {targetEntry.Id}");
-                    bridge = refKanjiForm.ReadingBridges.First();
-                }
-
-                xref.RefReading = bridge.Reading;
-                xref.RefReadingOrder = bridge.Reading.Order;
+                xref.RefReadingOrder = id.ReadingOrder;
+                xref.RefReading = targetEntry.Readings
+                    .Where(r => r.Order == id.ReadingOrder).First();
             }
             else
             {
-                var refReading = targetEntry.Readings
-                    .Where(b => b.Text == xref.RefText1).First();
+                Console.WriteLine($"Reference display text `{key}` in entry {xref.EntryId} is an invalid spelling for entry {targetEntry.Id}");
+                xref.RefReading = targetEntry.Readings
+                    .Where(r => !r.IsHidden()).First();
+                xref.RefReadingOrder = xref.RefReading.Order;
 
-                if (refReading.IsHidden())
-                {
-                    Console.WriteLine($"Entry {xref.EntryId} has a reference to hidden reading {xref.RefText1} in entry {targetEntry.Id}");
-                    refReading = targetEntry.Readings
-                        .Where(r => !r.IsHidden()).First();
-                }
-
-                xref.RefReading = refReading;
-                xref.RefReadingOrder = refReading.Order;
+                xref.RefKanjiForm = xref.RefReading.KanjiFormBridges.FirstOrDefault()?.KanjiForm;
+                xref.RefKanjiFormOrder = xref.RefKanjiForm?.Order;
             }
         }
     }
@@ -189,5 +145,32 @@ internal static class ReferenceSequencer
         Console.WriteLine($"Reference could refer to {possibleTargetEntries.Count} possible entries:");
         Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())},");
         return possibleTargetEntries.First();
+    }
+
+    private static Dictionary<ReferenceText, SpellingId> ValidSpellings(this Entry entry)
+    {
+        var map = new Dictionary<ReferenceText, SpellingId>();
+        ReferenceText referenceText;
+
+        foreach (var kanjiForm in entry.KanjiForms.Where(k => !k.IsHidden()))
+        {
+            referenceText = new ReferenceText(kanjiForm.Text, null);
+            map[referenceText] = new SpellingId
+            (
+                kanjiForm.ReadingBridges.First().Reading.Order,
+                kanjiForm.Order
+            );
+            foreach (var bridge in kanjiForm.ReadingBridges)
+            {
+                referenceText = new ReferenceText(kanjiForm.Text, bridge.Reading.Text);
+                map[referenceText] = new SpellingId(bridge.Reading.Order, kanjiForm.Order);
+            }
+        }
+        foreach (var reading in entry.Readings.Where(r => !r.IsHidden()))
+        {
+            referenceText = new ReferenceText(reading.Text, null);
+            map[referenceText] = new SpellingId(reading.Order, null);
+        }
+        return map;
     }
 }
