@@ -119,7 +119,16 @@ public class PriorityTag
     {
         if (Cache.TryGetValue(name, out PriorityTag? tag))
             return tag;
-        var description = NameToDescription[name];
+        string? description;
+        if (NameToDescription.TryGetValue(name, out string? value))
+        {
+            description = value;
+        }
+        else
+        {
+            // TODO: Log and warn.
+            description = string.Empty;
+        }
         var newTag = new PriorityTag { Name = name, Description = description };
         Cache.Add(name, newTag);
         return newTag;
@@ -155,7 +164,16 @@ public class GlossType
     {
         if (Cache.TryGetValue(name, out GlossType? tag))
             return tag;
-        var description = NameToDescription[name];
+        string? description;
+        if (NameToDescription.TryGetValue(name, out string? value))
+        {
+            description = value;
+        }
+        else
+        {
+            // TODO: Log and warn.
+            description = string.Empty;
+        }
         var newTag = new GlossType { Name = name, Description = description };
         Cache.Add(name, newTag);
         return newTag;
@@ -182,7 +200,16 @@ public class CrossReferenceType
     {
         if (Cache.TryGetValue(name, out CrossReferenceType? tag))
             return tag;
-        var description = NameToDescription[name];
+        string? description;
+        if (NameToDescription.TryGetValue(name, out string? value))
+        {
+            description = value;
+        }
+        else
+        {
+            // TODO: Log and warn.
+            description = string.Empty;
+        }
         var newTag = new CrossReferenceType { Name = name, Description = description };
         Cache.Add(name, newTag);
         return newTag;
