@@ -40,10 +40,10 @@ public class Misc
 
 internal static class MiscReader
 {
-    public async static Task<Misc> ReadMiscAsync(this XmlReader reader, Sense sense)
+    public async static Task<Misc> ReadMiscAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = ITag.FindByDescription<MiscTag>(description);
+        var tag = factory.GetByDescription<MiscTag>(description);
         return new Misc
         {
             EntryId = sense.EntryId,

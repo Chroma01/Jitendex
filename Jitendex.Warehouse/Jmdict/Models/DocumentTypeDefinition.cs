@@ -17,22 +17,15 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-internal static partial class DocumentMetadataReader
+internal static partial class DocumentTypeDefinition
 {
-    public async static Task<Dictionary<string, string>> GetDocumentEntityNameToDescriptionAsync(this XmlReader reader)
-    {
-        var dtd = await reader.GetValueAsync();
-        return ParseDtdEntities(dtd);
-    }
-
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdEntityRegex();
 
-    private static Dictionary<string, string> ParseDtdEntities(string dtd)
+    public static Dictionary<string, string> ParseEntities(string dtd)
     {
         var nameToDescription = new Dictionary<string, string>();
         foreach (Match match in DtdEntityRegex().Matches(dtd))

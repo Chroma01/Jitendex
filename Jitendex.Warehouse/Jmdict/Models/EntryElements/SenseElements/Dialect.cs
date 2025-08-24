@@ -40,10 +40,10 @@ public class Dialect
 
 internal static class DialectReader
 {
-    public async static Task<Dialect> ReadDialectAsync(this XmlReader reader, Sense sense)
+    public async static Task<Dialect> ReadDialectAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = ITag.FindByDescription<DialectTag>(description);
+        var tag = factory.GetByDescription<DialectTag>(description);
         return new Dialect
         {
             EntryId = sense.EntryId,

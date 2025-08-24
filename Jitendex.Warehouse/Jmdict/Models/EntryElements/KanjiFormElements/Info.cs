@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
@@ -41,10 +42,10 @@ public class Info
 
 internal static class InfoReader
 {
-    public async static Task<Info> ReadInfoAsync(this XmlReader reader, KanjiForm kanjiForm)
+    public async static Task<Info> ReadInfoAsync(this XmlReader reader, KanjiForm kanjiForm, KeywordFactory factory)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = ITag.FindByDescription<KanjiFormInfoTag>(description);
+        var tag = factory.GetByDescription<KanjiFormInfoTag>(description);
         return new Info
         {
             EntryId = kanjiForm.EntryId,

@@ -39,10 +39,9 @@ public class Entry
 
 internal static class EntryReader
 {
-    public async static Task<Entry> ReadEntryAsync(this XmlReader reader)
+    public async static Task<Entry> ReadEntryAsync(this XmlReader reader, KeywordFactory? factory)
     {
-        if (ITag.DescriptionToName.Count == 0)
-            throw new Exception("DTD should have been parsed from the JMdict XML before any entries.");
+        ArgumentNullException.ThrowIfNull(factory);
 
         var entry = new Entry
         {
@@ -56,7 +55,7 @@ internal static class EntryReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(entry);
+                    await reader.ReadChildElementAsync(entry, factory);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -69,7 +68,7 @@ internal static class EntryReader
         return PostProcess(entry);
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
     {
         switch (reader.Name)
         {
@@ -80,15 +79,15 @@ internal static class EntryReader
                 entry.CorpusId = entry.Corpus.Id;
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await reader.ReadKanjiFormAsync(entry);
+                var kanjiForm = await reader.ReadKanjiFormAsync(entry, factory);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await reader.ReadReadingAsync(entry);
+                var reading = await reader.ReadReadingAsync(entry, factory);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await reader.ReadSenseAsync(entry);
+                var sense = await reader.ReadSenseAsync(entry, factory);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);

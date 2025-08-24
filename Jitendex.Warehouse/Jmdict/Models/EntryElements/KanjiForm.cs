@@ -43,7 +43,7 @@ public class KanjiForm
 
 internal static class KanjiFormReader
 {
-    public async static Task<KanjiForm> ReadKanjiFormAsync(this XmlReader reader, Entry entry)
+    public async static Task<KanjiForm> ReadKanjiFormAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
     {
         var kanjiForm = new KanjiForm
         {
@@ -59,7 +59,7 @@ internal static class KanjiFormReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(kanjiForm);
+                    await reader.ReadChildElementAsync(kanjiForm, factory);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -72,7 +72,7 @@ internal static class KanjiFormReader
         return kanjiForm;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, KanjiForm kanjiForm)
+    private async static Task ReadChildElementAsync(this XmlReader reader, KanjiForm kanjiForm, KeywordFactory factory)
     {
         switch (reader.Name)
         {
@@ -80,11 +80,11 @@ internal static class KanjiFormReader
                 kanjiForm.Text = await reader.ReadElementContentAsStringAsync();
                 break;
             case Info.XmlTagName:
-                var info = await reader.ReadInfoAsync(kanjiForm);
+                var info = await reader.ReadInfoAsync(kanjiForm, factory);
                 kanjiForm.Infos.Add(info);
                 break;
             case Priority.XmlTagName:
-                var priority = await reader.ReadPriorityAsync(kanjiForm);
+                var priority = await reader.ReadPriorityAsync(kanjiForm, factory);
                 kanjiForm.Priorities.Add(priority);
                 break;
             default:

@@ -48,7 +48,7 @@ public class LanguageSource
 
 internal static class LanguageSourceReader
 {
-    public async static Task<LanguageSource> ReadLanguageSourceAsync(this XmlReader reader, Sense sense)
+    public async static Task<LanguageSource> ReadLanguageSourceAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
     {
         var typeName = reader.GetAttribute("ls_type") ?? "full";
         var languageCode = reader.GetAttribute("xml:lang") ?? "eng";
@@ -67,8 +67,8 @@ internal static class LanguageSourceReader
             LanguageCode = languageCode,
             TypeName = typeName,
             IsWasei = wasei == "y",
-            Language = Language.FindByName(languageCode),
-            Type = LanguageSourceType.FindByName(typeName),
+            Language = factory.GetByName<Language>(languageCode),
+            Type = factory.GetByName<LanguageSourceType>(typeName),
         };
     }
 }

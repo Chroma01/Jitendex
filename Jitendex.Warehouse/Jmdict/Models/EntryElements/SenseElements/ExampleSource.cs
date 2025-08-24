@@ -36,7 +36,7 @@ public class ExampleSource
 
     private static readonly Dictionary<(string, int), ExampleSource> Cache = [];
 
-    internal static ExampleSource FindByPrimaryKey(string typeName, int key)
+    internal static ExampleSource FindByPrimaryKey(string typeName, int key, KeywordFactory factory)
     {
         var primaryKey = (typeName, key);
         if (Cache.TryGetValue(primaryKey, out ExampleSource? source))
@@ -48,7 +48,7 @@ public class ExampleSource
             Key = key,
             Text = string.Empty,
             Translation = string.Empty,
-            ExampleSourceType = ExampleSourceType.FindByName(typeName),
+            ExampleSourceType = factory.GetByName<ExampleSourceType>(typeName),
         };
         Cache.Add(primaryKey, newSource);
         return newSource;

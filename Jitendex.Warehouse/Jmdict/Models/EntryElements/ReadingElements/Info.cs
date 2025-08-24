@@ -41,10 +41,10 @@ public class Info
 
 internal static class InfoReader
 {
-    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading)
+    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading, KeywordFactory factory)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = ITag.FindByDescription<ReadingInfoTag>(description);
+        var tag = factory.GetByDescription<ReadingInfoTag>(description);
         return new Info
         {
             EntryId = reading.EntryId,

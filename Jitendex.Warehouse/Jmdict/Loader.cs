@@ -62,25 +62,66 @@ public static class Loader
         };
 
         using var reader = XmlReader.Create(stream, readerSettings);
+        KeywordFactory? factory = null;
 
         while (await reader.ReadAsync())
         {
             switch (reader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    var entityNameToDescription = await reader
-                        .GetDocumentEntityNameToDescriptionAsync();
-                    ITag.DescriptionToName = entityNameToDescription
-                        .ToDictionary(x => x.Value, x => x.Key);
+                    var dtd = await reader.GetValueAsync();
+                    if (factory is null)
+                    {
+                        factory = DtdFactory(dtd);
+                    }
+                    else
+                    {
+                        // TODO: Log and warn
+                    }
                     break;
                 case XmlNodeType.Element:
                     if (reader.Name == Entry.XmlTagName)
                     {
-                        var entry = await reader.ReadEntryAsync();
+                        var entry = await reader.ReadEntryAsync(factory);
                         yield return entry;
                     }
                     break;
             }
         }
+    }
+
+    private static KeywordFactory DtdFactory(string dtd)
+    {
+        var factory = new KeywordFactory();
+
+        // Entities explicitly defined in document header.
+        var nameToDescription = DocumentTypeDefinition.ParseEntities(dtd);
+        foreach (var (name, description) in nameToDescription)
+        {
+            factory.Register<ReadingInfoTag>(name, description);
+            factory.Register<KanjiFormInfoTag>(name, description);
+            factory.Register<PartOfSpeechTag>(name, description);
+            factory.Register<FieldTag>(name, description);
+            factory.Register<MiscTag>(name, description);
+            factory.Register<DialectTag>(name, description);
+        }
+
+        // Entities implicitly defined that cannot be parsed from the document.
+        foreach (var (name, description) in GlossType.NameToDescription)
+            factory.Register<GlossType>(name, description);
+
+        foreach (var (name, description) in CrossReferenceType.NameToDescription)
+            factory.Register<CrossReferenceType>(name, description);
+
+        foreach (var (name, description) in LanguageSourceType.NameToDescription)
+            factory.Register<LanguageSourceType>(name, description);
+
+        foreach (var (name, description) in ExampleSourceType.NameToDescription)
+            factory.Register<ExampleSourceType>(name, description);
+
+        foreach (var (name, description) in PriorityTag.NameToDescription)
+            factory.Register<PriorityTag>(name, description);
+
+        return factory;
     }
 }

@@ -58,7 +58,7 @@ public class Sense
 
 internal static class SenseReader
 {
-    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry)
+    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
     {
         var sense = new Sense
         {
@@ -73,7 +73,7 @@ internal static class SenseReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(sense);
+                    await reader.ReadChildElementAsync(sense, factory);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -87,7 +87,7 @@ internal static class SenseReader
         return sense;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
     {
         switch (reader.Name)
         {
@@ -109,41 +109,41 @@ internal static class SenseReader
                 sense.Note = await reader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
-                var gloss = await reader.ReadGlossAsync(sense);
+                var gloss = await reader.ReadGlossAsync(sense, factory);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }
                 break;
             case PartOfSpeech.XmlTagName:
-                var pos = await reader.ReadPartOfSpeechAsync(sense);
+                var pos = await reader.ReadPartOfSpeechAsync(sense, factory);
                 sense.PartsOfSpeech.Add(pos);
                 break;
             case Field.XmlTagName:
-                var field = await reader.ReadFieldAsync(sense);
+                var field = await reader.ReadFieldAsync(sense, factory);
                 sense.Fields.Add(field);
                 break;
             case Misc.XmlTagName:
-                var misc = await reader.ReadMiscAsync(sense);
+                var misc = await reader.ReadMiscAsync(sense, factory);
                 sense.Miscs.Add(misc);
                 break;
             case Dialect.XmlTagName:
-                var dial = await reader.ReadDialectAsync(sense);
+                var dial = await reader.ReadDialectAsync(sense, factory);
                 sense.Dialects.Add(dial);
                 break;
             case "xref": case "ant":
-                var reference = await reader.ReadCrossReferenceAsync(sense);
+                var reference = await reader.ReadCrossReferenceAsync(sense, factory);
                 if (reference is not null)
                 {
                     sense.CrossReferences.Add(reference);
                 }
                 break;
             case LanguageSource.XmlTagName:
-                var languageSource = await reader.ReadLanguageSourceAsync(sense);
+                var languageSource = await reader.ReadLanguageSourceAsync(sense, factory);
                 sense.LanguageSources.Add(languageSource);
                 break;
             case Example.XmlTagName:
-                var example = await reader.ReadExampleAsync(sense);
+                var example = await reader.ReadExampleAsync(sense, factory);
                 sense.Examples.Add(example);
                 break;
             default:

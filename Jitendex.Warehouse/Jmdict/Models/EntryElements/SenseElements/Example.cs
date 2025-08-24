@@ -47,7 +47,7 @@ public class Example
 // Multiple <ex_sent> elements allowed, check for sanity.
 internal static class ExampleReader
 {
-    public async static Task<Example> ReadExampleAsync(this XmlReader reader, Sense sense)
+    public async static Task<Example> ReadExampleAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
     {
         var example = new Example
         {
@@ -66,7 +66,7 @@ internal static class ExampleReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(example);
+                    await reader.ReadChildElementAsync(example, factory);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -80,7 +80,7 @@ internal static class ExampleReader
         return example;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Example example)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Example example, KeywordFactory factory)
     {
         switch (reader.Name)
         {
@@ -103,7 +103,7 @@ internal static class ExampleReader
                 {
                     // TODO: Log and warn
                 }
-                example.Source = ExampleSource.FindByPrimaryKey(example.SourceTypeName, example.SourceKey);
+                example.Source = ExampleSource.FindByPrimaryKey(example.SourceTypeName, example.SourceKey, factory);
                 break;
             case "ex_text":
                 example.Keyword = await reader.ReadElementContentAsStringAsync();

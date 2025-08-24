@@ -41,10 +41,10 @@ public class Priority
 
 internal static class PriorityReader
 {
-    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, Reading reading)
+    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, Reading reading, KeywordFactory factory)
     {
         var tagName = await reader.ReadElementContentAsStringAsync();
-        var tag = PriorityTag.FindByName(tagName);
+        var tag = factory.GetByName<PriorityTag>(tagName);
         return new Priority
         {
             EntryId = reading.EntryId,

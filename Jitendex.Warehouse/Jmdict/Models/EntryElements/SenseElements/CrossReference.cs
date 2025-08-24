@@ -69,7 +69,7 @@ internal static class CrossReferenceReader
 {
     private record ParsedText(string Text1, string? Text2, int SenseOrder);
 
-    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense)
+    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
     {
         var typeName = reader.Name;
         var text = await reader.ReadElementContentAsStringAsync();
@@ -88,7 +88,7 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        var type = CrossReferenceType.FindByName(typeName);
+        var type = factory.GetByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,
@@ -110,22 +110,27 @@ internal static class CrossReferenceReader
     {
         const char separator = '・';
         var split = text.Split(separator);
+        (string, string?, int) parsed;
         switch(split.Length)
         {
             case 1:
-                return new ParsedText(split[0], null, 1);
+                parsed = (split[0], null, 1);
+                break;
             case 2:
                 if (int.TryParse(split[1], out int s1))
-                    return new ParsedText(split[0], null, s1);
+                    parsed = (split[0], null, s1);
                 else
-                    return new ParsedText(split[0], split[1], 1);
+                    parsed = (split[0], split[1], 1);
+                break;
             case 3:
                 if (int.TryParse(split[2], out int s2))
-                    return new ParsedText(split[0], split[1], s2);
+                    parsed = (split[0], split[1], s2);
                 else
-                    throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));    
+                    throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));
+                break;
             default:
                 throw new ArgumentException($"Too many separator characters `{separator}` in text `{text}`", nameof(text));
         }
+        return new ParsedText(parsed.Item1, parsed.Item2, parsed.Item3);
     }
 }

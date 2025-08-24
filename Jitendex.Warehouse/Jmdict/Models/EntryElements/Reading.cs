@@ -49,7 +49,7 @@ public class Reading
 
 internal static class ReadingReader
 {
-    public async static Task<Reading> ReadReadingAsync(this XmlReader reader, Entry entry)
+    public async static Task<Reading> ReadReadingAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
     {
         var reading = new Reading
         {
@@ -66,7 +66,7 @@ internal static class ReadingReader
             switch (reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(reading);
+                    await reader.ReadChildElementAsync(reading, factory);
                     break;
                 case XmlNodeType.Text:
                     var text = await reader.GetValueAsync();
@@ -79,7 +79,7 @@ internal static class ReadingReader
         return reading;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Reading reading)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Reading reading, KeywordFactory factory)
     {
         switch (reader.Name)
         {
@@ -94,11 +94,11 @@ internal static class ReadingReader
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case Info.XmlTagName:
-                var readingInfo = await reader.ReadInfoAsync(reading);
+                var readingInfo = await reader.ReadInfoAsync(reading, factory);
                 reading.Infos.Add(readingInfo);
                 break;
             case Priority.XmlTagName:
-                var priority = await reader.ReadPriorityAsync(reading);
+                var priority = await reader.ReadPriorityAsync(reading, factory);
                 reading.Priorities.Add(priority);
                 break;
             default:
