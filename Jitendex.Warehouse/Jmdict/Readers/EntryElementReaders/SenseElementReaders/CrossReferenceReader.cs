@@ -17,8 +17,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Jitendex.Warehouse.Jmdict.Models;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
+namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
 internal static class CrossReferenceReader
 {
@@ -66,7 +69,7 @@ internal static class CrossReferenceReader
         const char separator = '・';
         var split = text.Split(separator);
         (string, string?, int) parsed;
-        switch(split.Length)
+        switch (split.Length)
         {
             case 1:
                 parsed = (split[0], null, 1);

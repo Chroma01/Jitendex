@@ -17,8 +17,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Jitendex.Warehouse.Jmdict.Models;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
 internal static class InfoReader
 {

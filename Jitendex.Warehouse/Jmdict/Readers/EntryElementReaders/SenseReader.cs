@@ -17,9 +17,13 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
+using Jitendex.Warehouse.Jmdict.Models;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
+using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
+
+namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 internal static class SenseReader
 {
@@ -96,7 +100,8 @@ internal static class SenseReader
                 var dial = await reader.ReadDialectAsync(sense, factory);
                 sense.Dialects.Add(dial);
                 break;
-            case "xref": case "ant":
+            case "xref":
+            case "ant":
                 var reference = await reader.ReadCrossReferenceAsync(sense, factory);
                 if (reference is not null)
                 {
