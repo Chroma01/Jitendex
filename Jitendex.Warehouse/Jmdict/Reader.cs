@@ -22,7 +22,7 @@ using Jitendex.Warehouse.Jmdict.Readers;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-public static class Loader
+public static class Reader
 {
     public async static Task<List<Entry>> EntriesAsync(Resources resources, bool save)
     {

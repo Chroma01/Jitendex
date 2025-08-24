@@ -28,7 +28,7 @@ public class Program
         sw.Start();
 
         var resources = new Resources();
-        var loadJmdictEntries = Jmdict.Loader.EntriesAsync(resources, true);
+        var loadJmdictEntries = Jmdict.Reader.EntriesAsync(resources, true);
         var loadKanjidic2Entries = Kanjidic2.Loader.EntriesAsync(resources, true);
 
         await loadJmdictEntries;
