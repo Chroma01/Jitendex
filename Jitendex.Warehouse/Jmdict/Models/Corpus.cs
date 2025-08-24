@@ -26,24 +26,13 @@ public enum CorpusId
     Metadata,
 }
 
-public class Corpus
+public class Corpus : IKeyword
 {
-    public required CorpusId Id { get; set; }
-    public string Name { get => Id.ToString(); set { } }
+    public CorpusId Id { get; set; }
+    public string Name { get; set; } = null!;
+    public string Description { get; set; } = null!;
 
-    private static readonly Dictionary<CorpusId, Corpus> Cache = [];
-
-    internal static Corpus FindByEntryId(int entryId)
-    {
-        var corpusId = EntryIdToCorpusId(entryId);
-        if (Cache.TryGetValue(corpusId, out Corpus? corpus))
-            return corpus;
-        var newCorpus = new Corpus { Id = corpusId };
-        Cache.Add(corpusId, newCorpus);
-        return newCorpus;
-    }
-
-    private static CorpusId EntryIdToCorpusId(int entryId)
+    internal static CorpusId EntryIdToCorpusId(int entryId)
     {
         var corpusId = entryId switch
         {
@@ -58,4 +47,12 @@ public class Corpus
         // TODO: Log warning if unknown.
         return corpusId;
     }
+
+    internal static readonly Dictionary<CorpusId, string> IdToDescription = new()
+    {
+        [CorpusId.Unknown] = "Error",
+        [CorpusId.Jmdict] = "Japanese Multilingual Dictionary",
+        [CorpusId.Jmnedict] = "Japanese Multilingual Named Entity Dictionary",
+        [CorpusId.Metadata] = "Metadata added in post-processing",
+    };
 }

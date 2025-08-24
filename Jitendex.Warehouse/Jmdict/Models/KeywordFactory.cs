@@ -21,8 +21,15 @@ namespace Jitendex.Warehouse.Jmdict.Models;
 internal class KeywordFactory
 {
     private readonly Dictionary<(Type, string), object> Cache = [];
+
     private readonly Dictionary<(Type, string), string> NameToDescription = [];
     private readonly Dictionary<(Type, string), string> DescriptionToName = [];
+
+    public void Register<T>(string name, string description) where T : IKeyword
+    {
+        NameToDescription.Add((typeof(T), name), description);
+        DescriptionToName.Add((typeof(T), description), name);
+    }
 
     public T GetByName<T>(string name) where T : IKeyword, new()
     {
@@ -58,9 +65,23 @@ internal class KeywordFactory
         );
     }
 
-    public void Register<T>(string name, string description) where T : IKeyword
+    #region Corpus
+
+    private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
+
+    public Corpus GetByCorpusId(CorpusId id)
     {
-        NameToDescription.Add((typeof(T), name), description);
-        DescriptionToName.Add((typeof(T), description), name);
+        if (CorpusCache.TryGetValue(id, out Corpus? corpus))
+            return corpus;
+        var newCorpus = new Corpus
+        { 
+            Id = id,
+            Name = id.ToString(),
+            Description = Corpus.IdToDescription[id],
+        };
+        CorpusCache.Add(id, newCorpus);
+        return newCorpus;
     }
+
+    #endregion
 }
