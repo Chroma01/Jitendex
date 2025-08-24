@@ -24,7 +24,7 @@ internal class EntityFactory
 {
     # region Keyword
 
-    private readonly Dictionary<(Type, string), object> KeywordCache = [];
+    private readonly Dictionary<(Type, string), IKeyword> KeywordCache = [];
 
     private readonly Dictionary<(Type, string), string> NameToDescription = [];
     private readonly Dictionary<(Type, string), string> DescriptionToName = [];
@@ -38,7 +38,7 @@ internal class EntityFactory
     public T GetKeywordByName<T>(string name) where T : IKeyword, new()
     {
         var cacheKey = (typeof(T), name);
-        if (KeywordCache.TryGetValue(cacheKey, out object? keyword))
+        if (KeywordCache.TryGetValue(cacheKey, out IKeyword? keyword))
             return (T)keyword;
         string description;
         if (NameToDescription.TryGetValue(cacheKey, out string? value))
