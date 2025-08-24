@@ -139,20 +139,19 @@ public class PriorityTag : IKeyword
     private static readonly FrozenSet<string> HighPriorityNames =
         ["gai1", "ichi1", "news1", "spec1", "spec2"];
 
-    internal static readonly Dictionary<string, string> NameToDescription = ((Func<Dictionary<string, string>>)(() =>
-    {
-        var nameToDescription = new Dictionary<string, string>();
-        foreach (var i in Enumerable.Range(1, 2))
+    internal static readonly Dictionary<string, string> NameToDescription =
+        Enumerable.Range(1, 2)
+        .SelectMany(i => new KeyValuePair<string, string>[]
         {
-            nameToDescription.Add($"news{i}", $"Ranking in wordfreq file, {i} of 2");
-            nameToDescription.Add($"ichi{i}", $"Ranking from \"Ichimango goi bunruishuu\", {i} of 2");
-            nameToDescription.Add($"spec{i}", $"Ranking assigned by JMdict editors, {i} of 2");
-            nameToDescription.Add($"gai{i}", $"Common loanwords based on wordfreq file, {i} of 2");
-        }
-        foreach (var i in Enumerable.Range(1, 48))
-        {
-            nameToDescription.Add($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48");
-        }
-        return nameToDescription;
-    }))();
+            new($"news{i}", $"Ranking in wordfreq file, {i} of 2"),
+            new($"ichi{i}", $"Ranking from \"Ichimango goi bunruishuu\", {i} of 2"),
+            new($"spec{i}", $"Ranking assigned by JMdict editors, {i} of 2"),
+            new($"gai{i}",  $"Common loanwords based on wordfreq file, {i} of 2"),
+        })
+        .Concat(
+        Enumerable.Range(1, 48)
+        .Select(i => new KeyValuePair<string, string>
+            ($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48")
+        ))
+        .ToDictionary();
 }
