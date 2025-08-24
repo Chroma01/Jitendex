@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
@@ -54,100 +53,4 @@ public class Sense
     internal List<string> KanjiFormTextRestrictions { get; set; } = [];
 
     internal const string XmlTagName = "sense";
-}
-
-internal static class SenseReader
-{
-    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry, EntityFactory factory)
-    {
-        var sense = new Sense
-        {
-            EntryId = entry.Id,
-            Order = entry.Senses.Count + 1,
-            Entry = entry,
-        };
-
-        var exit = false;
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(sense, factory);
-                    break;
-                case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{Sense.XmlTagName}`: `{text}`");
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == Sense.XmlTagName;
-                    break;
-            }
-        }
-
-        return sense;
-    }
-
-    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense, EntityFactory factory)
-    {
-        switch (reader.Name)
-        {
-            case "stagk":
-                var kanjiFormTextRestriction = await reader.ReadElementContentAsStringAsync();
-                sense.KanjiFormTextRestrictions.Add(kanjiFormTextRestriction);
-                break;
-            case "stagr":
-                var readingTextRestriction = await reader.ReadElementContentAsStringAsync();
-                sense.ReadingTextRestrictions.Add(readingTextRestriction);
-                break;
-            case "s_inf":
-                if (sense.Note != null)
-                {
-                    // The XML schema allows for more than one note per sense,
-                    // but in practice there is only one or none.
-                    // TODO: Log warning
-                }
-                sense.Note = await reader.ReadElementContentAsStringAsync();
-                break;
-            case Gloss.XmlTagName:
-                var gloss = await reader.ReadGlossAsync(sense, factory);
-                if (gloss.Language == "eng")
-                {
-                    sense.Glosses.Add(gloss);
-                }
-                break;
-            case PartOfSpeech.XmlTagName:
-                var pos = await reader.ReadPartOfSpeechAsync(sense, factory);
-                sense.PartsOfSpeech.Add(pos);
-                break;
-            case Field.XmlTagName:
-                var field = await reader.ReadFieldAsync(sense, factory);
-                sense.Fields.Add(field);
-                break;
-            case Misc.XmlTagName:
-                var misc = await reader.ReadMiscAsync(sense, factory);
-                sense.Miscs.Add(misc);
-                break;
-            case Dialect.XmlTagName:
-                var dial = await reader.ReadDialectAsync(sense, factory);
-                sense.Dialects.Add(dial);
-                break;
-            case "xref": case "ant":
-                var reference = await reader.ReadCrossReferenceAsync(sense, factory);
-                if (reference is not null)
-                {
-                    sense.CrossReferences.Add(reference);
-                }
-                break;
-            case LanguageSource.XmlTagName:
-                var languageSource = await reader.ReadLanguageSourceAsync(sense, factory);
-                sense.LanguageSources.Add(languageSource);
-                break;
-            case Example.XmlTagName:
-                var example = await reader.ReadExampleAsync(sense, factory);
-                sense.Examples.Add(example);
-                break;
-            default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Sense.XmlTagName}`");
-        }
-    }
 }

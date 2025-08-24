@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -44,31 +43,4 @@ public class LanguageSource
     public virtual LanguageSourceType Type { get; set; } = null!;
 
     internal const string XmlTagName = "lsource";
-}
-
-internal static class LanguageSourceReader
-{
-    public async static Task<LanguageSource> ReadLanguageSourceAsync(this XmlReader reader, Sense sense, EntityFactory factory)
-    {
-        var typeName = reader.GetAttribute("ls_type") ?? "full";
-        var languageCode = reader.GetAttribute("xml:lang") ?? "eng";
-        var wasei = reader.GetAttribute("ls_wasei");
-        if (wasei is not null && wasei != "y")
-        {
-            // TODO: Log and warn
-        }
-        var text = reader.IsEmptyElement ? null : await reader.ReadElementContentAsStringAsync();
-        return new LanguageSource
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = sense.LanguageSources.Count + 1,
-            Text = text,
-            LanguageCode = languageCode,
-            TypeName = typeName,
-            IsWasei = wasei == "y",
-            Language = factory.GetKeywordByName<Language>(languageCode),
-            Type = factory.GetKeywordByName<LanguageSourceType>(typeName),
-        };
-    }
 }

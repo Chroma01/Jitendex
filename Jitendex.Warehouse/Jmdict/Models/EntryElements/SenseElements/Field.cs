@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -36,21 +35,4 @@ public class Field
     public virtual FieldTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "field";
-}
-
-internal static class FieldReader
-{
-    public async static Task<Field> ReadFieldAsync(this XmlReader reader, Sense sense, EntityFactory factory)
-    {
-        var description = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetKeywordByDescription<FieldTag>(description);
-        return new Field
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            TagName = tag.Name,
-            Sense = sense,
-            Tag = tag,
-        };
-    }
 }

@@ -16,28 +16,23 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using System.Xml;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public class Example
+internal static class MiscReader
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
-
-    public required string SourceTypeName { get; set; }
-    public required int SourceKey { get; set; }
-
-    public required string Keyword { get; set; }
-
-    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
-
-    [ForeignKey($"{nameof(SourceTypeName)}, {nameof(SourceKey)}")]
-    public virtual ExampleSource Source { get; set; } = null!;
-
-    internal const string XmlTagName = "example";
+    public async static Task<Misc> ReadMiscAsync(this XmlReader reader, Sense sense, EntityFactory factory)
+    {
+        var description = await reader.ReadElementContentAsStringAsync();
+        var tag = factory.GetKeywordByDescription<MiscTag>(description);
+        return new Misc
+        {
+            EntryId = sense.EntryId,
+            SenseOrder = sense.Order,
+            TagName = tag.Name,
+            Sense = sense,
+            Tag = tag,
+        };
+    }
 }

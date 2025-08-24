@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -42,24 +41,4 @@ public class Gloss
     internal string? Language { get; set; }
 
     internal const string XmlTagName = "gloss";
-}
-
-internal static class GlossReader
-{
-    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense, EntityFactory factory)
-    {
-        var typeName = reader.GetAttribute("g_type");
-        var type = typeName is not null ?
-            factory.GetKeywordByName<GlossType>(typeName) : null;
-        return new Gloss
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = sense.Glosses.Count + 1,
-            Language = reader.GetAttribute("xml:lang") ?? "eng",
-            TypeName = typeName,
-            Type = type,
-            Text = await reader.ReadElementContentAsStringAsync(),
-        };
-    }
 }

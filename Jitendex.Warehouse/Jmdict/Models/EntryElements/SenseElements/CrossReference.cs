@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -63,74 +62,4 @@ public class CrossReference
         => RefText2 is null ?
         $"{EntryId}・{Sense.Order}・{RefText1}・{RefSenseOrder}" :
         $"{EntryId}・{Sense.Order}・{RefText1}【{RefText2}】・{RefSenseOrder}";
-}
-
-internal static class CrossReferenceReader
-{
-    private record ParsedText(string Text1, string? Text2, int SenseOrder);
-
-    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, EntityFactory factory)
-    {
-        var typeName = reader.Name;
-        var text = await reader.ReadElementContentAsStringAsync();
-        if (sense.Entry.CorpusId != CorpusId.Jmdict)
-        {
-            // TODO: Log
-            return null;
-        }
-        ParsedText parsedText;
-        try
-        {
-            parsedText = Parse(text);
-        }
-        catch
-        {
-            // TODO: Log
-            return null;
-        }
-        var type = factory.GetKeywordByName<CrossReferenceType>(typeName);
-        var crossRef = new CrossReference
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = sense.CrossReferences.Count + 1,
-            TypeName = typeName,
-            Type = type,
-            RefEntryId = -1,
-            RefReadingOrder = -1,
-            RefText1 = parsedText.Text1,
-            RefText2 = parsedText.Text2,
-            RefSenseOrder = parsedText.SenseOrder,
-            Sense = sense,
-        };
-        return crossRef;
-    }
-
-    private static ParsedText Parse(string text)
-    {
-        const char separator = '・';
-        var split = text.Split(separator);
-        (string, string?, int) parsed;
-        switch(split.Length)
-        {
-            case 1:
-                parsed = (split[0], null, 1);
-                break;
-            case 2:
-                if (int.TryParse(split[1], out int s1))
-                    parsed = (split[0], null, s1);
-                else
-                    parsed = (split[0], split[1], 1);
-                break;
-            case 3:
-                if (int.TryParse(split[2], out int s2))
-                    parsed = (split[0], split[1], s2);
-                else
-                    throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));
-                break;
-            default:
-                throw new ArgumentException($"Too many separator characters `{separator}` in text `{text}`", nameof(text));
-        }
-        return new ParsedText(parsed.Item1, parsed.Item2, parsed.Item3);
-    }
 }
