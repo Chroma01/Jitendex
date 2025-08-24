@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
@@ -37,21 +36,4 @@ public class Priority
     public virtual PriorityTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "re_pri";
-}
-
-internal static class PriorityReader
-{
-    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, Reading reading, EntityFactory factory)
-    {
-        var tagName = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetKeywordByName<PriorityTag>(tagName);
-        return new Priority
-        {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
-            TagName = tagName,
-            Reading = reading,
-            Tag = tag,
-        };
-    }
 }

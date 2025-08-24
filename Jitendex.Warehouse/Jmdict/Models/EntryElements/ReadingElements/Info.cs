@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
@@ -37,21 +36,4 @@ public class Info
     public virtual ReadingInfoTag Tag { get; set; } = null!;
 
     internal const string XmlTagName = "re_inf";
-}
-
-internal static class InfoReader
-{
-    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading, EntityFactory factory)
-    {
-        var description = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetKeywordByDescription<ReadingInfoTag>(description);
-        return new Info
-        {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
-            TagName = tag.Name,
-            Reading = reading,
-            Tag = tag,
-        };
-    }
 }
