@@ -140,18 +140,13 @@ public class PriorityTag : IKeyword
         ["gai1", "ichi1", "news1", "spec1", "spec2"];
 
     internal static readonly Dictionary<string, string> NameToDescription =
-        Enumerable.Range(1, 2)
-        .SelectMany(i => new KeyValuePair<string, string>[]
-        {
+        Enumerable.Range(1, 2).SelectMany(i => new KeyValuePair<string, string>[] {
             new($"news{i}", $"Ranking in wordfreq file, {i} of 2"),
             new($"ichi{i}", $"Ranking from \"Ichimango goi bunruishuu\", {i} of 2"),
             new($"spec{i}", $"Ranking assigned by JMdict editors, {i} of 2"),
             new($"gai{i}",  $"Common loanwords based on wordfreq file, {i} of 2"),
-        })
-        .Concat(
-        Enumerable.Range(1, 48)
-        .Select(i => new KeyValuePair<string, string>
+        }).Concat(
+        Enumerable.Range(1, 48).Select(i => new KeyValuePair<string, string>
             ($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48")
-        ))
-        .ToDictionary();
+        )).ToDictionary();
 }
