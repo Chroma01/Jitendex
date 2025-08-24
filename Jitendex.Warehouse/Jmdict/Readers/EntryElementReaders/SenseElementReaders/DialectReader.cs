@@ -23,12 +23,21 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal static class DialectReader
+internal class DialectReader
 {
-    public async static Task<Dialect> ReadDialectAsync(this XmlReader reader, Sense sense, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public DialectReader(XmlReader reader, EntityFactory factory)
     {
-        var description = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetKeywordByDescription<DialectTag>(description);
+        Reader = reader;
+        Factory = factory;
+    }
+
+    public async Task<Dialect> ReadAsync(Sense sense)
+    {
+        var description = await Reader.ReadElementContentAsStringAsync();
+        var tag = Factory.GetKeywordByDescription<DialectTag>(description);
         return new Dialect
         {
             EntryId = sense.EntryId,

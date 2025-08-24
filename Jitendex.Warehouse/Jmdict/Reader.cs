@@ -22,9 +22,9 @@ using Jitendex.Warehouse.Jmdict.Readers;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-public static class Reader
+public class Reader(Resources resources, bool save)
 {
-    public async static Task<List<Entry>> EntriesAsync(Resources resources, bool save)
+    public async Task<List<Entry>> ReadEntriesAsync()
     {
         var db = new JmdictContext();
         var initializeDbTask = save ? BuildDb.InitializeAsync(db) : Task.CompletedTask;
@@ -50,7 +50,7 @@ public static class Reader
         return entries;
     }
 
-    private async static IAsyncEnumerable<Entry> EnumerateEntriesAsync(string path)
+    private async IAsyncEnumerable<Entry> EnumerateEntriesAsync(string path)
     {
         await using var stream = File.OpenRead(path);
 
@@ -64,6 +64,7 @@ public static class Reader
 
         using var reader = XmlReader.Create(stream, readerSettings);
         EntityFactory? factory = null;
+        EntryReader? entryReader = null;
 
         while (await reader.ReadAsync())
         {
@@ -73,7 +74,8 @@ public static class Reader
                     var dtd = await reader.GetValueAsync();
                     if (factory is null)
                     {
-                        factory = Factory(dtd);
+                        factory = CreateFactory(dtd);
+                        entryReader = new EntryReader(reader, factory);
                     }
                     else
                     {
@@ -81,17 +83,23 @@ public static class Reader
                     }
                     break;
                 case XmlNodeType.Element:
-                    if (reader.Name == Entry.XmlTagName)
+                    if (reader.Name != Entry.XmlTagName)
+                        break;
+                    if (entryReader is not null)
                     {
-                        var entry = await reader.ReadEntryAsync(factory);
+                        var entry = await entryReader.ReadAsync();
                         yield return entry;
+                    }
+                    else
+                    {
+                        // TODO: Log and warn
                     }
                     break;
             }
         }
     }
 
-    private static EntityFactory Factory(string dtd)
+    private static EntityFactory CreateFactory(string dtd)
     {
         var factory = new EntityFactory();
 

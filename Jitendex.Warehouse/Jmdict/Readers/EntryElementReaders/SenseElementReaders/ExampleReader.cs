@@ -23,9 +23,18 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal static class ExampleReader
+internal class ExampleReader
 {
-    public async static Task<Example> ReadExampleAsync(this XmlReader reader, Sense sense, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public ExampleReader(XmlReader reader, EntityFactory factory)
+    {
+        Reader = reader;
+        Factory = factory;
+    }
+
+    public async Task<Example> ReadAsync(Sense sense)
     {
         var example = new Example
         {
@@ -39,18 +48,18 @@ internal static class ExampleReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await Reader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (Reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(example, factory);
+                    await ReadChildElementAsync(example);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await Reader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Example.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == Example.XmlTagName;
+                    exit = Reader.Name == Example.XmlTagName;
                     break;
             }
         }
@@ -58,12 +67,12 @@ internal static class ExampleReader
         return example;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Example example, EntityFactory factory)
+    private async Task ReadChildElementAsync(Example example)
     {
-        switch (reader.Name)
+        switch (Reader.Name)
         {
             case ExampleSource.XmlTagName:
-                var sourceTypeName = reader.GetAttribute("exsrc_type");
+                var sourceTypeName = Reader.GetAttribute("exsrc_type");
                 if (sourceTypeName is not null)
                 {
                     example.SourceTypeName = sourceTypeName;
@@ -72,7 +81,7 @@ internal static class ExampleReader
                 {
                     // TODO: Log and warn.
                 }
-                var sourceText = await reader.ReadElementContentAsStringAsync();
+                var sourceText = await Reader.ReadElementContentAsStringAsync();
                 if (int.TryParse(sourceText, out int sourceKey))
                 {
                     example.SourceKey = sourceKey;
@@ -81,16 +90,16 @@ internal static class ExampleReader
                 {
                     // TODO: Log and warn
                 }
-                example.Source = factory.GetExampleSource(example.SourceTypeName, example.SourceKey);
+                example.Source = Factory.GetExampleSource(example.SourceTypeName, example.SourceKey);
                 break;
             case "ex_text":
-                example.Keyword = await reader.ReadElementContentAsStringAsync();
+                example.Keyword = await Reader.ReadElementContentAsStringAsync();
                 break;
             case "ex_sent":
-                var sentenceLanguage = reader.GetAttribute("xml:lang");
+                var sentenceLanguage = Reader.GetAttribute("xml:lang");
                 if (sentenceLanguage == "jpn")
                 {
-                    var text = await reader.ReadElementContentAsStringAsync();
+                    var text = await Reader.ReadElementContentAsStringAsync();
                     if (example.Source.Text != string.Empty && example.Source.Text != text)
                     {
                         // TODO: Log and warn
@@ -100,7 +109,7 @@ internal static class ExampleReader
                 }
                 else if (sentenceLanguage == "eng")
                 {
-                    var translation = await reader.ReadElementContentAsStringAsync();
+                    var translation = await Reader.ReadElementContentAsStringAsync();
                     if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
                     {
                         // TODO: Log and warn
@@ -114,7 +123,7 @@ internal static class ExampleReader
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Example.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{Example.XmlTagName}`");
         }
     }
 }

@@ -23,14 +23,23 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal static class CrossReferenceReader
+internal class CrossReferenceReader
 {
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public CrossReferenceReader(XmlReader reader, EntityFactory factory)
+    {
+        Reader = reader;
+        Factory = factory;
+    }
+
     private record ParsedText(string Text1, string? Text2, int SenseOrder);
 
-    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, EntityFactory factory)
+    public async Task<CrossReference?> ReadAsync(Sense sense)
     {
-        var typeName = reader.Name;
-        var text = await reader.ReadElementContentAsStringAsync();
+        var typeName = Reader.Name;
+        var text = await Reader.ReadElementContentAsStringAsync();
         if (sense.Entry.CorpusId != CorpusId.Jmdict)
         {
             // TODO: Log
@@ -46,7 +55,7 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        var type = factory.GetKeywordByName<CrossReferenceType>(typeName);
+        var type = Factory.GetKeywordByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

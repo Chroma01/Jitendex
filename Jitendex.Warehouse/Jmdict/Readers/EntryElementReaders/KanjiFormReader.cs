@@ -24,9 +24,22 @@ using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementRead
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal static class KanjiFormReader
+internal class KanjiFormReader
 {
-    public async static Task<KanjiForm> ReadKanjiFormAsync(this XmlReader reader, Entry entry, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+    private InfoReader InfoReader;
+    private PriorityReader PriorityReader;
+
+    public KanjiFormReader(XmlReader reader, EntityFactory factory)
+    {
+        Reader = reader;
+        Factory = factory;
+        InfoReader = new InfoReader(reader, factory);
+        PriorityReader = new PriorityReader(reader, factory);
+    }
+
+    public async Task<KanjiForm> ReadAsync(Entry entry)
     {
         var kanjiForm = new KanjiForm
         {
@@ -37,41 +50,41 @@ internal static class KanjiFormReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await Reader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (Reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(kanjiForm, factory);
+                    await ReadChildElementAsync(kanjiForm);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await Reader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{KanjiForm.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == KanjiForm.XmlTagName;
+                    exit = Reader.Name == KanjiForm.XmlTagName;
                     break;
             }
         }
         return kanjiForm;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, KanjiForm kanjiForm, EntityFactory factory)
+    private async Task ReadChildElementAsync(KanjiForm kanjiForm)
     {
-        switch (reader.Name)
+        switch (Reader.Name)
         {
             case "keb":
-                kanjiForm.Text = await reader.ReadElementContentAsStringAsync();
+                kanjiForm.Text = await Reader.ReadElementContentAsStringAsync();
                 break;
             case Info.XmlTagName:
-                var info = await reader.ReadInfoAsync(kanjiForm, factory);
+                var info = await InfoReader.ReadAsync(kanjiForm);
                 kanjiForm.Infos.Add(info);
                 break;
             case Priority.XmlTagName:
-                var priority = await reader.ReadPriorityAsync(kanjiForm, factory);
+                var priority = await PriorityReader.ReadAsync(kanjiForm);
                 kanjiForm.Priorities.Add(priority);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{KanjiForm.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{KanjiForm.XmlTagName}`");
         }
     }
 }

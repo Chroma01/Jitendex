@@ -25,9 +25,22 @@ using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReader
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal static class ReadingReader
+internal class ReadingReader
 {
-    public async static Task<Reading> ReadReadingAsync(this XmlReader reader, Entry entry, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+    private InfoReader InfoReader;
+    private PriorityReader PriorityReader;
+
+    public ReadingReader(XmlReader reader, EntityFactory factory)
+    {
+        Reader = reader;
+        Factory = factory;
+        InfoReader = new InfoReader(reader, factory);
+        PriorityReader = new PriorityReader(reader, factory);
+    }
+
+    public async Task<Reading> ReadAsync(Entry entry)
     {
         var reading = new Reading
         {
@@ -39,48 +52,48 @@ internal static class ReadingReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await Reader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (Reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(reading, factory);
+                    await ReadChildElementAsync(reading);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await Reader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Reading.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == Reading.XmlTagName;
+                    exit = Reader.Name == Reading.XmlTagName;
                     break;
             }
         }
         return reading;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Reading reading, EntityFactory factory)
+    private async Task ReadChildElementAsync(Reading reading)
     {
-        switch (reader.Name)
+        switch (Reader.Name)
         {
             case "reb":
-                reading.Text = await reader.ReadElementContentAsStringAsync();
+                reading.Text = await Reader.ReadElementContentAsStringAsync();
                 break;
             case "re_nokanji":
                 reading.NoKanji = true;
                 break;
             case "re_restr":
-                var kanjiFormText = await reader.ReadElementContentAsStringAsync();
+                var kanjiFormText = await Reader.ReadElementContentAsStringAsync();
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case Info.XmlTagName:
-                var readingInfo = await reader.ReadInfoAsync(reading, factory);
+                var readingInfo = await InfoReader.ReadAsync(reading);
                 reading.Infos.Add(readingInfo);
                 break;
             case Priority.XmlTagName:
-                var priority = await reader.ReadPriorityAsync(reading, factory);
+                var priority = await PriorityReader.ReadAsync(reading);
                 reading.Priorities.Add(priority);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Reading.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{Reading.XmlTagName}`");
         }
     }
 }

@@ -23,12 +23,25 @@ using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal static class EntryReader
+internal class EntryReader
 {
-    public async static Task<Entry> ReadEntryAsync(this XmlReader reader, EntityFactory? factory)
-    {
-        ArgumentNullException.ThrowIfNull(factory);
+    private XmlReader Reader;
+    private EntityFactory Factory;
+    private KanjiFormReader KanjiFormReader;
+    private ReadingReader ReadingReader;
+    private SenseReader SenseReader;
 
+    public EntryReader(XmlReader reader, EntityFactory factory)
+    {
+        Reader = reader;
+        Factory = factory;
+        KanjiFormReader = new KanjiFormReader(reader, factory);
+        ReadingReader = new ReadingReader(reader, factory);
+        SenseReader = new SenseReader(reader, factory);
+    }
+
+    public async Task<Entry> ReadAsync()
+    {
         var entry = new Entry
         {
             Id = -1,
@@ -36,51 +49,51 @@ internal static class EntryReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await Reader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (Reader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(entry, factory);
+                    await ReadChildElementAsync(entry);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await Reader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == Entry.XmlTagName;
+                    exit = Reader.Name == Entry.XmlTagName;
                     break;
             }
         }
         return PostProcess(entry);
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry, EntityFactory factory)
+    private async Task ReadChildElementAsync(Entry entry)
     {
-        switch (reader.Name)
+        switch (Reader.Name)
         {
             case "ent_seq":
-                var sequence = await reader.ReadElementContentAsStringAsync();
+                var sequence = await Reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
                 entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
-                entry.Corpus = factory.GetCorpus(entry.CorpusId);
+                entry.Corpus = Factory.GetCorpus(entry.CorpusId);
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await reader.ReadKanjiFormAsync(entry, factory);
+                var kanjiForm = await KanjiFormReader.ReadAsync(entry);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await reader.ReadReadingAsync(entry, factory);
+                var reading = await ReadingReader.ReadAsync(entry);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await reader.ReadSenseAsync(entry, factory);
+                var sense = await SenseReader.ReadAsync(entry);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
 

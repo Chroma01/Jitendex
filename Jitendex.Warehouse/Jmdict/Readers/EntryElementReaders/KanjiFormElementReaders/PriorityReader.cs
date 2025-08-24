@@ -23,12 +23,21 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal static class PriorityReader
+internal class PriorityReader
 {
-    public async static Task<Priority> ReadPriorityAsync(this XmlReader reader, KanjiForm kanjiForm, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public PriorityReader(XmlReader reader, EntityFactory factory)
     {
-        var tagName = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetKeywordByName<PriorityTag>(tagName);
+        Reader = reader;
+        Factory = factory;
+    }
+
+    public async Task<Priority> ReadAsync(KanjiForm kanjiForm)
+    {
+        var tagName = await Reader.ReadElementContentAsStringAsync();
+        var tag = Factory.GetKeywordByName<PriorityTag>(tagName);
         return new Priority
         {
             EntryId = kanjiForm.EntryId,

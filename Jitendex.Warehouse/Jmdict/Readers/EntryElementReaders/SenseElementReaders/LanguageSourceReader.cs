@@ -23,18 +23,27 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal static class LanguageSourceReader
+internal class LanguageSourceReader
 {
-    public async static Task<LanguageSource> ReadLanguageSourceAsync(this XmlReader reader, Sense sense, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public LanguageSourceReader(XmlReader reader, EntityFactory factory)
     {
-        var typeName = reader.GetAttribute("ls_type") ?? "full";
-        var languageCode = reader.GetAttribute("xml:lang") ?? "eng";
-        var wasei = reader.GetAttribute("ls_wasei");
+        Reader = reader;
+        Factory = factory;
+    }
+
+    public async Task<LanguageSource> ReadAsync(Sense sense)
+    {
+        var typeName = Reader.GetAttribute("ls_type") ?? "full";
+        var languageCode = Reader.GetAttribute("xml:lang") ?? "eng";
+        var wasei = Reader.GetAttribute("ls_wasei");
         if (wasei is not null && wasei != "y")
         {
             // TODO: Log and warn
         }
-        var text = reader.IsEmptyElement ? null : await reader.ReadElementContentAsStringAsync();
+        var text = Reader.IsEmptyElement ? null : await Reader.ReadElementContentAsStringAsync();
         return new LanguageSource
         {
             EntryId = sense.EntryId,
@@ -44,8 +53,8 @@ internal static class LanguageSourceReader
             LanguageCode = languageCode,
             TypeName = typeName,
             IsWasei = wasei == "y",
-            Language = factory.GetKeywordByName<Language>(languageCode),
-            Type = factory.GetKeywordByName<LanguageSourceType>(typeName),
+            Language = Factory.GetKeywordByName<Language>(languageCode),
+            Type = Factory.GetKeywordByName<LanguageSourceType>(typeName),
         };
     }
 }

@@ -23,12 +23,21 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal static class InfoReader
+internal class InfoReader
 {
-    public async static Task<Info> ReadInfoAsync(this XmlReader reader, Reading reading, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public InfoReader(XmlReader reader, EntityFactory factory)
     {
-        var description = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetKeywordByDescription<ReadingInfoTag>(description);
+        Reader = reader;
+        Factory = factory;
+    }
+
+    public async Task<Info> ReadAsync(Reading reading)
+    {
+        var description = await Reader.ReadElementContentAsStringAsync();
+        var tag = Factory.GetKeywordByDescription<ReadingInfoTag>(description);
         return new Info
         {
             EntryId = reading.EntryId,

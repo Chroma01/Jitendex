@@ -23,22 +23,31 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal static class GlossReader
+internal class GlossReader
 {
-    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense, EntityFactory factory)
+    private XmlReader Reader;
+    private EntityFactory Factory;
+
+    public GlossReader(XmlReader reader, EntityFactory factory)
     {
-        var typeName = reader.GetAttribute("g_type");
+        Reader = reader;
+        Factory = factory;
+    }
+
+    public async Task<Gloss> ReadAsync(Sense sense)
+    {
+        var typeName = Reader.GetAttribute("g_type");
         var type = typeName is not null ?
-            factory.GetKeywordByName<GlossType>(typeName) : null;
+            Factory.GetKeywordByName<GlossType>(typeName) : null;
         return new Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.Glosses.Count + 1,
-            Language = reader.GetAttribute("xml:lang") ?? "eng",
+            Language = Reader.GetAttribute("xml:lang") ?? "eng",
             TypeName = typeName,
             Type = type,
-            Text = await reader.ReadElementContentAsStringAsync(),
+            Text = await Reader.ReadElementContentAsStringAsync(),
         };
     }
 }

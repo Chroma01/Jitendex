@@ -28,11 +28,10 @@ public class Program
         sw.Start();
 
         var resources = new Resources();
-        var loadJmdictEntries = Jmdict.Reader.EntriesAsync(resources, true);
-        var loadKanjidic2Entries = Kanjidic2.Loader.EntriesAsync(resources, true);
+        var jmdictReader = new Jmdict.Reader(resources, false);
+        var loadJmdictEntries = jmdictReader.ReadEntriesAsync();
 
         await loadJmdictEntries;
-        await loadKanjidic2Entries;
 
         sw.Stop();
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
