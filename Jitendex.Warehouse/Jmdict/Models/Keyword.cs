@@ -20,7 +20,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-
 internal interface IKeyword
 {
     string Name { get; set; }

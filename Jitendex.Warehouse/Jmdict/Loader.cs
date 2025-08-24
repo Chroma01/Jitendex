@@ -72,7 +72,7 @@ public static class Loader
                     var dtd = await reader.GetValueAsync();
                     if (factory is null)
                     {
-                        factory = DtdFactory(dtd);
+                        factory = Factory(dtd);
                     }
                     else
                     {
@@ -90,7 +90,7 @@ public static class Loader
         }
     }
 
-    private static EntityFactory DtdFactory(string dtd)
+    private static EntityFactory Factory(string dtd)
     {
         var factory = new EntityFactory();
 
@@ -98,6 +98,8 @@ public static class Loader
         var nameToDescription = DocumentTypeDefinition.ParseEntities(dtd);
         foreach (var (name, description) in nameToDescription)
         {
+            // Since there's no keyword overlap between these types,
+            // it's fine to register all the definitions for all of the types.
             factory.RegisterKeyword<ReadingInfoTag>(name, description);
             factory.RegisterKeyword<KanjiFormInfoTag>(name, description);
             factory.RegisterKeyword<PartOfSpeechTag>(name, description);
