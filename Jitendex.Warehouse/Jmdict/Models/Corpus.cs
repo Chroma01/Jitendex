@@ -26,11 +26,10 @@ public enum CorpusId
     Metadata,
 }
 
-public class Corpus : IKeyword
+public class Corpus
 {
-    public CorpusId Id { get; set; }
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
+    public required CorpusId Id { get; set; }
+    public required string Name { get; set; }
 
     internal static CorpusId EntryIdToCorpusId(int entryId)
     {
@@ -47,12 +46,4 @@ public class Corpus : IKeyword
         // TODO: Log warning if unknown.
         return corpusId;
     }
-
-    internal static readonly Dictionary<CorpusId, string> IdToDescription = new()
-    {
-        [CorpusId.Unknown] = "Error",
-        [CorpusId.Jmdict] = "Japanese Multilingual Dictionary",
-        [CorpusId.Jmnedict] = "Japanese Multilingual Named Entity Dictionary",
-        [CorpusId.Metadata] = "Metadata added in post-processing",
-    };
 }

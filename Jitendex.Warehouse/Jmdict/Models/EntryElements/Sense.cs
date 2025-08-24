@@ -58,7 +58,7 @@ public class Sense
 
 internal static class SenseReader
 {
-    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
+    public async static Task<Sense> ReadSenseAsync(this XmlReader reader, Entry entry, EntityFactory factory)
     {
         var sense = new Sense
         {
@@ -87,7 +87,7 @@ internal static class SenseReader
         return sense;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Sense sense, EntityFactory factory)
     {
         switch (reader.Name)
         {

@@ -40,10 +40,10 @@ public class Field
 
 internal static class FieldReader
 {
-    public async static Task<Field> ReadFieldAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
+    public async static Task<Field> ReadFieldAsync(this XmlReader reader, Sense sense, EntityFactory factory)
     {
         var description = await reader.ReadElementContentAsStringAsync();
-        var tag = factory.GetByDescription<FieldTag>(description);
+        var tag = factory.GetKeywordByDescription<FieldTag>(description);
         return new Field
         {
             EntryId = sense.EntryId,

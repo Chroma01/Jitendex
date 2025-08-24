@@ -43,11 +43,9 @@ public class Example
     internal const string XmlTagName = "example";
 }
 
-
-// Multiple <ex_sent> elements allowed, check for sanity.
 internal static class ExampleReader
 {
-    public async static Task<Example> ReadExampleAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
+    public async static Task<Example> ReadExampleAsync(this XmlReader reader, Sense sense, EntityFactory factory)
     {
         var example = new Example
         {
@@ -80,7 +78,7 @@ internal static class ExampleReader
         return example;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Example example, KeywordFactory factory)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Example example, EntityFactory factory)
     {
         switch (reader.Name)
         {
@@ -103,7 +101,7 @@ internal static class ExampleReader
                 {
                     // TODO: Log and warn
                 }
-                example.Source = ExampleSource.FindByPrimaryKey(example.SourceTypeName, example.SourceKey, factory);
+                example.Source = factory.GetExampleSource(example.SourceTypeName, example.SourceKey);
                 break;
             case "ex_text":
                 example.Keyword = await reader.ReadElementContentAsStringAsync();

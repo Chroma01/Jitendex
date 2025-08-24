@@ -49,7 +49,7 @@ public class Reading
 
 internal static class ReadingReader
 {
-    public async static Task<Reading> ReadReadingAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
+    public async static Task<Reading> ReadReadingAsync(this XmlReader reader, Entry entry, EntityFactory factory)
     {
         var reading = new Reading
         {
@@ -79,7 +79,7 @@ internal static class ReadingReader
         return reading;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Reading reading, KeywordFactory factory)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Reading reading, EntityFactory factory)
     {
         switch (reader.Name)
         {

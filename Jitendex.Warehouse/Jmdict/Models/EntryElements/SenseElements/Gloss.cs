@@ -46,11 +46,11 @@ public class Gloss
 
 internal static class GlossReader
 {
-    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
+    public async static Task<Gloss> ReadGlossAsync(this XmlReader reader, Sense sense, EntityFactory factory)
     {
         var typeName = reader.GetAttribute("g_type");
         var type = typeName is not null ?
-            factory.GetByName<GlossType>(typeName) : null;
+            factory.GetKeywordByName<GlossType>(typeName) : null;
         return new Gloss
         {
             EntryId = sense.EntryId,

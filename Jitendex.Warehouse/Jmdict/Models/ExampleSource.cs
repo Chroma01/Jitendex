@@ -19,13 +19,13 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
+namespace Jitendex.Warehouse.Jmdict.Models;
 
-[PrimaryKey(nameof(TypeName), nameof(Key))]
+[PrimaryKey(nameof(TypeName), nameof(OriginKey))]
 public class ExampleSource
 {
     public required string TypeName { get; set; }
-    public required int Key { get; set; }
+    public required int OriginKey { get; set; }
     public required string Text { get; set; }
     public required string Translation { get; set; }
 
@@ -33,24 +33,4 @@ public class ExampleSource
     public virtual ExampleSourceType ExampleSourceType { get; set; } = null!;
 
     internal const string XmlTagName = "ex_srce";
-
-    private static readonly Dictionary<(string, int), ExampleSource> Cache = [];
-
-    internal static ExampleSource FindByPrimaryKey(string typeName, int key, KeywordFactory factory)
-    {
-        var primaryKey = (typeName, key);
-        if (Cache.TryGetValue(primaryKey, out ExampleSource? source))
-            return source;
-        var description = string.Empty;
-        var newSource = new ExampleSource
-        {
-            TypeName = typeName,
-            Key = key,
-            Text = string.Empty,
-            Translation = string.Empty,
-            ExampleSourceType = factory.GetByName<ExampleSourceType>(typeName),
-        };
-        Cache.Add(primaryKey, newSource);
-        return newSource;
-    }
 }

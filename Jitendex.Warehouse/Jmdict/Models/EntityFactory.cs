@@ -18,24 +18,26 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-internal class KeywordFactory
+internal class EntityFactory
 {
-    private readonly Dictionary<(Type, string), object> Cache = [];
+    # region Keyword
+
+    private readonly Dictionary<(Type, string), object> KeywordCache = [];
 
     private readonly Dictionary<(Type, string), string> NameToDescription = [];
     private readonly Dictionary<(Type, string), string> DescriptionToName = [];
 
-    public void Register<T>(string name, string description) where T : IKeyword
+    public void RegisterKeyword<T>(string name, string description) where T : IKeyword
     {
         NameToDescription.Add((typeof(T), name), description);
         DescriptionToName.Add((typeof(T), description), name);
     }
 
-    public T GetByName<T>(string name) where T : IKeyword, new()
+    public T GetKeywordByName<T>(string name) where T : IKeyword, new()
     {
         var cacheKey = (typeof(T), name);
-        if (Cache.TryGetValue(cacheKey, out object? entity))
-            return (T)entity;
+        if (KeywordCache.TryGetValue(cacheKey, out object? keyword))
+            return (T)keyword;
         string description;
         if (NameToDescription.TryGetValue(cacheKey, out string? value))
         {
@@ -46,17 +48,17 @@ internal class KeywordFactory
             // TODO: Log and warn
             description = string.Empty;
         }
-        var newEntity = new T { Name = name, Description = description };
-        Cache.Add(cacheKey, newEntity);
-        return newEntity;
+        var newKeyword = new T { Name = name, Description = description };
+        KeywordCache.Add(cacheKey, newKeyword);
+        return newKeyword;
     }
 
-    public T GetByDescription<T>(string description) where T : IKeyword, new()
+    public T GetKeywordByDescription<T>(string description) where T : IKeyword, new()
     {
         var key = (typeof(T), description);
         if (DescriptionToName.TryGetValue(key, out string? name))
         {
-            return GetByName<T>(name);
+            return GetKeywordByName<T>(name);
         }
         throw new ArgumentException
         (
@@ -65,11 +67,13 @@ internal class KeywordFactory
         );
     }
 
+    #endregion
+
     #region Corpus
 
     private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
 
-    public Corpus GetByCorpusId(CorpusId id)
+    public Corpus GetCorpus(CorpusId id)
     {
         if (CorpusCache.TryGetValue(id, out Corpus? corpus))
             return corpus;
@@ -77,10 +81,32 @@ internal class KeywordFactory
         { 
             Id = id,
             Name = id.ToString(),
-            Description = Corpus.IdToDescription[id],
         };
         CorpusCache.Add(id, newCorpus);
         return newCorpus;
+    }
+
+    #endregion
+
+    #region Example Source
+
+    private readonly Dictionary<(string, int), ExampleSource> ExampleSourceCache = [];
+
+    public ExampleSource GetExampleSource(string typeName, int originKey)
+    {
+        var cacheKey = (typeName, originKey);
+        if (ExampleSourceCache.TryGetValue(cacheKey, out ExampleSource? exampleSource))
+            return exampleSource;
+        var newExampleSource = new ExampleSource
+        {
+            TypeName = typeName,
+            OriginKey = originKey,
+            Text = string.Empty,
+            Translation = string.Empty,
+            ExampleSourceType = GetKeywordByName<ExampleSourceType>(typeName),
+        };
+        ExampleSourceCache.Add(cacheKey, newExampleSource);
+        return newExampleSource;
     }
 
     #endregion

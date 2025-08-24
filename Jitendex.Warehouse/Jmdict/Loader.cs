@@ -62,7 +62,7 @@ public static class Loader
         };
 
         using var reader = XmlReader.Create(stream, readerSettings);
-        KeywordFactory? factory = null;
+        EntityFactory? factory = null;
 
         while (await reader.ReadAsync())
         {
@@ -90,37 +90,37 @@ public static class Loader
         }
     }
 
-    private static KeywordFactory DtdFactory(string dtd)
+    private static EntityFactory DtdFactory(string dtd)
     {
-        var factory = new KeywordFactory();
+        var factory = new EntityFactory();
 
         // Entities explicitly defined in document header.
         var nameToDescription = DocumentTypeDefinition.ParseEntities(dtd);
         foreach (var (name, description) in nameToDescription)
         {
-            factory.Register<ReadingInfoTag>(name, description);
-            factory.Register<KanjiFormInfoTag>(name, description);
-            factory.Register<PartOfSpeechTag>(name, description);
-            factory.Register<FieldTag>(name, description);
-            factory.Register<MiscTag>(name, description);
-            factory.Register<DialectTag>(name, description);
+            factory.RegisterKeyword<ReadingInfoTag>(name, description);
+            factory.RegisterKeyword<KanjiFormInfoTag>(name, description);
+            factory.RegisterKeyword<PartOfSpeechTag>(name, description);
+            factory.RegisterKeyword<FieldTag>(name, description);
+            factory.RegisterKeyword<MiscTag>(name, description);
+            factory.RegisterKeyword<DialectTag>(name, description);
         }
 
         // Entities implicitly defined that cannot be parsed from the document.
         foreach (var (name, description) in GlossType.NameToDescription)
-            factory.Register<GlossType>(name, description);
+            factory.RegisterKeyword<GlossType>(name, description);
 
         foreach (var (name, description) in CrossReferenceType.NameToDescription)
-            factory.Register<CrossReferenceType>(name, description);
+            factory.RegisterKeyword<CrossReferenceType>(name, description);
 
         foreach (var (name, description) in LanguageSourceType.NameToDescription)
-            factory.Register<LanguageSourceType>(name, description);
+            factory.RegisterKeyword<LanguageSourceType>(name, description);
 
         foreach (var (name, description) in ExampleSourceType.NameToDescription)
-            factory.Register<ExampleSourceType>(name, description);
+            factory.RegisterKeyword<ExampleSourceType>(name, description);
 
         foreach (var (name, description) in PriorityTag.NameToDescription)
-            factory.Register<PriorityTag>(name, description);
+            factory.RegisterKeyword<PriorityTag>(name, description);
 
         return factory;
     }

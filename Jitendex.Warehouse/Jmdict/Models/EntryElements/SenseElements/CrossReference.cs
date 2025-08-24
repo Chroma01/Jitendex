@@ -69,7 +69,7 @@ internal static class CrossReferenceReader
 {
     private record ParsedText(string Text1, string? Text2, int SenseOrder);
 
-    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, KeywordFactory factory)
+    public async static Task<CrossReference?> ReadCrossReferenceAsync(this XmlReader reader, Sense sense, EntityFactory factory)
     {
         var typeName = reader.Name;
         var text = await reader.ReadElementContentAsStringAsync();
@@ -88,7 +88,7 @@ internal static class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        var type = factory.GetByName<CrossReferenceType>(typeName);
+        var type = factory.GetKeywordByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

@@ -39,7 +39,7 @@ public class Entry
 
 internal static class EntryReader
 {
-    public async static Task<Entry> ReadEntryAsync(this XmlReader reader, KeywordFactory? factory)
+    public async static Task<Entry> ReadEntryAsync(this XmlReader reader, EntityFactory? factory)
     {
         ArgumentNullException.ThrowIfNull(factory);
 
@@ -68,15 +68,15 @@ internal static class EntryReader
         return PostProcess(entry);
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
+    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry, EntityFactory factory)
     {
         switch (reader.Name)
         {
             case "ent_seq":
                 var sequence = await reader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
-                entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);;
-                entry.Corpus = factory.GetByCorpusId(entry.CorpusId);
+                entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
+                entry.Corpus = factory.GetCorpus(entry.CorpusId);
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await reader.ReadKanjiFormAsync(entry, factory);

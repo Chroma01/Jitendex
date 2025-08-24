@@ -43,7 +43,7 @@ public class KanjiForm
 
 internal static class KanjiFormReader
 {
-    public async static Task<KanjiForm> ReadKanjiFormAsync(this XmlReader reader, Entry entry, KeywordFactory factory)
+    public async static Task<KanjiForm> ReadKanjiFormAsync(this XmlReader reader, Entry entry, EntityFactory factory)
     {
         var kanjiForm = new KanjiForm
         {
@@ -72,7 +72,7 @@ internal static class KanjiFormReader
         return kanjiForm;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, KanjiForm kanjiForm, KeywordFactory factory)
+    private async static Task ReadChildElementAsync(this XmlReader reader, KanjiForm kanjiForm, EntityFactory factory)
     {
         switch (reader.Name)
         {
