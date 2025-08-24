@@ -25,8 +25,8 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class ExampleReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
 
     public ExampleReader(XmlReader reader, EntityFactory factory)
     {

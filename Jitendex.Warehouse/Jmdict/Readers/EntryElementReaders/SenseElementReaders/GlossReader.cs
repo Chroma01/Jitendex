@@ -25,8 +25,8 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class GlossReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
 
     public GlossReader(XmlReader reader, EntityFactory factory)
     {

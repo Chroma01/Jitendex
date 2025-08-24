@@ -27,16 +27,16 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 internal class SenseReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
-    private CrossReferenceReader CrossReferenceReader;
-    private DialectReader DialectReader;
-    private ExampleReader ExampleReader;
-    private FieldReader FieldReader;
-    private GlossReader GlossReader;
-    private LanguageSourceReader LanguageSourceReader;
-    private MiscReader MiscReader;
-    private PartOfSpeechReader PartOfSpeechReader;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
+    private readonly CrossReferenceReader CrossReferenceReader;
+    private readonly DialectReader DialectReader;
+    private readonly ExampleReader ExampleReader;
+    private readonly FieldReader FieldReader;
+    private readonly GlossReader GlossReader;
+    private readonly LanguageSourceReader LanguageSourceReader;
+    private readonly MiscReader MiscReader;
+    private readonly PartOfSpeechReader PartOfSpeechReader;
 
     public SenseReader(XmlReader reader, EntityFactory factory)
     {

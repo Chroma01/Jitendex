@@ -25,8 +25,8 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElement
 
 internal class InfoReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
 
     public InfoReader(XmlReader reader, EntityFactory factory)
     {

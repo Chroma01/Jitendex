@@ -25,8 +25,8 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class CrossReferenceReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
 
     public CrossReferenceReader(XmlReader reader, EntityFactory factory)
     {

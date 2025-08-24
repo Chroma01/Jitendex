@@ -25,11 +25,11 @@ namespace Jitendex.Warehouse.Jmdict.Readers;
 
 internal class EntryReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
-    private KanjiFormReader KanjiFormReader;
-    private ReadingReader ReadingReader;
-    private SenseReader SenseReader;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
+    private readonly KanjiFormReader KanjiFormReader;
+    private readonly ReadingReader ReadingReader;
+    private readonly SenseReader SenseReader;
 
     public EntryReader(XmlReader reader, EntityFactory factory)
     {

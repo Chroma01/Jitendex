@@ -25,8 +25,8 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElement
 
 internal class PriorityReader
 {
-    private XmlReader Reader;
-    private EntityFactory Factory;
+    private readonly XmlReader Reader;
+    private readonly EntityFactory Factory;
 
     public PriorityReader(XmlReader reader, EntityFactory factory)
     {
