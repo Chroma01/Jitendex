@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
 using System.ComponentModel.DataAnnotations;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
@@ -135,7 +136,7 @@ public class PriorityTag : IKeyword
     public string Description { get; set; } = null!;
     public bool IsHighPriority { get => HighPriorityNames.Contains(Name); set { } }
 
-    private static readonly HashSet<string> HighPriorityNames =
+    private static readonly FrozenSet<string> HighPriorityNames =
         ["gai1", "ichi1", "news1", "spec1", "spec2"];
 
     internal static readonly Dictionary<string, string> NameToDescription = ((Func<Dictionary<string, string>>)(() =>
