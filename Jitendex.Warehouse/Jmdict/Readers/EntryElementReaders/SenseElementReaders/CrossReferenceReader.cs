@@ -25,6 +25,7 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class CrossReferenceReader
 {
+    private record ParsedText(string Text1, string? Text2, int SenseOrder);
     private readonly XmlReader Reader;
     private readonly EntityFactory Factory;
 
@@ -33,8 +34,6 @@ internal class CrossReferenceReader
         Reader = reader;
         Factory = factory;
     }
-
-    private record ParsedText(string Text1, string? Text2, int SenseOrder);
 
     public async Task<CrossReference?> ReadAsync(Sense sense)
     {
