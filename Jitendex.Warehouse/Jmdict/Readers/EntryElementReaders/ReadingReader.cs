@@ -28,15 +28,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 internal class ReadingReader
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
     private readonly InfoReader _infoReader;
     private readonly PriorityReader _priorityReader;
     private readonly ILogger<ReadingReader> _logger;
 
-    public ReadingReader(XmlReader reader, EntityFactory factory, InfoReader infoReader, PriorityReader priorityReader, ILogger<ReadingReader> logger)
+    public ReadingReader(XmlReader reader, InfoReader infoReader, PriorityReader priorityReader, ILogger<ReadingReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
         _infoReader = infoReader;
         _priorityReader = priorityReader;
         _logger = logger;

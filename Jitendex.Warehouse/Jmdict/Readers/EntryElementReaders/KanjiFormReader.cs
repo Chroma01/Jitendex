@@ -28,15 +28,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 internal class KanjiFormReader
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
     private readonly InfoReader _infoReader;
     private readonly PriorityReader _priorityReader;
     private readonly ILogger<KanjiFormReader> _logger;
 
-    public KanjiFormReader(XmlReader reader, EntityFactory factory, InfoReader infoReader, PriorityReader priorityReader, ILogger<KanjiFormReader> logger)
+    public KanjiFormReader(XmlReader reader, InfoReader infoReader, PriorityReader priorityReader, ILogger<KanjiFormReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
         _infoReader = infoReader;
         _priorityReader = priorityReader;
         _logger = logger;
