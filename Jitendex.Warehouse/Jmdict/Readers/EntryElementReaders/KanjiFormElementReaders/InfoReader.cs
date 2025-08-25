@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
@@ -25,19 +26,21 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElement
 
 internal class InfoReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly ILogger<InfoReader> _logger;
 
-    public InfoReader(XmlReader reader, EntityFactory factory)
+    public InfoReader(XmlReader reader, EntityFactory factory, ILogger<InfoReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
+        _xmlReader = reader;
+        _factory = factory;
+        _logger = logger;
     }
 
     public async Task<Info> ReadAsync(KanjiForm kanjiForm)
     {
-        var description = await Reader.ReadElementContentAsStringAsync();
-        var tag = Factory.GetKeywordByDescription<KanjiFormInfoTag>(description);
+        var description = await _xmlReader.ReadElementContentAsStringAsync();
+        var tag = _factory.GetKeywordByDescription<KanjiFormInfoTag>(description);
         return new Info
         {
             EntryId = kanjiForm.EntryId,

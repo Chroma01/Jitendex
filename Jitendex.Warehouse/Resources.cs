@@ -17,11 +17,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Jitendex.Warehouse;
 
 public class Resources
 {
+    private ILogger<Resources> _logger;
+
+    public Resources(ILogger<Resources> logger)
+    {
+        _logger = logger;
+    }
+
     public string JmdictPath { get; set; } = Path.Combine("Resources", "edrdg", "JMdict_e_examp");
     public string Kanjidic2Path { get; set; } = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
 

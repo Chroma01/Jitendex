@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -25,25 +26,27 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class LanguageSourceReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly ILogger<LanguageSourceReader> _logger;
 
-    public LanguageSourceReader(XmlReader reader, EntityFactory factory)
+    public LanguageSourceReader(XmlReader reader, EntityFactory factory, ILogger<LanguageSourceReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
+        _xmlReader = reader;
+        _factory = factory;
+        _logger = logger;
     }
 
     public async Task<LanguageSource> ReadAsync(Sense sense)
     {
-        var typeName = Reader.GetAttribute("ls_type") ?? "full";
-        var languageCode = Reader.GetAttribute("xml:lang") ?? "eng";
-        var wasei = Reader.GetAttribute("ls_wasei");
+        var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
+        var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
+        var wasei = _xmlReader.GetAttribute("ls_wasei");
         if (wasei is not null && wasei != "y")
         {
             // TODO: Log and warn
         }
-        var text = Reader.IsEmptyElement ? null : await Reader.ReadElementContentAsStringAsync();
+        var text = _xmlReader.IsEmptyElement ? null : await _xmlReader.ReadElementContentAsStringAsync();
         return new LanguageSource
         {
             EntryId = sense.EntryId,
@@ -53,8 +56,8 @@ internal class LanguageSourceReader
             LanguageCode = languageCode,
             TypeName = typeName,
             IsWasei = wasei == "y",
-            Language = Factory.GetKeywordByName<Language>(languageCode),
-            Type = Factory.GetKeywordByName<LanguageSourceType>(typeName),
+            Language = _factory.GetKeywordByName<Language>(languageCode),
+            Type = _factory.GetKeywordByName<LanguageSourceType>(typeName),
         };
     }
 }

@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
@@ -25,19 +26,21 @@ namespace Jitendex.Warehouse.Jmdict.Readers;
 
 internal class EntryReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
-    private readonly KanjiFormReader KanjiFormReader;
-    private readonly ReadingReader ReadingReader;
-    private readonly SenseReader SenseReader;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly KanjiFormReader _kanjiFormReader;
+    private readonly ReadingReader _readingReader;
+    private readonly SenseReader _senseReader;
+    private readonly ILogger<EntryReader> _logger;
 
-    public EntryReader(XmlReader reader, EntityFactory factory)
+    public EntryReader(XmlReader reader, EntityFactory factory, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader, ILogger<EntryReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
-        KanjiFormReader = new KanjiFormReader(reader, factory);
-        ReadingReader = new ReadingReader(reader, factory);
-        SenseReader = new SenseReader(reader, factory);
+        _xmlReader = reader;
+        _factory = factory;
+        _kanjiFormReader = kanjiFormReader;
+        _readingReader = readingReader;
+        _senseReader = senseReader;
+        _logger = logger;
     }
 
     public async Task<Entry> ReadAsync()
@@ -49,18 +52,18 @@ internal class EntryReader
         };
 
         var exit = false;
-        while (!exit && await Reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (Reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
                     await ReadChildElementAsync(entry);
                     break;
                 case XmlNodeType.Text:
-                    var text = await Reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = Reader.Name == Entry.XmlTagName;
+                    exit = _xmlReader.Name == Entry.XmlTagName;
                     break;
             }
         }
@@ -69,31 +72,31 @@ internal class EntryReader
 
     private async Task ReadChildElementAsync(Entry entry)
     {
-        switch (Reader.Name)
+        switch (_xmlReader.Name)
         {
             case "ent_seq":
-                var sequence = await Reader.ReadElementContentAsStringAsync();
+                var sequence = await _xmlReader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
                 entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
-                entry.Corpus = Factory.GetCorpus(entry.CorpusId);
+                entry.Corpus = _factory.GetCorpus(entry.CorpusId);
                 break;
             case KanjiForm.XmlTagName:
-                var kanjiForm = await KanjiFormReader.ReadAsync(entry);
+                var kanjiForm = await _kanjiFormReader.ReadAsync(entry);
                 entry.KanjiForms.Add(kanjiForm);
                 break;
             case Reading.XmlTagName:
-                var reading = await ReadingReader.ReadAsync(entry);
+                var reading = await _readingReader.ReadAsync(entry);
                 entry.Readings.Add(reading);
                 break;
             case Sense.XmlTagName:
-                var sense = await SenseReader.ReadAsync(entry);
+                var sense = await _senseReader.ReadAsync(entry);
                 if (sense.Glosses.Any(g => g.Language == "eng"))
                 {
                     entry.Senses.Add(sense);
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{Entry.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
 

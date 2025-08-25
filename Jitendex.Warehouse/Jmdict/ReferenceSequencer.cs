@@ -16,12 +16,22 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-internal static class ReferenceSequencer
+internal class ReferenceSequencer
 {
+    private readonly Resources _resources;
+    private readonly ILogger<ReferenceSequencer> _logger;
+
+    public ReferenceSequencer(Resources resources, ILogger<ReferenceSequencer> logger)
+    {
+        _resources = resources;
+        _logger = logger;
+    }
+
     private record ReferenceText(string Text1, string? Text2)
     {
         public override string ToString()
@@ -30,9 +40,11 @@ internal static class ReferenceSequencer
 
     private record SpellingId(int ReadingOrder, int? KanjiFormOrder);
 
-    public static void FixCrossReferences(List<Entry> entries, Dictionary<string, int> cache)
+    public async Task FixCrossReferencesAsync(List<Entry> entries)
     {
         var referenceTextToEntries = ReferenceTextToEntries(entries);
+
+        var cache = await _resources.JmdictCrossReferenceSequencesAsync();
 
         var allCrossReferences = entries
             .SelectMany(e => e.Senses)
@@ -57,7 +69,7 @@ internal static class ReferenceSequencer
             xref.RefSense.ReverseCrossReferences.Add(xref);
 
             // Assign Reading and KanjiForm foreign keys.
-            var validSpellingIds = targetEntry.ValidSpellings();
+            var validSpellingIds = ValidSpellings(targetEntry);
             if (validSpellingIds.TryGetValue(key, out SpellingId? id))
             {
                 xref.RefKanjiFormOrder = id.KanjiFormOrder;
@@ -70,7 +82,7 @@ internal static class ReferenceSequencer
             }
             else
             {
-                Console.WriteLine($"Reference display text `{key}` in entry {xref.EntryId} is an invalid spelling for entry {targetEntry.Id}");
+                _logger.LogWarning(1, $"`{key}` in entry {xref.EntryId} is an invalid spelling for entry {targetEntry.Id}");
                 xref.RefReading = targetEntry.Readings
                     .Where(r => !r.IsHidden()).First();
                 xref.RefReadingOrder = xref.RefReading.Order;
@@ -81,12 +93,12 @@ internal static class ReferenceSequencer
         }
     }
 
-    private static Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
+    private Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
     {
         var map = new Dictionary<ReferenceText, List<Entry>>();
         foreach (var entry in entries)
         {
-            foreach (var referenceText in entry.ReferenceTexts())
+            foreach (var referenceText in ReferenceTexts(entry))
             {
                 if (map.TryGetValue(referenceText, out List<Entry>? values))
                 {
@@ -101,7 +113,7 @@ internal static class ReferenceSequencer
         return map;
     }
 
-    private static IEnumerable<ReferenceText> ReferenceTexts(this Entry entry)
+    private IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
     {
         foreach (var reading in entry.Readings)
         {
@@ -117,7 +129,7 @@ internal static class ReferenceSequencer
         }
     }
 
-    private static Entry FindTargetEntry(List<Entry> possibleTargetEntries, Dictionary<string, int> cache, string cacheKey)
+    private Entry FindTargetEntry(List<Entry> possibleTargetEntries, Dictionary<string, int> cache, string cacheKey)
     {
         if (possibleTargetEntries.Count == 1)
         {
@@ -134,7 +146,7 @@ internal static class ReferenceSequencer
             if (targetEntry is not null)
                 return targetEntry;
 
-            Console.WriteLine($"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
+            _logger.LogWarning(2, $"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
         }
 
         if (possibleTargetEntries.Count == 0)
@@ -142,12 +154,11 @@ internal static class ReferenceSequencer
             throw new Exception($"No entries found for cross reference `{cacheKey}`");
         }
 
-        Console.WriteLine($"Reference could refer to {possibleTargetEntries.Count} possible entries:");
-        Console.WriteLine($"\t\"{cacheKey}\": {string.Join(" || ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())},");
+        _logger.LogWarning(3, $"Reference could refer to {possibleTargetEntries.Count} possible entries: {{ \"{cacheKey}\": [{string.Join(", ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())}] }}");
         return possibleTargetEntries.First();
     }
 
-    private static Dictionary<ReferenceText, SpellingId> ValidSpellings(this Entry entry)
+    private Dictionary<ReferenceText, SpellingId> ValidSpellings(Entry entry)
     {
         var map = new Dictionary<ReferenceText, SpellingId>();
         ReferenceText referenceText;

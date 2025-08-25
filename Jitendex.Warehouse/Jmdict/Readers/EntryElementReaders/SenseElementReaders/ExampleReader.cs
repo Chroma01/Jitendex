@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -25,13 +26,15 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class ExampleReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly ILogger<ExampleReader> _logger;
 
-    public ExampleReader(XmlReader reader, EntityFactory factory)
+    public ExampleReader(XmlReader reader, EntityFactory factory, ILogger<ExampleReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
+        _xmlReader = reader;
+        _factory = factory;
+        _logger = logger;
     }
 
     public async Task<Example> ReadAsync(Sense sense)
@@ -48,18 +51,18 @@ internal class ExampleReader
         };
 
         var exit = false;
-        while (!exit && await Reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (Reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
                     await ReadChildElementAsync(example);
                     break;
                 case XmlNodeType.Text:
-                    var text = await Reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Example.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = Reader.Name == Example.XmlTagName;
+                    exit = _xmlReader.Name == Example.XmlTagName;
                     break;
             }
         }
@@ -69,10 +72,10 @@ internal class ExampleReader
 
     private async Task ReadChildElementAsync(Example example)
     {
-        switch (Reader.Name)
+        switch (_xmlReader.Name)
         {
             case ExampleSource.XmlTagName:
-                var sourceTypeName = Reader.GetAttribute("exsrc_type");
+                var sourceTypeName = _xmlReader.GetAttribute("exsrc_type");
                 if (sourceTypeName is not null)
                 {
                     example.SourceTypeName = sourceTypeName;
@@ -81,7 +84,7 @@ internal class ExampleReader
                 {
                     // TODO: Log and warn.
                 }
-                var sourceText = await Reader.ReadElementContentAsStringAsync();
+                var sourceText = await _xmlReader.ReadElementContentAsStringAsync();
                 if (int.TryParse(sourceText, out int sourceKey))
                 {
                     example.SourceKey = sourceKey;
@@ -90,16 +93,16 @@ internal class ExampleReader
                 {
                     // TODO: Log and warn
                 }
-                example.Source = Factory.GetExampleSource(example.SourceTypeName, example.SourceKey);
+                example.Source = _factory.GetExampleSource(example.SourceTypeName, example.SourceKey);
                 break;
             case "ex_text":
-                example.Keyword = await Reader.ReadElementContentAsStringAsync();
+                example.Keyword = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
             case "ex_sent":
-                var sentenceLanguage = Reader.GetAttribute("xml:lang");
+                var sentenceLanguage = _xmlReader.GetAttribute("xml:lang");
                 if (sentenceLanguage == "jpn")
                 {
-                    var text = await Reader.ReadElementContentAsStringAsync();
+                    var text = await _xmlReader.ReadElementContentAsStringAsync();
                     if (example.Source.Text != string.Empty && example.Source.Text != text)
                     {
                         // TODO: Log and warn
@@ -109,7 +112,7 @@ internal class ExampleReader
                 }
                 else if (sentenceLanguage == "eng")
                 {
-                    var translation = await Reader.ReadElementContentAsStringAsync();
+                    var translation = await _xmlReader.ReadElementContentAsStringAsync();
                     if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
                     {
                         // TODO: Log and warn
@@ -123,7 +126,7 @@ internal class ExampleReader
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{Example.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Example.XmlTagName}`");
         }
     }
 }

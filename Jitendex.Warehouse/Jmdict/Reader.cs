@@ -17,122 +17,91 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Readers;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-public class Reader(Resources resources, bool save)
+internal class Reader
 {
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly EntryReader _entryReader;
+    private readonly ReferenceSequencer _referenceSequencer;
+    private readonly ILogger<Reader> _logger;
+
+    public Reader(XmlReader xmlReader, EntityFactory factory, EntryReader entryReader, ReferenceSequencer referenceSequencer, ILogger<Reader> logger)
+    {
+        _xmlReader = xmlReader;
+        _factory = factory;
+        _entryReader = entryReader;
+        _referenceSequencer = referenceSequencer;
+        _logger = logger;
+    }
+
     public async Task<List<Entry>> ReadEntriesAsync()
     {
-        var db = new JmdictContext();
-        var initializeDbTask = save ? BuildDb.InitializeAsync(db) : Task.CompletedTask;
-
-        var loadReferenceCache = resources.JmdictCrossReferenceSequencesAsync();
-
         var entries = new List<Entry>();
-        await foreach (var entry in EnumerateEntriesAsync(resources.JmdictPath))
+        await foreach (var entry in EnumerateEntriesAsync())
         {
             entries.Add(entry);
         }
-
-        var cachedReferences = await loadReferenceCache;
-        ReferenceSequencer.FixCrossReferences(entries, cachedReferences);
-
-        if (save)
-        {
-            await initializeDbTask;
-            await db.Entries.AddRangeAsync(entries);
-            await db.SaveChangesAsync();
-        }
-
+        await _referenceSequencer.FixCrossReferencesAsync(entries);
         return entries;
     }
 
-    private async IAsyncEnumerable<Entry> EnumerateEntriesAsync(string path)
+    private async IAsyncEnumerable<Entry> EnumerateEntriesAsync()
     {
-        await using var stream = File.OpenRead(path);
-
-        var readerSettings = new XmlReaderSettings
+        while (await _xmlReader.ReadAsync())
         {
-            Async = true,
-            DtdProcessing = DtdProcessing.Parse,
-            MaxCharactersFromEntities = long.MaxValue,
-            MaxCharactersInDocument = long.MaxValue,
-        };
-
-        using var reader = XmlReader.Create(stream, readerSettings);
-        EntityFactory? factory = null;
-        EntryReader? entryReader = null;
-
-        while (await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    var dtd = await reader.GetValueAsync();
-                    if (factory is null)
-                    {
-                        factory = CreateFactory(dtd);
-                        entryReader = new EntryReader(reader, factory);
-                    }
-                    else
-                    {
-                        // TODO: Log and warn
-                    }
+                    var dtd = await _xmlReader.GetValueAsync();
+                    RegisterFactoryKeywords(dtd);
                     break;
                 case XmlNodeType.Element:
-                    if (reader.Name != Entry.XmlTagName)
-                        break;
-                    if (entryReader is not null)
+                    if (_xmlReader.Name == Entry.XmlTagName)
                     {
-                        var entry = await entryReader.ReadAsync();
+                        var entry = await _entryReader.ReadAsync();
                         yield return entry;
-                    }
-                    else
-                    {
-                        // TODO: Log and warn
                     }
                     break;
             }
         }
     }
 
-    private static EntityFactory CreateFactory(string dtd)
+    private void RegisterFactoryKeywords(string dtd)
     {
-        var factory = new EntityFactory();
-
         // Entities explicitly defined in document header.
         var nameToDescription = DocumentTypeDefinition.ParseEntities(dtd);
         foreach (var (name, description) in nameToDescription)
         {
             // Since there's no keyword overlap between these types,
             // it's fine to register all the definitions for all of the types.
-            factory.RegisterKeyword<ReadingInfoTag>(name, description);
-            factory.RegisterKeyword<KanjiFormInfoTag>(name, description);
-            factory.RegisterKeyword<PartOfSpeechTag>(name, description);
-            factory.RegisterKeyword<FieldTag>(name, description);
-            factory.RegisterKeyword<MiscTag>(name, description);
-            factory.RegisterKeyword<DialectTag>(name, description);
+            _factory.RegisterKeyword<ReadingInfoTag>(name, description);
+            _factory.RegisterKeyword<KanjiFormInfoTag>(name, description);
+            _factory.RegisterKeyword<PartOfSpeechTag>(name, description);
+            _factory.RegisterKeyword<FieldTag>(name, description);
+            _factory.RegisterKeyword<MiscTag>(name, description);
+            _factory.RegisterKeyword<DialectTag>(name, description);
         }
 
         // Entities implicitly defined that cannot be parsed from the document.
         foreach (var (name, description) in GlossType.NameToDescription)
-            factory.RegisterKeyword<GlossType>(name, description);
+            _factory.RegisterKeyword<GlossType>(name, description);
 
         foreach (var (name, description) in CrossReferenceType.NameToDescription)
-            factory.RegisterKeyword<CrossReferenceType>(name, description);
+            _factory.RegisterKeyword<CrossReferenceType>(name, description);
 
         foreach (var (name, description) in LanguageSourceType.NameToDescription)
-            factory.RegisterKeyword<LanguageSourceType>(name, description);
+            _factory.RegisterKeyword<LanguageSourceType>(name, description);
 
         foreach (var (name, description) in ExampleSourceType.NameToDescription)
-            factory.RegisterKeyword<ExampleSourceType>(name, description);
+            _factory.RegisterKeyword<ExampleSourceType>(name, description);
 
         foreach (var (name, description) in PriorityTag.NameToDescription)
-            factory.RegisterKeyword<PriorityTag>(name, description);
-
-        return factory;
+            _factory.RegisterKeyword<PriorityTag>(name, description);
     }
 }

@@ -17,7 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -27,29 +27,31 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 internal class SenseReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
-    private readonly CrossReferenceReader CrossReferenceReader;
-    private readonly DialectReader DialectReader;
-    private readonly ExampleReader ExampleReader;
-    private readonly FieldReader FieldReader;
-    private readonly GlossReader GlossReader;
-    private readonly LanguageSourceReader LanguageSourceReader;
-    private readonly MiscReader MiscReader;
-    private readonly PartOfSpeechReader PartOfSpeechReader;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly CrossReferenceReader _crossReferenceReader;
+    private readonly DialectReader _dialectReader;
+    private readonly ExampleReader _exampleReader;
+    private readonly FieldReader _fieldReader;
+    private readonly GlossReader _glossReader;
+    private readonly LanguageSourceReader _languageSourceReader;
+    private readonly MiscReader _miscReader;
+    private readonly PartOfSpeechReader _partOfSpeechReader;
+    private readonly ILogger<SenseReader> _logger;
 
-    public SenseReader(XmlReader reader, EntityFactory factory)
+    public SenseReader(XmlReader reader, EntityFactory factory, CrossReferenceReader crossReferenceReader, DialectReader dialectReader, ExampleReader exampleReader, FieldReader fieldReader, GlossReader glossReader, LanguageSourceReader languageSourceReader, MiscReader miscReader, PartOfSpeechReader partOfSpeechReader, ILogger<SenseReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
-        CrossReferenceReader = new CrossReferenceReader(reader, factory);
-        DialectReader = new DialectReader(reader, factory);
-        ExampleReader = new ExampleReader(reader, factory);
-        FieldReader = new FieldReader(reader, factory);
-        GlossReader = new GlossReader(reader, factory);
-        LanguageSourceReader = new LanguageSourceReader(reader, factory);
-        MiscReader = new MiscReader(reader, factory);
-        PartOfSpeechReader = new PartOfSpeechReader(reader, factory);
+        _xmlReader = reader;
+        _factory = factory;
+        _crossReferenceReader = crossReferenceReader;
+        _dialectReader = dialectReader;
+        _exampleReader = exampleReader;
+        _fieldReader = fieldReader;
+        _glossReader = glossReader;
+        _languageSourceReader = languageSourceReader;
+        _miscReader = miscReader;
+        _partOfSpeechReader = partOfSpeechReader;
+        _logger = logger;
     }
 
     public async Task<Sense> ReadAsync(Entry entry)
@@ -62,18 +64,18 @@ internal class SenseReader
         };
 
         var exit = false;
-        while (!exit && await Reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (Reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
                     await ReadChildElementAsync(sense);
                     break;
                 case XmlNodeType.Text:
-                    var text = await Reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Sense.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = Reader.Name == Sense.XmlTagName;
+                    exit = _xmlReader.Name == Sense.XmlTagName;
                     break;
             }
         }
@@ -83,14 +85,14 @@ internal class SenseReader
 
     private async Task ReadChildElementAsync(Sense sense)
     {
-        switch (Reader.Name)
+        switch (_xmlReader.Name)
         {
             case "stagk":
-                var kanjiFormTextRestriction = await Reader.ReadElementContentAsStringAsync();
+                var kanjiFormTextRestriction = await _xmlReader.ReadElementContentAsStringAsync();
                 sense.KanjiFormTextRestrictions.Add(kanjiFormTextRestriction);
                 break;
             case "stagr":
-                var readingTextRestriction = await Reader.ReadElementContentAsStringAsync();
+                var readingTextRestriction = await _xmlReader.ReadElementContentAsStringAsync();
                 sense.ReadingTextRestrictions.Add(readingTextRestriction);
                 break;
             case "s_inf":
@@ -100,49 +102,49 @@ internal class SenseReader
                     // but in practice there is only one or none.
                     // TODO: Log warning
                 }
-                sense.Note = await Reader.ReadElementContentAsStringAsync();
+                sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
             case Gloss.XmlTagName:
-                var gloss = await GlossReader.ReadAsync(sense);
+                var gloss = await _glossReader.ReadAsync(sense);
                 if (gloss.Language == "eng")
                 {
                     sense.Glosses.Add(gloss);
                 }
                 break;
             case PartOfSpeech.XmlTagName:
-                var pos = await PartOfSpeechReader.ReadAsync(sense);
+                var pos = await _partOfSpeechReader.ReadAsync(sense);
                 sense.PartsOfSpeech.Add(pos);
                 break;
             case Field.XmlTagName:
-                var field = await FieldReader.ReadAsync(sense);
+                var field = await _fieldReader.ReadAsync(sense);
                 sense.Fields.Add(field);
                 break;
             case Misc.XmlTagName:
-                var misc = await MiscReader.ReadAsync(sense);
+                var misc = await _miscReader.ReadAsync(sense);
                 sense.Miscs.Add(misc);
                 break;
             case Dialect.XmlTagName:
-                var dial = await DialectReader.ReadAsync(sense);
+                var dial = await _dialectReader.ReadAsync(sense);
                 sense.Dialects.Add(dial);
                 break;
             case "xref":
             case "ant":
-                var reference = await CrossReferenceReader.ReadAsync(sense);
+                var reference = await _crossReferenceReader.ReadAsync(sense);
                 if (reference is not null)
                 {
                     sense.CrossReferences.Add(reference);
                 }
                 break;
             case LanguageSource.XmlTagName:
-                var languageSource = await LanguageSourceReader.ReadAsync(sense);
+                var languageSource = await _languageSourceReader.ReadAsync(sense);
                 sense.LanguageSources.Add(languageSource);
                 break;
             case Example.XmlTagName:
-                var example = await ExampleReader.ReadAsync(sense);
+                var example = await _exampleReader.ReadAsync(sense);
                 sense.Examples.Add(example);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{Reader.Name}` found in element `{Sense.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Sense.XmlTagName}`");
         }
     }
 }

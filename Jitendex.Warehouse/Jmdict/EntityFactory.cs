@@ -16,12 +16,20 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
 internal class EntityFactory
 {
+    private readonly ILogger<EntityFactory> _logger;
+
+    public EntityFactory(ILogger<EntityFactory> logger)
+    {
+        _logger = logger;
+    }
+
     # region Keyword
 
     private readonly Dictionary<(Type, string), IKeyword> KeywordCache = [];

@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -25,20 +26,23 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class CrossReferenceReader
 {
-    private record ParsedText(string Text1, string? Text2, int SenseOrder);
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly ILogger<CrossReferenceReader> _logger;
 
-    public CrossReferenceReader(XmlReader reader, EntityFactory factory)
+    public CrossReferenceReader(XmlReader reader, EntityFactory factory, ILogger<CrossReferenceReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
+        _xmlReader = reader;
+        _factory = factory;
+        _logger = logger;
     }
+
+    private record ParsedText(string Text1, string? Text2, int SenseOrder);
 
     public async Task<CrossReference?> ReadAsync(Sense sense)
     {
-        var typeName = Reader.Name;
-        var text = await Reader.ReadElementContentAsStringAsync();
+        var typeName = _xmlReader.Name;
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (sense.Entry.CorpusId != CorpusId.Jmdict)
         {
             // TODO: Log
@@ -54,7 +58,7 @@ internal class CrossReferenceReader
             // TODO: Log
             return null;
         }
-        var type = Factory.GetKeywordByName<CrossReferenceType>(typeName);
+        var type = _factory.GetKeywordByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

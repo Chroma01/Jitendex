@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -25,19 +26,21 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class FieldReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly ILogger<FieldReader> _logger;
 
-    public FieldReader(XmlReader reader, EntityFactory factory)
+    public FieldReader(XmlReader reader, EntityFactory factory, ILogger<FieldReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
+        _xmlReader = reader;
+        _factory = factory;
+        _logger = logger;
     }
 
     public async Task<Field> ReadAsync(Sense sense)
     {
-        var description = await Reader.ReadElementContentAsStringAsync();
-        var tag = Factory.GetKeywordByDescription<FieldTag>(description);
+        var description = await _xmlReader.ReadElementContentAsStringAsync();
+        var tag = _factory.GetKeywordByDescription<FieldTag>(description);
         return new Field
         {
             EntryId = sense.EntryId,

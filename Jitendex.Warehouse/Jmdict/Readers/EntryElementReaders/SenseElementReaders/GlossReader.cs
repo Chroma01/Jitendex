@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
@@ -25,29 +26,31 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class GlossReader
 {
-    private readonly XmlReader Reader;
-    private readonly EntityFactory Factory;
+    private readonly XmlReader _xmlReader;
+    private readonly EntityFactory _factory;
+    private readonly ILogger<GlossReader> _logger;
 
-    public GlossReader(XmlReader reader, EntityFactory factory)
+    public GlossReader(XmlReader reader, EntityFactory factory, ILogger<GlossReader> logger)
     {
-        Reader = reader;
-        Factory = factory;
+        _xmlReader = reader;
+        _factory = factory;
+        _logger = logger;
     }
 
     public async Task<Gloss> ReadAsync(Sense sense)
     {
-        var typeName = Reader.GetAttribute("g_type");
+        var typeName = _xmlReader.GetAttribute("g_type");
         var type = typeName is not null ?
-            Factory.GetKeywordByName<GlossType>(typeName) : null;
+            _factory.GetKeywordByName<GlossType>(typeName) : null;
         return new Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.Glosses.Count + 1,
-            Language = Reader.GetAttribute("xml:lang") ?? "eng",
+            Language = _xmlReader.GetAttribute("xml:lang") ?? "eng",
             TypeName = typeName,
             Type = type,
-            Text = await Reader.ReadElementContentAsStringAsync(),
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
     }
 }
