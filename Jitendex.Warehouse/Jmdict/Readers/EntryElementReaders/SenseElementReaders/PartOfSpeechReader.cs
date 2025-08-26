@@ -27,20 +27,20 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class PartOfSpeechReader : IJmdictReader<Sense, PartOfSpeech>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<PartOfSpeechReader> _logger;
 
-    public PartOfSpeechReader(XmlReader reader, EntityFactory factory, ILogger<PartOfSpeechReader> logger)
+    public PartOfSpeechReader(XmlReader reader, DocumentTypes docTypes, ILogger<PartOfSpeechReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
     public async Task<PartOfSpeech> ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByDescription<PartOfSpeechTag>(description);
+        var tag = _docTypes.GetKeywordByDescription<PartOfSpeechTag>(description);
         return new PartOfSpeech
         {
             EntryId = sense.EntryId,

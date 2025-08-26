@@ -27,13 +27,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<CrossReferenceReader> _logger;
 
-    public CrossReferenceReader(XmlReader reader, EntityFactory factory, ILogger<CrossReferenceReader> logger)
+    public CrossReferenceReader(XmlReader reader, DocumentTypes docTypes, ILogger<CrossReferenceReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
@@ -58,7 +58,7 @@ internal class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
             // TODO: Log
             return null;
         }
-        var type = _factory.GetKeywordByName<CrossReferenceType>(typeName);
+        var type = _docTypes.GetKeywordByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

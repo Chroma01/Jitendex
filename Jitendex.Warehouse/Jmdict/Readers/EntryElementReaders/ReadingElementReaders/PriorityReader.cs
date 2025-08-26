@@ -27,20 +27,17 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementRe
 internal class RPriorityReader : IJmdictReader<Reading, RPriority>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<RPriorityReader> _logger;
 
-    public RPriorityReader(XmlReader reader, EntityFactory factory, ILogger<RPriorityReader> logger)
-    {
-        _xmlReader = reader;
-        _factory = factory;
-        _logger = logger;
-    }
+    public RPriorityReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<RPriorityReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (xmlReader, docTypes, logger);
 
     public async Task<RPriority> ReadAsync(Reading reading)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByName<PriorityTag>(tagName);
+        var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
         return new RPriority
         {
             EntryId = reading.EntryId,

@@ -52,7 +52,7 @@ internal static class JmdictServiceCollection
         .AddTransient<IJmdictReader<NoParent, Entry>, EntryReader>()
 
         // Global document types.
-        .AddSingleton<EntityFactory>()
+        .AddSingleton<DocumentTypes>()
 
         // Entry element readers.
         .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()

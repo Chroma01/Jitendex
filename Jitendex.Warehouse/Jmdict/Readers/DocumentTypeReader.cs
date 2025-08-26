@@ -26,12 +26,12 @@ namespace Jitendex.Warehouse.Jmdict.Readers;
 internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<DocumentTypeReader> _logger;
 
-    public DocumentTypeReader(XmlReader xmlReader, EntityFactory factory, ILogger<DocumentTypeReader> logger) =>
-        (_xmlReader, _factory, _logger) =
-        (xmlReader, factory, logger);
+    public DocumentTypeReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<DocumentTypeReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (xmlReader, docTypes, logger);
 
     public async Task<NoChild> ReadAsync(NoParent noParent)
     {
@@ -43,7 +43,7 @@ internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
             {
                 case XmlNodeType.DocumentType:
                     var dtd = await _xmlReader.GetValueAsync();
-                    RegisterFactoryKeywords(dtd);
+                    RegisterKeywords(dtd);
                     exit = true;
                     break;
                 case XmlNodeType.Element:
@@ -87,7 +87,7 @@ internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
         return entityNameToDescription;
     }
 
-    private void RegisterFactoryKeywords(string dtd)
+    private void RegisterKeywords(string dtd)
     {
         // Entities explicitly defined in document header.
         var nameToDescription = ParseEntities(dtd);
@@ -95,28 +95,28 @@ internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
         {
             // Since there's no keyword overlap between these types,
             // it's fine to register all the definitions for all of the types.
-            _factory.RegisterKeyword<ReadingInfoTag>(name, description);
-            _factory.RegisterKeyword<KanjiFormInfoTag>(name, description);
-            _factory.RegisterKeyword<PartOfSpeechTag>(name, description);
-            _factory.RegisterKeyword<FieldTag>(name, description);
-            _factory.RegisterKeyword<MiscTag>(name, description);
-            _factory.RegisterKeyword<DialectTag>(name, description);
+            _docTypes.RegisterKeyword<ReadingInfoTag>(name, description);
+            _docTypes.RegisterKeyword<KanjiFormInfoTag>(name, description);
+            _docTypes.RegisterKeyword<PartOfSpeechTag>(name, description);
+            _docTypes.RegisterKeyword<FieldTag>(name, description);
+            _docTypes.RegisterKeyword<MiscTag>(name, description);
+            _docTypes.RegisterKeyword<DialectTag>(name, description);
         }
 
         // Entities implicitly defined that cannot be parsed from the document.
         foreach (var (name, description) in GlossType.NameToDescription)
-            _factory.RegisterKeyword<GlossType>(name, description);
+            _docTypes.RegisterKeyword<GlossType>(name, description);
 
         foreach (var (name, description) in CrossReferenceType.NameToDescription)
-            _factory.RegisterKeyword<CrossReferenceType>(name, description);
+            _docTypes.RegisterKeyword<CrossReferenceType>(name, description);
 
         foreach (var (name, description) in LanguageSourceType.NameToDescription)
-            _factory.RegisterKeyword<LanguageSourceType>(name, description);
+            _docTypes.RegisterKeyword<LanguageSourceType>(name, description);
 
         foreach (var (name, description) in ExampleSourceType.NameToDescription)
-            _factory.RegisterKeyword<ExampleSourceType>(name, description);
+            _docTypes.RegisterKeyword<ExampleSourceType>(name, description);
 
         foreach (var (name, description) in PriorityTag.NameToDescription)
-            _factory.RegisterKeyword<PriorityTag>(name, description);
+            _docTypes.RegisterKeyword<PriorityTag>(name, description);
     }
 }

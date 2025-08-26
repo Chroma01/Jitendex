@@ -27,20 +27,17 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementRe
 internal class RInfoReader : IJmdictReader<Reading, RInfo>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<RInfoReader> _logger;
 
-    public RInfoReader(XmlReader reader, EntityFactory factory, ILogger<RInfoReader> logger)
-    {
-        _xmlReader = reader;
-        _factory = factory;
-        _logger = logger;
-    }
+    public RInfoReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<RInfoReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (xmlReader, docTypes, logger);
 
     public async Task<RInfo> ReadAsync(Reading reading)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByDescription<ReadingInfoTag>(description);
+        var tag = _docTypes.GetKeywordByDescription<ReadingInfoTag>(description);
         return new RInfo
         {
             EntryId = reading.EntryId,

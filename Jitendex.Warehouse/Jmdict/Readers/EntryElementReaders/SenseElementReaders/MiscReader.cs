@@ -27,20 +27,20 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class MiscReader : IJmdictReader<Sense, Misc>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<MiscReader> _logger;
 
-    public MiscReader(XmlReader reader, EntityFactory factory, ILogger<MiscReader> logger)
+    public MiscReader(XmlReader reader, DocumentTypes docTypes, ILogger<MiscReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
     public async Task<Misc> ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByDescription<MiscTag>(description);
+        var tag = _docTypes.GetKeywordByDescription<MiscTag>(description);
         return new Misc
         {
             EntryId = sense.EntryId,

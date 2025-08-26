@@ -26,15 +26,15 @@ namespace Jitendex.Warehouse.Jmdict.Readers;
 internal class EntryReader : IJmdictReader<NoParent, Entry>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly IJmdictReader<Entry, KanjiForm> _kanjiFormReader;
     private readonly IJmdictReader<Entry, Reading> _readingReader;
     private readonly IJmdictReader<Entry, Sense> _senseReader;
     private readonly ILogger<EntryReader> _logger;
 
-    public EntryReader(XmlReader reader, EntityFactory factory, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader, ILogger<EntryReader> logger) =>
-        (_xmlReader, _factory, _kanjiFormReader, _readingReader, _senseReader, _logger) =
-        (reader, factory, kanjiFormReader, readingReader, senseReader, logger);
+    public EntryReader(XmlReader reader, DocumentTypes docTypes, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader, ILogger<EntryReader> logger) =>
+        (_xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader, _logger) =
+        (reader, docTypes, kanjiFormReader, readingReader, senseReader, logger);
 
     public async Task<Entry> ReadAsync(NoParent noParent)
     {
@@ -71,7 +71,7 @@ internal class EntryReader : IJmdictReader<NoParent, Entry>
                 var sequence = await _xmlReader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
                 entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
-                entry.Corpus = _factory.GetCorpus(entry.CorpusId);
+                entry.Corpus = _docTypes.GetCorpus(entry.CorpusId);
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await _kanjiFormReader.ReadAsync(entry);

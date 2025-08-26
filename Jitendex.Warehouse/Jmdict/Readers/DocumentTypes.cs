@@ -21,11 +21,11 @@ using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal class EntityFactory
+internal class DocumentTypes
 {
-    private readonly ILogger<EntityFactory> _logger;
+    private readonly ILogger<DocumentTypes> _logger;
 
-    public EntityFactory(ILogger<EntityFactory> logger) => _logger = logger;
+    public DocumentTypes(ILogger<DocumentTypes> logger) => _logger = logger;
 
     # region Keyword
 

@@ -27,13 +27,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class GlossReader : IJmdictReader<Sense, Gloss>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<GlossReader> _logger;
 
-    public GlossReader(XmlReader reader, EntityFactory factory, ILogger<GlossReader> logger)
+    public GlossReader(XmlReader reader, DocumentTypes docTypes, ILogger<GlossReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
@@ -41,7 +41,7 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
     {
         var typeName = _xmlReader.GetAttribute("g_type");
         var type = typeName is not null ?
-            _factory.GetKeywordByName<GlossType>(typeName) : null;
+            _docTypes.GetKeywordByName<GlossType>(typeName) : null;
         return new Gloss
         {
             EntryId = sense.EntryId,

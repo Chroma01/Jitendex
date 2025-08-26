@@ -27,20 +27,17 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElement
 internal class KPriorityReader: IJmdictReader<KanjiForm, KPriority>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<KPriorityReader> _logger;
 
-    public KPriorityReader(XmlReader reader, EntityFactory factory, ILogger<KPriorityReader> logger)
-    {
-        _xmlReader = reader;
-        _factory = factory;
-        _logger = logger;
-    }
+    public KPriorityReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<KPriorityReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (xmlReader, docTypes, logger);
 
     public async Task<KPriority> ReadAsync(KanjiForm kanjiForm)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByName<PriorityTag>(tagName);
+        var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
         return new KPriority
         {
             EntryId = kanjiForm.EntryId,

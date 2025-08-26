@@ -27,13 +27,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class ExampleReader : IJmdictReader<Sense, Example>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<ExampleReader> _logger;
 
-    public ExampleReader(XmlReader reader, EntityFactory factory, ILogger<ExampleReader> logger)
+    public ExampleReader(XmlReader reader, DocumentTypes docTypes, ILogger<ExampleReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
@@ -93,7 +93,7 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
                 {
                     // TODO: Log and warn
                 }
-                example.Source = _factory.GetExampleSource(example.SourceTypeName, example.SourceKey);
+                example.Source = _docTypes.GetExampleSource(example.SourceTypeName, example.SourceKey);
                 break;
             case "ex_text":
                 example.Keyword = await _xmlReader.ReadElementContentAsStringAsync();

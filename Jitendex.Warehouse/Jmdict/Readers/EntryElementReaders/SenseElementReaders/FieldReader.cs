@@ -27,20 +27,20 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class FieldReader : IJmdictReader<Sense, Field>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<FieldReader> _logger;
 
-    public FieldReader(XmlReader reader, EntityFactory factory, ILogger<FieldReader> logger)
+    public FieldReader(XmlReader reader, DocumentTypes docTypes, ILogger<FieldReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
     public async Task<Field> ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByDescription<FieldTag>(description);
+        var tag = _docTypes.GetKeywordByDescription<FieldTag>(description);
         return new Field
         {
             EntryId = sense.EntryId,

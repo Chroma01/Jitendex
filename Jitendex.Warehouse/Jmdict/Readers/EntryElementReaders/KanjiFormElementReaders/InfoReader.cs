@@ -27,17 +27,17 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElement
 internal class KInfoReader : IJmdictReader<KanjiForm, KInfo>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<KInfoReader> _logger;
 
-    public KInfoReader(XmlReader xmlReader, EntityFactory factory, ILogger<KInfoReader> logger) =>
-        (_xmlReader, _factory, _logger) =
-        (xmlReader, factory, logger);
+    public KInfoReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<KInfoReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (xmlReader, docTypes, logger);
 
     public async Task<KInfo> ReadAsync(KanjiForm kanjiForm)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByDescription<KanjiFormInfoTag>(description);
+        var tag = _docTypes.GetKeywordByDescription<KanjiFormInfoTag>(description);
         return new KInfo
         {
             EntryId = kanjiForm.EntryId,

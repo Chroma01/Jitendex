@@ -27,20 +27,20 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class DialectReader : IJmdictReader<Sense, Dialect>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<DialectReader> _logger;
 
-    public DialectReader(XmlReader reader, EntityFactory factory, ILogger<DialectReader> logger)
+    public DialectReader(XmlReader reader, DocumentTypes docTypes, ILogger<DialectReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
     public async Task<Dialect> ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _factory.GetKeywordByDescription<DialectTag>(description);
+        var tag = _docTypes.GetKeywordByDescription<DialectTag>(description);
         return new Dialect
         {
             EntryId = sense.EntryId,

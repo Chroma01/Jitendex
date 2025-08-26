@@ -27,13 +27,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 internal class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
+    private readonly DocumentTypes _docTypes;
     private readonly ILogger<LanguageSourceReader> _logger;
 
-    public LanguageSourceReader(XmlReader reader, EntityFactory factory, ILogger<LanguageSourceReader> logger)
+    public LanguageSourceReader(XmlReader reader, DocumentTypes docTypes, ILogger<LanguageSourceReader> logger)
     {
         _xmlReader = reader;
-        _factory = factory;
+        _docTypes = docTypes;
         _logger = logger;
     }
 
@@ -56,8 +56,8 @@ internal class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
             LanguageCode = languageCode,
             TypeName = typeName,
             IsWasei = wasei == "y",
-            Language = _factory.GetKeywordByName<Language>(languageCode),
-            Type = _factory.GetKeywordByName<LanguageSourceType>(typeName),
+            Language = _docTypes.GetKeywordByName<Language>(languageCode),
+            Type = _docTypes.GetKeywordByName<LanguageSourceType>(typeName),
         };
     }
 }
