@@ -47,12 +47,12 @@ internal static class JmdictServiceCollection
             return resources.CreateXmlReader(paths.XmlFile);
         })
 
+        // Global document types.
+        .AddSingleton<DocumentTypes>()
+
         // Top-level readers.
         .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypesReader>()
         .AddTransient<IJmdictReader<NoParent, Entry>, EntryReader>()
-
-        // Global document types.
-        .AddSingleton<DocumentTypes>()
 
         // Entry element readers.
         .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()
