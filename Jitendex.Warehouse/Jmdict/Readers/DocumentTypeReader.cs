@@ -53,7 +53,7 @@ internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdEntityRegex();
 
-    public Dictionary<string, string> ParseEntities(string dtd)
+    private Dictionary<string, string> ParseEntities(string dtd)
     {
         var entityNameToDescription = new Dictionary<string, string>();
         foreach (Match match in DtdEntityRegex().Matches(dtd))

@@ -52,7 +52,7 @@ internal class EntityFactory
         }
         else
         {
-            _logger.LogWarning($"No description for document type `{typeof(T).Name}` of name `{name}`");
+            _logger.LogWarning($"No description found for document type `{typeof(T).Name}` of name `{name}`");
             description = string.Empty;
         }
         var newKeyword = new T { Name = name, Description = description };

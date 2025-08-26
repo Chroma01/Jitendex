@@ -38,8 +38,7 @@ internal record FilePaths(string XmlFile, string XRefCache);
 internal static class JmdictServiceCollection
 {
     public static IServiceCollection AddJmdictServices(this IServiceCollection services, FilePaths paths) =>
-        services
-        .AddSingleton(provider =>
+        services.AddSingleton(provider =>
         {
             var resources = provider.GetRequiredService<Resources>();
             return resources.CreateXmlReader(paths.XmlFile);
@@ -51,23 +50,28 @@ internal static class JmdictServiceCollection
         {
             var resources = provider.GetRequiredService<Resources>();
             var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
-            var logger = provider.GetRequiredService<ILogger<Jmdict.ReferenceSequencer>>();
+            var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
             return new(cachedIds, logger);
         })
 
+        // Top-level readers.
         .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypeReader>()
         .AddTransient<IJmdictReader<NoParent, Entry>, EntryReader>()
 
+        // Entry element readers.
         .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()
         .AddTransient<IJmdictReader<Entry, Reading>, ReadingReader>()
         .AddTransient<IJmdictReader<Entry, Sense>, SenseReader>()
 
+        // Kanji form element readers.
         .AddTransient<IJmdictReader<KanjiForm, KInfo>, KInfoReader>()
         .AddTransient<IJmdictReader<KanjiForm, KPriority>, KPriorityReader>()
 
+        // Reading element readers.
         .AddTransient<IJmdictReader<Reading, RInfo>, RInfoReader>()
         .AddTransient<IJmdictReader<Reading, RPriority>, RPriorityReader>()
 
+        // Sense element readers.
         .AddTransient<IJmdictReader<Sense, CrossReference?>, CrossReferenceReader>()
         .AddTransient<IJmdictReader<Sense, Dialect>, DialectReader>()
         .AddTransient<IJmdictReader<Sense, Example>, ExampleReader>()

@@ -36,27 +36,26 @@ internal class Reader
 
     public async Task<List<Entry>> ReadEntriesAsync()
     {
-        await _documentReader.ReadAsync(new NoParent());
-
         var entries = new List<Entry>();
         await foreach (var entry in EnumerateEntriesAsync())
         {
             entries.Add(entry);
         }
         _referenceSequencer.FixCrossReferences(entries);
-
         return entries;
     }
 
     private async IAsyncEnumerable<Entry> EnumerateEntriesAsync()
     {
         var @void = new NoParent();
+        await _documentReader.ReadAsync(@void);
+
         while (await _xmlReader.ReadAsync())
         {
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    _logger.LogError("Document type should have been read before any entries.");
+                    _logger.LogError("Only one document type definition should exist in the document, and it should have already been read.");
                     break;
                 case XmlNodeType.Element:
                     if (_xmlReader.Name == Entry.XmlTagName)
