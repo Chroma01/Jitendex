@@ -25,21 +25,14 @@ namespace Jitendex.Warehouse.Jmdict;
 internal class Reader
 {
     private readonly XmlReader _xmlReader;
-    private readonly EntityFactory _factory;
     private readonly IJmdictReader<NoParent, NoChild> _documentReader;
     private readonly IJmdictReader<NoParent, Entry> _entryReader;
     private readonly ReferenceSequencer _referenceSequencer;
     private readonly ILogger<Reader> _logger;
 
-    public Reader(XmlReader xmlReader, EntityFactory factory, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer, ILogger<Reader> logger)
-    {
-        _xmlReader = xmlReader;
-        _factory = factory;
-        _documentReader = documentReader;
-        _entryReader = entryReader;
-        _referenceSequencer = referenceSequencer;
-        _logger = logger;
-    }
+    public Reader(XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer, ILogger<Reader> logger) =>
+        (_xmlReader, _documentReader, _entryReader, _referenceSequencer, _logger) =
+        (xmlReader, documentReader, entryReader, referenceSequencer, logger);
 
     public async Task<List<Entry>> ReadEntriesAsync()
     {
@@ -57,7 +50,7 @@ internal class Reader
 
     private async IAsyncEnumerable<Entry> EnumerateEntriesAsync()
     {
-        var nothing = new NoParent();
+        var @void = new NoParent();
         while (await _xmlReader.ReadAsync())
         {
             switch (_xmlReader.NodeType)
@@ -68,7 +61,7 @@ internal class Reader
                 case XmlNodeType.Element:
                     if (_xmlReader.Name == Entry.XmlTagName)
                     {
-                        var entry = await _entryReader.ReadAsync(nothing);
+                        var entry = await _entryReader.ReadAsync(@void);
                         yield return entry;
                     }
                     break;
