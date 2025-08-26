@@ -19,12 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-
 using Jitendex.Warehouse.Jmdict;
 
 namespace Jitendex.Warehouse;
-
-public record JmdictPath(string XmlFile, string XRefCache);
 
 public class Program
 {
@@ -43,12 +40,12 @@ public class Program
                 }))
             .AddTransient<Resources>();
 
-        var jmdictPath = new JmdictPath
+        var jmdictPaths = new Jmdict.FilePaths
         (
             XmlFile: Path.Combine("Resources", "edrdg", "JMdict_e_examp"),
             XRefCache: Path.Combine("Resources", "jmdict", "cross_reference_sequences.json")
         );
-        serviceCollection.AddJmdictServices(jmdictPath);
+        serviceCollection.AddJmdictServices(jmdictPaths);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();

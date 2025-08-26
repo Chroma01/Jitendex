@@ -39,14 +39,16 @@ using KanjiFormPriorityReader = Jitendex.Warehouse.Jmdict.Readers.EntryElementRe
 
 namespace Jitendex.Warehouse.Jmdict;
 
+internal record FilePaths(string XmlFile, string XRefCache);
+
 internal static class JmdictServiceCollection
 {
-    public static IServiceCollection AddJmdictServices(this IServiceCollection services, JmdictPath jmdictPath) =>
+    public static IServiceCollection AddJmdictServices(this IServiceCollection services, FilePaths paths) =>
         services
         .AddSingleton(provider =>
         {
             var resources = provider.GetRequiredService<Resources>();
-            return resources.CreateXmlReader(jmdictPath.XmlFile);
+            return resources.CreateXmlReader(paths.XmlFile);
         })
 
         .AddTransient<Reader>()
@@ -54,7 +56,7 @@ internal static class JmdictServiceCollection
         .AddTransient<ReferenceSequencer>(provider =>
         {
             var resources = provider.GetRequiredService<Resources>();
-            var cachedIds = resources.LoadJsonDictionary<int>(jmdictPath.XRefCache);
+            var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
             var logger = provider.GetRequiredService<ILogger<Jmdict.ReferenceSequencer>>();
             return new(cachedIds, logger);
         })
