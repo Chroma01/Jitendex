@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
@@ -40,80 +39,4 @@ internal class MiscGroup
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "misc";
-}
-
-internal static class MiscGroupReader
-{
-    public async static Task<MiscGroup> ReadMiscGroupAsync(this XmlReader reader, Entry entry)
-    {
-        var miscGroup = new MiscGroup
-        {
-            Character = entry.Character,
-            Entry = entry,
-        };
-
-        var exit = false;
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(miscGroup);
-                    break;
-                case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{MiscGroup.XmlTagName}`: `{text}`");
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == MiscGroup.XmlTagName;
-                    break;
-            }
-        }
-        return miscGroup;
-    }
-
-    private async static Task ReadChildElementAsync(this XmlReader reader, MiscGroup group)
-    {
-        switch (reader.Name)
-        {
-            case "grade":
-                group.Grade = int.Parse(await reader.ReadElementContentAsStringAsync());
-                break;
-            case "freq":
-                group.Frequency = int.Parse(await reader.ReadElementContentAsStringAsync());
-                break;
-            case "jlpt":
-                group.JlptLevel = int.Parse(await reader.ReadElementContentAsStringAsync());
-                break;
-            case StrokeCount.XmlTagName:
-                group.StrokeCounts.Add(new StrokeCount
-                {
-                    Character = group.Character,
-                    Order = group.StrokeCounts.Count + 1,
-                    Value = int.Parse(await reader.ReadElementContentAsStringAsync()),
-                    Entry = group.Entry,
-                });
-                break;
-            case Variant.XmlTagName:
-                group.Variants.Add(new Variant
-                {
-                    Character = group.Character,
-                    Order = group.Variants.Count + 1,
-                    Type = reader.GetAttribute("var_type") ?? throw new Exception($"Character `{group.Character}` missing variant type"),
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
-                break;
-            case RadicalName.XmlTagName:
-                group.RadicalNames.Add(new RadicalName
-                {
-                    Character = group.Character,
-                    Order = group.RadicalNames.Count + 1,
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
-                break;
-            default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{MiscGroup.XmlTagName}`");
-        }
-    }
 }

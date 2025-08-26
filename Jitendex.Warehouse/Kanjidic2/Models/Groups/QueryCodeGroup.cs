@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
@@ -34,54 +33,4 @@ internal class QueryCodeGroup
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "query_code";
-}
-
-internal static class QueryCodeGroupReader
-{
-    public async static Task<QueryCodeGroup> ReadQueryCodeGroupAsync(this XmlReader reader, Entry entry)
-    {
-        var queryCodeGroup = new QueryCodeGroup
-        {
-            Character = entry.Character,
-            Entry = entry,
-        };
-
-        var exit = false;
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(queryCodeGroup);
-                    break;
-                case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{QueryCodeGroup.XmlTagName}`: `{text}`");
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == QueryCodeGroup.XmlTagName;
-                    break;
-            }
-        }
-        return queryCodeGroup;
-    }
-
-    private async static Task ReadChildElementAsync(this XmlReader reader, QueryCodeGroup group)
-    {
-        switch (reader.Name)
-        {
-            case QueryCode.XmlTagName:
-                group.QueryCodes.Add(new QueryCode
-                {
-                    Character = group.Character,
-                    Order = group.QueryCodes.Count + 1,
-                    Type = reader.GetAttribute("qc_type") ?? throw new Exception($"Character `{group.Character}` missing query code type"),
-                    Misclassification = reader.GetAttribute("skip_misclass"),
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
-                break;
-            default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{QueryCodeGroup.XmlTagName}`");
-        }
-    }
 }

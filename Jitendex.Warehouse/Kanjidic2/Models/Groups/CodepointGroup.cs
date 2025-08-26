@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
@@ -34,53 +33,4 @@ internal class CodepointGroup
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "codepoint";
-}
-
-internal static class CodepointGroupReader
-{
-    public async static Task<CodepointGroup> ReadCodepointGroupAsync(this XmlReader reader, Entry entry)
-    {
-        var codepointGroup = new CodepointGroup
-        {
-            Character = entry.Character,
-            Entry = entry,
-        };
-
-        var exit = false;
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(codepointGroup);
-                    break;
-                case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{CodepointGroup.XmlTagName}`: `{text}`");
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == CodepointGroup.XmlTagName;
-                    break;
-            }
-        }
-        return codepointGroup;
-    }
-
-    private async static Task ReadChildElementAsync(this XmlReader reader, CodepointGroup group)
-    {
-        switch (reader.Name)
-        {
-            case Codepoint.XmlTagName:
-                group.Codepoints.Add(new Codepoint
-                {
-                    Character = group.Character,
-                    Order = group.Codepoints.Count + 1,
-                    Type = reader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
-                break;
-            default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{CodepointGroup.XmlTagName}`");
-        }
-    }
 }

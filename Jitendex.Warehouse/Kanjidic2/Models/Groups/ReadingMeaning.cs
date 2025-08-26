@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
@@ -34,73 +33,4 @@ internal class ReadingMeaning
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "rmgroup";
-}
-
-internal static class ReadingMeaningReader
-{
-    public async static Task<ReadingMeaning> ReadReadingMeaningAsync(this XmlReader reader, ReadingMeaningGroup group)
-    {
-        var readingMeaning = new ReadingMeaning
-        {
-            Character = group.Character,
-            Entry = group.Entry,
-        };
-
-        var exit = false;
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(readingMeaning);
-                    break;
-                case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{ReadingMeaning.XmlTagName}`: `{text}`");
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == ReadingMeaning.XmlTagName;
-                    break;
-            }
-        }
-        return readingMeaning;
-    }
-
-    private async static Task ReadChildElementAsync(this XmlReader reader, ReadingMeaning readingMeaning)
-    {
-        switch (reader.Name)
-        {
-            case Reading.XmlTagName:
-                readingMeaning.Readings.Add(new Reading
-                {
-                    Character = readingMeaning.Character,
-                    Order = readingMeaning.Readings.Count + 1,
-                    Type = reader.GetAttribute("r_type") ?? string.Empty,
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = readingMeaning.Entry,
-                });
-                break;
-            case Meaning.XmlTagName:
-                var meaning = new Meaning
-                {
-                    Character = readingMeaning.Character,
-                    Order = readingMeaning.Meanings.Count + 1,
-                    Language = reader.GetAttribute("m_lang") ?? "en",
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = readingMeaning.Entry,
-                };
-                if (meaning.Language != "en")
-                {
-                    break;
-                }
-                if (meaning.Text == "(kokuji)")
-                {
-                    readingMeaning.IsKokuji = true;
-                    break;
-                }
-                readingMeaning.Meanings.Add(meaning);
-                break;
-            default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{ReadingMeaning.XmlTagName}`");
-        }
-    }
 }

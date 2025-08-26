@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
@@ -34,57 +33,4 @@ internal class DictionaryGroup
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "dic_number";
-}
-
-internal static class DictionaryGroupReader
-{
-    public async static Task<DictionaryGroup> ReadDictionaryGroupAsync(this XmlReader reader, Entry entry)
-    {
-        var dicNumberGroup = new DictionaryGroup
-        {
-            Character = entry.Character,
-            Entry = entry,
-        };
-
-        var exit = false;
-        while (!exit && await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(dicNumberGroup);
-                    break;
-                case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{DictionaryGroup.XmlTagName}`: `{text}`");
-                case XmlNodeType.EndElement:
-                    exit = reader.Name == DictionaryGroup.XmlTagName;
-                    break;
-            }
-        }
-        return dicNumberGroup;
-    }
-
-    private async static Task ReadChildElementAsync(this XmlReader reader, DictionaryGroup group)
-    {
-        switch (reader.Name)
-        {
-            case Dictionary.XmlTagName:
-                var volume = reader.GetAttribute("m_vol");
-                var page = reader.GetAttribute("m_page");
-                group.Dictionaries.Add(new Dictionary
-                {
-                    Character = group.Character,
-                    Order = group.Dictionaries.Count + 1,
-                    Type = reader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
-                    Volume = volume != null ? int.Parse(volume) : null,
-                    Page = page != null ? int.Parse(page) : null,
-                    Text = await reader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
-                break;
-            default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{DictionaryGroup.XmlTagName}`");
-        }
-    }
 }

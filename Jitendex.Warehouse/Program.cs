@@ -48,13 +48,21 @@ public class Program
         serviceCollection.AddJmdictServices(jmdictPaths);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
+        await RunJmdict(serviceProvider);
+
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-
-        var jmdictService = serviceProvider.GetRequiredService<Jmdict.Service>();
-        await jmdictService.CreateEntriesAsync();
-
-        sw.Stop();
         logger.LogInformation($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
+    }
+
+    private static async Task RunJmdict(ServiceProvider serviceProvider)
+    {
+        var jmdictService = serviceProvider.GetRequiredService<Jmdict.Service>();
+        var jmdictEntries = await jmdictService.CreateEntriesAsync();
+
+        var jmdictDb = new JmdictContext();
+        await BuildDb.InitializeAsync(jmdictDb);
+        await jmdictDb.Entries.AddRangeAsync(jmdictEntries);
+        await jmdictDb.SaveChangesAsync();
     }
 }
 
