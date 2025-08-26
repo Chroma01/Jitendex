@@ -35,6 +35,7 @@ internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
 
     public async Task<NoChild> ReadAsync(NoParent noParent)
     {
+        var @void = new NoChild();
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
         {
@@ -45,9 +46,16 @@ internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
                     RegisterFactoryKeywords(dtd);
                     exit = true;
                     break;
+                case XmlNodeType.Element:
+                    _logger.LogError("Unexpected element node found in document preamble.");
+                    break;
+                case XmlNodeType.Text:
+                    var text = await _xmlReader.GetValueAsync();
+                    _logger.LogError($"Unexpected text node found in document preamble: `{text}`");
+                    break;
             }
         }
-        return new NoChild();
+        return @void;
     }
 
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
