@@ -24,24 +24,24 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal class PriorityReader : IJmdictReader<Reading, Priority>
+internal class RPriorityReader : IJmdictReader<Reading, RPriority>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;
-    private readonly ILogger<PriorityReader> _logger;
+    private readonly ILogger<RPriorityReader> _logger;
 
-    public PriorityReader(XmlReader reader, EntityFactory factory, ILogger<PriorityReader> logger)
+    public RPriorityReader(XmlReader reader, EntityFactory factory, ILogger<RPriorityReader> logger)
     {
         _xmlReader = reader;
         _factory = factory;
         _logger = logger;
     }
 
-    public async Task<Priority> ReadAsync(Reading reading)
+    public async Task<RPriority> ReadAsync(Reading reading)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _factory.GetKeywordByName<PriorityTag>(tagName);
-        return new Priority
+        return new RPriority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,

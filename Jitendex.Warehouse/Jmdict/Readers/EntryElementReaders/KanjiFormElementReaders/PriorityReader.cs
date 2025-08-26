@@ -24,24 +24,24 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal class PriorityReader: IJmdictReader<KanjiForm, Priority>
+internal class KPriorityReader: IJmdictReader<KanjiForm, KPriority>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;
-    private readonly ILogger<PriorityReader> _logger;
+    private readonly ILogger<KPriorityReader> _logger;
 
-    public PriorityReader(XmlReader reader, EntityFactory factory, ILogger<PriorityReader> logger)
+    public KPriorityReader(XmlReader reader, EntityFactory factory, ILogger<KPriorityReader> logger)
     {
         _xmlReader = reader;
         _factory = factory;
         _logger = logger;
     }
 
-    public async Task<Priority> ReadAsync(KanjiForm kanjiForm)
+    public async Task<KPriority> ReadAsync(KanjiForm kanjiForm)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _factory.GetKeywordByName<PriorityTag>(tagName);
-        return new Priority
+        return new KPriority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,

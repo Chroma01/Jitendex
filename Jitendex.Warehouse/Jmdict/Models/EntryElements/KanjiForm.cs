@@ -28,8 +28,8 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public virtual List<Info> Infos { get; set; } = [];
-    public virtual List<Priority> Priorities { get; set; } = [];
+    public virtual List<KInfo> Infos { get; set; } = [];
+    public virtual List<KPriority> Priorities { get; set; } = [];
     public virtual List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]

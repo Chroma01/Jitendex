@@ -21,9 +21,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[Table($"{nameof(KanjiForm)}{nameof(Priority)}")]
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagName))]
-public class Priority
+public class KPriority
 {
     public required int EntryId { get; set; }
     public required int KanjiFormOrder { get; set; }

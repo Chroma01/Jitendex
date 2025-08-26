@@ -27,11 +27,11 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
 {
     private readonly XmlReader _xmlReader;
-    private readonly IJmdictReader<KanjiForm, Info> _infoReader;
-    private readonly IJmdictReader<KanjiForm, Priority> _priorityReader;
+    private readonly IJmdictReader<KanjiForm, KInfo> _infoReader;
+    private readonly IJmdictReader<KanjiForm, KPriority> _priorityReader;
     private readonly ILogger<KanjiFormReader> _logger;
 
-    public KanjiFormReader(XmlReader xmlReader, IJmdictReader<KanjiForm, Info> infoReader, IJmdictReader<KanjiForm, Priority> priorityReader, ILogger<KanjiFormReader> logger) =>
+    public KanjiFormReader(XmlReader xmlReader, IJmdictReader<KanjiForm, KInfo> infoReader, IJmdictReader<KanjiForm, KPriority> priorityReader, ILogger<KanjiFormReader> logger) =>
         (_xmlReader, _infoReader, _priorityReader, _logger) =
         (xmlReader, infoReader, priorityReader, logger);
 
@@ -71,11 +71,11 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
             case "keb":
                 kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
-            case Info.XmlTagName:
+            case KInfo.XmlTagName:
                 var info = await _infoReader.ReadAsync(kanjiForm);
                 kanjiForm.Infos.Add(info);
                 break;
-            case Priority.XmlTagName:
+            case KPriority.XmlTagName:
                 var priority = await _priorityReader.ReadAsync(kanjiForm);
                 kanjiForm.Priorities.Add(priority);
                 break;

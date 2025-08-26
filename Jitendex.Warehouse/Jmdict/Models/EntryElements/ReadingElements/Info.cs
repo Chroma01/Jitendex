@@ -21,9 +21,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[Table($"{nameof(Reading)}{nameof(Info)}")]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagName))]
-public class Info
+public class RInfo
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }

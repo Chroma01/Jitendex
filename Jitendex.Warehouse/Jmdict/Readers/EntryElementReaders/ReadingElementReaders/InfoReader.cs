@@ -24,24 +24,24 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal class InfoReader : IJmdictReader<Reading, Info>
+internal class RInfoReader : IJmdictReader<Reading, RInfo>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;
-    private readonly ILogger<InfoReader> _logger;
+    private readonly ILogger<RInfoReader> _logger;
 
-    public InfoReader(XmlReader reader, EntityFactory factory, ILogger<InfoReader> logger)
+    public RInfoReader(XmlReader reader, EntityFactory factory, ILogger<RInfoReader> logger)
     {
         _xmlReader = reader;
         _factory = factory;
         _logger = logger;
     }
 
-    public async Task<Info> ReadAsync(Reading reading)
+    public async Task<RInfo> ReadAsync(Reading reading)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _factory.GetKeywordByDescription<ReadingInfoTag>(description);
-        return new Info
+        return new RInfo
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
