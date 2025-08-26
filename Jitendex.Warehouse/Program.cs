@@ -50,8 +50,8 @@ public class Program
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-        var jmdictReader = serviceProvider.GetRequiredService<Jmdict.Reader>();
-        await jmdictReader.ReadEntriesAsync();
+        var jmdictService = serviceProvider.GetRequiredService<Jmdict.Service>();
+        await jmdictService.CreateEntriesAsync();
 
         sw.Stop();
         logger.LogInformation($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");

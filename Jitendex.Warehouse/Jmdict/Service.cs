@@ -22,19 +22,19 @@ using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-internal class Reader
+internal class Service
 {
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<NoParent, NoChild> _documentReader;
     private readonly IJmdictReader<NoParent, Entry> _entryReader;
     private readonly ReferenceSequencer _referenceSequencer;
-    private readonly ILogger<Reader> _logger;
+    private readonly ILogger<Service> _logger;
 
-    public Reader(XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer, ILogger<Reader> logger) =>
+    public Service(XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer, ILogger<Service> logger) =>
         (_xmlReader, _documentReader, _entryReader, _referenceSequencer, _logger) =
         (xmlReader, documentReader, entryReader, referenceSequencer, logger);
 
-    public async Task<List<Entry>> ReadEntriesAsync()
+    public async Task<List<Entry>> CreateEntriesAsync()
     {
         var entries = new List<Entry>();
         await foreach (var entry in EnumerateEntriesAsync())

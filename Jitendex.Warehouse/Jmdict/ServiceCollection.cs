@@ -44,8 +44,7 @@ internal static class JmdictServiceCollection
             return resources.CreateXmlReader(paths.XmlFile);
         })
 
-        .AddTransient<Reader>()
-        .AddSingleton<EntityFactory>()
+        .AddTransient<Service>()
         .AddTransient<ReferenceSequencer>(provider =>
         {
             var resources = provider.GetRequiredService<Resources>();
@@ -57,6 +56,9 @@ internal static class JmdictServiceCollection
         // Top-level readers.
         .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypeReader>()
         .AddTransient<IJmdictReader<NoParent, Entry>, EntryReader>()
+
+        // Global document types.
+        .AddSingleton<EntityFactory>()
 
         // Entry element readers.
         .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()
