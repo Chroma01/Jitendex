@@ -41,7 +41,10 @@ internal class Service
         {
             entries.Add(entry);
         }
+
+        // Post-processing
         _referenceSequencer.FixCrossReferences(entries);
+
         return entries;
     }
 
