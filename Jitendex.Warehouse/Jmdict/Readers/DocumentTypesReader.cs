@@ -23,13 +23,13 @@ using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal partial class DocumentTypeReader : IJmdictReader<NoParent, NoChild>
+internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
 {
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<DocumentTypeReader> _logger;
+    private readonly ILogger<DocumentTypesReader> _logger;
 
-    public DocumentTypeReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<DocumentTypeReader> logger) =>
+    public DocumentTypesReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<DocumentTypesReader> logger) =>
         (_xmlReader, _docTypes, _logger) =
         (xmlReader, docTypes, logger);
 

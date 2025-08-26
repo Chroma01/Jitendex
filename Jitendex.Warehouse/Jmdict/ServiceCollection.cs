@@ -48,7 +48,7 @@ internal static class JmdictServiceCollection
         })
 
         // Top-level readers.
-        .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypeReader>()
+        .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypesReader>()
         .AddTransient<IJmdictReader<NoParent, Entry>, EntryReader>()
 
         // Global document types.
