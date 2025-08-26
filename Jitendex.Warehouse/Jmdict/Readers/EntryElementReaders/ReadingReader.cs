@@ -21,24 +21,19 @@ using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal class ReadingReader
+internal class ReadingReader : IJmdictReader<Entry, Reading>
 {
     private readonly XmlReader _xmlReader;
-    private readonly InfoReader _infoReader;
-    private readonly PriorityReader _priorityReader;
+    private readonly IJmdictReader<Reading, Info> _infoReader;
+    private readonly IJmdictReader<Reading, Priority> _priorityReader;
     private readonly ILogger<ReadingReader> _logger;
 
-    public ReadingReader(XmlReader reader, InfoReader infoReader, PriorityReader priorityReader, ILogger<ReadingReader> logger)
-    {
-        _xmlReader = reader;
-        _infoReader = infoReader;
-        _priorityReader = priorityReader;
-        _logger = logger;
-    }
+    public ReadingReader(XmlReader xmlReader, IJmdictReader<Reading, Info> infoReader, IJmdictReader<Reading, Priority> priorityReader, ILogger<ReadingReader> logger) =>
+        (_xmlReader, _infoReader, _priorityReader, _logger) =
+        (xmlReader, infoReader, priorityReader, logger);
 
     public async Task<Reading> ReadAsync(Entry entry)
     {

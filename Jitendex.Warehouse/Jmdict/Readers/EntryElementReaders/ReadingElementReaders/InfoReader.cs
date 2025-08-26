@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal class InfoReader
+internal class InfoReader : IJmdictReader<Reading, Info>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;

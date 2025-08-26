@@ -20,30 +20,23 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal class EntryReader
+internal class EntryReader : IJmdictReader<NoParent, Entry>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;
-    private readonly KanjiFormReader _kanjiFormReader;
-    private readonly ReadingReader _readingReader;
-    private readonly SenseReader _senseReader;
+    private readonly IJmdictReader<Entry, KanjiForm> _kanjiFormReader;
+    private readonly IJmdictReader<Entry, Reading> _readingReader;
+    private readonly IJmdictReader<Entry, Sense> _senseReader;
     private readonly ILogger<EntryReader> _logger;
 
-    public EntryReader(XmlReader reader, EntityFactory factory, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader, ILogger<EntryReader> logger)
-    {
-        _xmlReader = reader;
-        _factory = factory;
-        _kanjiFormReader = kanjiFormReader;
-        _readingReader = readingReader;
-        _senseReader = senseReader;
-        _logger = logger;
-    }
+    public EntryReader(XmlReader reader, EntityFactory factory, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader, ILogger<EntryReader> logger) =>
+        (_xmlReader, _factory, _kanjiFormReader, _readingReader, _senseReader, _logger) =
+        (reader, factory, kanjiFormReader, readingReader, senseReader, logger);
 
-    public async Task<Entry> ReadAsync()
+    public async Task<Entry> ReadAsync(NoParent noParent)
     {
         var entry = new Entry
         {

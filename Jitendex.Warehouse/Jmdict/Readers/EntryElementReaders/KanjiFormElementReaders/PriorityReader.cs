@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal class PriorityReader
+internal class PriorityReader: IJmdictReader<KanjiForm, Priority>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;

@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal class DialectReader
+internal class DialectReader : IJmdictReader<Sense, Dialect>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;

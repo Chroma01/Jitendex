@@ -21,36 +21,25 @@ using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal class SenseReader
+internal class SenseReader : IJmdictReader<Entry, Sense>
 {
     private readonly XmlReader _xmlReader;
-    private readonly CrossReferenceReader _crossReferenceReader;
-    private readonly DialectReader _dialectReader;
-    private readonly ExampleReader _exampleReader;
-    private readonly FieldReader _fieldReader;
-    private readonly GlossReader _glossReader;
-    private readonly LanguageSourceReader _languageSourceReader;
-    private readonly MiscReader _miscReader;
-    private readonly PartOfSpeechReader _partOfSpeechReader;
+    private readonly IJmdictReader<Sense, CrossReference> _crossReferenceReader;
+    private readonly IJmdictReader<Sense, Dialect> _dialectReader;
+    private readonly IJmdictReader<Sense, Example> _exampleReader;
+    private readonly IJmdictReader<Sense, Field> _fieldReader;
+    private readonly IJmdictReader<Sense, Gloss> _glossReader;
+    private readonly IJmdictReader<Sense, LanguageSource> _languageSourceReader;
+    private readonly IJmdictReader<Sense, Misc> _miscReader;
+    private readonly IJmdictReader<Sense, PartOfSpeech> _partOfSpeechReader;
     private readonly ILogger<SenseReader> _logger;
 
-    public SenseReader(XmlReader reader, CrossReferenceReader crossReferenceReader, DialectReader dialectReader, ExampleReader exampleReader, FieldReader fieldReader, GlossReader glossReader, LanguageSourceReader languageSourceReader, MiscReader miscReader, PartOfSpeechReader partOfSpeechReader, ILogger<SenseReader> logger)
-    {
-        _xmlReader = reader;
-        _crossReferenceReader = crossReferenceReader;
-        _dialectReader = dialectReader;
-        _exampleReader = exampleReader;
-        _fieldReader = fieldReader;
-        _glossReader = glossReader;
-        _languageSourceReader = languageSourceReader;
-        _miscReader = miscReader;
-        _partOfSpeechReader = partOfSpeechReader;
-        _logger = logger;
-    }
+    public SenseReader(XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader, ILogger<SenseReader> logger) =>
+        (_xmlReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader, _logger) =
+        (xmlReader, crossReferenceReader, dialectReader, exampleReader, fieldReader, glossReader, languageSourceReader, miscReader, partOfSpeechReader, logger);
 
     public async Task<Sense> ReadAsync(Entry entry)
     {
@@ -77,7 +66,6 @@ internal class SenseReader
                     break;
             }
         }
-
         return sense;
     }
 

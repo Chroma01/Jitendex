@@ -20,7 +20,11 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
+using Jitendex.Warehouse.Jmdict;
+
 namespace Jitendex.Warehouse;
+
+public record JmdictPath(string XmlFile, string XRefCache);
 
 public class Program
 {
@@ -39,7 +43,7 @@ public class Program
                 }))
             .AddTransient<Resources>();
 
-        var jmdictPath = new Extensions.JmdictPath
+        var jmdictPath = new JmdictPath
         (
             XmlFile: Path.Combine("Resources", "edrdg", "JMdict_e_examp"),
             XRefCache: Path.Combine("Resources", "jmdict", "cross_reference_sequences.json")
@@ -57,39 +61,3 @@ public class Program
     }
 }
 
-internal static class Extensions
-{
-    public record JmdictPath(string XmlFile, string XRefCache);
-
-    public static IServiceCollection AddJmdictServices(this IServiceCollection services, JmdictPath jmdictPath) => services
-        .AddSingleton(provider =>
-        {
-            var resources = provider.GetRequiredService<Resources>();
-            return resources.CreateXmlReader(jmdictPath.XmlFile);
-        })
-        .AddTransient<Jmdict.Reader>()
-        .AddSingleton<Jmdict.EntityFactory>()
-        .AddTransient<Jmdict.ReferenceSequencer>(provider =>
-        {
-            var resources = provider.GetRequiredService<Resources>();
-            var cachedIds = resources.LoadJsonDictionary<int>(jmdictPath.XRefCache);
-            var logger = provider.GetRequiredService<ILogger<Jmdict.ReferenceSequencer>>();
-            return new(cachedIds, logger);
-        })
-        .AddTransient<Jmdict.Readers.EntryReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.KanjiFormReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.ReadingReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders.InfoReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders.PriorityReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.ReadingElementReaders.InfoReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.ReadingElementReaders.PriorityReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.CrossReferenceReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.DialectReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.ExampleReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.FieldReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.GlossReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.LanguageSourceReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.MiscReader>()
-        .AddTransient<Jmdict.Readers.EntryElementReaders.SenseElementReaders.PartOfSpeechReader>();
-}

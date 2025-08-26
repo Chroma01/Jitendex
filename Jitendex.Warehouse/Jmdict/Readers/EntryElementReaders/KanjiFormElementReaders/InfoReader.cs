@@ -24,18 +24,15 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal class InfoReader
+internal class InfoReader : IJmdictReader<KanjiForm, Info>
 {
     private readonly XmlReader _xmlReader;
     private readonly EntityFactory _factory;
     private readonly ILogger<InfoReader> _logger;
 
-    public InfoReader(XmlReader reader, EntityFactory factory, ILogger<InfoReader> logger)
-    {
-        _xmlReader = reader;
-        _factory = factory;
-        _logger = logger;
-    }
+    public InfoReader(XmlReader xmlReader, EntityFactory factory, ILogger<InfoReader> logger) =>
+        (_xmlReader, _factory, _logger) =
+        (xmlReader, factory, logger);
 
     public async Task<Info> ReadAsync(KanjiForm kanjiForm)
     {
