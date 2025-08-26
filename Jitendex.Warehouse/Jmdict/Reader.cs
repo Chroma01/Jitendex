@@ -47,7 +47,7 @@ internal class Reader
         {
             entries.Add(entry);
         }
-        await _referenceSequencer.FixCrossReferencesAsync(entries);
+        _referenceSequencer.FixCrossReferences(entries);
         return entries;
     }
 

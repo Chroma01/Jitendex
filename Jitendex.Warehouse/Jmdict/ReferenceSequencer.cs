@@ -23,12 +23,12 @@ namespace Jitendex.Warehouse.Jmdict;
 
 internal class ReferenceSequencer
 {
-    private readonly Resources _resources;
+    private readonly Dictionary<string, int> _disambiguationCache;
     private readonly ILogger<ReferenceSequencer> _logger;
 
-    public ReferenceSequencer(Resources resources, ILogger<ReferenceSequencer> logger)
+    public ReferenceSequencer(Dictionary<string, int> disambiguationCache, ILogger<ReferenceSequencer> logger)
     {
-        _resources = resources;
+        _disambiguationCache = disambiguationCache;
         _logger = logger;
     }
 
@@ -40,11 +40,9 @@ internal class ReferenceSequencer
 
     private record SpellingId(int ReadingOrder, int? KanjiFormOrder);
 
-    public async Task FixCrossReferencesAsync(List<Entry> entries)
+    public void FixCrossReferences(List<Entry> entries)
     {
         var referenceTextToEntries = ReferenceTextToEntries(entries);
-
-        var cache = await _resources.JmdictCrossReferenceSequencesAsync();
 
         var allCrossReferences = entries
             .SelectMany(e => e.Senses)
@@ -60,7 +58,7 @@ internal class ReferenceSequencer
                     e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
                 .ToList();
 
-            var targetEntry = FindTargetEntry(possibleTargetEntries, cache, xref.RawKey());
+            var targetEntry = FindTargetEntry(possibleTargetEntries, xref.RawKey());
 
             // Assign Sense foreign key.
             xref.RefEntryId = targetEntry.Id;
@@ -129,7 +127,7 @@ internal class ReferenceSequencer
         }
     }
 
-    private Entry FindTargetEntry(List<Entry> possibleTargetEntries, Dictionary<string, int> cache, string cacheKey)
+    private Entry FindTargetEntry(List<Entry> possibleTargetEntries, string cacheKey)
     {
         if (possibleTargetEntries.Count == 1)
         {
@@ -138,7 +136,7 @@ internal class ReferenceSequencer
 
         // If there are multiple target entries, then the reference is ambiguous.
         // The correct entry ID must be recorded in the cache.
-        if (cache.TryGetValue(cacheKey, out int targetEntryId))
+        if (_disambiguationCache.TryGetValue(cacheKey, out int targetEntryId))
         {
             var targetEntry = possibleTargetEntries
                 .Where(e => e.Id == targetEntryId)

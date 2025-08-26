@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text.Json;
+using System.Xml;
 using Microsoft.Extensions.Logging;
 
 namespace Jitendex.Warehouse;
@@ -30,19 +31,26 @@ public class Resources
         _logger = logger;
     }
 
-    public string JmdictPath { get; set; } = Path.Combine("Resources", "edrdg", "JMdict_e_examp");
-    public string Kanjidic2Path { get; set; } = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
-
-    public string JmdictCrossReferenceSequencesPath { get; set; } =
-        Path.Combine("Resources", "jmdict", "cross_reference_sequences.json");
-
-    public async Task<Dictionary<string, int>> JmdictCrossReferenceSequencesAsync()
+    public Dictionary<string, T> LoadJsonDictionary<T>(string path)
     {
-        Dictionary<string, int> cachedSequences;
-        await using (var stream = File.OpenRead(JmdictCrossReferenceSequencesPath))
+        Dictionary<string, T> dictionary;
+        using (var stream = File.OpenRead(path))
         {
-            cachedSequences = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
+            dictionary = JsonSerializer.Deserialize<Dictionary<string, T>>(stream) ?? [];
         }
-        return cachedSequences;
+        return dictionary;
+    }
+
+    public XmlReader CreateXmlReader(string path)
+    {
+        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var readerSettings = new XmlReaderSettings
+        {
+            Async = true,
+            DtdProcessing = DtdProcessing.Parse,
+            MaxCharactersFromEntities = long.MaxValue,
+            MaxCharactersInDocument = long.MaxValue,
+        };
+        return XmlReader.Create(fileStream, readerSettings);
     }
 }

@@ -27,9 +27,10 @@ public class Loader
     {
         var db = new Kanjidic2Context();
         var initializeDbTask = save ? BuildDb.InitializeAsync(db) : Task.CompletedTask;
+        var path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
 
         var entries = new List<Entry>();
-        await foreach (var entry in EnumerateEntriesAsync(resources.Kanjidic2Path))
+        await foreach (var entry in EnumerateEntriesAsync(path))
         {
             entries.Add(entry);
         }
