@@ -17,9 +17,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Jitendex.Warehouse.Kanjidic2.Models;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models;
+namespace Jitendex.Warehouse.Kanjidic2.Readers;
 
 internal static class EntryReader
 {
