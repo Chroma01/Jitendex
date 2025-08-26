@@ -25,10 +25,7 @@ internal class EntityFactory
 {
     private readonly ILogger<EntityFactory> _logger;
 
-    public EntityFactory(ILogger<EntityFactory> logger)
-    {
-        _logger = logger;
-    }
+    public EntityFactory(ILogger<EntityFactory> logger) => _logger = logger;
 
     # region Keyword
 
@@ -55,7 +52,7 @@ internal class EntityFactory
         }
         else
         {
-            // TODO: Log and warn
+            _logger.LogWarning($"No description for document type `{typeof(T).Name}` of name `{name}`");
             description = string.Empty;
         }
         var newKeyword = new T { Name = name, Description = description };
@@ -88,7 +85,7 @@ internal class EntityFactory
         if (CorpusCache.TryGetValue(id, out Corpus? corpus))
             return corpus;
         var newCorpus = new Corpus
-        { 
+        {
             Id = id,
             Name = id.ToString(),
         };
