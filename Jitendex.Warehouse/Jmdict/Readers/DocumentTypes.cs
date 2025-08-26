@@ -80,8 +80,9 @@ internal class DocumentTypes
 
     private readonly Dictionary<CorpusId, Corpus> CorpusCache = [];
 
-    public Corpus GetCorpus(CorpusId id)
+    public Corpus GetCorpus(int entryId)
     {
+        var id = EntryIdToCorpusId(entryId);
         if (CorpusCache.TryGetValue(id, out Corpus? corpus))
             return corpus;
         var newCorpus = new Corpus
@@ -91,6 +92,25 @@ internal class DocumentTypes
         };
         CorpusCache.Add(id, newCorpus);
         return newCorpus;
+    }
+
+    private CorpusId EntryIdToCorpusId(int entryId)
+    {
+        var corpusId = entryId switch
+        {
+            < 1000000 => CorpusId.Unknown,
+            < 3000000 => CorpusId.Jmdict,
+            < 5000000 => CorpusId.Unknown,
+            < 6000000 => CorpusId.Jmnedict,
+            < 9999999 => CorpusId.Unknown,
+              9999999 => CorpusId.Metadata,
+                    _ => CorpusId.Unknown,
+        };
+        if (corpusId == CorpusId.Unknown)
+        {
+            _logger.LogWarning($"Entry ID `{entryId}` belongs to an unknown corpus.");
+        }
+        return corpusId;
     }
 
     #endregion

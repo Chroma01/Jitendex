@@ -30,20 +30,4 @@ public class Corpus
 {
     public required CorpusId Id { get; set; }
     public required string Name { get; set; }
-
-    internal static CorpusId EntryIdToCorpusId(int entryId)
-    {
-        var corpusId = entryId switch
-        {
-            < 1000000 => CorpusId.Unknown,
-            < 3000000 => CorpusId.Jmdict,
-            < 5000000 => CorpusId.Unknown,
-            < 6000000 => CorpusId.Jmnedict,
-            < 9999999 => CorpusId.Unknown,
-              9999999 => CorpusId.Metadata,
-                    _ => CorpusId.Unknown,
-        };
-        // TODO: Log warning if unknown.
-        return corpusId;
-    }
 }

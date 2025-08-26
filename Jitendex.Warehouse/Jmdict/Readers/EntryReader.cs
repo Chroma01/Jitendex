@@ -70,8 +70,8 @@ internal class EntryReader : IJmdictReader<NoParent, Entry>
             case "ent_seq":
                 var sequence = await _xmlReader.ReadElementContentAsStringAsync();
                 entry.Id = int.Parse(sequence);
-                entry.CorpusId = Corpus.EntryIdToCorpusId(entry.Id);
-                entry.Corpus = _docTypes.GetCorpus(entry.CorpusId);
+                entry.Corpus = _docTypes.GetCorpus(entry.Id);
+                entry.CorpusId = entry.Corpus.Id;
                 break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await _kanjiFormReader.ReadAsync(entry);
