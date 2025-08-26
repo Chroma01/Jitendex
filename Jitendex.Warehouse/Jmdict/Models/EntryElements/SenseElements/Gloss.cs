@@ -28,8 +28,8 @@ public class Gloss
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
 
-    public required string Text { get; set; }
     public string? TypeName { get; set; }
+    public required string Text { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public virtual Sense Sense { get; set; } = null!;
