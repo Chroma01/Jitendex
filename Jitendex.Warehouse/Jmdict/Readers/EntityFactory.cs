@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
 
-namespace Jitendex.Warehouse.Jmdict;
+namespace Jitendex.Warehouse.Jmdict.Readers;
 
 internal class EntityFactory
 {
