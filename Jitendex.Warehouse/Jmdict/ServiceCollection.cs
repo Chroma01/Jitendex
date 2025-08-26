@@ -38,19 +38,13 @@ internal record FilePaths(string XmlFile, string XRefCache);
 internal static class JmdictServiceCollection
 {
     public static IServiceCollection AddJmdictServices(this IServiceCollection services, FilePaths paths) =>
-        services.AddSingleton(provider =>
+        services.AddTransient<Service>()
+
+        // Global XML file reader.
+        .AddSingleton(provider =>
         {
             var resources = provider.GetRequiredService<Resources>();
             return resources.CreateXmlReader(paths.XmlFile);
-        })
-
-        .AddTransient<Service>()
-        .AddTransient<ReferenceSequencer>(provider =>
-        {
-            var resources = provider.GetRequiredService<Resources>();
-            var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
-            var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
-            return new(cachedIds, logger);
         })
 
         // Top-level readers.
@@ -81,5 +75,14 @@ internal static class JmdictServiceCollection
         .AddTransient<IJmdictReader<Sense, Gloss>, GlossReader>()
         .AddTransient<IJmdictReader<Sense, LanguageSource>, LanguageSourceReader>()
         .AddTransient<IJmdictReader<Sense, Misc>, MiscReader>()
-        .AddTransient<IJmdictReader<Sense, PartOfSpeech>, PartOfSpeechReader>();
+        .AddTransient<IJmdictReader<Sense, PartOfSpeech>, PartOfSpeechReader>()
+
+        // Post-processing of entries.
+        .AddTransient<ReferenceSequencer>(provider =>
+        {
+            var resources = provider.GetRequiredService<Resources>();
+            var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
+            var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
+            return new(cachedIds, logger);
+        });
 }
