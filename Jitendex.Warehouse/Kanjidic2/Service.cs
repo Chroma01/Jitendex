@@ -22,32 +22,21 @@ using Jitendex.Warehouse.Kanjidic2.Readers;
 
 namespace Jitendex.Warehouse.Kanjidic2;
 
-public class Loader
+public class Service
 {
-    public async static Task<List<Entry>> EntriesAsync(Resources resources, bool save)
+    public async static Task<List<Entry>> CreateEntriesAsync()
     {
-        var db = new Kanjidic2Context();
-        var initializeDbTask = save ? BuildDb.InitializeAsync(db) : Task.CompletedTask;
-        var path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
-
         var entries = new List<Entry>();
-        await foreach (var entry in EnumerateEntriesAsync(path))
+        await foreach (var entry in EnumerateEntriesAsync())
         {
             entries.Add(entry);
         }
-
-        if (save)
-        {
-            await initializeDbTask;
-            await db.Entries.AddRangeAsync(entries);
-            await db.SaveChangesAsync();
-        }
-
         return entries;
     }
 
-    private async static IAsyncEnumerable<Entry> EnumerateEntriesAsync(string path)
+    private async static IAsyncEnumerable<Entry> EnumerateEntriesAsync()
     {
+        var path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
         await using var stream = File.OpenRead(path);
 
         var readerSettings = new XmlReaderSettings
