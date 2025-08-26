@@ -90,8 +90,7 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
     private void RegisterKeywords(string dtd)
     {
         // Entities explicitly defined in document header.
-        var nameToDescription = ParseEntities(dtd);
-        foreach (var (name, description) in nameToDescription)
+        foreach (var (name, description) in ParseEntities(dtd))
         {
             // Since there's no keyword overlap between these types,
             // it's fine to register all the definitions for all of the types.
@@ -118,5 +117,8 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
 
         foreach (var (name, description) in PriorityTag.NameToDescription)
             _docTypes.RegisterKeyword<PriorityTag>(name, description);
+
+        foreach (var (name, description) in Language.NameToDescription)
+            _docTypes.RegisterKeyword<Language>(name, description);
     }
 }
