@@ -26,16 +26,14 @@ internal class ReferenceSequencer
     private readonly Dictionary<string, int> _disambiguationCache;
     private readonly ILogger<ReferenceSequencer> _logger;
 
-    public ReferenceSequencer(Dictionary<string, int> disambiguationCache, ILogger<ReferenceSequencer> logger)
-    {
-        _disambiguationCache = disambiguationCache;
-        _logger = logger;
-    }
+    public ReferenceSequencer(Dictionary<string, int> disambiguationCache, ILogger<ReferenceSequencer> logger) =>
+        (_disambiguationCache, _logger) =
+        (disambiguationCache, logger);
 
     private record ReferenceText(string Text1, string? Text2)
     {
-        public override string ToString()
-            => Text2 is null ? Text1 : $"{Text1}【{Text2}】";
+        public override string ToString() =>
+            Text2 is null ? Text1 : $"{Text1}【{Text2}】";
     }
 
     private record SpellingId(int ReadingOrder, int? KanjiFormOrder);
