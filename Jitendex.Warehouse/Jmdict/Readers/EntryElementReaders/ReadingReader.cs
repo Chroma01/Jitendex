@@ -58,7 +58,7 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
                     var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Reading.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == Reading.XmlTagName;
+                    exit = true;
                     break;
             }
         }

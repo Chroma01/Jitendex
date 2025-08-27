@@ -57,7 +57,7 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                     var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{KanjiForm.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == KanjiForm.XmlTagName;
+                    exit = true;
                     break;
             }
         }

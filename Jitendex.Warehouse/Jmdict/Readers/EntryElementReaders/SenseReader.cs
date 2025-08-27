@@ -62,7 +62,7 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
                     var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Sense.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == Sense.XmlTagName;
+                    exit = true;
                     break;
             }
         }
