@@ -25,16 +25,16 @@ namespace Jitendex.Warehouse.Jmdict.Readers;
 
 internal class EntryReader : IJmdictReader<NoParent, Entry>
 {
+    private readonly ILogger<EntryReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
     private readonly IJmdictReader<Entry, KanjiForm> _kanjiFormReader;
     private readonly IJmdictReader<Entry, Reading> _readingReader;
     private readonly IJmdictReader<Entry, Sense> _senseReader;
-    private readonly ILogger<EntryReader> _logger;
 
-    public EntryReader(XmlReader xmlReader, DocumentTypes docTypes, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader, ILogger<EntryReader> logger) =>
-        (_xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader, _logger) =
-        (@xmlReader, @docTypes, @kanjiFormReader, @readingReader, @senseReader, @logger);
+    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, DocumentTypes docTypes, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader) =>
+        (_logger, _xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader) =
+        (@logger, @xmlReader, @docTypes, @kanjiFormReader, @readingReader, @senseReader);
 
     public async Task<Entry> ReadAsync(NoParent noParent)
     {
