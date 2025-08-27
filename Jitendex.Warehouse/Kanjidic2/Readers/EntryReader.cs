@@ -17,10 +17,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
 using Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
-using Microsoft.Extensions.Logging;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers;
 
@@ -79,20 +79,11 @@ internal class EntryReader
                 var codepointGroup = await _codepointGroupReader.ReadAsync(entry);
                 entry.Codepoints = codepointGroup.Codepoints;
                 break;
-            case RadicalGroup.XmlTagName:
-                if (entry.Radicals.Count != 0)
-                    throw new Exception($"Character {entry.Character} has more than one radical group.");
-                var radicalGroup = await _radicalGroupReader.ReadAsync(entry);
-                entry.Radicals = radicalGroup.Radicals;
-                break;
-            case ReadingMeaningGroup.XmlTagName:
-                if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0 || entry.IsKokuji)
-                    throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
-                var readingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
-                entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
-                entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
-                entry.IsKokuji = readingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
-                entry.Nanoris = readingMeaningGroup.Nanoris;
+            case DictionaryGroup.XmlTagName:
+                if (entry.Dictionaries.Count != 0)
+                    throw new Exception($"Character {entry.Character} has more than one dictionary group.");
+                var dictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
+                entry.Dictionaries = dictionaryGroup.Dictionaries;
                 break;
             case MiscGroup.XmlTagName:
                 if (entry.Grade != null || entry.Frequency != null || entry.JlptLevel != null)
@@ -107,17 +98,26 @@ internal class EntryReader
                 entry.Variants = miscGroup.Variants;
                 entry.RadicalNames = miscGroup.RadicalNames;
                 break;
-            case DictionaryGroup.XmlTagName:
-                if (entry.Dictionaries.Count != 0)
-                    throw new Exception($"Character {entry.Character} has more than one dictionary group.");
-                var dictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
-                entry.Dictionaries = dictionaryGroup.Dictionaries;
-                break;
             case QueryCodeGroup.XmlTagName:
                 if (entry.QueryCodes.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one query code group.");
                 var queryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
                 entry.QueryCodes = queryCodeGroup.QueryCodes;
+                break;
+            case RadicalGroup.XmlTagName:
+                if (entry.Radicals.Count != 0)
+                    throw new Exception($"Character {entry.Character} has more than one radical group.");
+                var radicalGroup = await _radicalGroupReader.ReadAsync(entry);
+                entry.Radicals = radicalGroup.Radicals;
+                break;
+            case ReadingMeaningGroup.XmlTagName:
+                if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0 || entry.IsKokuji)
+                    throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
+                var readingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
+                entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
+                entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
+                entry.IsKokuji = readingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
+                entry.Nanoris = readingMeaningGroup.Nanoris;
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
