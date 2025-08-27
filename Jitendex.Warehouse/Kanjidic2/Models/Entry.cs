@@ -17,28 +17,56 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Jitendex.Warehouse.Kanjidic2.Models.Groups;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
+[Table("Entry")]
 public class Entry
 {
     [Key]
     public required string Character { get; set; }
-    public List<Codepoint> Codepoints { get; set; } = [];
-    public List<Radical> Radicals { get; set; } = [];
-    public List<Reading> Readings { get; set; } = [];
-    public List<Meaning> Meanings { get; set; } = [];
-    public List<Nanori> Nanoris { get; set; } = [];
-    public required bool IsKokuji { get; set; }
+
+    // Codepoint Group
+    public virtual List<Codepoint> Codepoints { get; set; } = [];
+
+    // Dictionary Group
+    public virtual List<Dictionary> Dictionaries { get; set; } = [];
+
+    // Misc Group
     public int? Grade { get; set; }
     public int? Frequency { get; set; }
     public int? JlptLevel { get; set; }
-    public List<StrokeCount> StrokeCounts { get; set; } = [];
-    public List<Variant> Variants { get; set; } = [];
-    public List<RadicalName> RadicalNames { get; set; } = [];
-    public List<Dictionary> Dictionaries { get; set; } = [];
-    public List<QueryCode> QueryCodes { get; set; } = [];
+    public virtual List<StrokeCount> StrokeCounts { get; set; } = [];
+    public virtual List<Variant> Variants { get; set; } = [];
+    public virtual List<RadicalName> RadicalNames { get; set; } = [];
+
+    // Query Code Group
+    public virtual List<QueryCode> QueryCodes { get; set; } = [];
+
+    // Radical Group
+    public virtual List<Radical> Radicals { get; set; } = [];
+
+    // Reading Meaning Group
+    public required bool IsKokuji { get; set; }
+    public virtual List<Reading> Readings { get; set; } = [];
+    public virtual List<Meaning> Meanings { get; set; } = [];
+    public virtual List<Nanori> Nanoris { get; set; } = [];
+
+    [NotMapped]
+    internal CodepointGroup? CodepointGroup = null;
+    [NotMapped]
+    internal DictionaryGroup? DictionaryGroup = null;
+    [NotMapped]
+    internal MiscGroup? MiscGroup = null;
+    [NotMapped]
+    internal QueryCodeGroup? QueryCodeGroup = null;
+    [NotMapped]
+    internal RadicalGroup? RadicalGroup = null;
+    [NotMapped]
+    internal ReadingMeaningGroup? ReadingMeaningGroup = null;
 
     internal const string XmlTagName = "character";
 }

@@ -74,50 +74,60 @@ internal class EntryReader
                 entry.Character = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
             case CodepointGroup.XmlTagName:
-                if (entry.Codepoints.Count != 0)
+                if (entry.CodepointGroup is not null)
+                {
                     throw new Exception($"Character {entry.Character} has more than one codepoint group.");
-                var codepointGroup = await _codepointGroupReader.ReadAsync(entry);
-                entry.Codepoints = codepointGroup.Codepoints;
+                }
+                entry.CodepointGroup = await _codepointGroupReader.ReadAsync(entry);
+                entry.Codepoints = entry.CodepointGroup.Codepoints;
                 break;
             case DictionaryGroup.XmlTagName:
-                if (entry.Dictionaries.Count != 0)
+                if (entry.DictionaryGroup is not null)
+                {
                     throw new Exception($"Character {entry.Character} has more than one dictionary group.");
-                var dictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
-                entry.Dictionaries = dictionaryGroup.Dictionaries;
+                }
+                entry.DictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
+                entry.Dictionaries = entry.DictionaryGroup.Dictionaries;
                 break;
             case MiscGroup.XmlTagName:
-                if (entry.Grade != null || entry.Frequency != null || entry.JlptLevel != null)
+                if (entry.MiscGroup is not null)
+                {
                     throw new Exception($"Character {entry.Character} has more than one misc group.");
-                if (entry.StrokeCounts.Count != 0 || entry.Variants.Count != 0 || entry.RadicalNames.Count != 0)
-                    throw new Exception($"Character {entry.Character} has more than one misc group.");
-                var miscGroup = await _miscGroupReader.ReadAsync(entry);
-                entry.Grade = miscGroup.Grade;
-                entry.Frequency = miscGroup.Frequency;
-                entry.JlptLevel = miscGroup.JlptLevel;
-                entry.StrokeCounts = miscGroup.StrokeCounts;
-                entry.Variants = miscGroup.Variants;
-                entry.RadicalNames = miscGroup.RadicalNames;
+                }
+                entry.MiscGroup = await _miscGroupReader.ReadAsync(entry);
+                entry.Grade = entry.MiscGroup.Grade;
+                entry.Frequency = entry.MiscGroup.Frequency;
+                entry.JlptLevel = entry.MiscGroup.JlptLevel;
+                entry.StrokeCounts = entry.MiscGroup.StrokeCounts;
+                entry.Variants = entry.MiscGroup.Variants;
+                entry.RadicalNames = entry.MiscGroup.RadicalNames;
                 break;
             case QueryCodeGroup.XmlTagName:
-                if (entry.QueryCodes.Count != 0)
+                if (entry.QueryCodeGroup is not null)
+                {
                     throw new Exception($"Character {entry.Character} has more than one query code group.");
-                var queryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
-                entry.QueryCodes = queryCodeGroup.QueryCodes;
+                }
+                entry.QueryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
+                entry.QueryCodes = entry.QueryCodeGroup.QueryCodes;
                 break;
             case RadicalGroup.XmlTagName:
-                if (entry.Radicals.Count != 0)
+                if (entry.RadicalGroup is not null)
+                {
                     throw new Exception($"Character {entry.Character} has more than one radical group.");
-                var radicalGroup = await _radicalGroupReader.ReadAsync(entry);
-                entry.Radicals = radicalGroup.Radicals;
+                }
+                entry.RadicalGroup = await _radicalGroupReader.ReadAsync(entry);
+                entry.Radicals = entry.RadicalGroup.Radicals;
                 break;
             case ReadingMeaningGroup.XmlTagName:
-                if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0 || entry.IsKokuji)
+                if (entry.ReadingMeaningGroup is not null)
+                {
                     throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
-                var readingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
-                entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
-                entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
-                entry.IsKokuji = readingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
-                entry.Nanoris = readingMeaningGroup.Nanoris;
+                }
+                entry.ReadingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
+                entry.Readings = entry.ReadingMeaningGroup.ReadingMeaning?.Readings ?? [];
+                entry.Meanings = entry.ReadingMeaningGroup.ReadingMeaning?.Meanings ?? [];
+                entry.IsKokuji = entry.ReadingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
+                entry.Nanoris = entry.ReadingMeaningGroup.Nanoris;
                 break;
             default:
                 throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
