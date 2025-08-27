@@ -26,13 +26,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElement
 
 internal class KInfoReader : IJmdictReader<KanjiForm, KanjiFormInfo>
 {
+    private readonly ILogger<KInfoReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<KInfoReader> _logger;
 
-    public KInfoReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<KInfoReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public KInfoReader(ILogger<KInfoReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<KanjiFormInfo> ReadAsync(KanjiForm kanjiForm)
     {

@@ -26,13 +26,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementRe
 
 internal class RPriorityReader : IJmdictReader<Reading, ReadingPriority>
 {
+    private readonly ILogger<RPriorityReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<RPriorityReader> _logger;
 
-    public RPriorityReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<RPriorityReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public RPriorityReader(ILogger<RPriorityReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<ReadingPriority> ReadAsync(Reading reading)
     {

@@ -24,15 +24,15 @@ namespace Jitendex.Warehouse.Jmdict;
 
 internal class Service
 {
+    private readonly ILogger<Service> _logger;
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<NoParent, NoChild> _documentReader;
     private readonly IJmdictReader<NoParent, Entry> _entryReader;
     private readonly ReferenceSequencer _referenceSequencer;
-    private readonly ILogger<Service> _logger;
 
-    public Service(XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer, ILogger<Service> logger) =>
-        (_xmlReader, _documentReader, _entryReader, _referenceSequencer, _logger) =
-        (@xmlReader, @documentReader, @entryReader, @referenceSequencer, @logger);
+    public Service(ILogger<Service> logger, XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer) =>
+        (_logger, _xmlReader, _documentReader, _entryReader, _referenceSequencer) =
+        (@logger, @xmlReader, @documentReader, @entryReader, @referenceSequencer);
 
     public async Task<List<Entry>> CreateEntriesAsync()
     {
@@ -58,13 +58,16 @@ internal class Service
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    _logger.LogError("Only one document type definition should exist in the document, and it should have already been read.");
+                    _logger.LogError("Unexpected document type node `{Name}`", _xmlReader.Name);
                     break;
                 case XmlNodeType.Element:
                     if (_xmlReader.Name == Entry.XmlTagName)
                     {
                         var entry = await _entryReader.ReadAsync(@void);
-                        yield return entry;
+                        if (entry is not null)
+                        {
+                            yield return entry;
+                        }
                     }
                     break;
             }

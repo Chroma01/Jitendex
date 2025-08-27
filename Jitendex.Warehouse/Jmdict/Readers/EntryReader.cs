@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal class EntryReader : IJmdictReader<NoParent, Entry>
+internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
 {
     private readonly ILogger<EntryReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -36,43 +36,80 @@ internal class EntryReader : IJmdictReader<NoParent, Entry>
         (_logger, _xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader) =
         (@logger, @xmlReader, @docTypes, @kanjiFormReader, @readingReader, @senseReader);
 
-    public async Task<Entry> ReadAsync(NoParent noParent)
+    public async Task<Entry?> ReadAsync(NoParent noParent)
     {
-        var entry = new Entry
-        {
-            Id = -1,
-            CorpusId = CorpusId.Unknown,
-        };
-
+        Entry? entry = null;
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
         {
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(entry);
+                    if (entry is null)
+                    {
+                        entry = await CreateEntry();
+                        if (entry is null) return null;
+                    }
+                    else
+                    {
+                        await ReadChildElementAsync(entry);
+                    }
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, Entry.XmlTagName, text);
+                    if (entry is null) return null;
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
-                    exit = true;
+                    exit = _xmlReader.Name == Entry.XmlTagName;
                     break;
             }
         }
-        return PostProcess(entry);
+        if (entry is not null)
+            return PostProcess(entry);
+        else
+            return null;
+    }
+
+    private async Task<Entry?> CreateEntry()
+    {
+        int? entryId = await ReadEntryId();
+        if (entryId is null) return null;
+
+        var corpus = _docTypes.GetCorpus((int)entryId);
+        var entry = new Entry
+        {
+            Id = (int)entryId,
+            CorpusId = corpus.Id,
+            Corpus = corpus,
+        };
+        return entry;
+    }
+
+    private async Task<int?> ReadEntryId()
+    {
+        if (_xmlReader.Name != Entry.Id_XmlTagName)
+        {
+            LogUnsetEntryId(_xmlReader.Name);
+            return null;
+        }
+        var idText = await _xmlReader.ReadElementContentAsStringAsync();
+        if (int.TryParse(idText, out int id))
+        {
+            return id;
+        }
+        else
+        {
+            LogUnparsableId(idText);
+            return null;
+        }
     }
 
     private async Task ReadChildElementAsync(Entry entry)
     {
         switch (_xmlReader.Name)
         {
-            case "ent_seq":
-                var sequence = await _xmlReader.ReadElementContentAsStringAsync();
-                entry.Id = int.Parse(sequence);
-                entry.Corpus = _docTypes.GetCorpus(entry.Id);
-                entry.CorpusId = entry.Corpus.Id;
-                break;
             case KanjiForm.XmlTagName:
                 var kanjiForm = await _kanjiFormReader.ReadAsync(entry);
                 entry.KanjiForms.Add(kanjiForm);
@@ -89,18 +126,20 @@ internal class EntryReader : IJmdictReader<NoParent, Entry>
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, Entry.XmlTagName);
+                entry.IsCorrupt = true;
+                break;
         }
     }
 
-    private static Entry PostProcess(Entry entry)
+    private Entry PostProcess(Entry entry)
     {
         BridgeReadingsAndKanjiForms(entry);
         // Anticipating more operations here later.
         return entry;
     }
 
-    private static void BridgeReadingsAndKanjiForms(Entry entry)
+    private void BridgeReadingsAndKanjiForms(Entry entry)
     {
         foreach (var reading in entry.Readings)
         {
@@ -127,5 +166,41 @@ internal class EntryReader : IJmdictReader<NoParent, Entry>
                 kanjiForm.ReadingBridges.Add(bridge);
             }
         }
+        CheckForKanjiFormOrphans(entry);
     }
+
+    private void CheckForKanjiFormOrphans(Entry entry)
+    {
+        foreach (var kanjiForm in entry.KanjiForms.Where(k => !k.IsHidden()))
+        {
+            if (kanjiForm.ReadingBridges.Count == 0)
+            {
+                LogOrphanKanjiForm(kanjiForm.EntryId, kanjiForm.Text);
+                var defaultReading = entry.Readings.Where(r => !r.IsHidden()).First();
+                var bridge = new ReadingKanjiFormBridge
+                {
+                    EntryId = entry.Id,
+                    ReadingOrder = defaultReading.Order,
+                    KanjiFormOrder = kanjiForm.Order,
+                    Reading = defaultReading,
+                    KanjiForm = kanjiForm,
+                    IsCorrupt = true,
+                };
+                defaultReading.KanjiFormBridges.Add(bridge);
+                kanjiForm.ReadingBridges.Add(bridge);
+            }
+        }
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Kanji form `{KanjiFormText}` in entry {EntryId} has no associated readings")]
+    private partial void LogOrphanKanjiForm(int entryId, string kanjiFormText);
+
+    [LoggerMessage(LogLevel.Error,
+    "Attempted to read entry element <{TagName}> before setting the entry ID")]
+    private partial void LogUnsetEntryId(string tagName);
+
+    [LoggerMessage(LogLevel.Error,
+    "Cannot parse entry ID from text {Text}")]
+    private partial void LogUnparsableId(string Text);
 }

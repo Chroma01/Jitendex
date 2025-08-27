@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 namespace Jitendex.Warehouse.Kanjidic2.Models;
 
 [Table("Entry")]
-public class Entry
+public class Entry : ICorruptable
 {
     [Key]
     public required string Character { get; set; }
@@ -67,6 +67,8 @@ public class Entry
     internal RadicalGroup? RadicalGroup = null;
     [NotMapped]
     internal ReadingMeaningGroup? ReadingMeaningGroup = null;
+
+    public bool IsCorrupt { get; set; }
 
     internal const string XmlTagName = "character";
 }

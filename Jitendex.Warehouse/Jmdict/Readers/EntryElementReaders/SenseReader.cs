@@ -26,6 +26,7 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 internal class SenseReader : IJmdictReader<Entry, Sense>
 {
+    private readonly ILogger<SenseReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<Sense, CrossReference> _crossReferenceReader;
     private readonly IJmdictReader<Sense, Dialect> _dialectReader;
@@ -35,11 +36,10 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
     private readonly IJmdictReader<Sense, LanguageSource> _languageSourceReader;
     private readonly IJmdictReader<Sense, Misc> _miscReader;
     private readonly IJmdictReader<Sense, PartOfSpeech> _partOfSpeechReader;
-    private readonly ILogger<SenseReader> _logger;
 
-    public SenseReader(XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader, ILogger<SenseReader> logger) =>
-        (_xmlReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader, _logger) =
-        (@xmlReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader, @logger);
+    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
+        (_logger, _xmlReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
+        (@logger, @xmlReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
     public async Task<Sense> ReadAsync(Entry entry)
     {
@@ -60,9 +60,11 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{Sense.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, Sense.XmlTagName, text);
+                    sense.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
-                    exit = true;
+                    exit = _xmlReader.Name == Sense.XmlTagName;
                     break;
             }
         }
@@ -130,7 +132,9 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
                 sense.Examples.Add(example);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Sense.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, Sense.XmlTagName);
+                sense.IsCorrupt = true;
+                break;
         }
     }
 }

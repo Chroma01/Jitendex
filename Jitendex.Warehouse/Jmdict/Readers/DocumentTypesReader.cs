@@ -25,13 +25,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers;
 
 internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
 {
+    private readonly ILogger<DocumentTypesReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<DocumentTypesReader> _logger;
 
-    public DocumentTypesReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<DocumentTypesReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public DocumentTypesReader(ILogger<DocumentTypesReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<NoChild> ReadAsync(NoParent noParent)
     {
@@ -47,21 +47,25 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
                     exit = true;
                     break;
                 case XmlNodeType.Element:
-                    _logger.LogError("Unexpected element node found in document preamble.");
+                    LogUnexpectedElement(_xmlReader.Name);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    _logger.LogError($"Unexpected text node found in document preamble: `{text}`");
+                    Log.UnexpectedTextNode(_logger, _xmlReader.Name, text);
                     break;
             }
         }
         return @void;
     }
 
+    [LoggerMessage(LogLevel.Warning,
+    "Element <{xmlTagName}> encountered before the document type definitions have been parsed.")]
+    private partial void LogUnexpectedElement(string xmlTagName);
+
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdEntityRegex();
 
-    private Dictionary<string, string> ParseEntities(string dtd)
+    private static Dictionary<string, string> ParseEntities(string dtd)
     {
         var entityNameToDescription = new Dictionary<string, string>();
         foreach (Match match in DtdEntityRegex().Matches(dtd))
@@ -103,22 +107,137 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
         }
 
         // Entities implicitly defined that cannot be parsed from the document.
-        foreach (var (name, description) in GlossType.NameToDescription)
+        foreach (var (name, description) in GlossTypeEntities)
             _docTypes.RegisterKeyword<GlossType>(name, description);
 
-        foreach (var (name, description) in CrossReferenceType.NameToDescription)
+        foreach (var (name, description) in CrossReferenceTypeEntities)
             _docTypes.RegisterKeyword<CrossReferenceType>(name, description);
 
-        foreach (var (name, description) in LanguageSourceType.NameToDescription)
+        foreach (var (name, description) in LanguageSourceTypeEntities)
             _docTypes.RegisterKeyword<LanguageSourceType>(name, description);
 
-        foreach (var (name, description) in ExampleSourceType.NameToDescription)
+        foreach (var (name, description) in ExampleSourceTypeEntities)
             _docTypes.RegisterKeyword<ExampleSourceType>(name, description);
 
-        foreach (var (name, description) in PriorityTag.NameToDescription)
+        foreach (var (name, description) in PriorityTagEntities)
             _docTypes.RegisterKeyword<PriorityTag>(name, description);
 
-        foreach (var (name, description) in Language.NameToDescription)
+        foreach (var (name, description) in LanguageEntities)
             _docTypes.RegisterKeyword<Language>(name, description);
     }
+
+    // Gloss types
+    internal static readonly Dictionary<string, string> GlossTypeEntities = new()
+    {
+        ["tm"] = "trademark",
+        ["lit"] = "literal",
+        ["fig"] = "figurative",
+        ["expl"] = "explanation",
+    };
+
+    // Cross reference types
+    internal static readonly Dictionary<string, string> CrossReferenceTypeEntities = new()
+    {
+        ["xref"] = "cross-reference",
+        ["ant"] = "antonym",
+    };
+
+    // Language source types
+    internal static readonly Dictionary<string, string> LanguageSourceTypeEntities = new()
+    {
+        ["full"] = "Full description of the source word or phrase of the loanword",
+        ["part"] = "Partial description of the source word or phrase of the loanword",
+    };
+
+    // Example source types
+    internal static readonly Dictionary<string, string> ExampleSourceTypeEntities = new()
+    {
+        ["tat"] = "tatoeba.org",
+    };
+
+    // Priority tags
+    internal static readonly Dictionary<string, string> PriorityTagEntities =
+        Enumerable.Range(1, 2).SelectMany(i => new KeyValuePair<string, string>[] {
+            new($"news{i}", $"Ranking in wordfreq file, {i} of 2"),
+            new($"ichi{i}", $"Ranking from \"Ichimango goi bunruishuu\", {i} of 2"),
+            new($"spec{i}", $"Ranking assigned by JMdict editors, {i} of 2"),
+            new($"gai{i}",  $"Common loanwords based on wordfreq file, {i} of 2"),
+        }).Concat(
+        Enumerable.Range(1, 48).Select(i => new KeyValuePair<string, string>
+            ($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48")
+        )).ToDictionary();
+
+    // Languages
+    internal static readonly Dictionary<string, string> LanguageEntities = new()
+    {
+        ["afr"] = "Afrikaans",
+        ["ain"] = "Ainu",
+        ["alg"] = "Algonquian",
+        ["amh"] = "Amharic",
+        ["ara"] = "Arabic",
+        ["arn"] = "Mapudungun",
+        ["bnt"] = "Bantu",
+        ["bre"] = "Breton",
+        ["bul"] = "Bulgarian",
+        ["bur"] = "Burmese",
+        ["chi"] = "Chinese",
+        ["chn"] = "Chinook Jargon",
+        ["cze"] = "Czech",
+        ["dan"] = "Danish",
+        ["dut"] = "Dutch",
+        ["eng"] = "English",
+        ["epo"] = "Esperanto",
+        ["est"] = "Estonian",
+        ["fil"] = "Filipino",
+        ["fin"] = "Finnish",
+        ["fre"] = "French",
+        ["geo"] = "Georgian",
+        ["ger"] = "German",
+        ["glg"] = "Galician",
+        ["grc"] = "Ancient Greek",
+        ["gre"] = "Modern Greek",
+        ["haw"] = "Hawaiian",
+        ["heb"] = "Hebrew",
+        ["hin"] = "Hindi",
+        ["hun"] = "Hungarian",
+        ["ice"] = "Icelandic",
+        ["ind"] = "Indonesian",
+        ["ita"] = "Italian",
+        ["khm"] = "Khmer",
+        ["kor"] = "Korean",
+        ["kur"] = "Kurdish",
+        ["lat"] = "Latin",
+        ["lit"] = "Lithuanian",
+        ["mal"] = "Malayalam",
+        ["mao"] = "Maori",
+        ["may"] = "Malay",
+        ["mnc"] = "Manchu",
+        ["mol"] = "Moldavian",
+        ["mon"] = "Mongolian",
+        ["nor"] = "Norwegian",
+        ["per"] = "Persian",
+        ["pol"] = "Polish",
+        ["por"] = "Portuguese",
+        ["rum"] = "Romanian",
+        ["rus"] = "Russian",
+        ["san"] = "Sanskrit",
+        ["scr"] = "Croatian",
+        ["slo"] = "Slovak",
+        ["slv"] = "Slovenian",
+        ["som"] = "Somali",
+        ["spa"] = "Spanish",
+        ["swa"] = "Swahili",
+        ["swe"] = "Swedish",
+        ["tah"] = "Tahitian",
+        ["tam"] = "Tamil",
+        ["tgl"] = "Tagalog",
+        ["tha"] = "Thai",
+        ["tib"] = "Tibetan",
+        ["tur"] = "Turkish",
+        ["ukr"] = "Ukrainian",
+        ["urd"] = "Urdu",
+        ["uzb"] = "Uzbek",
+        ["vie"] = "Vietnamese",
+        ["yid"] = "Yiddish"
+    };
 }

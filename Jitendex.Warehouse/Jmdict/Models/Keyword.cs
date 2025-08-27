@@ -21,17 +21,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Jitendex.Warehouse.Jmdict.Models;
 
-internal interface IKeyword
-{
-    string Name { get; set; }
-    string Description { get; set; }
-}
-
 public class ReadingInfoTag : IKeyword
 {
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public bool IsCorrupt { get; set; }
 }
 
 public class KanjiFormInfoTag : IKeyword
@@ -39,6 +34,7 @@ public class KanjiFormInfoTag : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public bool IsCorrupt { get; set; }
 }
 
 public class PartOfSpeechTag : IKeyword
@@ -46,6 +42,7 @@ public class PartOfSpeechTag : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public bool IsCorrupt { get; set; }
 }
 
 public class FieldTag : IKeyword
@@ -53,6 +50,7 @@ public class FieldTag : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public bool IsCorrupt { get; set; }
 }
 
 public class MiscTag : IKeyword
@@ -60,6 +58,7 @@ public class MiscTag : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public bool IsCorrupt { get; set; }
 }
 
 public class DialectTag : IKeyword
@@ -67,6 +66,7 @@ public class DialectTag : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public bool IsCorrupt { get; set; }
 }
 
 public class GlossType : IKeyword
@@ -74,14 +74,7 @@ public class GlossType : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-
-    internal static readonly Dictionary<string, string> NameToDescription = new()
-    {
-        ["tm"] = "trademark",
-        ["lit"] = "literal",
-        ["fig"] = "figurative",
-        ["expl"] = "explanation",
-    };
+    public bool IsCorrupt { get; set; }
 }
 
 public class CrossReferenceType : IKeyword
@@ -89,12 +82,7 @@ public class CrossReferenceType : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-
-    internal static readonly Dictionary<string, string> NameToDescription = new()
-    {
-        ["xref"] = "cross-reference",
-        ["ant"] = "antonym",
-    };
+    public bool IsCorrupt { get; set; }
 }
 
 public class LanguageSourceType : IKeyword
@@ -102,12 +90,7 @@ public class LanguageSourceType : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-
-    internal static readonly Dictionary<string, string> NameToDescription = new()
-    {
-        ["full"] = "Full description of the source word or phrase of the loanword",
-        ["part"] = "Partial description of the source word or phrase of the loanword",
-    };
+    public bool IsCorrupt { get; set; }
 }
 
 public class ExampleSourceType : IKeyword
@@ -115,11 +98,7 @@ public class ExampleSourceType : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-
-    internal static readonly Dictionary<string, string> NameToDescription = new()
-    {
-        ["tat"] = "tatoeba.org",
-    };
+    public bool IsCorrupt { get; set; }
 }
 
 public class PriorityTag : IKeyword
@@ -127,21 +106,12 @@ public class PriorityTag : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-    public bool IsHighPriority { get => HighPriorityNames.Contains(Name); set { } }
+    public bool IsCorrupt { get; set; }
+
+    public bool IsHighPriority() => HighPriorityNames.Contains(Name);
 
     private static readonly FrozenSet<string> HighPriorityNames =
         ["gai1", "ichi1", "news1", "spec1", "spec2"];
-
-    internal static readonly Dictionary<string, string> NameToDescription =
-        Enumerable.Range(1, 2).SelectMany(i => new KeyValuePair<string, string>[] {
-            new($"news{i}", $"Ranking in wordfreq file, {i} of 2"),
-            new($"ichi{i}", $"Ranking from \"Ichimango goi bunruishuu\", {i} of 2"),
-            new($"spec{i}", $"Ranking assigned by JMdict editors, {i} of 2"),
-            new($"gai{i}",  $"Common loanwords based on wordfreq file, {i} of 2"),
-        }).Concat(
-        Enumerable.Range(1, 48).Select(i => new KeyValuePair<string, string>
-            ($"nf{i:D2}", $"Ranking in wordfreq file, {i} of 48")
-        )).ToDictionary();
 }
 
 public class Language : IKeyword
@@ -149,77 +119,5 @@ public class Language : IKeyword
     [Key]
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-
-    internal static readonly Dictionary<string, string> NameToDescription = new()
-    {
-        ["afr"] = "Afrikaans",
-        ["ain"] = "Ainu",
-        ["alg"] = "Algonquian",
-        ["amh"] = "Amharic",
-        ["ara"] = "Arabic",
-        ["arn"] = "Mapudungun",
-        ["bnt"] = "Bantu",
-        ["bre"] = "Breton",
-        ["bul"] = "Bulgarian",
-        ["bur"] = "Burmese",
-        ["chi"] = "Chinese",
-        ["chn"] = "Chinook Jargon",
-        ["cze"] = "Czech",
-        ["dan"] = "Danish",
-        ["dut"] = "Dutch",
-        ["eng"] = "English",
-        ["epo"] = "Esperanto",
-        ["est"] = "Estonian",
-        ["fil"] = "Filipino",
-        ["fin"] = "Finnish",
-        ["fre"] = "French",
-        ["geo"] = "Georgian",
-        ["ger"] = "German",
-        ["glg"] = "Galician",
-        ["grc"] = "Ancient Greek",
-        ["gre"] = "Modern Greek",
-        ["haw"] = "Hawaiian",
-        ["heb"] = "Hebrew",
-        ["hin"] = "Hindi",
-        ["hun"] = "Hungarian",
-        ["ice"] = "Icelandic",
-        ["ind"] = "Indonesian",
-        ["ita"] = "Italian",
-        ["khm"] = "Khmer",
-        ["kor"] = "Korean",
-        ["kur"] = "Kurdish",
-        ["lat"] = "Latin",
-        ["lit"] = "Lithuanian",
-        ["mal"] = "Malayalam",
-        ["mao"] = "Maori",
-        ["may"] = "Malay",
-        ["mnc"] = "Manchu",
-        ["mol"] = "Moldavian",
-        ["mon"] = "Mongolian",
-        ["nor"] = "Norwegian",
-        ["per"] = "Persian",
-        ["pol"] = "Polish",
-        ["por"] = "Portuguese",
-        ["rum"] = "Romanian",
-        ["rus"] = "Russian",
-        ["san"] = "Sanskrit",
-        ["scr"] = "Croatian",
-        ["slo"] = "Slovak",
-        ["slv"] = "Slovenian",
-        ["som"] = "Somali",
-        ["spa"] = "Spanish",
-        ["swa"] = "Swahili",
-        ["swe"] = "Swedish",
-        ["tah"] = "Tahitian",
-        ["tam"] = "Tamil",
-        ["tgl"] = "Tagalog",
-        ["tha"] = "Thai",
-        ["tib"] = "Tibetan",
-        ["tur"] = "Turkish",
-        ["ukr"] = "Ukrainian",
-        ["urd"] = "Urdu",
-        ["uzb"] = "Uzbek",
-        ["vie"] = "Vietnamese",
-        ["yid"] = "Yiddish"
-    };
+    public bool IsCorrupt { get; set; }
 }

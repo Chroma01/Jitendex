@@ -76,6 +76,7 @@ internal partial class EntryReader
             case CodepointGroup.XmlTagName:
                 if (entry.CodepointGroup is not null)
                 {
+                    entry.IsCorrupt = true;
                     LogUnexpectedGroup(entry.Character, CodepointGroup.XmlTagName);
                 }
                 entry.CodepointGroup = await _codepointGroupReader.ReadAsync(entry);
@@ -84,6 +85,7 @@ internal partial class EntryReader
             case DictionaryGroup.XmlTagName:
                 if (entry.DictionaryGroup is not null)
                 {
+                    entry.IsCorrupt = true;
                     LogUnexpectedGroup(entry.Character, DictionaryGroup.XmlTagName);
                 }
                 entry.DictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
@@ -92,6 +94,7 @@ internal partial class EntryReader
             case MiscGroup.XmlTagName:
                 if (entry.MiscGroup is not null)
                 {
+                    entry.IsCorrupt = true;
                     LogUnexpectedGroup(entry.Character, MiscGroup.XmlTagName);
                 }
                 entry.MiscGroup = await _miscGroupReader.ReadAsync(entry);
@@ -105,6 +108,7 @@ internal partial class EntryReader
             case QueryCodeGroup.XmlTagName:
                 if (entry.QueryCodeGroup is not null)
                 {
+                    entry.IsCorrupt = true;
                     LogUnexpectedGroup(entry.Character, QueryCodeGroup.XmlTagName);
                 }
                 entry.QueryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
@@ -113,6 +117,7 @@ internal partial class EntryReader
             case RadicalGroup.XmlTagName:
                 if (entry.RadicalGroup is not null)
                 {
+                    entry.IsCorrupt = true;
                     LogUnexpectedGroup(entry.Character, RadicalGroup.XmlTagName);
                 }
                 entry.RadicalGroup = await _radicalGroupReader.ReadAsync(entry);
@@ -121,6 +126,7 @@ internal partial class EntryReader
             case ReadingMeaningGroup.XmlTagName:
                 if (entry.ReadingMeaningGroup is not null)
                 {
+                    entry.IsCorrupt = true;
                     LogUnexpectedGroup(entry.Character, ReadingMeaningGroup.XmlTagName);
                 }
                 entry.ReadingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
@@ -134,8 +140,8 @@ internal partial class EntryReader
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message =
-        "Entry for character `{Character}` has more than one <{XmlTagName}> element.")]
+    [LoggerMessage(LogLevel.Warning,
+    "Entry for character `{Character}` has more than one <{XmlTagName}> child element.")]
     private partial void LogUnexpectedGroup(string character, string xmlTagName);
 
 }

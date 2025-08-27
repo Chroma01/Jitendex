@@ -26,13 +26,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class PartOfSpeechReader : IJmdictReader<Sense, PartOfSpeech>
 {
+    private readonly ILogger<PartOfSpeechReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<PartOfSpeechReader> _logger;
 
-    public PartOfSpeechReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<PartOfSpeechReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public PartOfSpeechReader(ILogger<PartOfSpeechReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<PartOfSpeech> ReadAsync(Sense sense)
     {

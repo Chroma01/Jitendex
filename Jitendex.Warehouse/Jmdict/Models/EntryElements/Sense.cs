@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
-public class Sense
+public class Sense : ICorruptable
 {
     public required int EntryId { get; set; }
     public required int Order { get; set; }
@@ -52,5 +52,6 @@ public class Sense
     [NotMapped]
     internal List<string> KanjiFormTextRestrictions { get; set; } = [];
 
+    public bool IsCorrupt { get; set; }
     internal const string XmlTagName = "sense";
 }

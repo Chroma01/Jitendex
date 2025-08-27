@@ -26,14 +26,14 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
 {
+    private readonly ILogger<KanjiFormReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<KanjiForm, KanjiFormInfo> _infoReader;
     private readonly IJmdictReader<KanjiForm, KanjiFormPriority> _priorityReader;
-    private readonly ILogger<KanjiFormReader> _logger;
 
-    public KanjiFormReader(XmlReader xmlReader, IJmdictReader<KanjiForm, KanjiFormInfo> infoReader, IJmdictReader<KanjiForm, KanjiFormPriority> priorityReader, ILogger<KanjiFormReader> logger) =>
-        (_xmlReader, _infoReader, _priorityReader, _logger) =
-        (@xmlReader, @infoReader, @priorityReader, @logger);
+    public KanjiFormReader(ILogger<KanjiFormReader> logger, XmlReader xmlReader, IJmdictReader<KanjiForm, KanjiFormInfo> infoReader, IJmdictReader<KanjiForm, KanjiFormPriority> priorityReader) =>
+        (_logger, _xmlReader, _infoReader, _priorityReader) =
+        (@logger, @xmlReader, @infoReader, @priorityReader);
 
     public async Task<KanjiForm> ReadAsync(Entry entry)
     {
@@ -55,9 +55,11 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{KanjiForm.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, KanjiForm.XmlTagName, text);
+                    kanjiForm.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
-                    exit = true;
+                    exit = _xmlReader.Name == KanjiForm.XmlTagName;
                     break;
             }
         }
@@ -80,7 +82,9 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                 kanjiForm.Priorities.Add(priority);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{KanjiForm.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, KanjiForm.XmlTagName);
+                kanjiForm.IsCorrupt = true;
+                break;
         }
     }
 }

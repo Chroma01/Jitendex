@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(KanjiFormOrder))]
-public class ReadingKanjiFormBridge
+public class ReadingKanjiFormBridge : ICorruptable
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }
@@ -33,4 +33,6 @@ public class ReadingKanjiFormBridge
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
+
+    public bool IsCorrupt { get; set; }
 }

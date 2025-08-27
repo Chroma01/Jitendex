@@ -26,14 +26,14 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
 internal class ReadingReader : IJmdictReader<Entry, Reading>
 {
+    private readonly ILogger<ReadingReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<Reading, ReadingInfo> _infoReader;
     private readonly IJmdictReader<Reading, ReadingPriority> _priorityReader;
-    private readonly ILogger<ReadingReader> _logger;
 
-    public ReadingReader(XmlReader xmlReader, IJmdictReader<Reading, ReadingInfo> infoReader, IJmdictReader<Reading, ReadingPriority> priorityReader, ILogger<ReadingReader> logger) =>
-        (_xmlReader, _infoReader, _priorityReader, _logger) =
-        (@xmlReader, @infoReader, @priorityReader, @logger);
+    public ReadingReader(ILogger<ReadingReader> logger, XmlReader xmlReader, IJmdictReader<Reading, ReadingInfo> infoReader, IJmdictReader<Reading, ReadingPriority> priorityReader) =>
+        (_logger, _xmlReader, _infoReader, _priorityReader) =
+        (@logger, @xmlReader, @infoReader, @priorityReader);
 
     public async Task<Reading> ReadAsync(Entry entry)
     {
@@ -56,9 +56,11 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{Reading.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, Reading.XmlTagName, text);
+                    reading.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
-                    exit = true;
+                    exit = _xmlReader.Name == Reading.XmlTagName;
                     break;
             }
         }
@@ -88,7 +90,9 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
                 reading.Priorities.Add(priority);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Reading.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, Reading.XmlTagName);
+                reading.IsCorrupt = true;
+                break;
         }
     }
 }

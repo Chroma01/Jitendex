@@ -26,13 +26,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal class ExampleReader : IJmdictReader<Sense, Example>
 {
+    private readonly ILogger<ExampleReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<ExampleReader> _logger;
 
-    public ExampleReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<ExampleReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public ExampleReader(ILogger<ExampleReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<Example> ReadAsync(Sense sense)
     {

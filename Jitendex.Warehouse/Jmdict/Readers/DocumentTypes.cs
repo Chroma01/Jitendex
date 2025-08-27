@@ -21,13 +21,9 @@ using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal class DocumentTypes
+internal partial class DocumentTypes(ILogger<DocumentTypes> logger)
 {
-    private readonly ILogger<DocumentTypes> _logger;
-
-    public DocumentTypes(ILogger<DocumentTypes> logger) => _logger = logger;
-
-    # region Keyword
+    #region Keyword
 
     private readonly Dictionary<(Type, string), IKeyword> KeywordCache = [];
 
@@ -44,18 +40,19 @@ internal class DocumentTypes
     {
         var cacheKey = (typeof(T), name);
         if (KeywordCache.TryGetValue(cacheKey, out IKeyword? keyword))
+        {
             return (T)keyword;
-        string description;
+        }
+        T newKeyword;
         if (NameToDescription.TryGetValue(cacheKey, out string? value))
         {
-            description = value;
+            newKeyword = new T { Name = name, Description = value };
         }
         else
         {
-            _logger.LogWarning($"No description found for document type `{typeof(T).Name}` of name `{name}`");
-            description = string.Empty;
+            LogUnregisteredKeywordName(name, typeof(T).Name);
+            newKeyword = new T { Name = name, Description = string.Empty, IsCorrupt = true };
         }
-        var newKeyword = new T { Name = name, Description = description };
         KeywordCache.Add(cacheKey, newKeyword);
         return newKeyword;
     }
@@ -67,12 +64,24 @@ internal class DocumentTypes
         {
             return GetKeywordByName<T>(name);
         }
-        throw new ArgumentException
-        (
-            $"Description `{description}` for type `{typeof(T).Name}` has not been registered.",
-            nameof(description)
-        );
+        else
+        {
+            LogUnregisteredKeywordDescription(description, typeof(T).Name);
+            var impromptuName = Guid.NewGuid().ToString();
+            RegisterKeyword<T>(impromptuName, description);
+            var keyword = GetKeywordByName<T>(impromptuName);
+            keyword.IsCorrupt = true;
+            return keyword;
+        }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Keyword name `{Name}` for type `{TypeName}` was not registered with a description before use.")]
+    private partial void LogUnregisteredKeywordName(string name, string typeName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Description `{Description}` for type `{TypeName}` was not registered with a keyword name before use.")]
+    private partial void LogUnregisteredKeywordDescription(string description, string typeName);
 
     #endregion
 
@@ -83,8 +92,12 @@ internal class DocumentTypes
     public Corpus GetCorpus(int entryId)
     {
         var id = EntryIdToCorpusId(entryId);
+        if (id == CorpusId.Unknown) LogUnknownCorpusEntry(entryId);
+
         if (CorpusCache.TryGetValue(id, out Corpus? corpus))
+        {
             return corpus;
+        }
         var newCorpus = new Corpus
         {
             Id = id,
@@ -94,24 +107,21 @@ internal class DocumentTypes
         return newCorpus;
     }
 
-    private CorpusId EntryIdToCorpusId(int entryId)
-    {
-        var corpusId = entryId switch
+    private static CorpusId EntryIdToCorpusId(int entryId) =>
+        entryId switch
         {
             < 1000000 => CorpusId.Unknown,
             < 3000000 => CorpusId.Jmdict,
             < 5000000 => CorpusId.Unknown,
             < 6000000 => CorpusId.Jmnedict,
             < 9999999 => CorpusId.Unknown,
-              9999999 => CorpusId.Metadata,
-                    _ => CorpusId.Unknown,
+            9999999 => CorpusId.Metadata,
+            _ => CorpusId.Unknown,
         };
-        if (corpusId == CorpusId.Unknown)
-        {
-            _logger.LogWarning($"Entry ID `{entryId}` belongs to an unknown corpus.");
-        }
-        return corpusId;
-    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry ID `{EntryId}` belongs to an unknown corpus.")]
+    private partial void LogUnknownCorpusEntry(int entryId);
 
     #endregion
 
@@ -123,7 +133,9 @@ internal class DocumentTypes
     {
         var cacheKey = (typeName, originKey);
         if (ExampleSourceCache.TryGetValue(cacheKey, out ExampleSource? exampleSource))
+        {
             return exampleSource;
+        }
         var newExampleSource = new ExampleSource
         {
             TypeName = typeName,

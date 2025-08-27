@@ -22,7 +22,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 namespace Jitendex.Warehouse.Jmdict.Models;
 
 [Table(nameof(Entry))]
-public class Entry
+public class Entry : ICorruptable
 {
     public required int Id { get; set; }
     public required CorpusId CorpusId { get; set; }
@@ -33,5 +33,8 @@ public class Entry
     [ForeignKey(nameof(CorpusId))]
     public virtual Corpus Corpus { get; set; } = null!;
 
+    public bool IsCorrupt { get; set; }
+
     internal const string XmlTagName = "entry";
+    internal const string Id_XmlTagName = "ent_seq";
 }

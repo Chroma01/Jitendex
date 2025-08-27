@@ -26,13 +26,13 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementRe
 
 internal class RInfoReader : IJmdictReader<Reading, ReadingInfo>
 {
+    private readonly ILogger<RInfoReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<RInfoReader> _logger;
 
-    public RInfoReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<RInfoReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public RInfoReader(ILogger<RInfoReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<ReadingInfo> ReadAsync(Reading reading)
     {

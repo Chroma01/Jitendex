@@ -24,15 +24,15 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
+internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
 {
+    private readonly ILogger<CrossReferenceReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
-    private readonly ILogger<CrossReferenceReader> _logger;
 
-    public CrossReferenceReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<CrossReferenceReader> logger) =>
-        (_xmlReader, _docTypes, _logger) =
-        (@xmlReader, @docTypes, @logger);
+    public CrossReferenceReader(ILogger<CrossReferenceReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     private record ParsedText(string Text1, string? Text2, int SenseOrder);
 
@@ -42,7 +42,7 @@ internal class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (sense.Entry.CorpusId != CorpusId.Jmdict)
         {
-            // TODO: Log
+            LogUnsupportedCorpus(sense.Entry.Id, sense.Entry.Corpus.Name);
             return null;
         }
         ParsedText parsedText;
@@ -84,20 +84,32 @@ internal class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
                 parsed = (split[0], null, 1);
                 break;
             case 2:
-                if (int.TryParse(split[1], out int s1))
-                    parsed = (split[0], null, s1);
+                if (int.TryParse(split[1], out int x))
+                {
+                    parsed = (split[0], null, x);
+                }
                 else
+                {
                     parsed = (split[0], split[1], 1);
+                }
                 break;
             case 3:
-                if (int.TryParse(split[2], out int s2))
-                    parsed = (split[0], split[1], s2);
+                if (int.TryParse(split[2], out int y))
+                {
+                    parsed = (split[0], split[1], y);
+                }
                 else
+                {
                     throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));
+                }
                 break;
             default:
                 throw new ArgumentException($"Too many separator characters `{separator}` in text `{text}`", nameof(text));
         }
         return new ParsedText(parsed.Item1, parsed.Item2, parsed.Item3);
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry {EntryId} from corpus {CorpusName} contains a cross reference, which is not supported.")]
+    private partial void LogUnsupportedCorpus(int entryId, string corpusName);
 }

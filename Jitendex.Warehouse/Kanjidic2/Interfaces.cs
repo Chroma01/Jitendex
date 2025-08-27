@@ -16,12 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Warehouse.Jmdict;
+namespace Jitendex.Warehouse.Kanjidic2;
 
-internal interface IJmdictReader<TParent, TChild>
+internal interface ICorruptable
 {
-    Task<TChild> ReadAsync(TParent parent);
+    bool IsCorrupt { get; set; }
 }
-
-internal readonly struct NoParent {}
-internal readonly struct NoChild {}

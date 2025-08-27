@@ -59,7 +59,7 @@ internal static class JmdictServiceProvider
 
         // Top-level readers.
         .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypesReader>()
-        .AddTransient<IJmdictReader<NoParent, Entry>, EntryReader>()
+        .AddTransient<IJmdictReader<NoParent, Entry?>, EntryReader>()
 
         // Entry element readers.
         .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()
