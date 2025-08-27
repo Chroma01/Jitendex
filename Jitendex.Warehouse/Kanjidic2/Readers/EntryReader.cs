@@ -24,8 +24,9 @@ using Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers;
 
-internal class EntryReader
+internal partial class EntryReader
 {
+    private readonly ILogger<EntryReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly CodepointGroupReader _codepointGroupReader;
     private readonly DictionaryGroupReader _dictionaryGroupReader;
@@ -33,11 +34,10 @@ internal class EntryReader
     private readonly QueryCodeGroupReader _queryCodeGroupReader;
     private readonly RadicalGroupReader _radicalGroupReader;
     private readonly ReadingMeaningGroupReader _readingMeaningGroupReader;
-    private readonly ILogger<EntryReader> _logger;
 
-    public EntryReader(XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader, ILogger<EntryReader> logger) =>
-        (_xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader, _logger) =
-        (@xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader, @logger);
+    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) =>
+        (_logger, _xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
+        (@logger, @xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
 
     public async Task<Entry> ReadAsync()
     {
@@ -57,7 +57,7 @@ internal class EntryReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
+                    throw new Exception($"Unexpected XML text node found in `{Entry.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Entry.XmlTagName;
                     break;
@@ -76,7 +76,7 @@ internal class EntryReader
             case CodepointGroup.XmlTagName:
                 if (entry.CodepointGroup is not null)
                 {
-                    throw new Exception($"Character {entry.Character} has more than one codepoint group.");
+                    LogUnexpectedGroup(entry.Character, CodepointGroup.XmlTagName);
                 }
                 entry.CodepointGroup = await _codepointGroupReader.ReadAsync(entry);
                 entry.Codepoints = entry.CodepointGroup.Codepoints;
@@ -84,7 +84,7 @@ internal class EntryReader
             case DictionaryGroup.XmlTagName:
                 if (entry.DictionaryGroup is not null)
                 {
-                    throw new Exception($"Character {entry.Character} has more than one dictionary group.");
+                    LogUnexpectedGroup(entry.Character, DictionaryGroup.XmlTagName);
                 }
                 entry.DictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
                 entry.Dictionaries = entry.DictionaryGroup.Dictionaries;
@@ -92,7 +92,7 @@ internal class EntryReader
             case MiscGroup.XmlTagName:
                 if (entry.MiscGroup is not null)
                 {
-                    throw new Exception($"Character {entry.Character} has more than one misc group.");
+                    LogUnexpectedGroup(entry.Character, MiscGroup.XmlTagName);
                 }
                 entry.MiscGroup = await _miscGroupReader.ReadAsync(entry);
                 entry.Grade = entry.MiscGroup.Grade;
@@ -105,7 +105,7 @@ internal class EntryReader
             case QueryCodeGroup.XmlTagName:
                 if (entry.QueryCodeGroup is not null)
                 {
-                    throw new Exception($"Character {entry.Character} has more than one query code group.");
+                    LogUnexpectedGroup(entry.Character, QueryCodeGroup.XmlTagName);
                 }
                 entry.QueryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
                 entry.QueryCodes = entry.QueryCodeGroup.QueryCodes;
@@ -113,7 +113,7 @@ internal class EntryReader
             case RadicalGroup.XmlTagName:
                 if (entry.RadicalGroup is not null)
                 {
-                    throw new Exception($"Character {entry.Character} has more than one radical group.");
+                    LogUnexpectedGroup(entry.Character, RadicalGroup.XmlTagName);
                 }
                 entry.RadicalGroup = await _radicalGroupReader.ReadAsync(entry);
                 entry.Radicals = entry.RadicalGroup.Radicals;
@@ -121,7 +121,7 @@ internal class EntryReader
             case ReadingMeaningGroup.XmlTagName:
                 if (entry.ReadingMeaningGroup is not null)
                 {
-                    throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
+                    LogUnexpectedGroup(entry.Character, ReadingMeaningGroup.XmlTagName);
                 }
                 entry.ReadingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
                 entry.Readings = entry.ReadingMeaningGroup.ReadingMeaning?.Readings ?? [];
@@ -133,4 +133,9 @@ internal class EntryReader
                 throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message =
+        "Entry for character `{Character}` has more than one <{XmlTagName}> element.")]
+    private partial void LogUnexpectedGroup(string character, string xmlTagName);
+
 }
