@@ -29,7 +29,7 @@ internal class Service
     private readonly EntryReader _entryReader;
     private readonly ILogger<Service> _logger;
 
-    public Service(XmlReader @xmlReader, EntryReader @entryReader, ILogger<Service> @logger) =>
+    public Service(XmlReader xmlReader, EntryReader entryReader, ILogger<Service> logger) =>
         (_xmlReader, _entryReader, _logger) =
         (@xmlReader, @entryReader, @logger);
 
@@ -45,19 +45,6 @@ internal class Service
 
     private async IAsyncEnumerable<Entry> EnumerateEntriesAsync()
     {
-        // var path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
-        // await using var stream = File.OpenRead(path);
-
-        // var readerSettings = new XmlReaderSettings
-        // {
-        //     Async = true,
-        //     DtdProcessing = DtdProcessing.Parse,
-        //     MaxCharactersFromEntities = long.MaxValue,
-        //     MaxCharactersInDocument = long.MaxValue,
-        // };
-
-        // using var reader = XmlReader.Create(stream, readerSettings);
-
         while (await _xmlReader.ReadAsync())
         {
             switch (_xmlReader.NodeType)
