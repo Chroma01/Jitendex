@@ -19,20 +19,20 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagName))]
-public class RPriority
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagName))]
+public class KanjiFormInfo
 {
     public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required string TagName { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
 
     [ForeignKey(nameof(TagName))]
-    public virtual PriorityTag Tag { get; set; } = null!;
+    public virtual KanjiFormInfoTag Tag { get; set; } = null!;
 
-    internal const string XmlTagName = "re_pri";
+    internal const string XmlTagName = "ke_inf";
 }

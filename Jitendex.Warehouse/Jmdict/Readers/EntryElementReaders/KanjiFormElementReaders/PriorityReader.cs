@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal class KPriorityReader: IJmdictReader<KanjiForm, KPriority>
+internal class KPriorityReader: IJmdictReader<KanjiForm, KanjiFormPriority>
 {
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
@@ -34,11 +34,11 @@ internal class KPriorityReader: IJmdictReader<KanjiForm, KPriority>
         (_xmlReader, _docTypes, _logger) =
         (@xmlReader, @docTypes, @logger);
 
-    public async Task<KPriority> ReadAsync(KanjiForm kanjiForm)
+    public async Task<KanjiFormPriority> ReadAsync(KanjiForm kanjiForm)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
-        return new KPriority
+        return new KanjiFormPriority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,

@@ -27,11 +27,11 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 internal class ReadingReader : IJmdictReader<Entry, Reading>
 {
     private readonly XmlReader _xmlReader;
-    private readonly IJmdictReader<Reading, RInfo> _infoReader;
-    private readonly IJmdictReader<Reading, RPriority> _priorityReader;
+    private readonly IJmdictReader<Reading, ReadingInfo> _infoReader;
+    private readonly IJmdictReader<Reading, ReadingPriority> _priorityReader;
     private readonly ILogger<ReadingReader> _logger;
 
-    public ReadingReader(XmlReader xmlReader, IJmdictReader<Reading, RInfo> infoReader, IJmdictReader<Reading, RPriority> priorityReader, ILogger<ReadingReader> logger) =>
+    public ReadingReader(XmlReader xmlReader, IJmdictReader<Reading, ReadingInfo> infoReader, IJmdictReader<Reading, ReadingPriority> priorityReader, ILogger<ReadingReader> logger) =>
         (_xmlReader, _infoReader, _priorityReader, _logger) =
         (@xmlReader, @infoReader, @priorityReader, @logger);
 
@@ -79,11 +79,11 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
                 var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
-            case RInfo.XmlTagName:
+            case ReadingInfo.XmlTagName:
                 var readingInfo = await _infoReader.ReadAsync(reading);
                 reading.Infos.Add(readingInfo);
                 break;
-            case RPriority.XmlTagName:
+            case ReadingPriority.XmlTagName:
                 var priority = await _priorityReader.ReadAsync(reading);
                 reading.Priorities.Add(priority);
                 break;

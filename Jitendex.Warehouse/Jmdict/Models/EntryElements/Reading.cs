@@ -29,8 +29,8 @@ public class Reading
     public required int Order { get; set; }
     public required string Text { get; set; }
 
-    public virtual List<RInfo> Infos { get; set; } = [];
-    public virtual List<RPriority> Priorities { get; set; } = [];
+    public virtual List<ReadingInfo> Infos { get; set; } = [];
+    public virtual List<ReadingPriority> Priorities { get; set; } = [];
     public virtual List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]

@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal class KInfoReader : IJmdictReader<KanjiForm, KInfo>
+internal class KInfoReader : IJmdictReader<KanjiForm, KanjiFormInfo>
 {
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
@@ -34,11 +34,11 @@ internal class KInfoReader : IJmdictReader<KanjiForm, KInfo>
         (_xmlReader, _docTypes, _logger) =
         (@xmlReader, @docTypes, @logger);
 
-    public async Task<KInfo> ReadAsync(KanjiForm kanjiForm)
+    public async Task<KanjiFormInfo> ReadAsync(KanjiForm kanjiForm)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<KanjiFormInfoTag>(description);
-        return new KInfo
+        return new KanjiFormInfo
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,

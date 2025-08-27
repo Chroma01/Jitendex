@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal class RPriorityReader : IJmdictReader<Reading, RPriority>
+internal class RPriorityReader : IJmdictReader<Reading, ReadingPriority>
 {
     private readonly XmlReader _xmlReader;
     private readonly DocumentTypes _docTypes;
@@ -34,11 +34,11 @@ internal class RPriorityReader : IJmdictReader<Reading, RPriority>
         (_xmlReader, _docTypes, _logger) =
         (@xmlReader, @docTypes, @logger);
 
-    public async Task<RPriority> ReadAsync(Reading reading)
+    public async Task<ReadingPriority> ReadAsync(Reading reading)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
-        return new RPriority
+        return new ReadingPriority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
