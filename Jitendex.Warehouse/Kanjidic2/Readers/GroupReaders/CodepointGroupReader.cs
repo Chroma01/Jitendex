@@ -17,15 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class CodepointGroupReader
+internal class CodepointGroupReader
 {
-    public async static Task<CodepointGroup> ReadCodepointGroupAsync(this XmlReader reader, Entry entry)
+    private readonly XmlReader _xmlReader;
+    private readonly ILogger<CodepointGroupReader> _logger;
+
+    public CodepointGroupReader(XmlReader xmlReader, ILogger<CodepointGroupReader> logger) =>
+        (_xmlReader, _logger) =
+        (@xmlReader, @logger);
+
+    public async Task<CodepointGroup> ReadAsync(Entry entry)
     {
         var codepointGroup = new CodepointGroup
         {
@@ -34,40 +42,40 @@ internal static class CodepointGroupReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(codepointGroup);
+                    await ReadChildElementAsync(codepointGroup);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{CodepointGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == CodepointGroup.XmlTagName;
+                    exit = _xmlReader.Name == CodepointGroup.XmlTagName;
                     break;
             }
         }
         return codepointGroup;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, CodepointGroup group)
+    private async Task ReadChildElementAsync(CodepointGroup group)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case Codepoint.XmlTagName:
                 group.Codepoints.Add(new Codepoint
                 {
                     Character = group.Character,
                     Order = group.Codepoints.Count + 1,
-                    Type = reader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Type = _xmlReader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{CodepointGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{CodepointGroup.XmlTagName}`");
         }
     }
 }

@@ -17,15 +17,24 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class ReadingMeaningGroupReader
+internal class ReadingMeaningGroupReader
 {
-    public async static Task<ReadingMeaningGroup> ReadReadingMeaningGroupAsync(this XmlReader reader, Entry entry)
+    private readonly XmlReader _xmlReader;
+    private readonly ReadingMeaningReader _readingMeaningReader;
+    private readonly ILogger<ReadingMeaningGroupReader> _logger;
+
+    public ReadingMeaningGroupReader(XmlReader xmlReader, ReadingMeaningReader readingMeaningReader, ILogger<ReadingMeaningGroupReader> logger) =>
+        (_xmlReader, _readingMeaningReader, _logger) =
+        (@xmlReader, @readingMeaningReader, @logger);
+
+    public async Task<ReadingMeaningGroup> ReadAsync(Entry entry)
     {
         var group = new ReadingMeaningGroup
         {
@@ -35,32 +44,32 @@ internal static class ReadingMeaningGroupReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(group);
+                    await ReadChildElementAsync(group);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{ReadingMeaningGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == ReadingMeaningGroup.XmlTagName;
+                    exit = _xmlReader.Name == ReadingMeaningGroup.XmlTagName;
                     break;
             }
         }
         return group;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, ReadingMeaningGroup group)
+    private async Task ReadChildElementAsync(ReadingMeaningGroup group)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case ReadingMeaning.XmlTagName:
                 if (group.ReadingMeaning != null)
                     throw new Exception($"Reading-meaning group for character `{group.Character}` has more than one reading-meaning set.");
-                var readingMeaning = await reader.ReadReadingMeaningAsync(group);
+                var readingMeaning = await _readingMeaningReader.ReadAsync(group);
                 group.ReadingMeaning = readingMeaning;
                 break;
             case Nanori.XmlTagName:
@@ -68,12 +77,12 @@ internal static class ReadingMeaningGroupReader
                 {
                     Character = group.Character,
                     Order = group.Nanoris.Count + 1,
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{ReadingMeaningGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{ReadingMeaningGroup.XmlTagName}`");
         }
     }
 }

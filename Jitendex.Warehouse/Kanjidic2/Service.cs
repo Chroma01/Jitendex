@@ -17,14 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
 using Jitendex.Warehouse.Kanjidic2.Readers;
 
 namespace Jitendex.Warehouse.Kanjidic2;
 
-public class Service
+internal class Service
 {
-    public async static Task<List<Entry>> CreateEntriesAsync()
+    private readonly XmlReader _xmlReader;
+    private readonly EntryReader _entryReader;
+    private readonly ILogger<Service> _logger;
+
+    public Service(XmlReader @xmlReader, EntryReader @entryReader, ILogger<Service> @logger) =>
+        (_xmlReader, _entryReader, _logger) =
+        (@xmlReader, @entryReader, @logger);
+
+    public async Task<List<Entry>> CreateEntriesAsync()
     {
         var entries = new List<Entry>();
         await foreach (var entry in EnumerateEntriesAsync())
@@ -34,29 +43,29 @@ public class Service
         return entries;
     }
 
-    private async static IAsyncEnumerable<Entry> EnumerateEntriesAsync()
+    private async IAsyncEnumerable<Entry> EnumerateEntriesAsync()
     {
-        var path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
-        await using var stream = File.OpenRead(path);
+        // var path = Path.Combine("Resources", "edrdg", "kanjidic2.xml");
+        // await using var stream = File.OpenRead(path);
 
-        var readerSettings = new XmlReaderSettings
+        // var readerSettings = new XmlReaderSettings
+        // {
+        //     Async = true,
+        //     DtdProcessing = DtdProcessing.Parse,
+        //     MaxCharactersFromEntities = long.MaxValue,
+        //     MaxCharactersInDocument = long.MaxValue,
+        // };
+
+        // using var reader = XmlReader.Create(stream, readerSettings);
+
+        while (await _xmlReader.ReadAsync())
         {
-            Async = true,
-            DtdProcessing = DtdProcessing.Parse,
-            MaxCharactersFromEntities = long.MaxValue,
-            MaxCharactersInDocument = long.MaxValue,
-        };
-
-        using var reader = XmlReader.Create(stream, readerSettings);
-
-        while (await reader.ReadAsync())
-        {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    if (reader.Name == Entry.XmlTagName)
+                    if (_xmlReader.Name == Entry.XmlTagName)
                     {
-                        var entry = await reader.ReadEntryAsync();
+                        var entry = await _entryReader.ReadAsync();
                         yield return entry;
                     }
                     break;

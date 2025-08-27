@@ -17,15 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class DictionaryGroupReader
+internal class DictionaryGroupReader
 {
-    public async static Task<DictionaryGroup> ReadDictionaryGroupAsync(this XmlReader reader, Entry entry)
+    private readonly XmlReader _xmlReader;
+    private readonly ILogger<DictionaryGroupReader> _logger;
+
+    public DictionaryGroupReader(XmlReader xmlReader, ILogger<DictionaryGroupReader> logger) =>
+        (_xmlReader, _logger) =
+        (@xmlReader, @logger);
+
+    public async Task<DictionaryGroup> ReadAsync(Entry entry)
     {
         var dicNumberGroup = new DictionaryGroup
         {
@@ -34,44 +42,44 @@ internal static class DictionaryGroupReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(dicNumberGroup);
+                    await ReadChildElementAsync(dicNumberGroup);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{DictionaryGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == DictionaryGroup.XmlTagName;
+                    exit = _xmlReader.Name == DictionaryGroup.XmlTagName;
                     break;
             }
         }
         return dicNumberGroup;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, DictionaryGroup group)
+    private async Task ReadChildElementAsync(DictionaryGroup group)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case Dictionary.XmlTagName:
-                var volume = reader.GetAttribute("m_vol");
-                var page = reader.GetAttribute("m_page");
+                var volume = _xmlReader.GetAttribute("m_vol");
+                var page = _xmlReader.GetAttribute("m_page");
                 group.Dictionaries.Add(new Dictionary
                 {
                     Character = group.Character,
                     Order = group.Dictionaries.Count + 1,
-                    Type = reader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
+                    Type = _xmlReader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
                     Volume = volume != null ? int.Parse(volume) : null,
                     Page = page != null ? int.Parse(page) : null,
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{DictionaryGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{DictionaryGroup.XmlTagName}`");
         }
     }
 }

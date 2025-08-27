@@ -17,14 +17,22 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class ReadingMeaningReader
+internal class ReadingMeaningReader
 {
-    public async static Task<ReadingMeaning> ReadReadingMeaningAsync(this XmlReader reader, ReadingMeaningGroup group)
+    private readonly XmlReader _xmlReader;
+    private readonly ILogger<ReadingMeaningReader> _logger;
+
+    public ReadingMeaningReader(XmlReader xmlReader, ILogger<ReadingMeaningReader> logger) =>
+        (_xmlReader, _logger) =
+        (@xmlReader, @logger);
+
+    public async Task<ReadingMeaning> ReadAsync(ReadingMeaningGroup group)
     {
         var readingMeaning = new ReadingMeaning
         {
@@ -33,35 +41,35 @@ internal static class ReadingMeaningReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(readingMeaning);
+                    await ReadChildElementAsync(readingMeaning);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{ReadingMeaning.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == ReadingMeaning.XmlTagName;
+                    exit = _xmlReader.Name == ReadingMeaning.XmlTagName;
                     break;
             }
         }
         return readingMeaning;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, ReadingMeaning readingMeaning)
+    private async Task ReadChildElementAsync(ReadingMeaning readingMeaning)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case Reading.XmlTagName:
                 readingMeaning.Readings.Add(new Reading
                 {
                     Character = readingMeaning.Character,
                     Order = readingMeaning.Readings.Count + 1,
-                    Type = reader.GetAttribute("r_type") ?? string.Empty,
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Type = _xmlReader.GetAttribute("r_type") ?? string.Empty,
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = readingMeaning.Entry,
                 });
                 break;
@@ -70,8 +78,8 @@ internal static class ReadingMeaningReader
                 {
                     Character = readingMeaning.Character,
                     Order = readingMeaning.Meanings.Count + 1,
-                    Language = reader.GetAttribute("m_lang") ?? "en",
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Language = _xmlReader.GetAttribute("m_lang") ?? "en",
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = readingMeaning.Entry,
                 };
                 if (meaning.Language != "en")
@@ -86,7 +94,7 @@ internal static class ReadingMeaningReader
                 readingMeaning.Meanings.Add(meaning);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{ReadingMeaning.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{ReadingMeaning.XmlTagName}`");
         }
     }
 }

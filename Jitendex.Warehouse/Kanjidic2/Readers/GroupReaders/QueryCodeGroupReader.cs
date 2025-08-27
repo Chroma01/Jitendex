@@ -17,15 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class QueryCodeGroupReader
+internal class QueryCodeGroupReader
 {
-    public async static Task<QueryCodeGroup> ReadQueryCodeGroupAsync(this XmlReader reader, Entry entry)
+    private readonly XmlReader _xmlReader;
+    private readonly ILogger<QueryCodeGroupReader> _logger;
+
+    public QueryCodeGroupReader(XmlReader xmlReader, ILogger<QueryCodeGroupReader> logger) =>
+        (_xmlReader, _logger) =
+        (@xmlReader, @logger);
+
+    public async Task<QueryCodeGroup> ReadAsync(Entry entry)
     {
         var queryCodeGroup = new QueryCodeGroup
         {
@@ -34,41 +42,41 @@ internal static class QueryCodeGroupReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(queryCodeGroup);
+                    await ReadChildElementAsync(queryCodeGroup);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{QueryCodeGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == QueryCodeGroup.XmlTagName;
+                    exit = _xmlReader.Name == QueryCodeGroup.XmlTagName;
                     break;
             }
         }
         return queryCodeGroup;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, QueryCodeGroup group)
+    private async Task ReadChildElementAsync(QueryCodeGroup group)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case QueryCode.XmlTagName:
                 group.QueryCodes.Add(new QueryCode
                 {
                     Character = group.Character,
                     Order = group.QueryCodes.Count + 1,
-                    Type = reader.GetAttribute("qc_type") ?? throw new Exception($"Character `{group.Character}` missing query code type"),
-                    Misclassification = reader.GetAttribute("skip_misclass"),
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Type = _xmlReader.GetAttribute("qc_type") ?? throw new Exception($"Character `{group.Character}` missing query code type"),
+                    Misclassification = _xmlReader.GetAttribute("skip_misclass"),
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{QueryCodeGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{QueryCodeGroup.XmlTagName}`");
         }
     }
 }

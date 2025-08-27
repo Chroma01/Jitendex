@@ -42,7 +42,7 @@ internal class Service
             entries.Add(entry);
         }
 
-        // Post-processing
+        // Post-processing of all entries.
         _referenceSequencer.FixCrossReferences(entries);
 
         return entries;

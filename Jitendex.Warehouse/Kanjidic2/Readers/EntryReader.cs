@@ -20,12 +20,26 @@ using System.Xml;
 using Jitendex.Warehouse.Kanjidic2.Models;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
 using Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
+using Microsoft.Extensions.Logging;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers;
 
-internal static class EntryReader
+internal class EntryReader
 {
-    public async static Task<Entry> ReadEntryAsync(this XmlReader reader)
+    private readonly XmlReader _xmlReader;
+    private readonly CodepointGroupReader _codepointGroupReader;
+    private readonly DictionaryGroupReader _dictionaryGroupReader;
+    private readonly MiscGroupReader _miscGroupReader;
+    private readonly QueryCodeGroupReader _queryCodeGroupReader;
+    private readonly RadicalGroupReader _radicalGroupReader;
+    private readonly ReadingMeaningGroupReader _readingMeaningGroupReader;
+    private readonly ILogger<EntryReader> _logger;
+
+    public EntryReader(XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader, ILogger<EntryReader> logger) =>
+        (_xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader, _logger) =
+        (@xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader, @logger);
+
+    public async Task<Entry> ReadAsync()
     {
         var entry = new Entry
         {
@@ -34,47 +48,47 @@ internal static class EntryReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(entry);
+                    await ReadChildElementAsync(entry);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{Entry.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == Entry.XmlTagName;
+                    exit = _xmlReader.Name == Entry.XmlTagName;
                     break;
             }
         }
         return entry;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, Entry entry)
+    private async Task ReadChildElementAsync(Entry entry)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case "literal":
-                entry.Character = await reader.ReadElementContentAsStringAsync();
+                entry.Character = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
             case CodepointGroup.XmlTagName:
                 if (entry.Codepoints.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one codepoint group.");
-                var codepointGroup = await reader.ReadCodepointGroupAsync(entry);
+                var codepointGroup = await _codepointGroupReader.ReadAsync(entry);
                 entry.Codepoints = codepointGroup.Codepoints;
                 break;
             case RadicalGroup.XmlTagName:
                 if (entry.Radicals.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one radical group.");
-                var radicalGroup = await reader.ReadRadicalGroupAsync(entry);
+                var radicalGroup = await _radicalGroupReader.ReadAsync(entry);
                 entry.Radicals = radicalGroup.Radicals;
                 break;
             case ReadingMeaningGroup.XmlTagName:
                 if (entry.Readings.Count != 0 || entry.Meanings.Count != 0 || entry.Nanoris.Count != 0 || entry.IsKokuji)
                     throw new Exception($"Character {entry.Character} has more than one reading/meaning group.");
-                var readingMeaningGroup = await reader.ReadReadingMeaningGroupAsync(entry);
+                var readingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
                 entry.Readings = readingMeaningGroup.ReadingMeaning?.Readings ?? [];
                 entry.Meanings = readingMeaningGroup.ReadingMeaning?.Meanings ?? [];
                 entry.IsKokuji = readingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
@@ -85,7 +99,7 @@ internal static class EntryReader
                     throw new Exception($"Character {entry.Character} has more than one misc group.");
                 if (entry.StrokeCounts.Count != 0 || entry.Variants.Count != 0 || entry.RadicalNames.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one misc group.");
-                var miscGroup = await reader.ReadMiscGroupAsync(entry);
+                var miscGroup = await _miscGroupReader.ReadAsync(entry);
                 entry.Grade = miscGroup.Grade;
                 entry.Frequency = miscGroup.Frequency;
                 entry.JlptLevel = miscGroup.JlptLevel;
@@ -96,17 +110,17 @@ internal static class EntryReader
             case DictionaryGroup.XmlTagName:
                 if (entry.Dictionaries.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one dictionary group.");
-                var dictionaryGroup = await reader.ReadDictionaryGroupAsync(entry);
+                var dictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
                 entry.Dictionaries = dictionaryGroup.Dictionaries;
                 break;
             case QueryCodeGroup.XmlTagName:
                 if (entry.QueryCodes.Count != 0)
                     throw new Exception($"Character {entry.Character} has more than one query code group.");
-                var queryCodeGroup = await reader.ReadQueryCodeGroupAsync(entry);
+                var queryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
                 entry.QueryCodes = queryCodeGroup.QueryCodes;
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{Entry.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
         }
     }
 }

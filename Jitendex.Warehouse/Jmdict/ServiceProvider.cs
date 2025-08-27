@@ -35,12 +35,19 @@ namespace Jitendex.Warehouse.Jmdict;
 
 internal record FilePaths(string XmlFile, string XRefCache);
 
-internal static class JmdictServiceCollection
+internal static class JmdictServiceProvider
 {
-    public static IServiceCollection AddJmdictServices(this IServiceCollection services, FilePaths paths) =>
-        services.AddTransient<Service>()
+    public static Service GetService(FilePaths paths) => new ServiceCollection()
+        .AddLogging(builder =>
+            builder.AddSimpleConsole(options =>
+            {
+                options.IncludeScopes = true;
+                options.SingleLine = true;
+                options.TimestampFormat = "HH:mm:ss ";
+            }))
 
         // Global XML file reader.
+        .AddTransient<Resources>()
         .AddSingleton(provider =>
         {
             var resources = provider.GetRequiredService<Resources>();
@@ -84,5 +91,10 @@ internal static class JmdictServiceCollection
             var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
             var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
             return new(cachedIds, logger);
-        });
+        })
+
+        // Build and return the Jmdict service.
+        .AddTransient<Service>()
+        .BuildServiceProvider()
+        .GetRequiredService<Service>();
 }

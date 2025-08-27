@@ -17,9 +17,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Jitendex.Warehouse.Jmdict;
+using Jitendex.Warehouse.Kanjidic2;
 
 namespace Jitendex.Warehouse;
 
@@ -30,39 +29,43 @@ public class Program
         var sw = new Stopwatch();
         sw.Start();
 
-        var serviceCollection = new ServiceCollection()
-            .AddLogging(builder =>
-                builder.AddSimpleConsole(options =>
-                {
-                    options.IncludeScopes = true;
-                    options.SingleLine = true;
-                    options.TimestampFormat = "HH:mm:ss ";
-                }))
-            .AddTransient<Resources>();
+        await RunKanjidic2();
+        await RunJmdict();
 
+        Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
+    }
+
+    private static async Task RunKanjidic2()
+    {
+        var kanjidic2Paths = new Kanjidic2.FilePaths
+        (
+            XmlFile: Path.Combine("Resources", "edrdg", "kanjidic2.xml")
+        );
+
+        var kanjidic2Service = Kanjidic2ServiceProvider.GetService(kanjidic2Paths);
+        var kanjidic2Entries = await kanjidic2Service.CreateEntriesAsync();
+
+        var db = new Kanjidic2Context();
+        await BuildDb.InitializeAsync(db);
+        await db.Entries.AddRangeAsync(kanjidic2Entries);
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task RunJmdict()
+    {
         var jmdictPaths = new Jmdict.FilePaths
         (
             XmlFile: Path.Combine("Resources", "edrdg", "JMdict_e_examp"),
             XRefCache: Path.Combine("Resources", "jmdict", "cross_reference_sequences.json")
         );
-        serviceCollection.AddJmdictServices(jmdictPaths);
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-        await RunJmdict(serviceProvider);
-
-        var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
-    }
-
-    private static async Task RunJmdict(ServiceProvider serviceProvider)
-    {
-        var jmdictService = serviceProvider.GetRequiredService<Jmdict.Service>();
+        var jmdictService = JmdictServiceProvider.GetService(jmdictPaths);
         var jmdictEntries = await jmdictService.CreateEntriesAsync();
 
-        var jmdictDb = new JmdictContext();
-        await BuildDb.InitializeAsync(jmdictDb);
-        await jmdictDb.Entries.AddRangeAsync(jmdictEntries);
-        await jmdictDb.SaveChangesAsync();
+        var db = new JmdictContext();
+        await BuildDb.InitializeAsync(db);
+        await db.Entries.AddRangeAsync(jmdictEntries);
+        await db.SaveChangesAsync();
     }
 }
 

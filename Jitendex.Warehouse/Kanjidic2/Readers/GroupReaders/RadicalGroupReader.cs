@@ -17,15 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class RadicalGroupReader
+internal class RadicalGroupReader
 {
-    public async static Task<RadicalGroup> ReadRadicalGroupAsync(this XmlReader reader, Entry entry)
+    private readonly XmlReader _xmlReader;
+    private readonly ILogger<RadicalGroupReader> _logger;
+
+    public RadicalGroupReader(XmlReader xmlReader, ILogger<RadicalGroupReader> logger) =>
+        (_xmlReader, _logger) =
+        (@xmlReader, @logger);
+
+    public async Task<RadicalGroup> ReadAsync(Entry entry)
     {
         var radicalGroup = new RadicalGroup
         {
@@ -34,40 +42,40 @@ internal static class RadicalGroupReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(radicalGroup);
+                    await ReadChildElementAsync(radicalGroup);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{RadicalGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == RadicalGroup.XmlTagName;
+                    exit = _xmlReader.Name == RadicalGroup.XmlTagName;
                     break;
             }
         }
         return radicalGroup;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, RadicalGroup group)
+    private async Task ReadChildElementAsync(RadicalGroup group)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case Radical.XmlTagName:
                 group.Radicals.Add(new Radical
                 {
                     Character = group.Character,
                     Order = group.Radicals.Count + 1,
-                    Type = reader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
-                    Number = int.Parse(await reader.ReadElementContentAsStringAsync()),
+                    Type = _xmlReader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
+                    Number = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
                     Entry = group.Entry,
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{RadicalGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{RadicalGroup.XmlTagName}`");
         }
     }
 }

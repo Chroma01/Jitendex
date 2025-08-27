@@ -17,15 +17,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
+using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal static class MiscGroupReader
+internal class MiscGroupReader
 {
-    public async static Task<MiscGroup> ReadMiscGroupAsync(this XmlReader reader, Entry entry)
+    private readonly XmlReader _xmlReader;
+    private readonly ILogger<MiscGroupReader> _logger;
+
+    public MiscGroupReader(XmlReader xmlReader, ILogger<MiscGroupReader> logger) =>
+        (_xmlReader, _logger) =
+        (@xmlReader, @logger);
+
+    public async Task<MiscGroup> ReadAsync(Entry entry)
     {
         var miscGroup = new MiscGroup
         {
@@ -34,43 +42,43 @@ internal static class MiscGroupReader
         };
 
         var exit = false;
-        while (!exit && await reader.ReadAsync())
+        while (!exit && await _xmlReader.ReadAsync())
         {
-            switch (reader.NodeType)
+            switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await reader.ReadChildElementAsync(miscGroup);
+                    await ReadChildElementAsync(miscGroup);
                     break;
                 case XmlNodeType.Text:
-                    var text = await reader.GetValueAsync();
+                    var text = await _xmlReader.GetValueAsync();
                     throw new Exception($"Unexpected text node found in `{MiscGroup.XmlTagName}`: `{text}`");
                 case XmlNodeType.EndElement:
-                    exit = reader.Name == MiscGroup.XmlTagName;
+                    exit = _xmlReader.Name == MiscGroup.XmlTagName;
                     break;
             }
         }
         return miscGroup;
     }
 
-    private async static Task ReadChildElementAsync(this XmlReader reader, MiscGroup group)
+    private async Task ReadChildElementAsync(MiscGroup group)
     {
-        switch (reader.Name)
+        switch (_xmlReader.Name)
         {
             case "grade":
-                group.Grade = int.Parse(await reader.ReadElementContentAsStringAsync());
+                group.Grade = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
                 break;
             case "freq":
-                group.Frequency = int.Parse(await reader.ReadElementContentAsStringAsync());
+                group.Frequency = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
                 break;
             case "jlpt":
-                group.JlptLevel = int.Parse(await reader.ReadElementContentAsStringAsync());
+                group.JlptLevel = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
                 break;
             case StrokeCount.XmlTagName:
                 group.StrokeCounts.Add(new StrokeCount
                 {
                     Character = group.Character,
                     Order = group.StrokeCounts.Count + 1,
-                    Value = int.Parse(await reader.ReadElementContentAsStringAsync()),
+                    Value = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
                     Entry = group.Entry,
                 });
                 break;
@@ -79,8 +87,8 @@ internal static class MiscGroupReader
                 {
                     Character = group.Character,
                     Order = group.Variants.Count + 1,
-                    Type = reader.GetAttribute("var_type") ?? throw new Exception($"Character `{group.Character}` missing variant type"),
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Type = _xmlReader.GetAttribute("var_type") ?? throw new Exception($"Character `{group.Character}` missing variant type"),
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
                 break;
@@ -89,12 +97,12 @@ internal static class MiscGroupReader
                 {
                     Character = group.Character,
                     Order = group.RadicalNames.Count + 1,
-                    Text = await reader.ReadElementContentAsStringAsync(),
+                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
                     Entry = group.Entry,
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{reader.Name}` found in element `{MiscGroup.XmlTagName}`");
+                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{MiscGroup.XmlTagName}`");
         }
     }
 }
