@@ -121,17 +121,20 @@ internal partial class ReferenceSequencer
 
     private static IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
     {
-        foreach (var reading in entry.Readings)
-        {
-            yield return new ReferenceText(reading.Text, null);
-        }
         foreach (var kanjiForm in entry.KanjiForms)
         {
-            yield return new ReferenceText(kanjiForm.Text, null);
             foreach (var reading in entry.Readings)
             {
                 yield return new ReferenceText(kanjiForm.Text, reading.Text);
             }
+            // References in Jmdict sometimes display only the kanji form without a reading.
+            yield return new ReferenceText(kanjiForm.Text, null);
+        }
+        // It is also possible for references to only show the reading,
+        // even if valid kanji forms are available.
+        foreach (var reading in entry.Readings)
+        {
+            yield return new ReferenceText(reading.Text, null);
         }
     }
 
@@ -180,9 +183,8 @@ internal partial class ReferenceSequencer
                 referenceText = new ReferenceText(kanjiForm.Text, bridge.Reading.Text);
                 map[referenceText] = new SpellingId(bridge.Reading.Order, kanjiForm.Order);
             }
-
-            // Sometimes references in Jmdict display only the kanji form
-            // without a reading. In these cases, we'll assume the first reading.
+            // Sometimes references in Jmdict display only the kanji form without
+            // a reading. In these cases, we'll map to the first valid reading.
             referenceText = new ReferenceText(kanjiForm.Text, null);
             map[referenceText] = new SpellingId
             (
@@ -190,7 +192,6 @@ internal partial class ReferenceSequencer
                 kanjiForm.Order
             );
         }
-
         // It is also possible for references to only show the reading,
         // even if valid kanji forms are available.
         foreach (var reading in entry.Readings.Where(r => !r.IsHidden()))
@@ -198,24 +199,22 @@ internal partial class ReferenceSequencer
             referenceText = new ReferenceText(reading.Text, null);
             map[referenceText] = new SpellingId(reading.Order, null);
         }
-
         return map;
     }
 
-    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message =
-        "Reference spelling `{Spelling}` in entry {EntryId} is invalid for referenced entry {TargetEntryId}")]
+    [LoggerMessage(LogLevel.Warning,
+    "Reference spelling `{Spelling}` in entry {EntryId} is invalid for referenced entry {TargetEntryId}")]
     private partial void LogInvalidSpelling(string spelling, int entryId, int targetEntryId);
 
-    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message =
-        "Reference `{CacheKey}` could refer to {Count} possible entries: {EntryIds}")]
+    [LoggerMessage(LogLevel.Warning,
+    "Reference `{CacheKey}` could refer to {Count} possible entries: {EntryIds}")]
     private partial void LogAmbiguousReference(string cacheKey, int count, int[] entryIds);
 
-    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message =
-        "Cached ID `{TargetEntryId}` is invalid for reference `{CacheKey}`")]
+    [LoggerMessage(LogLevel.Warning,
+    "Cached ID `{TargetEntryId}` is invalid for reference `{CacheKey}`")]
     private partial void LogInvalidCacheId(string cacheKey, int targetEntryId);
 
-    [LoggerMessage(EventId = 4, Level = LogLevel.Error, Message =
-        "Reference `{CacheKey}` refers to an entry that does not exist.")]
+    [LoggerMessage(LogLevel.Warning,
+    "Reference `{CacheKey}` refers to an entry that does not exist.")]
     private partial void LogImpossibleReference(string cacheKey);
-
 }
