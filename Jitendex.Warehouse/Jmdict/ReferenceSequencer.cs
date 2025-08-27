@@ -49,12 +49,21 @@ internal partial class ReferenceSequencer
         foreach (var xref in allCrossReferences)
         {
             var key = new ReferenceText(xref.RefText1, xref.RefText2);
-            var possibleTargetEntries = referenceTextToEntries[key]
-                .Where(e =>
-                    e.Id != xref.EntryId &&  // Entries cannot reference themselves.
-                    e.CorpusId == xref.Sense.Entry.CorpusId &&  // Assume references are within same corpus.
-                    e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
-                .ToList();
+            List<Entry> possibleTargetEntries;
+
+            if (referenceTextToEntries.TryGetValue(key, out List<Entry>? keyEntries))
+            {
+                possibleTargetEntries = keyEntries
+                    .Where(e =>
+                        e.Id != xref.EntryId &&  // Entries cannot reference themselves.
+                        e.CorpusId == xref.Sense.Entry.CorpusId &&  // Assume references are within same corpus.
+                        e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
+                    .ToList();
+            }
+            else
+            {
+                possibleTargetEntries = [];
+            }
 
             var targetEntry = FindTargetEntry(possibleTargetEntries, xref.RawKey()) ?? entries.Last();
 
@@ -152,8 +161,8 @@ internal partial class ReferenceSequencer
 
         LogAmbiguousReference
         (
-            possibleTargetEntries.Count,
             cacheKey,
+            possibleTargetEntries.Count,
             possibleTargetEntries.Select(e => e.Id).ToArray()
         );
         return possibleTargetEntries.First();
@@ -166,33 +175,40 @@ internal partial class ReferenceSequencer
 
         foreach (var kanjiForm in entry.KanjiForms.Where(k => !k.IsHidden()))
         {
+            foreach (var bridge in kanjiForm.ReadingBridges)
+            {
+                referenceText = new ReferenceText(kanjiForm.Text, bridge.Reading.Text);
+                map[referenceText] = new SpellingId(bridge.Reading.Order, kanjiForm.Order);
+            }
+
+            // Sometimes references in Jmdict display only the kanji form
+            // without a reading. In these cases, we'll assume the first reading.
             referenceText = new ReferenceText(kanjiForm.Text, null);
             map[referenceText] = new SpellingId
             (
                 kanjiForm.ReadingBridges.First().Reading.Order,
                 kanjiForm.Order
             );
-            foreach (var bridge in kanjiForm.ReadingBridges)
-            {
-                referenceText = new ReferenceText(kanjiForm.Text, bridge.Reading.Text);
-                map[referenceText] = new SpellingId(bridge.Reading.Order, kanjiForm.Order);
-            }
         }
+
+        // It is also possible for references to only show the reading,
+        // even if valid kanji forms are available.
         foreach (var reading in entry.Readings.Where(r => !r.IsHidden()))
         {
             referenceText = new ReferenceText(reading.Text, null);
             map[referenceText] = new SpellingId(reading.Order, null);
         }
+
         return map;
     }
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message =
-        "Spelling `{Spelling}` in entry {EntryId} is invalid for entry {TargetEntryId}")]
+        "Reference spelling `{Spelling}` in entry {EntryId} is invalid for referenced entry {TargetEntryId}")]
     private partial void LogInvalidSpelling(string spelling, int entryId, int targetEntryId);
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message =
         "Reference `{CacheKey}` could refer to {Count} possible entries: {EntryIds}")]
-    private partial void LogAmbiguousReference(int count, string cacheKey, int[] entryIds);
+    private partial void LogAmbiguousReference(string cacheKey, int count, int[] entryIds);
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message =
         "Cached ID `{TargetEntryId}` is invalid for reference `{CacheKey}`")]
