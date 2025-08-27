@@ -34,7 +34,7 @@ internal class EntryReader : IJmdictReader<NoParent, Entry>
 
     public EntryReader(XmlReader xmlReader, DocumentTypes docTypes, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader, ILogger<EntryReader> logger) =>
         (_xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader, _logger) =
-        (xmlReader, docTypes, kanjiFormReader, readingReader, senseReader, logger);
+        (@xmlReader, @docTypes, @kanjiFormReader, @readingReader, @senseReader, @logger);
 
     public async Task<Entry> ReadAsync(NoParent noParent)
     {

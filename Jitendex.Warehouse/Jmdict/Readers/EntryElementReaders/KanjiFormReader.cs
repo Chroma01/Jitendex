@@ -33,7 +33,7 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
 
     public KanjiFormReader(XmlReader xmlReader, IJmdictReader<KanjiForm, KInfo> infoReader, IJmdictReader<KanjiForm, KPriority> priorityReader, ILogger<KanjiFormReader> logger) =>
         (_xmlReader, _infoReader, _priorityReader, _logger) =
-        (xmlReader, infoReader, priorityReader, logger);
+        (@xmlReader, @infoReader, @priorityReader, @logger);
 
     public async Task<KanjiForm> ReadAsync(Entry entry)
     {

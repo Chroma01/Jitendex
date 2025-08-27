@@ -30,12 +30,9 @@ internal class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<CrossReferenceReader> _logger;
 
-    public CrossReferenceReader(XmlReader reader, DocumentTypes docTypes, ILogger<CrossReferenceReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public CrossReferenceReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<CrossReferenceReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     private record ParsedText(string Text1, string? Text2, int SenseOrder);
 

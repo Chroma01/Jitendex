@@ -30,12 +30,9 @@ internal class MiscReader : IJmdictReader<Sense, Misc>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<MiscReader> _logger;
 
-    public MiscReader(XmlReader reader, DocumentTypes docTypes, ILogger<MiscReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public MiscReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<MiscReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<Misc> ReadAsync(Sense sense)
     {

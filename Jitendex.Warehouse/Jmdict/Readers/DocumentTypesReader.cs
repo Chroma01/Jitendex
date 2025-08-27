@@ -31,7 +31,7 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
 
     public DocumentTypesReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<DocumentTypesReader> logger) =>
         (_xmlReader, _docTypes, _logger) =
-        (xmlReader, docTypes, logger);
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<NoChild> ReadAsync(NoParent noParent)
     {

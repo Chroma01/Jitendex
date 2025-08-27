@@ -28,7 +28,7 @@ internal class ReferenceSequencer
 
     public ReferenceSequencer(Dictionary<string, int> disambiguationCache, ILogger<ReferenceSequencer> logger) =>
         (_disambiguationCache, _logger) =
-        (disambiguationCache, logger);
+        (@disambiguationCache, @logger);
 
     private record ReferenceText(string Text1, string? Text2)
     {

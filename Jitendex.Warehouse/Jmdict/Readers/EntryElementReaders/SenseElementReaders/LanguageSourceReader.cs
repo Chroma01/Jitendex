@@ -30,12 +30,9 @@ internal class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<LanguageSourceReader> _logger;
 
-    public LanguageSourceReader(XmlReader reader, DocumentTypes docTypes, ILogger<LanguageSourceReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public LanguageSourceReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<LanguageSourceReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<LanguageSource> ReadAsync(Sense sense)
     {

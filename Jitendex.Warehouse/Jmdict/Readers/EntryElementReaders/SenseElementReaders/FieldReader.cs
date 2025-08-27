@@ -30,12 +30,9 @@ internal class FieldReader : IJmdictReader<Sense, Field>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<FieldReader> _logger;
 
-    public FieldReader(XmlReader reader, DocumentTypes docTypes, ILogger<FieldReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public FieldReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<FieldReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<Field> ReadAsync(Sense sense)
     {

@@ -30,12 +30,9 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<GlossReader> _logger;
 
-    public GlossReader(XmlReader reader, DocumentTypes docTypes, ILogger<GlossReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public GlossReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<GlossReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<Gloss> ReadAsync(Sense sense)
     {

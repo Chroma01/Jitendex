@@ -32,7 +32,7 @@ internal class KInfoReader : IJmdictReader<KanjiForm, KInfo>
 
     public KInfoReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<KInfoReader> logger) =>
         (_xmlReader, _docTypes, _logger) =
-        (xmlReader, docTypes, logger);
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<KInfo> ReadAsync(KanjiForm kanjiForm)
     {

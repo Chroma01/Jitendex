@@ -32,7 +32,7 @@ internal class Service
 
     public Service(XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<NoParent, Entry> entryReader, ReferenceSequencer referenceSequencer, ILogger<Service> logger) =>
         (_xmlReader, _documentReader, _entryReader, _referenceSequencer, _logger) =
-        (xmlReader, documentReader, entryReader, referenceSequencer, logger);
+        (@xmlReader, @documentReader, @entryReader, @referenceSequencer, @logger);
 
     public async Task<List<Entry>> CreateEntriesAsync()
     {

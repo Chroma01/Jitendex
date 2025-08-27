@@ -32,7 +32,7 @@ internal class RInfoReader : IJmdictReader<Reading, RInfo>
 
     public RInfoReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<RInfoReader> logger) =>
         (_xmlReader, _docTypes, _logger) =
-        (xmlReader, docTypes, logger);
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<RInfo> ReadAsync(Reading reading)
     {

@@ -30,12 +30,9 @@ internal class DialectReader : IJmdictReader<Sense, Dialect>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<DialectReader> _logger;
 
-    public DialectReader(XmlReader reader, DocumentTypes docTypes, ILogger<DialectReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public DialectReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<DialectReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<Dialect> ReadAsync(Sense sense)
     {

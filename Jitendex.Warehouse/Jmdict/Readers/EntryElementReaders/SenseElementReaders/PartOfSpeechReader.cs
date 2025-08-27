@@ -30,12 +30,9 @@ internal class PartOfSpeechReader : IJmdictReader<Sense, PartOfSpeech>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<PartOfSpeechReader> _logger;
 
-    public PartOfSpeechReader(XmlReader reader, DocumentTypes docTypes, ILogger<PartOfSpeechReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public PartOfSpeechReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<PartOfSpeechReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<PartOfSpeech> ReadAsync(Sense sense)
     {

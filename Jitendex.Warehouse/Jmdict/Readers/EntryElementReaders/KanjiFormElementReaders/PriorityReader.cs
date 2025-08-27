@@ -32,7 +32,7 @@ internal class KPriorityReader: IJmdictReader<KanjiForm, KPriority>
 
     public KPriorityReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<KPriorityReader> logger) =>
         (_xmlReader, _docTypes, _logger) =
-        (xmlReader, docTypes, logger);
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<KPriority> ReadAsync(KanjiForm kanjiForm)
     {

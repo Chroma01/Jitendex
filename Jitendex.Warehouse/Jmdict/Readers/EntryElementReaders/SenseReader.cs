@@ -39,7 +39,7 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
 
     public SenseReader(XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader, ILogger<SenseReader> logger) =>
         (_xmlReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader, _logger) =
-        (xmlReader, crossReferenceReader, dialectReader, exampleReader, fieldReader, glossReader, languageSourceReader, miscReader, partOfSpeechReader, logger);
+        (@xmlReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader, @logger);
 
     public async Task<Sense> ReadAsync(Entry entry)
     {

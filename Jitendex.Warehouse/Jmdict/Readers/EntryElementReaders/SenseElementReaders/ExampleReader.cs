@@ -30,12 +30,9 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
     private readonly DocumentTypes _docTypes;
     private readonly ILogger<ExampleReader> _logger;
 
-    public ExampleReader(XmlReader reader, DocumentTypes docTypes, ILogger<ExampleReader> logger)
-    {
-        _xmlReader = reader;
-        _docTypes = docTypes;
-        _logger = logger;
-    }
+    public ExampleReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<ExampleReader> logger) =>
+        (_xmlReader, _docTypes, _logger) =
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<Example> ReadAsync(Sense sense)
     {

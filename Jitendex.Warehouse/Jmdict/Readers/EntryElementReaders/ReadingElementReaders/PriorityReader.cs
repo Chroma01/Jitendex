@@ -32,7 +32,7 @@ internal class RPriorityReader : IJmdictReader<Reading, RPriority>
 
     public RPriorityReader(XmlReader xmlReader, DocumentTypes docTypes, ILogger<RPriorityReader> logger) =>
         (_xmlReader, _docTypes, _logger) =
-        (xmlReader, docTypes, logger);
+        (@xmlReader, @docTypes, @logger);
 
     public async Task<RPriority> ReadAsync(Reading reading)
     {

@@ -33,7 +33,7 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
 
     public ReadingReader(XmlReader xmlReader, IJmdictReader<Reading, RInfo> infoReader, IJmdictReader<Reading, RPriority> priorityReader, ILogger<ReadingReader> logger) =>
         (_xmlReader, _infoReader, _priorityReader, _logger) =
-        (xmlReader, infoReader, priorityReader, logger);
+        (@xmlReader, @infoReader, @priorityReader, @logger);
 
     public async Task<Reading> ReadAsync(Entry entry)
     {
