@@ -21,7 +21,7 @@ using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-internal class ReferenceSequencer
+internal partial class ReferenceSequencer
 {
     private readonly Dictionary<string, int> _disambiguationCache;
     private readonly ILogger<ReferenceSequencer> _logger;
@@ -56,7 +56,7 @@ internal class ReferenceSequencer
                     e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
                 .ToList();
 
-            var targetEntry = FindTargetEntry(possibleTargetEntries, xref.RawKey());
+            var targetEntry = FindTargetEntry(possibleTargetEntries, xref.RawKey()) ?? entries.Last();
 
             // Assign Sense foreign key.
             xref.RefEntryId = targetEntry.Id;
@@ -78,7 +78,8 @@ internal class ReferenceSequencer
             }
             else
             {
-                _logger.LogWarning(1, $"`{key}` in entry {xref.EntryId} is an invalid spelling for entry {targetEntry.Id}");
+                LogInvalidSpelling(key.ToString(), xref.EntryId, targetEntry.Id);
+
                 xref.RefReading = targetEntry.Readings
                     .Where(r => !r.IsHidden()).First();
                 xref.RefReadingOrder = xref.RefReading.Order;
@@ -89,7 +90,7 @@ internal class ReferenceSequencer
         }
     }
 
-    private Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
+    private static Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
     {
         var map = new Dictionary<ReferenceText, List<Entry>>();
         foreach (var entry in entries)
@@ -109,7 +110,7 @@ internal class ReferenceSequencer
         return map;
     }
 
-    private IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
+    private static IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
     {
         foreach (var reading in entry.Readings)
         {
@@ -125,12 +126,10 @@ internal class ReferenceSequencer
         }
     }
 
-    private Entry FindTargetEntry(List<Entry> possibleTargetEntries, string cacheKey)
+    private Entry? FindTargetEntry(List<Entry> possibleTargetEntries, string cacheKey)
     {
         if (possibleTargetEntries.Count == 1)
-        {
             return possibleTargetEntries.First();
-        }
 
         // If there are multiple target entries, then the reference is ambiguous.
         // The correct entry ID must be recorded in the cache.
@@ -141,20 +140,26 @@ internal class ReferenceSequencer
                 .FirstOrDefault();
             if (targetEntry is not null)
                 return targetEntry;
-
-            _logger.LogWarning(2, $"Cached ID `{targetEntryId}` is invalid for reference `{cacheKey}`");
+            else
+                LogInvalidCacheId(cacheKey, targetEntryId);
         }
 
         if (possibleTargetEntries.Count == 0)
         {
-            throw new Exception($"No entries found for cross reference `{cacheKey}`");
+            LogImpossibleReference(cacheKey);
+            return null;
         }
 
-        _logger.LogWarning(3, $"Reference could refer to {possibleTargetEntries.Count} possible entries: {{ \"{cacheKey}\": [{string.Join(", ", possibleTargetEntries.Select(e => e.Id.ToString()).ToList())}] }}");
+        LogAmbiguousReference
+        (
+            possibleTargetEntries.Count,
+            cacheKey,
+            possibleTargetEntries.Select(e => e.Id).ToArray()
+        );
         return possibleTargetEntries.First();
     }
 
-    private Dictionary<ReferenceText, SpellingId> ValidSpellings(Entry entry)
+    private static Dictionary<ReferenceText, SpellingId> ValidSpellings(Entry entry)
     {
         var map = new Dictionary<ReferenceText, SpellingId>();
         ReferenceText referenceText;
@@ -180,4 +185,21 @@ internal class ReferenceSequencer
         }
         return map;
     }
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message =
+        "Spelling `{Spelling}` in entry {EntryId} is invalid for entry {TargetEntryId}")]
+    private partial void LogInvalidSpelling(string spelling, int entryId, int targetEntryId);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message =
+        "Reference `{CacheKey}` could refer to {Count} possible entries: {EntryIds}")]
+    private partial void LogAmbiguousReference(int count, string cacheKey, int[] entryIds);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message =
+        "Cached ID `{TargetEntryId}` is invalid for reference `{CacheKey}`")]
+    private partial void LogInvalidCacheId(string cacheKey, int targetEntryId);
+
+    [LoggerMessage(EventId = 4, Level = LogLevel.Error, Message =
+        "Reference `{CacheKey}` refers to an entry that does not exist.")]
+    private partial void LogImpossibleReference(string cacheKey);
+
 }
