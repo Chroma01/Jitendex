@@ -34,7 +34,7 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    private record ParsedText(string Text1, string? Text2, int SenseOrder);
+    private record ParsedReference(string Text1, string? Text2, int SenseOrder);
 
     public async Task<CrossReference?> ReadAsync(Sense sense)
     {
@@ -45,16 +45,10 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
             LogUnsupportedCorpus(sense.Entry.Id, sense.Entry.Corpus.Name);
             return null;
         }
-        ParsedText parsedText;
-        try
-        {
-            parsedText = Parse(text);
-        }
-        catch
-        {
-            // TODO: Log
-            return null;
-        }
+
+        var parsedRef = Parse(text);
+        if (parsedRef is null) return null;
+
         var type = _docTypes.GetKeywordByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
@@ -65,15 +59,15 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
             Type = type,
             RefEntryId = -1,
             RefReadingOrder = -1,
-            RefText1 = parsedText.Text1,
-            RefText2 = parsedText.Text2,
-            RefSenseOrder = parsedText.SenseOrder,
+            RefText1 = parsedRef.Text1,
+            RefText2 = parsedRef.Text2,
+            RefSenseOrder = parsedRef.SenseOrder,
             Sense = sense,
         };
         return crossRef;
     }
 
-    private static ParsedText Parse(string text)
+    private ParsedReference? Parse(string text)
     {
         const char separator = '・';
         var split = text.Split(separator);
@@ -100,16 +94,26 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
                 }
                 else
                 {
-                    throw new ArgumentException($"Third value in text `{text}` must be an integer", nameof(text));
+                    LogNonIntegerSenseOrder(text, split[2]);
+                    return null;
                 }
                 break;
             default:
-                throw new ArgumentException($"Too many separator characters `{separator}` in text `{text}`", nameof(text));
+                LogTooManySeparators(text, separator);
+                return null;
         }
-        return new ParsedText(parsed.Item1, parsed.Item2, parsed.Item3);
+        return new ParsedReference(parsed.Item1, parsed.Item2, parsed.Item3);
     }
 
-    [LoggerMessage(LogLevel.Warning,
-    "Entry {EntryId} from corpus {CorpusName} contains a cross reference, which is not supported.")]
+    [LoggerMessage(LogLevel.Error,
+    "Entry `{EntryId}` from corpus `{CorpusName}` contains a cross reference, which is not supported")]
     private partial void LogUnsupportedCorpus(int entryId, string corpusName);
+
+    [LoggerMessage(LogLevel.Error,
+    "Third value `{ThirdValue}` in reference text `{Text}` must be an integer")]
+    private partial void LogNonIntegerSenseOrder(string text, string thirdValue);
+
+    [LoggerMessage(LogLevel.Error,
+    "Too many separator characters `{Separator}` in reference text `{Text}`")]
+    private partial void LogTooManySeparators(string text, char separator);
 }

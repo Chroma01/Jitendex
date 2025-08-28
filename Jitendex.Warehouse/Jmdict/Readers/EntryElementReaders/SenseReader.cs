@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal class SenseReader : IJmdictReader<Entry, Sense>
+internal partial class SenseReader : IJmdictReader<Entry, Sense>
 {
     private readonly ILogger<SenseReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -88,7 +88,8 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
                 {
                     // The XML schema allows for more than one note per sense,
                     // but in practice there is only one or none.
-                    // TODO: Log warning
+                    LogTooManySenseNotes(sense.EntryId, sense.Order);
+                    sense.IsCorrupt = true;
                 }
                 sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
@@ -119,9 +120,9 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
             case "ant":
                 var reference = await _crossReferenceReader.ReadAsync(sense);
                 if (reference is not null)
-                {
                     sense.CrossReferences.Add(reference);
-                }
+                else
+                    sense.IsCorrupt = true;
                 break;
             case LanguageSource.XmlTagName:
                 var languageSource = await _languageSourceReader.ReadAsync(sense);
@@ -137,4 +138,8 @@ internal class SenseReader : IJmdictReader<Entry, Sense>
                 break;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry ID `{entryId}` sense #{SenseOrder} contains multiple sense notes")]
+    private partial void LogTooManySenseNotes(int entryId, int senseOrder);
 }

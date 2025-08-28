@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
+internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
 {
     private readonly ILogger<KanjiFormReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -63,6 +63,12 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                     break;
             }
         }
+
+        if (kanjiForm.Text == string.Empty)
+        {
+            LogEmptyTextForm(entry.Id, kanjiForm.Order);
+            kanjiForm.IsCorrupt = true;
+        }
         return kanjiForm;
     }
 
@@ -87,4 +93,8 @@ internal class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                 break;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` kanji form #{Order} contains no text")]
+    private partial void LogEmptyTextForm(int entryId, int order);
 }

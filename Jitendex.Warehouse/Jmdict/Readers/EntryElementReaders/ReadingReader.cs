@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
 
-internal class ReadingReader : IJmdictReader<Entry, Reading>
+internal partial class ReadingReader : IJmdictReader<Entry, Reading>
 {
     private readonly ILogger<ReadingReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -64,6 +64,12 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
                     break;
             }
         }
+
+        if (reading.Text == string.Empty)
+        {
+            LogEmptyTextForm(entry.Id, reading.Order);
+            reading.IsCorrupt = true;
+        }
         return reading;
     }
 
@@ -95,4 +101,8 @@ internal class ReadingReader : IJmdictReader<Entry, Reading>
                 break;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` reading #{Order} contains no text")]
+    private partial void LogEmptyTextForm(int entryId, int order);
 }

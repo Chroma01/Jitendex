@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public class CrossReference
+public class CrossReference : ICorruptable
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
@@ -54,6 +54,8 @@ public class CrossReference
     internal string RefText1 { get; set; } = null!;
     [NotMapped]
     internal string? RefText2 { get; set; }
+
+    public bool IsCorrupt { get; set; }
 
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.

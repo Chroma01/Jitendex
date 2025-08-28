@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Jitendex.Warehouse.Jmdict.Models;
+using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict;
 
@@ -65,7 +66,7 @@ internal partial class ReferenceSequencer
                 possibleTargetEntries = [];
             }
 
-            var targetEntry = FindTargetEntry(possibleTargetEntries, xref.RawKey()) ?? entries.Last();
+            var targetEntry = FindTargetEntry(possibleTargetEntries, xref) ?? entries.Last();
 
             // Assign Sense foreign key.
             xref.RefEntryId = targetEntry.Id;
@@ -88,6 +89,7 @@ internal partial class ReferenceSequencer
             else
             {
                 LogInvalidSpelling(key.ToString(), xref.EntryId, targetEntry.Id);
+                xref.IsCorrupt = true;
 
                 xref.RefReading = targetEntry.Readings
                     .Where(r => !r.IsHidden()).First();
@@ -138,13 +140,14 @@ internal partial class ReferenceSequencer
         }
     }
 
-    private Entry? FindTargetEntry(List<Entry> possibleTargetEntries, string cacheKey)
+    private Entry? FindTargetEntry(List<Entry> possibleTargetEntries, CrossReference xref)
     {
         if (possibleTargetEntries.Count == 1)
             return possibleTargetEntries.First();
 
         // If there are multiple target entries, then the reference is ambiguous.
         // The correct entry ID must be recorded in the cache.
+        var cacheKey = xref.RawKey();
         if (_disambiguationCache.TryGetValue(cacheKey, out int targetEntryId))
         {
             var targetEntry = possibleTargetEntries
@@ -155,6 +158,8 @@ internal partial class ReferenceSequencer
             else
                 LogInvalidCacheId(cacheKey, targetEntryId);
         }
+
+        xref.IsCorrupt = true;
 
         if (possibleTargetEntries.Count == 0)
         {
