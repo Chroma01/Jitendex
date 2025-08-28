@@ -57,7 +57,9 @@ internal partial class EntryReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected XML text node found in `{Entry.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, Entry.XmlTagName, text);
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Entry.XmlTagName;
                     break;
@@ -136,7 +138,9 @@ internal partial class EntryReader
                 entry.Nanoris = entry.ReadingMeaningGroup.Nanoris;
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Entry.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, Entry.XmlTagName);
+                entry.IsCorrupt = true;
+                break;
         }
     }
 

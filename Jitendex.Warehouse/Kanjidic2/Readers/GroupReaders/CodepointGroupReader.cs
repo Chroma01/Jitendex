@@ -26,12 +26,12 @@ namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 internal class CodepointGroupReader
 {
-    private readonly XmlReader _xmlReader;
     private readonly ILogger<CodepointGroupReader> _logger;
+    private readonly XmlReader _xmlReader;
 
-    public CodepointGroupReader(XmlReader xmlReader, ILogger<CodepointGroupReader> logger) =>
-        (_xmlReader, _logger) =
-        (@xmlReader, @logger);
+    public CodepointGroupReader(ILogger<CodepointGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
     public async Task<CodepointGroup> ReadAsync(Entry entry)
     {
@@ -51,7 +51,9 @@ internal class CodepointGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{CodepointGroup.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, CodepointGroup.XmlTagName, text);
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == CodepointGroup.XmlTagName;
                     break;
@@ -75,7 +77,9 @@ internal class CodepointGroupReader
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{CodepointGroup.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, CodepointGroup.XmlTagName);
+                group.Entry.IsCorrupt = true;
+                break;
         }
     }
 }

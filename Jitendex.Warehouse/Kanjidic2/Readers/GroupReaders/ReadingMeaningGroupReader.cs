@@ -26,13 +26,13 @@ namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 internal class ReadingMeaningGroupReader
 {
+    private readonly ILogger<ReadingMeaningGroupReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly ReadingMeaningReader _readingMeaningReader;
-    private readonly ILogger<ReadingMeaningGroupReader> _logger;
 
-    public ReadingMeaningGroupReader(XmlReader xmlReader, ReadingMeaningReader readingMeaningReader, ILogger<ReadingMeaningGroupReader> logger) =>
-        (_xmlReader, _readingMeaningReader, _logger) =
-        (@xmlReader, @readingMeaningReader, @logger);
+    public ReadingMeaningGroupReader(ILogger<ReadingMeaningGroupReader> logger, XmlReader xmlReader, ReadingMeaningReader readingMeaningReader) =>
+        (_logger, _xmlReader, _readingMeaningReader) =
+        (@logger, @xmlReader, @readingMeaningReader);
 
     public async Task<ReadingMeaningGroup> ReadAsync(Entry entry)
     {
@@ -53,7 +53,9 @@ internal class ReadingMeaningGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{ReadingMeaningGroup.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, ReadingMeaningGroup.XmlTagName, text);
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == ReadingMeaningGroup.XmlTagName;
                     break;
@@ -82,7 +84,9 @@ internal class ReadingMeaningGroupReader
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{ReadingMeaningGroup.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
+                group.Entry.IsCorrupt = true;
+                return;
         }
     }
 }

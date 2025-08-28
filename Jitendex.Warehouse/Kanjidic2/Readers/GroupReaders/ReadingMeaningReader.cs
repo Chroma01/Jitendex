@@ -25,12 +25,12 @@ namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 internal class ReadingMeaningReader
 {
-    private readonly XmlReader _xmlReader;
     private readonly ILogger<ReadingMeaningReader> _logger;
+    private readonly XmlReader _xmlReader;
 
-    public ReadingMeaningReader(XmlReader xmlReader, ILogger<ReadingMeaningReader> logger) =>
-        (_xmlReader, _logger) =
-        (@xmlReader, @logger);
+    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
     public async Task<ReadingMeaning> ReadAsync(ReadingMeaningGroup group)
     {
@@ -50,7 +50,9 @@ internal class ReadingMeaningReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{ReadingMeaning.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, ReadingMeaning.XmlTagName, text);
+                    group.Entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == ReadingMeaning.XmlTagName;
                     break;
@@ -84,17 +86,19 @@ internal class ReadingMeaningReader
                 };
                 if (meaning.Language != "en")
                 {
-                    break;
+                    break; // Only want English meanings
                 }
                 if (meaning.Text == "(kokuji)")
                 {
                     readingMeaning.IsKokuji = true;
-                    break;
+                    break; // Don't add these "meanings"
                 }
                 readingMeaning.Meanings.Add(meaning);
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{ReadingMeaning.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, ReadingMeaning.XmlTagName);
+                readingMeaning.Entry.IsCorrupt = true;
+                return;
         }
     }
 }

@@ -26,12 +26,12 @@ namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 internal class DictionaryGroupReader
 {
-    private readonly XmlReader _xmlReader;
     private readonly ILogger<DictionaryGroupReader> _logger;
+    private readonly XmlReader _xmlReader;
 
-    public DictionaryGroupReader(XmlReader xmlReader, ILogger<DictionaryGroupReader> logger) =>
-        (_xmlReader, _logger) =
-        (@xmlReader, @logger);
+    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
     public async Task<DictionaryGroup> ReadAsync(Entry entry)
     {
@@ -51,7 +51,9 @@ internal class DictionaryGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{DictionaryGroup.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, DictionaryGroup.XmlTagName, text);
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == DictionaryGroup.XmlTagName;
                     break;
@@ -79,7 +81,9 @@ internal class DictionaryGroupReader
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{DictionaryGroup.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, DictionaryGroup.XmlTagName);
+                group.Entry.IsCorrupt = true;
+                break;
         }
     }
 }

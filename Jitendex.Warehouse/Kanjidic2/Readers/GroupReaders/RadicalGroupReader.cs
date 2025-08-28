@@ -26,12 +26,12 @@ namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 internal class RadicalGroupReader
 {
-    private readonly XmlReader _xmlReader;
     private readonly ILogger<RadicalGroupReader> _logger;
+    private readonly XmlReader _xmlReader;
 
-    public RadicalGroupReader(XmlReader xmlReader, ILogger<RadicalGroupReader> logger) =>
-        (_xmlReader, _logger) =
-        (@xmlReader, @logger);
+    public RadicalGroupReader(ILogger<RadicalGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
     public async Task<RadicalGroup> ReadAsync(Entry entry)
     {
@@ -51,7 +51,9 @@ internal class RadicalGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{RadicalGroup.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, RadicalGroup.XmlTagName, text);
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == RadicalGroup.XmlTagName;
                     break;
@@ -75,7 +77,9 @@ internal class RadicalGroupReader
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{RadicalGroup.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, RadicalGroup.XmlTagName);
+                group.Entry.IsCorrupt = true;
+                return;
         }
     }
 }

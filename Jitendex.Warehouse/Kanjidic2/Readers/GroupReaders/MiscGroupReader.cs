@@ -26,12 +26,12 @@ namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
 internal class MiscGroupReader
 {
-    private readonly XmlReader _xmlReader;
     private readonly ILogger<MiscGroupReader> _logger;
+    private readonly XmlReader _xmlReader;
 
-    public MiscGroupReader(XmlReader xmlReader, ILogger<MiscGroupReader> logger) =>
-        (_xmlReader, _logger) =
-        (@xmlReader, @logger);
+    public MiscGroupReader(ILogger<MiscGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
     public async Task<MiscGroup> ReadAsync(Entry entry)
     {
@@ -51,7 +51,9 @@ internal class MiscGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{MiscGroup.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, MiscGroup.XmlTagName, text);
+                    entry.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == MiscGroup.XmlTagName;
                     break;
@@ -102,7 +104,9 @@ internal class MiscGroupReader
                 });
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{MiscGroup.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, MiscGroup.XmlTagName);
+                group.Entry.IsCorrupt = true;
+                return;
         }
     }
 }
