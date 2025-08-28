@@ -35,4 +35,5 @@ public class KanjiFormRestriction
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
     public virtual KanjiForm KanjiForm { get; set; } = null!;
 
+    internal const string XmlTagName = "stagk";
 }

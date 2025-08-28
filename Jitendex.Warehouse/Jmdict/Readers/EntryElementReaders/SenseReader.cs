@@ -28,6 +28,8 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
 {
     private readonly ILogger<SenseReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly IJmdictReader<Sense, KanjiFormRestriction> _kRestrictionReader;
+    private readonly IJmdictReader<Sense, ReadingRestriction> _rRestrictionReader;
     private readonly IJmdictReader<Sense, CrossReference> _crossReferenceReader;
     private readonly IJmdictReader<Sense, Dialect> _dialectReader;
     private readonly IJmdictReader<Sense, Example?> _exampleReader;
@@ -37,9 +39,9 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
     private readonly IJmdictReader<Sense, Misc> _miscReader;
     private readonly IJmdictReader<Sense, PartOfSpeech> _partOfSpeechReader;
 
-    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example?> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
-        (_logger, _xmlReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
-        (@logger, @xmlReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
+    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, KanjiFormRestriction> kRestrictionReader, IJmdictReader<Sense, ReadingRestriction> rRestrictionReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example?> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
+        (_logger, _xmlReader, _kRestrictionReader, _rRestrictionReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
+        (@logger, @xmlReader, @kRestrictionReader, @rRestrictionReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
     public async Task<Sense> ReadAsync(Entry entry)
     {
@@ -75,54 +77,18 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
     {
         switch (_xmlReader.Name)
         {
-            case "stagk":
-                var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
-                var kRestriction = new KanjiFormRestriction
+            case KanjiFormRestriction.XmlTagName:
+                var kRestriction = await _kRestrictionReader.ReadAsync(sense);
+                if (kRestriction is not null)
                 {
-                    EntryId = sense.EntryId,
-                    SenseOrder = sense.Order,
-                    Order = sense.KanjiFormRestrictions.Count + 1,
-                    KanjiFormOrder = -1,
-                    Sense = sense,
-                };
-                var kanjiForm = sense.Entry.KanjiForms
-                    .Where(k => k.Text == kanjiFormText)
-                    .FirstOrDefault();
-                if (kanjiForm is not null)
-                {
-                    kRestriction.KanjiFormOrder = kanjiForm.Order;
-                    kRestriction.KanjiForm = kanjiForm;
                     sense.KanjiFormRestrictions.Add(kRestriction);
                 }
-                else
-                {
-                    LogInvalidKanjiFormRestriction(sense.EntryId, sense.Order, kanjiFormText);
-                    sense.Entry.IsCorrupt = true;
-                }
                 break;
-            case "stagr":
-                var readingText = await _xmlReader.ReadElementContentAsStringAsync();
-                var rRestriction = new ReadingRestriction
+            case ReadingRestriction.XmlTagName:
+                var rRestriction = await _rRestrictionReader.ReadAsync(sense);
+                if (rRestriction is not null)
                 {
-                    EntryId = sense.EntryId,
-                    SenseOrder = sense.Order,
-                    Order = sense.ReadingRestrictions.Count + 1,
-                    ReadingOrder = -1,
-                    Sense = sense,
-                };
-                var reading = sense.Entry.Readings
-                    .Where(r => r.Text == readingText)
-                    .FirstOrDefault();
-                if (reading is not null)
-                {
-                    rRestriction.ReadingOrder = reading.Order;
-                    rRestriction.Reading = reading;
                     sense.ReadingRestrictions.Add(rRestriction);
-                }
-                else
-                {
-                    LogInvalidReadingRestriction(sense.EntryId, sense.Order, readingText);
-                    sense.Entry.IsCorrupt = true;
                 }
                 break;
             case "s_inf":
@@ -187,13 +153,5 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} contains multiple sense notes")]
     private partial void LogTooManySenseNotes(int entryId, int senseOrder);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Entry ID `{entryId}` sense #{SenseOrder} contains an invalid kanji form restriction: `{Text}`")]
-    private partial void LogInvalidKanjiFormRestriction(int entryId, int senseOrder, string text);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Entry ID `{entryId}` sense #{SenseOrder} contains an invalid reading restriction: `{Text}`")]
-    private partial void LogInvalidReadingRestriction(int entryId, int senseOrder, string text);
 
 }

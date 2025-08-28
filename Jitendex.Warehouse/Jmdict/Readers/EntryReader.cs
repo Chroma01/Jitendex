@@ -176,6 +176,7 @@ internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
             if (kanjiForm.ReadingBridges.Count == 0)
             {
                 LogOrphanKanjiForm(kanjiForm.EntryId, kanjiForm.Text);
+                entry.IsCorrupt = true;
                 var defaultReading = entry.Readings.Where(r => !r.IsHidden()).First();
                 var bridge = new ReadingKanjiFormBridge
                 {
@@ -184,7 +185,6 @@ internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
                     KanjiFormOrder = kanjiForm.Order,
                     Reading = defaultReading,
                     KanjiForm = kanjiForm,
-                    IsCorrupt = true,
                 };
                 defaultReading.KanjiFormBridges.Add(bridge);
                 kanjiForm.ReadingBridges.Add(bridge);

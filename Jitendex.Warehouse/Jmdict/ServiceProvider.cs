@@ -80,9 +80,11 @@ internal static class JmdictServiceProvider
         .AddTransient<IJmdictReader<Sense, Example?>, ExampleReader>()
         .AddTransient<IJmdictReader<Sense, Field>, FieldReader>()
         .AddTransient<IJmdictReader<Sense, Gloss>, GlossReader>()
+        .AddTransient<IJmdictReader<Sense, KanjiFormRestriction?>, KanjiFormRestrictionReader>()
         .AddTransient<IJmdictReader<Sense, LanguageSource>, LanguageSourceReader>()
         .AddTransient<IJmdictReader<Sense, Misc>, MiscReader>()
         .AddTransient<IJmdictReader<Sense, PartOfSpeech>, PartOfSpeechReader>()
+        .AddTransient<IJmdictReader<Sense, ReadingRestriction?>, ReadingRestrictionReader>()
 
         // Post-processing of entries.
         .AddTransient<ReferenceSequencer>(provider =>

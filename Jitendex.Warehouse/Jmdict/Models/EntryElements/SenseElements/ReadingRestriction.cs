@@ -35,4 +35,5 @@ public class ReadingRestriction
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public virtual Reading Reading { get; set; } = null!;
 
+    internal const string XmlTagName = "stagr";
 }
