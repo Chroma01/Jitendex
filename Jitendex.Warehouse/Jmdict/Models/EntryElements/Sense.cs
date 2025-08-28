@@ -29,6 +29,9 @@ public class Sense : ICorruptable
     public required int Order { get; set; }
     public string? Note { get; set; }
 
+    public virtual List<KanjiFormRestriction> KanjiFormRestrictions { get; set; } = [];
+    public virtual List<ReadingRestriction> ReadingRestrictions { get; set; } = [];
+
     public virtual List<PartOfSpeech> PartsOfSpeech { get; set; } = [];
     public virtual List<Field> Fields { get; set; } = [];
     public virtual List<Misc> Miscs { get; set; } = [];
@@ -46,11 +49,6 @@ public class Sense : ICorruptable
 
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
-
-    [NotMapped]
-    internal List<string> ReadingTextRestrictions { get; set; } = [];
-    [NotMapped]
-    internal List<string> KanjiFormTextRestrictions { get; set; } = [];
 
     public bool IsCorrupt { get; set; }
     internal const string XmlTagName = "sense";

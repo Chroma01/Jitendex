@@ -76,12 +76,54 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
         switch (_xmlReader.Name)
         {
             case "stagk":
-                var kanjiFormTextRestriction = await _xmlReader.ReadElementContentAsStringAsync();
-                sense.KanjiFormTextRestrictions.Add(kanjiFormTextRestriction);
+                var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
+                var kRestriction = new KanjiFormRestriction
+                {
+                    EntryId = sense.EntryId,
+                    SenseOrder = sense.Order,
+                    Order = sense.KanjiFormRestrictions.Count + 1,
+                    KanjiFormOrder = -1,
+                    Sense = sense,
+                };
+                var kanjiForm = sense.Entry.KanjiForms
+                    .Where(k => k.Text == kanjiFormText)
+                    .FirstOrDefault();
+                if (kanjiForm is not null)
+                {
+                    kRestriction.KanjiFormOrder = kanjiForm.Order;
+                    kRestriction.KanjiForm = kanjiForm;
+                    sense.KanjiFormRestrictions.Add(kRestriction);
+                }
+                else
+                {
+                    LogInvalidKanjiFormRestriction(sense.EntryId, sense.Order, kanjiFormText);
+                    sense.IsCorrupt = true;
+                }
                 break;
             case "stagr":
-                var readingTextRestriction = await _xmlReader.ReadElementContentAsStringAsync();
-                sense.ReadingTextRestrictions.Add(readingTextRestriction);
+                var readingText = await _xmlReader.ReadElementContentAsStringAsync();
+                var rRestriction = new ReadingRestriction
+                {
+                    EntryId = sense.EntryId,
+                    SenseOrder = sense.Order,
+                    Order = sense.ReadingRestrictions.Count + 1,
+                    ReadingOrder = -1,
+                    Sense = sense,
+                };
+                var reading = sense.Entry.Readings
+                    .Where(r => r.Text == readingText)
+                    .FirstOrDefault();
+                if (reading is not null)
+                {
+                    rRestriction.ReadingOrder = reading.Order;
+                    rRestriction.Reading = reading;
+                    sense.ReadingRestrictions.Add(rRestriction);
+                }
+                else
+                {
+                    LogInvalidReadingRestriction(sense.EntryId, sense.Order, readingText);
+                    sense.IsCorrupt = true;
+                }
                 break;
             case "s_inf":
                 if (sense.Note != null)
@@ -145,4 +187,13 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} contains multiple sense notes")]
     private partial void LogTooManySenseNotes(int entryId, int senseOrder);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry ID `{entryId}` sense #{SenseOrder} contains an invalid kanji form restriction: `{Text}`")]
+    private partial void LogInvalidKanjiFormRestriction(int entryId, int senseOrder, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry ID `{entryId}` sense #{SenseOrder} contains an invalid reading restriction: `{Text}`")]
+    private partial void LogInvalidReadingRestriction(int entryId, int senseOrder, string text);
+
 }
