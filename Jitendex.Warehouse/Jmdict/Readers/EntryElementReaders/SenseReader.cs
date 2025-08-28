@@ -108,8 +108,8 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
             case Example.XmlTagName:
                 await _exampleReader.ReadAsync(sense);
                 break;
-            case "xref":
-            case "ant":
+            case CrossReference.XmlTagName:
+            case CrossReference.XmlTagName_Antonym:
                 await _crossReferenceReader.ReadAsync(sense);
                 break;
             case "s_inf":

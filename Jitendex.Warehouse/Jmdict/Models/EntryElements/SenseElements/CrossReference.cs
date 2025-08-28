@@ -62,4 +62,7 @@ public class CrossReference
         => RefText2 is null ?
         $"{EntryId}・{Sense.Order}・{RefText1}・{RefSenseOrder}" :
         $"{EntryId}・{Sense.Order}・{RefText1}【{RefText2}】・{RefSenseOrder}";
+
+    internal const string XmlTagName = "xref";
+    internal const string XmlTagName_Antonym = "ant";
 }
