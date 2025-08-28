@@ -77,7 +77,7 @@ internal static class JmdictServiceProvider
         // Sense element readers.
         .AddTransient<IJmdictReader<Sense, CrossReference?>, CrossReferenceReader>()
         .AddTransient<IJmdictReader<Sense, Dialect>, DialectReader>()
-        .AddTransient<IJmdictReader<Sense, Example>, ExampleReader>()
+        .AddTransient<IJmdictReader<Sense, Example?>, ExampleReader>()
         .AddTransient<IJmdictReader<Sense, Field>, FieldReader>()
         .AddTransient<IJmdictReader<Sense, Gloss>, GlossReader>()
         .AddTransient<IJmdictReader<Sense, LanguageSource>, LanguageSourceReader>()

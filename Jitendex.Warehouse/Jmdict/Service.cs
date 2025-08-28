@@ -58,7 +58,7 @@ internal class Service
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    _logger.LogError("Unexpected document type node `{Name}`", _xmlReader.Name);
+                    _logger.LogWarning("Unexpected document type node `{Name}`", _xmlReader.Name);
                     break;
                 case XmlNodeType.Element:
                     if (_xmlReader.Name == Entry.XmlTagName)

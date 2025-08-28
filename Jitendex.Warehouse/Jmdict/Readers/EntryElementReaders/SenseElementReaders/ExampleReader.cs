@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal class ExampleReader : IJmdictReader<Sense, Example>
+internal partial class ExampleReader : IJmdictReader<Sense, Example?>
 {
     private readonly ILogger<ExampleReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -34,7 +34,7 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<Example> ReadAsync(Sense sense)
+    public async Task<Example?> ReadAsync(Sense sense)
     {
         var example = new Example
         {
@@ -57,14 +57,19 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    throw new Exception($"Unexpected text node found in `{Example.XmlTagName}`: `{text}`");
+                    Log.UnexpectedTextNode(_logger, Example.XmlTagName, text);
+                    example.IsCorrupt = true;
+                    break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Example.XmlTagName;
                     break;
             }
         }
 
-        return example;
+        if (example.SourceKey == -1)
+            return null;
+        else
+            return example;
     }
 
     private async Task ReadChildElementAsync(Example example)
@@ -72,6 +77,11 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
         switch (_xmlReader.Name)
         {
             case ExampleSource.XmlTagName:
+                if (example.SourceTypeName != string.Empty || example.SourceKey != -1)
+                {
+                    LogKeyRedefinition(example.EntryId, example.SenseOrder, example.Order, ExampleSource.XmlTagName);
+                    example.IsCorrupt = true;
+                }
                 var sourceTypeName = _xmlReader.GetAttribute("exsrc_type");
                 if (sourceTypeName is not null)
                 {
@@ -79,7 +89,9 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
                 }
                 else
                 {
-                    // TODO: Log and warn.
+                    LogMissingSourceType(example.EntryId, example.SenseOrder, example.Order);
+                    example.IsCorrupt = true;
+                    example.SourceTypeName = Guid.NewGuid().ToString();
                 }
                 var sourceText = await _xmlReader.ReadElementContentAsStringAsync();
                 if (int.TryParse(sourceText, out int sourceKey))
@@ -88,7 +100,9 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
                 }
                 else
                 {
-                    // TODO: Log and warn
+                    LogInvalidSourceKey(example.EntryId, example.SenseOrder, example.Order, sourceText);
+                    example.IsCorrupt = true;
+                    break;
                 }
                 example.Source = _docTypes.GetExampleSource(example.SourceTypeName, example.SourceKey);
                 break;
@@ -97,33 +111,60 @@ internal class ExampleReader : IJmdictReader<Sense, Example>
                 break;
             case "ex_sent":
                 var sentenceLanguage = _xmlReader.GetAttribute("xml:lang");
-                if (sentenceLanguage == "jpn")
+                switch (sentenceLanguage)
                 {
-                    var text = await _xmlReader.ReadElementContentAsStringAsync();
-                    if (example.Source.Text != string.Empty && example.Source.Text != text)
-                    {
-                        // TODO: Log and warn
-                        Console.WriteLine($"Example source {example.SourceTypeName}:{example.SourceKey} has more than one text.");
-                    }
-                    example.Source.Text = text;
-                }
-                else if (sentenceLanguage == "eng")
-                {
-                    var translation = await _xmlReader.ReadElementContentAsStringAsync();
-                    if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
-                    {
-                        // TODO: Log and warn
-                        Console.WriteLine($"Example source {example.SourceTypeName}:{example.SourceKey} has more than one translation.");
-                    }
-                    example.Source.Translation = translation;
-                }
-                else
-                {
-                    // TODO: Log and warn
+                    case "jpn":
+                        var text = await _xmlReader.ReadElementContentAsStringAsync();
+                        if (example.Source.Text != string.Empty && example.Source.Text != text)
+                        {
+                            LogMultipleExamples(example.SourceTypeName, example.SourceKey);
+                            example.IsCorrupt = true;
+                        }
+                        example.Source.Text = text;
+                        break;
+                    case "eng":
+                        var translation = await _xmlReader.ReadElementContentAsStringAsync();
+                        if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
+                        {
+                            LogMultipleTranslations(example.SourceTypeName, example.SourceKey);
+                            example.IsCorrupt = true;
+                        }
+                        example.Source.Translation = translation;
+                        break;
+                    default:
+                        LogUnexpectedLanguage(example.EntryId, example.SenseOrder, example.Order, sentenceLanguage);
+                        example.IsCorrupt = true;
+                        break;
                 }
                 break;
             default:
-                throw new Exception($"Unexpected XML element node named `{_xmlReader.Name}` found in element `{Example.XmlTagName}`");
+                Log.UnexpectedChildElement(_logger, _xmlReader.Name, Example.XmlTagName);
+                example.IsCorrupt = true;
+                break;
         }
     }
+
+    [LoggerMessage(LogLevel.Error,
+    "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has a non-numeric source key: `{Key}`")]
+    private partial void LogInvalidSourceKey(int entryId, int senseOrder, int exampleOrder, string key);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} contains multiple <{ExampleSourceTagName}> elements")]
+    private partial void LogKeyRedefinition(int entryId, int senseOrder, int exampleOrder, string exampleSourceTagName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has no source type attribute")]
+    private partial void LogMissingSourceType(int entryId, int senseOrder, int exampleOrder);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has a sentence in an unexpected language: `{Language}`")]
+    private partial void LogUnexpectedLanguage(int entryId, int senseOrder, int exampleOrder, string? language);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Example source `{SourceTypeName}` key `{SourceKey}` has more than one text.")]
+    private partial void LogMultipleExamples(string sourceTypeName, int sourceKey);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Example source `{SourceTypeName}` key `{SourceKey}` has more than one translation.")]
+    private partial void LogMultipleTranslations(string sourceTypeName, int sourceKey);
 }

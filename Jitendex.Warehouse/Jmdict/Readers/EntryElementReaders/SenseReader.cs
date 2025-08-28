@@ -30,14 +30,14 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<Sense, CrossReference> _crossReferenceReader;
     private readonly IJmdictReader<Sense, Dialect> _dialectReader;
-    private readonly IJmdictReader<Sense, Example> _exampleReader;
+    private readonly IJmdictReader<Sense, Example?> _exampleReader;
     private readonly IJmdictReader<Sense, Field> _fieldReader;
     private readonly IJmdictReader<Sense, Gloss> _glossReader;
     private readonly IJmdictReader<Sense, LanguageSource> _languageSourceReader;
     private readonly IJmdictReader<Sense, Misc> _miscReader;
     private readonly IJmdictReader<Sense, PartOfSpeech> _partOfSpeechReader;
 
-    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
+    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example?> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
         (_logger, _xmlReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
         (@logger, @xmlReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
@@ -130,7 +130,10 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 break;
             case Example.XmlTagName:
                 var example = await _exampleReader.ReadAsync(sense);
-                sense.Examples.Add(example);
+                if (example is not null)
+                    sense.Examples.Add(example);
+                else
+                    sense.IsCorrupt = true;
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Sense.XmlTagName);
