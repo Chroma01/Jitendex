@@ -87,10 +87,10 @@ internal static class JmdictServiceProvider
         // Post-processing of entries.
         .AddTransient<ReferenceSequencer>(provider =>
         {
+            var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
             var resources = provider.GetRequiredService<Resources>();
             var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
-            var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
-            return new(cachedIds, logger);
+            return new(logger, cachedIds);
         })
 
         // Build and return the Jmdict service.

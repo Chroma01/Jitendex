@@ -24,12 +24,12 @@ namespace Jitendex.Warehouse.Jmdict;
 
 internal partial class ReferenceSequencer
 {
-    private readonly Dictionary<string, int> _disambiguationCache;
     private readonly ILogger<ReferenceSequencer> _logger;
+    private readonly Dictionary<string, int> _disambiguationCache;
 
-    public ReferenceSequencer(Dictionary<string, int> disambiguationCache, ILogger<ReferenceSequencer> logger) =>
-        (_disambiguationCache, _logger) =
-        (@disambiguationCache, @logger);
+    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, Dictionary<string, int> disambiguationCache) =>
+        (_logger, _disambiguationCache) =
+        (@logger, @disambiguationCache);
 
     private record ReferenceText(string Text1, string? Text2)
     {
