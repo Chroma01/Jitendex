@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers;
 
-internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
+internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
 {
     private readonly ILogger<EntryReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -36,9 +36,11 @@ internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
         (_logger, _xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader) =
         (@logger, @xmlReader, @docTypes, @kanjiFormReader, @readingReader, @senseReader);
 
-    public async Task<Entry?> ReadAsync(NoParent noParent)
+    public async Task ReadAsync(List<Entry> entries)
     {
         Entry? entry = null;
+        var isCorrupt = false;
+
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
         {
@@ -48,7 +50,7 @@ internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
                     if (entry is null)
                     {
                         entry = await CreateEntry();
-                        if (entry is null) return null;
+                        if (entry is null) isCorrupt = true;
                     }
                     else
                     {
@@ -58,18 +60,22 @@ internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, Entry.XmlTagName, text);
-                    if (entry is null) return null;
-                    entry.IsCorrupt = true;
+                    isCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Entry.XmlTagName;
                     break;
             }
         }
-        if (entry is not null)
-            return PostProcess(entry);
-        else
-            return null;
+
+        if (entry is null) return;
+
+        PostProcess(entry);
+        if (!entry.IsCorrupt)
+        {
+            entry.IsCorrupt = isCorrupt;
+        }
+        entries.Add(entry);
     }
 
     private async Task<Entry?> CreateEntry()
@@ -111,19 +117,13 @@ internal partial class EntryReader : IJmdictReader<NoParent, Entry?>
         switch (_xmlReader.Name)
         {
             case KanjiForm.XmlTagName:
-                var kanjiForm = await _kanjiFormReader.ReadAsync(entry);
-                entry.KanjiForms.Add(kanjiForm);
+                await _kanjiFormReader.ReadAsync(entry);
                 break;
             case Reading.XmlTagName:
-                var reading = await _readingReader.ReadAsync(entry);
-                entry.Readings.Add(reading);
+                await _readingReader.ReadAsync(entry);
                 break;
             case Sense.XmlTagName:
-                var sense = await _senseReader.ReadAsync(entry);
-                if (sense.Glosses.Any(g => g.Language == "eng"))
-                {
-                    entry.Senses.Add(sense);
-                }
+                await _senseReader.ReadAsync(entry);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Entry.XmlTagName);

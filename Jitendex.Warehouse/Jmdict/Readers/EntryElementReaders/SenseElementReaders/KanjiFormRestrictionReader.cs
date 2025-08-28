@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFormRestriction?>
+internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFormRestriction>
 {
     private readonly ILogger<DialectReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -32,7 +32,7 @@ internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFo
         (_logger, _xmlReader) =
         (@logger, @xmlReader);
 
-    public async Task<KanjiFormRestriction?> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         var restriction = new KanjiFormRestriction
@@ -50,13 +50,12 @@ internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFo
         {
             restriction.KanjiFormOrder = kanjiForm.Order;
             restriction.KanjiForm = kanjiForm;
-            return restriction;
+            sense.KanjiFormRestrictions.Add(restriction);
         }
         else
         {
             LogInvalidKanjiFormRestriction(sense.EntryId, sense.Order, text);
             sense.Entry.IsCorrupt = true;
-            return null;
         }
     }
 

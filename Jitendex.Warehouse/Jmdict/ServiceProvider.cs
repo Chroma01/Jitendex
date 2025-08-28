@@ -59,7 +59,7 @@ internal static class JmdictServiceProvider
 
         // Top-level readers.
         .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypesReader>()
-        .AddTransient<IJmdictReader<NoParent, Entry?>, EntryReader>()
+        .AddTransient<IJmdictReader<List<Entry>, Entry>, EntryReader>()
 
         // Entry element readers.
         .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()
@@ -75,16 +75,16 @@ internal static class JmdictServiceProvider
         .AddTransient<IJmdictReader<Reading, ReadingPriority>, RPriorityReader>()
 
         // Sense element readers.
-        .AddTransient<IJmdictReader<Sense, CrossReference?>, CrossReferenceReader>()
+        .AddTransient<IJmdictReader<Sense, CrossReference>, CrossReferenceReader>()
         .AddTransient<IJmdictReader<Sense, Dialect>, DialectReader>()
-        .AddTransient<IJmdictReader<Sense, Example?>, ExampleReader>()
+        .AddTransient<IJmdictReader<Sense, Example>, ExampleReader>()
         .AddTransient<IJmdictReader<Sense, Field>, FieldReader>()
         .AddTransient<IJmdictReader<Sense, Gloss>, GlossReader>()
-        .AddTransient<IJmdictReader<Sense, KanjiFormRestriction?>, KanjiFormRestrictionReader>()
+        .AddTransient<IJmdictReader<Sense, KanjiFormRestriction>, KanjiFormRestrictionReader>()
         .AddTransient<IJmdictReader<Sense, LanguageSource>, LanguageSourceReader>()
         .AddTransient<IJmdictReader<Sense, Misc>, MiscReader>()
         .AddTransient<IJmdictReader<Sense, PartOfSpeech>, PartOfSpeechReader>()
-        .AddTransient<IJmdictReader<Sense, ReadingRestriction?>, ReadingRestrictionReader>()
+        .AddTransient<IJmdictReader<Sense, ReadingRestriction>, ReadingRestrictionReader>()
 
         // Post-processing of entries.
         .AddTransient<ReferenceSequencer>(provider =>

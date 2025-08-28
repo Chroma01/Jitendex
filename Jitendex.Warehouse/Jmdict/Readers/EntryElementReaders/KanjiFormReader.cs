@@ -35,7 +35,7 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
         (_logger, _xmlReader, _infoReader, _priorityReader) =
         (@logger, @xmlReader, @infoReader, @priorityReader);
 
-    public async Task<KanjiForm> ReadAsync(Entry entry)
+    public async Task ReadAsync(Entry entry)
     {
         var kanjiForm = new KanjiForm
         {
@@ -64,12 +64,7 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
             }
         }
 
-        if (string.IsNullOrWhiteSpace(kanjiForm.Text))
-        {
-            LogEmptyTextForm(entry.Id, kanjiForm.Order);
-            kanjiForm.Entry.IsCorrupt = true;
-        }
-        return kanjiForm;
+        entry.KanjiForms.Add(kanjiForm);
     }
 
     private async Task ReadChildElementAsync(KanjiForm kanjiForm)
@@ -78,14 +73,17 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
         {
             case "keb":
                 kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();
+                if (string.IsNullOrWhiteSpace(kanjiForm.Text))
+                {
+                    LogEmptyTextForm(kanjiForm.Entry.Id, kanjiForm.Order);
+                    kanjiForm.Entry.IsCorrupt = true;
+                }
                 break;
             case KanjiFormInfo.XmlTagName:
-                var info = await _infoReader.ReadAsync(kanjiForm);
-                kanjiForm.Infos.Add(info);
+                await _infoReader.ReadAsync(kanjiForm);
                 break;
             case KanjiFormPriority.XmlTagName:
-                var priority = await _priorityReader.ReadAsync(kanjiForm);
-                kanjiForm.Priorities.Add(priority);
+                await _priorityReader.ReadAsync(kanjiForm);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, KanjiForm.XmlTagName);

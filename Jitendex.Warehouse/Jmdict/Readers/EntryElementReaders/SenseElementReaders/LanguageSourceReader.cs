@@ -34,18 +34,29 @@ internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSourc
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<LanguageSource> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
         var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
+
         var wasei = _xmlReader.GetAttribute("ls_wasei");
         if (wasei is not null && wasei != "y")
         {
             LogInvalidWaseiValue(sense.EntryId, sense.Order, wasei);
             sense.Entry.IsCorrupt = true;
         }
-        var text = _xmlReader.IsEmptyElement ? null : await _xmlReader.ReadElementContentAsStringAsync();
-        return new LanguageSource
+
+        string? text;
+        if (_xmlReader.IsEmptyElement)
+        {
+            text = null;
+        }
+        else
+        {
+            text = await _xmlReader.ReadElementContentAsStringAsync();
+        }
+
+        sense.LanguageSources.Add(new LanguageSource
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -56,7 +67,7 @@ internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSourc
             IsWasei = wasei == "y",
             Language = _docTypes.GetKeywordByName<Language>(languageCode),
             Type = _docTypes.GetKeywordByName<LanguageSourceType>(typeName),
-        };
+        });
     }
 
     [LoggerMessage(LogLevel.Warning,

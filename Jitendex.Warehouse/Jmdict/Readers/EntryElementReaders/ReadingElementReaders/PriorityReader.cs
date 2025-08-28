@@ -34,17 +34,17 @@ internal class RPriorityReader : IJmdictReader<Reading, ReadingPriority>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<ReadingPriority> ReadAsync(Reading reading)
+    public async Task ReadAsync(Reading reading)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
-        return new ReadingPriority
+        reading.Priorities.Add(new ReadingPriority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
             TagName = tagName,
             Reading = reading,
             Tag = tag,
-        };
+        });
     }
 }

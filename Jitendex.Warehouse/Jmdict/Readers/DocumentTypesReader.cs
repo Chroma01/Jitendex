@@ -33,9 +33,8 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<NoChild> ReadAsync(NoParent noParent)
+    public async Task ReadAsync(NoParent noParent)
     {
-        var @void = new NoChild();
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
         {
@@ -55,7 +54,6 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
                     break;
             }
         }
-        return @void;
     }
 
     [LoggerMessage(LogLevel.Warning,
@@ -96,8 +94,7 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
         // Entities explicitly defined in document header.
         foreach (var (name, description) in ParseEntities(dtd))
         {
-            // Since there's no keyword overlap between these types,
-            // it's fine to register all the definitions for all of the types.
+            // TODO: categorize parsed entities by type.
             _docTypes.RegisterKeyword<ReadingInfoTag>(name, description);
             _docTypes.RegisterKeyword<KanjiFormInfoTag>(name, description);
             _docTypes.RegisterKeyword<PartOfSpeechTag>(name, description);

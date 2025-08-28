@@ -25,7 +25,7 @@ internal readonly struct NoChild {}
 
 internal interface IJmdictReader<TParent, TChild>
 {
-    Task<TChild> ReadAsync(TParent parent);
+    Task ReadAsync(TParent parent);
 }
 
 #endregion

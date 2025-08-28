@@ -43,7 +43,7 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
         (_logger, _xmlReader, _kRestrictionReader, _rRestrictionReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
         (@logger, @xmlReader, @kRestrictionReader, @rRestrictionReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
-    public async Task<Sense> ReadAsync(Entry entry)
+    public async Task ReadAsync(Entry entry)
     {
         var sense = new Sense
         {
@@ -70,7 +70,11 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                     break;
             }
         }
-        return sense;
+
+        if (sense.Glosses.Any(g => g.Language == "eng"))
+        {
+            entry.Senses.Add(sense);
+        }
     }
 
     private async Task ReadChildElementAsync(Sense sense)
@@ -78,18 +82,35 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
         switch (_xmlReader.Name)
         {
             case KanjiFormRestriction.XmlTagName:
-                var kRestriction = await _kRestrictionReader.ReadAsync(sense);
-                if (kRestriction is not null)
-                {
-                    sense.KanjiFormRestrictions.Add(kRestriction);
-                }
+                await _kRestrictionReader.ReadAsync(sense);
                 break;
             case ReadingRestriction.XmlTagName:
-                var rRestriction = await _rRestrictionReader.ReadAsync(sense);
-                if (rRestriction is not null)
-                {
-                    sense.ReadingRestrictions.Add(rRestriction);
-                }
+                await _rRestrictionReader.ReadAsync(sense);
+                break;
+            case Gloss.XmlTagName:
+                await _glossReader.ReadAsync(sense);
+                break;
+            case PartOfSpeech.XmlTagName:
+                await _partOfSpeechReader.ReadAsync(sense);
+                break;
+            case Field.XmlTagName:
+                await _fieldReader.ReadAsync(sense);
+                break;
+            case Misc.XmlTagName:
+                await _miscReader.ReadAsync(sense);
+                break;
+            case Dialect.XmlTagName:
+                await _dialectReader.ReadAsync(sense);
+                break;
+            case LanguageSource.XmlTagName:
+                await _languageSourceReader.ReadAsync(sense);
+                break;
+            case Example.XmlTagName:
+                await _exampleReader.ReadAsync(sense);
+                break;
+            case "xref":
+            case "ant":
+                await _crossReferenceReader.ReadAsync(sense);
                 break;
             case "s_inf":
                 if (sense.Note != null)
@@ -100,48 +121,6 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                     sense.Entry.IsCorrupt = true;
                 }
                 sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
-                break;
-            case Gloss.XmlTagName:
-                var gloss = await _glossReader.ReadAsync(sense);
-                if (gloss.Language == "eng")
-                {
-                    sense.Glosses.Add(gloss);
-                }
-                break;
-            case PartOfSpeech.XmlTagName:
-                var pos = await _partOfSpeechReader.ReadAsync(sense);
-                sense.PartsOfSpeech.Add(pos);
-                break;
-            case Field.XmlTagName:
-                var field = await _fieldReader.ReadAsync(sense);
-                sense.Fields.Add(field);
-                break;
-            case Misc.XmlTagName:
-                var misc = await _miscReader.ReadAsync(sense);
-                sense.Miscs.Add(misc);
-                break;
-            case Dialect.XmlTagName:
-                var dial = await _dialectReader.ReadAsync(sense);
-                sense.Dialects.Add(dial);
-                break;
-            case "xref":
-            case "ant":
-                var reference = await _crossReferenceReader.ReadAsync(sense);
-                if (reference is not null)
-                    sense.CrossReferences.Add(reference);
-                else
-                    sense.Entry.IsCorrupt = true;
-                break;
-            case LanguageSource.XmlTagName:
-                var languageSource = await _languageSourceReader.ReadAsync(sense);
-                sense.LanguageSources.Add(languageSource);
-                break;
-            case Example.XmlTagName:
-                var example = await _exampleReader.ReadAsync(sense);
-                if (example is not null)
-                    sense.Examples.Add(example);
-                else
-                    sense.Entry.IsCorrupt = true;
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Sense.XmlTagName);

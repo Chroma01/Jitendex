@@ -34,17 +34,17 @@ internal class MiscReader : IJmdictReader<Sense, Misc>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<Misc> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<MiscTag>(description);
-        return new Misc
+        sense.Miscs.Add(new Misc
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        };
+        });
     }
 }

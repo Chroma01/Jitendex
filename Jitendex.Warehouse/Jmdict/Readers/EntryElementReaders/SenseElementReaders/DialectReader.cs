@@ -34,17 +34,17 @@ internal class DialectReader : IJmdictReader<Sense, Dialect>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<Dialect> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<DialectTag>(description);
-        return new Dialect
+        sense.Dialects.Add(new Dialect
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        };
+        });
     }
 }

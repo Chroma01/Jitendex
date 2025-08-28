@@ -35,7 +35,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
         (_logger, _xmlReader, _infoReader, _priorityReader) =
         (@logger, @xmlReader, @infoReader, @priorityReader);
 
-    public async Task<Reading> ReadAsync(Entry entry)
+    public async Task ReadAsync(Entry entry)
     {
         var reading = new Reading
         {
@@ -65,12 +65,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
             }
         }
 
-        if (string.IsNullOrWhiteSpace(reading.Text))
-        {
-            LogEmptyTextForm(entry.Id, reading.Order);
-            reading.Entry.IsCorrupt = true;
-        }
-        return reading;
+        entry.Readings.Add(reading);
     }
 
     private async Task ReadChildElementAsync(Reading reading)
@@ -79,6 +74,11 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
         {
             case "reb":
                 reading.Text = await _xmlReader.ReadElementContentAsStringAsync();
+                if (string.IsNullOrWhiteSpace(reading.Text))
+                {
+                    LogEmptyTextForm(reading.Entry.Id, reading.Order);
+                    reading.Entry.IsCorrupt = true;
+                }
                 break;
             case "re_nokanji":
                 reading.NoKanji = true;
@@ -88,12 +88,10 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
                 reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
                 break;
             case ReadingInfo.XmlTagName:
-                var readingInfo = await _infoReader.ReadAsync(reading);
-                reading.Infos.Add(readingInfo);
+                await _infoReader.ReadAsync(reading);
                 break;
             case ReadingPriority.XmlTagName:
-                var priority = await _priorityReader.ReadAsync(reading);
-                reading.Priorities.Add(priority);
+                await _priorityReader.ReadAsync(reading);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Reading.XmlTagName);

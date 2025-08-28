@@ -34,7 +34,7 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<Gloss> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var typeName = _xmlReader.GetAttribute("g_type");
         GlossType? type;
@@ -46,7 +46,7 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
         {
             type = null;
         };
-        return new Gloss
+        var gloss = new Gloss
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -56,5 +56,10 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
             Type = type,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
+
+        if (gloss.Language == "eng")
+        {
+            sense.Glosses.Add(gloss);
+        }
     }
 }

@@ -34,17 +34,17 @@ internal class FieldReader : IJmdictReader<Sense, Field>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<Field> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<FieldTag>(description);
-        return new Field
+        sense.Fields.Add(new Field
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        };
+        });
     }
 }

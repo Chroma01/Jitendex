@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal partial class ExampleReader : IJmdictReader<Sense, Example?>
+internal partial class ExampleReader : IJmdictReader<Sense, Example>
 {
     private readonly ILogger<ExampleReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -34,7 +34,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<Example?> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var example = new Example
         {
@@ -67,9 +67,13 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
         }
 
         if (example.SourceKey == -1)
-            return null;
+        {
+            sense.Entry.IsCorrupt = true;
+        }
         else
-            return example;
+        {
+            sense.Examples.Add(example);
+        }
     }
 
     private async Task ReadChildElementAsync(Example example)

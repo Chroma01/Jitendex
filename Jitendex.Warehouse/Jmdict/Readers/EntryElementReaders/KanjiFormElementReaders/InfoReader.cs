@@ -34,17 +34,17 @@ internal class KInfoReader : IJmdictReader<KanjiForm, KanjiFormInfo>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<KanjiFormInfo> ReadAsync(KanjiForm kanjiForm)
+    public async Task ReadAsync(KanjiForm kanjiForm)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<KanjiFormInfoTag>(description);
-        return new KanjiFormInfo
+        kanjiForm.Infos.Add(new KanjiFormInfo
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
             TagName = tag.Name,
             KanjiForm = kanjiForm,
             Tag = tag,
-        };
+        });
     }
 }

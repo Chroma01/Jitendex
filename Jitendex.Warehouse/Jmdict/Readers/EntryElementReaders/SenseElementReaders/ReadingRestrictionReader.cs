@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRestriction?>
+internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRestriction>
 {
     private readonly ILogger<DialectReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -32,7 +32,7 @@ internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRe
         (_logger, _xmlReader) =
         (@logger, @xmlReader);
 
-    public async Task<ReadingRestriction?> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         var restriction = new ReadingRestriction
@@ -50,13 +50,12 @@ internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRe
         {
             restriction.ReadingOrder = reading.Order;
             restriction.Reading = reading;
-            return restriction;
+            sense.ReadingRestrictions.Add(restriction);
         }
         else
         {
             LogInvalidReadingRestriction(sense.EntryId, sense.Order, text);
             sense.Entry.IsCorrupt = true;
-            return null;
         }
     }
 

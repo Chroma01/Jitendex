@@ -34,17 +34,17 @@ internal class PartOfSpeechReader : IJmdictReader<Sense, PartOfSpeech>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<PartOfSpeech> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<PartOfSpeechTag>(description);
-        return new PartOfSpeech
+        sense.PartsOfSpeech.Add(new PartOfSpeech
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        };
+        });
     }
 }

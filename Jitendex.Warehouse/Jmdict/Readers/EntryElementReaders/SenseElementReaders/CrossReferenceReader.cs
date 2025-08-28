@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReference?>
+internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReference>
 {
     private readonly ILogger<CrossReferenceReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -36,18 +36,23 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
 
     private record ParsedReference(string Text1, string? Text2, int SenseOrder);
 
-    public async Task<CrossReference?> ReadAsync(Sense sense)
+    public async Task ReadAsync(Sense sense)
     {
         var typeName = _xmlReader.Name;
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (sense.Entry.CorpusId != CorpusId.Jmdict)
         {
             LogUnsupportedCorpus(sense.Entry.Id, sense.Entry.Corpus.Name);
-            return null;
+            sense.Entry.IsCorrupt = true;
+            return;
         }
 
         var parsedRef = Parse(text);
-        if (parsedRef is null) return null;
+        if (parsedRef is null)
+        {
+            sense.Entry.IsCorrupt = true;
+            return;
+        }
 
         var type = _docTypes.GetKeywordByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
@@ -64,7 +69,8 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
             RefSenseOrder = parsedRef.SenseOrder,
             Sense = sense,
         };
-        return crossRef;
+
+        sense.CrossReferences.Add(crossRef);
     }
 
     private ParsedReference? Parse(string text)

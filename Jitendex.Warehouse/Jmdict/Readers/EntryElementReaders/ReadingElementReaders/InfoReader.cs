@@ -34,17 +34,17 @@ internal class RInfoReader : IJmdictReader<Reading, ReadingInfo>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<ReadingInfo> ReadAsync(Reading reading)
+    public async Task ReadAsync(Reading reading)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<ReadingInfoTag>(description);
-        return new ReadingInfo
+        reading.Infos.Add(new ReadingInfo
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
             TagName = tag.Name,
             Reading = reading,
             Tag = tag,
-        };
+        });
     }
 }

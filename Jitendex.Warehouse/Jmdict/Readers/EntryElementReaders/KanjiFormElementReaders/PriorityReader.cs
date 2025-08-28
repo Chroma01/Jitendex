@@ -34,17 +34,17 @@ internal class KPriorityReader: IJmdictReader<KanjiForm, KanjiFormPriority>
         (_logger, _xmlReader, _docTypes) =
         (@logger, @xmlReader, @docTypes);
 
-    public async Task<KanjiFormPriority> ReadAsync(KanjiForm kanjiForm)
+    public async Task ReadAsync(KanjiForm kanjiForm)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
-        return new KanjiFormPriority
+        kanjiForm.Priorities.Add(new KanjiFormPriority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
             TagName = tagName,
             KanjiForm = kanjiForm,
             Tag = tag,
-        };
+        });
     }
 }
