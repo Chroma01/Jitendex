@@ -57,7 +57,7 @@ internal partial class EntryReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, Entry.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.Character, Entry.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -138,7 +138,7 @@ internal partial class EntryReader
                 entry.Nanoris = entry.ReadingMeaningGroup.Nanoris;
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, Entry.XmlTagName);
+                Log.UnexpectedChildElement(_logger, entry.Character, _xmlReader.Name, Entry.XmlTagName);
                 entry.IsCorrupt = true;
                 break;
         }

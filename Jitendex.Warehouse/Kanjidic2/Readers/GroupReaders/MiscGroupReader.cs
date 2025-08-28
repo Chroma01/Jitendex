@@ -51,7 +51,7 @@ internal class MiscGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, MiscGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.Character, MiscGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -104,7 +104,7 @@ internal class MiscGroupReader
                 });
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, MiscGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, MiscGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 return;
         }

@@ -23,10 +23,10 @@ namespace Jitendex.Warehouse.Kanjidic2;
 internal static partial class Log
 {
     [LoggerMessage(LogLevel.Warning,
-    "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
-    public static partial void UnexpectedChildElement(ILogger logger, string tagName, string parentTagName);
+    "`{Character}`: Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
+    public static partial void UnexpectedChildElement(ILogger logger, string character, string tagName, string parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
-    "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
-    public static partial void UnexpectedTextNode(ILogger logger, string tagName, string text);
+    "`{Character}`: Unexpected XML text node found in element <{TagName}>: `{Text}`")]
+    public static partial void UnexpectedTextNode(ILogger logger, string character, string tagName, string text);
 }

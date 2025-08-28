@@ -51,7 +51,7 @@ internal class CodepointGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, CodepointGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.Character, CodepointGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -77,7 +77,7 @@ internal class CodepointGroupReader
                 });
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, CodepointGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, CodepointGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }

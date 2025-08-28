@@ -50,7 +50,7 @@ internal class ReadingMeaningReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, ReadingMeaning.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, group.Entry.Character, ReadingMeaning.XmlTagName, text);
                     group.Entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -96,7 +96,7 @@ internal class ReadingMeaningReader
                 readingMeaning.Meanings.Add(meaning);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, ReadingMeaning.XmlTagName);
+                Log.UnexpectedChildElement(_logger, readingMeaning.Entry.Character, _xmlReader.Name, ReadingMeaning.XmlTagName);
                 readingMeaning.Entry.IsCorrupt = true;
                 return;
         }

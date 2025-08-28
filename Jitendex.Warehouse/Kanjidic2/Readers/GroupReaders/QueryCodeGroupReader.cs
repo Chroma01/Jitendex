@@ -51,7 +51,7 @@ internal class QueryCodeGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, QueryCodeGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.Character, QueryCodeGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -78,7 +78,7 @@ internal class QueryCodeGroupReader
                 });
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, QueryCodeGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, QueryCodeGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 return;
         }

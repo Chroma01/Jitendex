@@ -51,7 +51,7 @@ internal class DictionaryGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, DictionaryGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.Character, DictionaryGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -81,7 +81,7 @@ internal class DictionaryGroupReader
                 });
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, DictionaryGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, DictionaryGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }

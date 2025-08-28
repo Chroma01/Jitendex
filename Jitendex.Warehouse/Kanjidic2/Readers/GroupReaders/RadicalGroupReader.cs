@@ -51,7 +51,7 @@ internal class RadicalGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, RadicalGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.Character, RadicalGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -77,7 +77,7 @@ internal class RadicalGroupReader
                 });
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, _xmlReader.Name, RadicalGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, RadicalGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 return;
         }
