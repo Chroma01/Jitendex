@@ -24,13 +24,17 @@ namespace Jitendex.Warehouse;
 
 public class Program
 {
-    public static async Task Main()
+    public static void Main()
     {
         var sw = new Stopwatch();
         sw.Start();
 
-        await RunKanjidic2();
-        await RunJmdict();
+        var tasks = new Task[]
+        {
+            RunKanjidic2(),
+            RunJmdict(),
+        };
+        Task.WaitAll(tasks);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
