@@ -39,11 +39,10 @@ internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSourc
         var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
         var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
         var wasei = _xmlReader.GetAttribute("ls_wasei");
-        bool isCorrupt = false;
         if (wasei is not null && wasei != "y")
         {
             LogInvalidWaseiValue(sense.EntryId, sense.Order, wasei);
-            isCorrupt = true;
+            sense.Entry.IsCorrupt = true;
         }
         var text = _xmlReader.IsEmptyElement ? null : await _xmlReader.ReadElementContentAsStringAsync();
         return new LanguageSource
@@ -57,7 +56,6 @@ internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSourc
             IsWasei = wasei == "y",
             Language = _docTypes.GetKeywordByName<Language>(languageCode),
             Type = _docTypes.GetKeywordByName<LanguageSourceType>(typeName),
-            IsCorrupt = isCorrupt,
         };
     }
 

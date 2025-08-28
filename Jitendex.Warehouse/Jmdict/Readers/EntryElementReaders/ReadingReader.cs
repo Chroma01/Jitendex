@@ -57,7 +57,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, Reading.XmlTagName, text);
-                    reading.IsCorrupt = true;
+                    reading.Entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Reading.XmlTagName;
@@ -65,10 +65,10 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
             }
         }
 
-        if (reading.Text == string.Empty)
+        if (string.IsNullOrWhiteSpace(reading.Text))
         {
             LogEmptyTextForm(entry.Id, reading.Order);
-            reading.IsCorrupt = true;
+            reading.Entry.IsCorrupt = true;
         }
         return reading;
     }
@@ -97,7 +97,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Reading.XmlTagName);
-                reading.IsCorrupt = true;
+                reading.Entry.IsCorrupt = true;
                 break;
         }
     }

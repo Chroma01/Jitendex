@@ -89,7 +89,7 @@ internal partial class ReferenceSequencer
             else
             {
                 LogInvalidSpelling(key.ToString(), xref.EntryId, targetEntry.Id);
-                xref.IsCorrupt = true;
+                xref.Sense.Entry.IsCorrupt = true;
 
                 xref.RefReading = targetEntry.Readings
                     .Where(r => !r.IsHidden()).First();
@@ -159,7 +159,7 @@ internal partial class ReferenceSequencer
                 LogInvalidCacheId(cacheKey, targetEntryId);
         }
 
-        xref.IsCorrupt = true;
+        xref.Sense.Entry.IsCorrupt = true;
 
         if (possibleTargetEntries.Count == 0)
         {

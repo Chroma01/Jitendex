@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
-public class KanjiForm : ICorruptable
+public class KanjiForm
 {
     public required int EntryId { get; set; }
     public required int Order { get; set; }
@@ -35,7 +35,6 @@ public class KanjiForm : ICorruptable
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
-    public bool IsCorrupt { get; set; }
     internal const string XmlTagName = "k_ele";
 
     public bool IsHidden() => Infos.Any(x => x.TagName == "sK");

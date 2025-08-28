@@ -58,7 +58,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, Example.XmlTagName, text);
-                    example.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Example.XmlTagName;
@@ -80,7 +80,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
                 if (example.SourceTypeName != string.Empty || example.SourceKey != -1)
                 {
                     LogKeyRedefinition(example.EntryId, example.SenseOrder, example.Order, ExampleSource.XmlTagName);
-                    example.IsCorrupt = true;
+                    example.Sense.Entry.IsCorrupt = true;
                 }
                 var sourceTypeName = _xmlReader.GetAttribute("exsrc_type");
                 if (sourceTypeName is not null)
@@ -90,7 +90,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
                 else
                 {
                     LogMissingSourceType(example.EntryId, example.SenseOrder, example.Order);
-                    example.IsCorrupt = true;
+                    example.Sense.Entry.IsCorrupt = true;
                     example.SourceTypeName = Guid.NewGuid().ToString();
                 }
                 var sourceText = await _xmlReader.ReadElementContentAsStringAsync();
@@ -101,7 +101,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
                 else
                 {
                     LogInvalidSourceKey(example.EntryId, example.SenseOrder, example.Order, sourceText);
-                    example.IsCorrupt = true;
+                    example.Sense.Entry.IsCorrupt = true;
                     break;
                 }
                 example.Source = _docTypes.GetExampleSource(example.SourceTypeName, example.SourceKey);
@@ -118,7 +118,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
                         if (example.Source.Text != string.Empty && example.Source.Text != text)
                         {
                             LogMultipleExamples(example.SourceTypeName, example.SourceKey);
-                            example.IsCorrupt = true;
+                            example.Sense.Entry.IsCorrupt = true;
                         }
                         example.Source.Text = text;
                         break;
@@ -127,19 +127,19 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example?>
                         if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
                         {
                             LogMultipleTranslations(example.SourceTypeName, example.SourceKey);
-                            example.IsCorrupt = true;
+                            example.Sense.Entry.IsCorrupt = true;
                         }
                         example.Source.Translation = translation;
                         break;
                     default:
                         LogUnexpectedLanguage(example.EntryId, example.SenseOrder, example.Order, sentenceLanguage);
-                        example.IsCorrupt = true;
+                        example.Sense.Entry.IsCorrupt = true;
                         break;
                 }
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Example.XmlTagName);
-                example.IsCorrupt = true;
+                example.Sense.Entry.IsCorrupt = true;
                 break;
         }
     }

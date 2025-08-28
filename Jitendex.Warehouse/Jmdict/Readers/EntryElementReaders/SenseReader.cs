@@ -61,7 +61,7 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, Sense.XmlTagName, text);
-                    sense.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Sense.XmlTagName;
@@ -97,7 +97,7 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 else
                 {
                     LogInvalidKanjiFormRestriction(sense.EntryId, sense.Order, kanjiFormText);
-                    sense.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                 }
                 break;
             case "stagr":
@@ -122,7 +122,7 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 else
                 {
                     LogInvalidReadingRestriction(sense.EntryId, sense.Order, readingText);
-                    sense.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                 }
                 break;
             case "s_inf":
@@ -131,7 +131,7 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                     // The XML schema allows for more than one note per sense,
                     // but in practice there is only one or none.
                     LogTooManySenseNotes(sense.EntryId, sense.Order);
-                    sense.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                 }
                 sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
@@ -164,7 +164,7 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 if (reference is not null)
                     sense.CrossReferences.Add(reference);
                 else
-                    sense.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                 break;
             case LanguageSource.XmlTagName:
                 var languageSource = await _languageSourceReader.ReadAsync(sense);
@@ -175,11 +175,11 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 if (example is not null)
                     sense.Examples.Add(example);
                 else
-                    sense.IsCorrupt = true;
+                    sense.Entry.IsCorrupt = true;
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Sense.XmlTagName);
-                sense.IsCorrupt = true;
+                sense.Entry.IsCorrupt = true;
                 break;
         }
     }

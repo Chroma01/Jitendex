@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public class LanguageSource : ICorruptable
+public class LanguageSource
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
@@ -41,8 +41,6 @@ public class LanguageSource : ICorruptable
 
     [ForeignKey(nameof(TypeName))]
     public virtual LanguageSourceType Type { get; set; } = null!;
-
-    public bool IsCorrupt { get; set; }
 
     internal const string XmlTagName = "lsource";
 }

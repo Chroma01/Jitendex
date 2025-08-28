@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public class Example : ICorruptable
+public class Example
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
@@ -38,8 +38,6 @@ public class Example : ICorruptable
 
     [ForeignKey($"{nameof(SourceTypeName)}, {nameof(SourceKey)}")]
     public virtual ExampleSource Source { get; set; } = null!;
-
-    public bool IsCorrupt { get; set; }
 
     internal const string XmlTagName = "example";
 }

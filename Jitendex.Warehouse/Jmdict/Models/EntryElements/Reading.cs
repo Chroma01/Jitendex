@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
-public class Reading : ICorruptable
+public class Reading
 {
     public required int EntryId { get; set; }
     public required int Order { get; set; }
@@ -41,7 +41,6 @@ public class Reading : ICorruptable
     [NotMapped]
     internal List<string> ConstraintKanjiFormTexts { get; set; } = [];
 
-    public bool IsCorrupt { get; set; }
     internal const string XmlTagName = "r_ele";
 
     public bool IsHidden() => Infos.Any(x => x.TagName == "sk");

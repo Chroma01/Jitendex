@@ -56,7 +56,7 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, KanjiForm.XmlTagName, text);
-                    kanjiForm.IsCorrupt = true;
+                    kanjiForm.Entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == KanjiForm.XmlTagName;
@@ -64,10 +64,10 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
             }
         }
 
-        if (kanjiForm.Text == string.Empty)
+        if (string.IsNullOrWhiteSpace(kanjiForm.Text))
         {
             LogEmptyTextForm(entry.Id, kanjiForm.Order);
-            kanjiForm.IsCorrupt = true;
+            kanjiForm.Entry.IsCorrupt = true;
         }
         return kanjiForm;
     }
@@ -89,7 +89,7 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, KanjiForm.XmlTagName);
-                kanjiForm.IsCorrupt = true;
+                kanjiForm.Entry.IsCorrupt = true;
                 break;
         }
     }

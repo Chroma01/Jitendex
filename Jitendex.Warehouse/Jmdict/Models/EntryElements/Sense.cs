@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
-public class Sense : ICorruptable
+public class Sense
 {
     public required int EntryId { get; set; }
     public required int Order { get; set; }
@@ -50,6 +50,5 @@ public class Sense : ICorruptable
     [ForeignKey(nameof(EntryId))]
     public virtual Entry Entry { get; set; } = null!;
 
-    public bool IsCorrupt { get; set; }
     internal const string XmlTagName = "sense";
 }
