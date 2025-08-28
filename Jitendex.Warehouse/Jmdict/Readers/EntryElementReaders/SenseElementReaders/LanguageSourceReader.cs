@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
+internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
 {
     private readonly ILogger<LanguageSourceReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -39,9 +39,11 @@ internal class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
         var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
         var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
         var wasei = _xmlReader.GetAttribute("ls_wasei");
+        bool isCorrupt = false;
         if (wasei is not null && wasei != "y")
         {
-            // TODO: Log and warn
+            LogInvalidWaseiValue(sense.EntryId, sense.Order, wasei);
+            isCorrupt = true;
         }
         var text = _xmlReader.IsEmptyElement ? null : await _xmlReader.ReadElementContentAsStringAsync();
         return new LanguageSource
@@ -55,6 +57,12 @@ internal class LanguageSourceReader : IJmdictReader<Sense, LanguageSource>
             IsWasei = wasei == "y",
             Language = _docTypes.GetKeywordByName<Language>(languageCode),
             Type = _docTypes.GetKeywordByName<LanguageSourceType>(typeName),
+            IsCorrupt = isCorrupt,
         };
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` sense #{SenseOrder} has a language source WASEI attribute with an invalid value: `{Value}`")]
+    private partial void LogInvalidWaseiValue(int entryId, int senseOrder, string value);
+
 }

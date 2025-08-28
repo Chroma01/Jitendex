@@ -37,8 +37,15 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
     public async Task<Gloss> ReadAsync(Sense sense)
     {
         var typeName = _xmlReader.GetAttribute("g_type");
-        var type = typeName is not null ?
-            _docTypes.GetKeywordByName<GlossType>(typeName) : null;
+        GlossType? type;
+        if (typeName is not null)
+        {
+            type = _docTypes.GetKeywordByName<GlossType>(typeName);
+        }
+        else
+        {
+            type = null;
+        };
         return new Gloss
         {
             EntryId = sense.EntryId,
