@@ -18,6 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Warehouse.Jmdict;
 
+#region Reader interfaces
+
 internal readonly struct NoParent {}
 internal readonly struct NoChild {}
 
@@ -25,6 +27,10 @@ internal interface IJmdictReader<TParent, TChild>
 {
     Task<TChild> ReadAsync(TParent parent);
 }
+
+#endregion
+
+#region Model interfaces
 
 internal interface ICorruptable
 {
@@ -36,3 +42,5 @@ internal interface IKeyword : ICorruptable
     string Name { get; set; }
     string Description { get; set; }
 }
+
+#endregion

@@ -115,8 +115,8 @@ internal partial class DocumentTypes(ILogger<DocumentTypes> logger)
             < 5000000 => CorpusId.Unknown,
             < 6000000 => CorpusId.Jmnedict,
             < 9999999 => CorpusId.Unknown,
-            9999999 => CorpusId.Metadata,
-            _ => CorpusId.Unknown,
+              9999999 => CorpusId.Metadata,
+                    _ => CorpusId.Unknown,
         };
 
     [LoggerMessage(LogLevel.Warning,
