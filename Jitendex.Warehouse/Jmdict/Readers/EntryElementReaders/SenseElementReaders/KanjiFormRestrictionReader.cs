@@ -25,10 +25,10 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementRead
 
 internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFormRestriction>
 {
-    private readonly ILogger<DialectReader> _logger;
+    private readonly ILogger<KanjiFormRestrictionReader> _logger;
     private readonly XmlReader _xmlReader;
 
-    public KanjiFormRestrictionReader(ILogger<DialectReader> logger, XmlReader xmlReader) =>
+    public KanjiFormRestrictionReader(ILogger<KanjiFormRestrictionReader> logger, XmlReader xmlReader) =>
         (_logger, _xmlReader) =
         (@logger, @xmlReader);
 

@@ -25,10 +25,10 @@ namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementRe
 
 internal partial class RestrictionReader : IJmdictReader<Reading, Restriction>
 {
-    private readonly ILogger<RPriorityReader> _logger;
+    private readonly ILogger<RestrictionReader> _logger;
     private readonly XmlReader _xmlReader;
 
-    public RestrictionReader(ILogger<RPriorityReader> logger, XmlReader xmlReader) =>
+    public RestrictionReader(ILogger<RestrictionReader> logger, XmlReader xmlReader) =>
         (_logger, _xmlReader) =
         (@logger, @xmlReader);
 
