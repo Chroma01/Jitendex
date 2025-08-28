@@ -85,7 +85,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
             case "re_nokanji":
                 reading.NoKanji = true;
                 break;
-            case "re_restr":
+            case Restriction.XmlTagName:
                 await _restrictionReader.ReadAsync(reading);
                 break;
             case ReadingInfo.XmlTagName:
