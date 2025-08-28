@@ -18,30 +18,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements;
+namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[PrimaryKey(nameof(EntryId), nameof(Order))]
-public class Reading
+[NotMapped]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]
+internal class Restriction
 {
     public required int EntryId { get; set; }
+    public required int ReadingOrder { get; set; }
     public required int Order { get; set; }
-    public required string Text { get; set; }
+    public required int KanjiFormOrder { get; set; }
 
-    public virtual List<ReadingInfo> Infos { get; set; } = [];
-    public virtual List<ReadingPriority> Priorities { get; set; } = [];
-    public virtual List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
+    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
+    public virtual Reading Reading { get; set; } = null!;
 
-    [ForeignKey(nameof(EntryId))]
-    public virtual Entry Entry { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public virtual KanjiForm KanjiForm { get; set; } = null!;
 
-    [NotMapped]
-    internal bool NoKanji { get; set; } = false;
-    [NotMapped]
-    internal List<Restriction> Restrictions { get; set; } = [];
-
-    internal const string XmlTagName = "r_ele";
-
-    public bool IsHidden() => Infos.Any(x => x.TagName == "sk");
+    internal const string XmlTagName = "re_restr";
 }

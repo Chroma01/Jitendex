@@ -71,6 +71,7 @@ internal static class JmdictServiceProvider
         .AddTransient<IJmdictReader<KanjiForm, KanjiFormPriority>, KPriorityReader>()
 
         // Reading element readers.
+        .AddTransient<IJmdictReader<Reading, Restriction>, RestrictionReader>()
         .AddTransient<IJmdictReader<Reading, ReadingInfo>, RInfoReader>()
         .AddTransient<IJmdictReader<Reading, ReadingPriority>, RPriorityReader>()
 

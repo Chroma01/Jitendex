@@ -28,12 +28,13 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
 {
     private readonly ILogger<ReadingReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly IJmdictReader<Reading, Restriction> _restrictionReader;
     private readonly IJmdictReader<Reading, ReadingInfo> _infoReader;
     private readonly IJmdictReader<Reading, ReadingPriority> _priorityReader;
 
-    public ReadingReader(ILogger<ReadingReader> logger, XmlReader xmlReader, IJmdictReader<Reading, ReadingInfo> infoReader, IJmdictReader<Reading, ReadingPriority> priorityReader) =>
-        (_logger, _xmlReader, _infoReader, _priorityReader) =
-        (@logger, @xmlReader, @infoReader, @priorityReader);
+    public ReadingReader(ILogger<ReadingReader> logger, XmlReader xmlReader, IJmdictReader<Reading, Restriction> restrictionReader, IJmdictReader<Reading, ReadingInfo> infoReader, IJmdictReader<Reading, ReadingPriority> priorityReader) =>
+        (_logger, _xmlReader, _restrictionReader, _infoReader, _priorityReader) =
+        (@logger, @xmlReader, @restrictionReader, @infoReader, @priorityReader);
 
     public async Task ReadAsync(Entry entry)
     {
@@ -65,6 +66,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
             }
         }
 
+        CheckForRedundancies(reading);
         entry.Readings.Add(reading);
     }
 
@@ -84,8 +86,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
                 reading.NoKanji = true;
                 break;
             case "re_restr":
-                var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
-                reading.ConstraintKanjiFormTexts.Add(kanjiFormText);
+                await _restrictionReader.ReadAsync(reading);
                 break;
             case ReadingInfo.XmlTagName:
                 await _infoReader.ReadAsync(reading);
@@ -100,7 +101,26 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
         }
     }
 
+    private void CheckForRedundancies(Reading reading)
+    {
+        var count = 0;
+        if (reading.Restrictions.Count > 0) count++;
+        if (reading.IsHidden()) count++;
+        if (reading.NoKanji) count++;
+
+        if (count > 1)
+        {
+            LogRedundantReadingConstraints(reading.Entry.Id, reading.Order);
+            reading.Entry.IsCorrupt = true;
+        }
+    }
+
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains no text")]
     private partial void LogEmptyTextForm(int entryId, int order);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` reading #{Order} has redundant constraint / NoKanji / hidden information")]
+    private partial void LogRedundantReadingConstraints(int entryId, int order);
+
 }

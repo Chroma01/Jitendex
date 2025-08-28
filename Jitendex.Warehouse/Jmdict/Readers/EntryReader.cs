@@ -135,11 +135,12 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
     private Entry PostProcess(Entry entry)
     {
         BridgeReadingsAndKanjiForms(entry);
-        // Anticipating more operations here later.
+        CheckForKanjiFormOrphans(entry);
+
         return entry;
     }
 
-    private void BridgeReadingsAndKanjiForms(Entry entry)
+    private static void BridgeReadingsAndKanjiForms(Entry entry)
     {
         foreach (var reading in entry.Readings)
         {
@@ -152,7 +153,7 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
             {
                 if (kanjiForm.IsHidden())
                     continue;
-                if (reading.ConstraintKanjiFormTexts.Count > 0 && !reading.ConstraintKanjiFormTexts.Contains(kanjiForm.Text))
+                if (reading.Restrictions.Count > 0 && !reading.Restrictions.Any(r => r.KanjiFormOrder == kanjiForm.Order))
                     continue;
                 var bridge = new ReadingKanjiFormBridge
                 {
@@ -166,7 +167,6 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
                 kanjiForm.ReadingBridges.Add(bridge);
             }
         }
-        CheckForKanjiFormOrphans(entry);
     }
 
     private void CheckForKanjiFormOrphans(Entry entry)
