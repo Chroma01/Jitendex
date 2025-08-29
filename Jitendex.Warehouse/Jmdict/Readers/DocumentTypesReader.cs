@@ -50,7 +50,7 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, _xmlReader.Name, text);
+                    LogUnexpectedText(text);
                     break;
             }
         }
@@ -59,6 +59,10 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
     [LoggerMessage(LogLevel.Warning,
     "Element <{xmlTagName}> encountered before the document type definitions have been parsed.")]
     private partial void LogUnexpectedElement(string xmlTagName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Text node `{Text}` encountered before the document type definitions have been parsed.")]
+    private partial void LogUnexpectedText(string text);
 
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdEntityRegex();
