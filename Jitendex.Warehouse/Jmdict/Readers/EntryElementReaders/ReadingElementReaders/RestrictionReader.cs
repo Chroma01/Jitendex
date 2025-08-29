@@ -36,17 +36,17 @@ internal partial class RestrictionReader : IJmdictReader<Reading, Restriction>
     {
         var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
 
-        var possibleKanjiForms = reading.Entry.KanjiForms
+        var matchingKanjiForms = reading.Entry.KanjiForms
             .Where(k => k.Text == kanjiFormText);
 
-        if (possibleKanjiForms.Count() != 1)
+        if (matchingKanjiForms.Count() != 1)
         {
             LogInvalidRestriction(reading.EntryId, reading.Order, kanjiFormText);
             reading.Entry.IsCorrupt = true;
             return;
         }
 
-        var kanjiForm = possibleKanjiForms.First();
+        var kanjiForm = matchingKanjiForms.First();
         if (kanjiForm.IsHidden())
         {
             LogHiddenRestriction(reading.EntryId, reading.Order, kanjiFormText);
