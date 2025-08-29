@@ -117,6 +117,11 @@ internal partial class ReadingMeaningReader
             readingMeaning.IsKokuji = true;
             return; // Don't add these "meanings"
         }
+        if (meaning.Text == "(ghost kanji)")
+        {
+            readingMeaning.IsGhost = true;
+            return; // Don't add these "meanings"
+        }
         readingMeaning.Meanings.Add(meaning);
     }
 

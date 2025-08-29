@@ -28,6 +28,7 @@ internal class ReadingMeaning
     public List<Reading> Readings { get; set; } = [];
     public List<Meaning> Meanings { get; set; } = [];
     public bool IsKokuji = false;
+    public bool IsGhost = false;
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;

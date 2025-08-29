@@ -51,6 +51,7 @@ public class Entry : ICorruptable
 
     // Reading Meaning Group
     public required bool IsKokuji { get; set; }
+    public required bool IsGhost { get; set; }
     public virtual List<Reading> Readings { get; set; } = [];
     public virtual List<Meaning> Meanings { get; set; } = [];
     public virtual List<Nanori> Nanoris { get; set; } = [];

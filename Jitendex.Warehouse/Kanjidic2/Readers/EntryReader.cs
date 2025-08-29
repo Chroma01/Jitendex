@@ -45,6 +45,7 @@ internal partial class EntryReader
         {
             Character = string.Empty,
             IsKokuji = false,
+            IsGhost = false,
         };
 
         var exit = false;
@@ -135,6 +136,7 @@ internal partial class EntryReader
                 entry.Readings = entry.ReadingMeaningGroup.ReadingMeaning?.Readings ?? [];
                 entry.Meanings = entry.ReadingMeaningGroup.ReadingMeaning?.Meanings ?? [];
                 entry.IsKokuji = entry.ReadingMeaningGroup.ReadingMeaning?.IsKokuji ?? false;
+                entry.IsGhost = entry.ReadingMeaningGroup.ReadingMeaning?.IsGhost ?? false;
                 entry.Nanoris = entry.ReadingMeaningGroup.Nanoris;
                 break;
             default:
