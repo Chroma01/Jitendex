@@ -32,14 +32,14 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
     private readonly IJmdictReader<Sense, ReadingRestriction> _rRestrictionReader;
     private readonly IJmdictReader<Sense, CrossReference> _crossReferenceReader;
     private readonly IJmdictReader<Sense, Dialect> _dialectReader;
-    private readonly IJmdictReader<Sense, Example?> _exampleReader;
+    private readonly IJmdictReader<Sense, Example> _exampleReader;
     private readonly IJmdictReader<Sense, Field> _fieldReader;
     private readonly IJmdictReader<Sense, Gloss> _glossReader;
     private readonly IJmdictReader<Sense, LanguageSource> _languageSourceReader;
     private readonly IJmdictReader<Sense, Misc> _miscReader;
     private readonly IJmdictReader<Sense, PartOfSpeech> _partOfSpeechReader;
 
-    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, KanjiFormRestriction> kRestrictionReader, IJmdictReader<Sense, ReadingRestriction> rRestrictionReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example?> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
+    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, IJmdictReader<Sense, KanjiFormRestriction> kRestrictionReader, IJmdictReader<Sense, ReadingRestriction> rRestrictionReader, IJmdictReader<Sense, CrossReference> crossReferenceReader, IJmdictReader<Sense, Dialect> dialectReader, IJmdictReader<Sense, Example> exampleReader, IJmdictReader<Sense, Field> fieldReader, IJmdictReader<Sense, Gloss> glossReader, IJmdictReader<Sense, LanguageSource> languageSourceReader, IJmdictReader<Sense, Misc> miscReader, IJmdictReader<Sense, PartOfSpeech> partOfSpeechReader) =>
         (_logger, _xmlReader, _kRestrictionReader, _rRestrictionReader, _crossReferenceReader, _dialectReader, _exampleReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
         (@logger, @xmlReader, @kRestrictionReader, @rRestrictionReader, @crossReferenceReader, @dialectReader, @exampleReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
