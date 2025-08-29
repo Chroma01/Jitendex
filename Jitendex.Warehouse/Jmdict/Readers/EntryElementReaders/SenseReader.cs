@@ -113,20 +113,25 @@ internal partial class SenseReader : IJmdictReader<Entry, Sense>
                 await _crossReferenceReader.ReadAsync(sense);
                 break;
             case "s_inf":
-                if (sense.Note != null)
-                {
-                    // The XML schema allows for more than one note per sense,
-                    // but in practice there is only one or none.
-                    LogTooManySenseNotes(sense.EntryId, sense.Order);
-                    sense.Entry.IsCorrupt = true;
-                }
-                sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
+                await ReadSenseNote(sense);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Sense.XmlTagName);
                 sense.Entry.IsCorrupt = true;
                 break;
         }
+    }
+
+    private async Task ReadSenseNote(Sense sense)
+    {
+        // The XML schema allows for more than one note per sense,
+        // but in practice there is only one or none.
+        if (sense.Note != null)
+        {
+            LogTooManySenseNotes(sense.EntryId, sense.Order);
+            sense.Entry.IsCorrupt = true;
+        }
+        sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
     }
 
     [LoggerMessage(LogLevel.Warning,

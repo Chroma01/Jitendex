@@ -72,12 +72,7 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
         switch (_xmlReader.Name)
         {
             case "keb":
-                kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();
-                if (string.IsNullOrWhiteSpace(kanjiForm.Text))
-                {
-                    LogEmptyTextForm(kanjiForm.Entry.Id, kanjiForm.Order);
-                    kanjiForm.Entry.IsCorrupt = true;
-                }
+                await ReadKanjiFormText(kanjiForm);
                 break;
             case KanjiFormInfo.XmlTagName:
                 await _infoReader.ReadAsync(kanjiForm);
@@ -89,6 +84,16 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, KanjiForm.XmlTagName);
                 kanjiForm.Entry.IsCorrupt = true;
                 break;
+        }
+    }
+
+    private async Task ReadKanjiFormText(KanjiForm kanjiForm)
+    {
+        kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();
+        if (string.IsNullOrWhiteSpace(kanjiForm.Text))
+        {
+            LogEmptyTextForm(kanjiForm.Entry.Id, kanjiForm.Order);
+            kanjiForm.Entry.IsCorrupt = true;
         }
     }
 

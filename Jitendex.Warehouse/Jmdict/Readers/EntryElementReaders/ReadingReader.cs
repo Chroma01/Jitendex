@@ -75,12 +75,7 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
         switch (_xmlReader.Name)
         {
             case "reb":
-                reading.Text = await _xmlReader.ReadElementContentAsStringAsync();
-                if (string.IsNullOrWhiteSpace(reading.Text))
-                {
-                    LogEmptyTextForm(reading.Entry.Id, reading.Order);
-                    reading.Entry.IsCorrupt = true;
-                }
+                await ReadReadingText(reading);
                 break;
             case "re_nokanji":
                 reading.NoKanji = true;
@@ -98,6 +93,16 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Reading.XmlTagName);
                 reading.Entry.IsCorrupt = true;
                 break;
+        }
+    }
+
+    private async Task ReadReadingText(Reading reading)
+    {
+        reading.Text = await _xmlReader.ReadElementContentAsStringAsync();
+        if (string.IsNullOrWhiteSpace(reading.Text))
+        {
+            LogEmptyTextForm(reading.Entry.Id, reading.Order);
+            reading.Entry.IsCorrupt = true;
         }
     }
 

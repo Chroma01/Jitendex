@@ -69,12 +69,9 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
         }
 
         if (entry is null) return;
+        entry.IsCorrupt = isCorrupt ? isCorrupt : entry.IsCorrupt;
 
         PostProcess(entry);
-        if (!entry.IsCorrupt)
-        {
-            entry.IsCorrupt = isCorrupt;
-        }
         entries.Add(entry);
     }
 
@@ -90,6 +87,10 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
             CorpusId = corpus.Id,
             Corpus = corpus,
         };
+        if (corpus.Id == CorpusId.Unknown)
+        {
+            entry.IsCorrupt = true;
+        }
         return entry;
     }
 
