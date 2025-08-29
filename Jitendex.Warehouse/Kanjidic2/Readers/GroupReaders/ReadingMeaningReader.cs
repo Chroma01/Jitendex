@@ -84,7 +84,7 @@ internal class ReadingMeaningReader
         {
             Character = readingMeaning.Character,
             Order = readingMeaning.Readings.Count + 1,
-            Type = _xmlReader.GetAttribute("r_type") ?? string.Empty,
+            TypeName = _xmlReader.GetAttribute("r_type") ?? string.Empty,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = readingMeaning.Entry,
         });

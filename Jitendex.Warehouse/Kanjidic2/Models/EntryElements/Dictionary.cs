@@ -27,7 +27,7 @@ public class Dictionary
     public required string Character { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public required string Type { get; set; }
+    public required string TypeName { get; set; }
     public int? Volume { get; set; }
     public int? Page { get; set; }
 

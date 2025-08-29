@@ -27,7 +27,7 @@ public class Radical
     public required string Character { get; set; }
     public required int Order { get; set; }
     public required int Number { get; set; }
-    public required string Type { get; set; }
+    public required string TypeName { get; set; }
 
     [ForeignKey(nameof(Character))]
     public virtual Entry Entry { get; set; } = null!;

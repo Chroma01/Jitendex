@@ -24,8 +24,12 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class MiscGroupReader
+internal partial class MiscGroupReader
 {
+    private const string GradeXmlTagName = "grade";
+    private const string FrequencyXmlTagName = "freq";
+    private const string JlptXmlTagName = "jlpt";
+
     private readonly ILogger<MiscGroupReader> _logger;
     private readonly XmlReader _xmlReader;
 
@@ -66,13 +70,13 @@ internal class MiscGroupReader
     {
         switch (_xmlReader.Name)
         {
-            case "grade":
+            case GradeXmlTagName:
                 await ReadGrade(group);
                 break;
-            case "freq":
+            case FrequencyXmlTagName:
                 await ReadFrequency(group);
                 break;
-            case "jlpt":
+            case JlptXmlTagName:
                 await ReadJlpt(group);
                 break;
             case StrokeCount.XmlTagName:
@@ -93,50 +97,107 @@ internal class MiscGroupReader
 
     private async Task ReadGrade(MiscGroup group)
     {
-        group.Grade = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        if (int.TryParse(text, out int value))
+        {
+            group.Grade = value;
+        }
+        else
+        {
+            LogNonNumeric(group.Character, GradeXmlTagName, text);
+            group.Entry.IsCorrupt = true;
+        }
     }
 
     private async Task ReadFrequency(MiscGroup group)
     {
-        group.Frequency = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        if (int.TryParse(text, out int value))
+        {
+            group.Frequency = value;
+        }
+        else
+        {
+            LogNonNumeric(group.Character, FrequencyXmlTagName, text);
+            group.Entry.IsCorrupt = true;
+        }
     }
 
     private async Task ReadJlpt(MiscGroup group)
     {
-        group.JlptLevel = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        if (int.TryParse(text, out int value))
+        {
+            group.JlptLevel = value;
+        }
+        else
+        {
+            LogNonNumeric(group.Character, JlptXmlTagName, text);
+            group.Entry.IsCorrupt = true;
+        }
     }
 
     private async Task ReadStrokeCount(MiscGroup group)
     {
-        group.StrokeCounts.Add(new StrokeCount
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        int value;
+        if (int.TryParse(text, out int x))
+        {
+            value = x;
+        }
+        else
+        {
+            LogNonNumeric(group.Character, StrokeCount.XmlTagName, text);
+            group.Entry.IsCorrupt = true;
+            return;
+        }
+        var strokeCount = new StrokeCount
         {
             Character = group.Character,
             Order = group.StrokeCounts.Count + 1,
-            Value = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
+            Value = value,
             Entry = group.Entry,
-        });
+        };
+        group.StrokeCounts.Add(strokeCount);
     }
 
     private async Task ReadVariant(MiscGroup group)
     {
-        group.Variants.Add(new Variant
+        var typeName = _xmlReader.GetAttribute("var_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(group.Character);
+            group.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        var variant = new Variant
         {
             Character = group.Character,
             Order = group.Variants.Count + 1,
-            Type = _xmlReader.GetAttribute("var_type") ?? throw new Exception($"Character `{group.Character}` missing variant type"),
+            TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
-        });
+        };
+        group.Variants.Add(variant);
     }
 
     private async Task ReadRadicalName(MiscGroup group)
     {
-        group.RadicalNames.Add(new RadicalName
+        var radicalName = new RadicalName
         {
             Character = group.Character,
             Order = group.RadicalNames.Count + 1,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
-        });
+        };
+        group.RadicalNames.Add(radicalName);
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` contains a non-numeric <{TagName}> value : `{Text}")]
+    private partial void LogNonNumeric(string character, string tagName, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` is missing a variant type attribute")]
+    private partial void LogMissingTypeName(string character);
 }

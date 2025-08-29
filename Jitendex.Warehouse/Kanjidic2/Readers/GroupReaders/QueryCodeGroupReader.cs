@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class QueryCodeGroupReader
+internal partial class QueryCodeGroupReader
 {
     private readonly ILogger<QueryCodeGroupReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -78,14 +78,31 @@ internal class QueryCodeGroupReader
 
     private async Task ReadQueryCode(QueryCodeGroup group)
     {
-        group.QueryCodes.Add(new QueryCode
+        var queryCode = new QueryCode
         {
             Character = group.Character,
             Order = group.QueryCodes.Count + 1,
-            Type = _xmlReader.GetAttribute("qc_type") ?? throw new Exception($"Character `{group.Character}` missing query code type"),
+            TypeName = GetTypeName(group),
             Misclassification = _xmlReader.GetAttribute("skip_misclass"),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
-        });
+        };
+        group.QueryCodes.Add(queryCode);
     }
+
+    private string GetTypeName(QueryCodeGroup group)
+    {
+        var typeName = _xmlReader.GetAttribute("qc_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(group.Character);
+            group.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        return typeName;
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` is missing a query code type attribute")]
+    private partial void LogMissingTypeName(string character);
 }

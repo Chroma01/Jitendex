@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class DictionaryGroupReader
+internal partial class DictionaryGroupReader
 {
     private readonly ILogger<DictionaryGroupReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -78,17 +78,80 @@ internal class DictionaryGroupReader
 
     private async Task ReadDictionary(DictionaryGroup group)
     {
-        var volume = _xmlReader.GetAttribute("m_vol");
-        var page = _xmlReader.GetAttribute("m_page");
-        group.Dictionaries.Add(new Dictionary
+        var dictionary = new Dictionary
         {
             Character = group.Character,
             Order = group.Dictionaries.Count + 1,
-            Type = _xmlReader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
-            Volume = volume != null ? int.Parse(volume) : null,
-            Page = page != null ? int.Parse(page) : null,
+            TypeName = GetTypeName(group),
+            Volume = GetDictionaryVolume(group),
+            Page = GetDictionaryPage(group),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
-        });
+        };
+        group.Dictionaries.Add(dictionary);
     }
+
+    private string GetTypeName(DictionaryGroup group)
+    {
+        var typeName = _xmlReader.GetAttribute("dr_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(group.Character);
+            group.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        return typeName;
+    }
+
+    private int? GetDictionaryVolume(DictionaryGroup group)
+    {
+        var volume = _xmlReader.GetAttribute("m_vol");
+        if (volume is null)
+        {
+            // Not an error; allowed to be null
+            return null;
+        }
+        if (int.TryParse(volume, out int value))
+        {
+            return value;
+        }
+        else
+        {
+            LogNonNumericVolume(group.Character, volume);
+            group.Entry.IsCorrupt = true;
+            return null;
+        }
+    }
+
+    private int? GetDictionaryPage(DictionaryGroup group)
+    {
+        var page = _xmlReader.GetAttribute("m_page");
+        if (page is null)
+        {
+            // Not an error; allowed to be null
+            return null;
+        }
+        if (int.TryParse(page, out int value))
+        {
+            return value;
+        }
+        else
+        {
+            LogNonNumericPage(group.Character, page);
+            group.Entry.IsCorrupt = true;
+            return null;
+        }
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` is missing a dictionary type attribute")]
+    private partial void LogMissingTypeName(string character);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` has a dictionary volume attribute that is non-numeric: `{Volume}`")]
+    private partial void LogNonNumericVolume(string character, string volume);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` has a dictionary page attribute that is non-numeric: `{Page}`")]
+    private partial void LogNonNumericPage(string character, string page);
 }

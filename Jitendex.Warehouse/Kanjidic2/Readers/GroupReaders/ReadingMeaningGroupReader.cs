@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class ReadingMeaningGroupReader
+internal partial class ReadingMeaningGroupReader
 {
     private readonly ILogger<ReadingMeaningGroupReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -70,9 +70,11 @@ internal class ReadingMeaningGroupReader
         {
             case ReadingMeaning.XmlTagName:
                 if (group.ReadingMeaning != null)
-                    throw new Exception($"Reading-meaning group for character `{group.Character}` has more than one reading-meaning set.");
-                var readingMeaning = await _readingMeaningReader.ReadAsync(group);
-                group.ReadingMeaning = readingMeaning;
+                {
+                    group.Entry.IsCorrupt = true;
+                    LogUnexpectedGroup(group.Character, ReadingMeaning.XmlTagName);
+                }
+                group.ReadingMeaning = await _readingMeaningReader.ReadAsync(group);
                 break;
             case Nanori.XmlTagName:
                 await ReadNanori(group);
@@ -86,12 +88,17 @@ internal class ReadingMeaningGroupReader
 
     private async Task ReadNanori(ReadingMeaningGroup group)
     {
-        group.Nanoris.Add(new Nanori
+        var nanori = new Nanori
         {
             Character = group.Character,
             Order = group.Nanoris.Count + 1,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
-        });
+        };
+        group.Nanoris.Add(nanori);
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry for character `{Character}` has more than one <{XmlTagName}> child element.")]
+    private partial void LogUnexpectedGroup(string character, string xmlTagName);
 }

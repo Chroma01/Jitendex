@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class RadicalGroupReader
+internal partial class RadicalGroupReader
 {
     private readonly ILogger<RadicalGroupReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -78,13 +78,60 @@ internal class RadicalGroupReader
 
     private async Task ReadRadical(RadicalGroup group)
     {
-        group.Radicals.Add(new Radical
+        var typeName = GetTypeName(group);
+        int? number = await GetNumber(group);
+        if (number is null)
+        {
+            // An error occurred
+            return;
+        }
+        var radical = new Radical
         {
             Character = group.Character,
             Order = group.Radicals.Count + 1,
-            Type = _xmlReader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
-            Number = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
+            TypeName = typeName,
+            Number = (int)number,
             Entry = group.Entry,
-        });
+        };
+        group.Radicals.Add(radical);
     }
+
+    private string GetTypeName(RadicalGroup group)
+    {
+        var typeName = _xmlReader.GetAttribute("rad_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(group.Character);
+            group.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        return typeName;
+    }
+
+    private async Task<int?> GetNumber(RadicalGroup group)
+    {
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        if (int.TryParse(text, out int value))
+        {
+            return value;
+        }
+        else
+        {
+            LogNonNumericRadicalNumber(group.Character, text);
+            group.Entry.IsCorrupt = true;
+            return null;
+        }
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` is missing a radical type attribute")]
+    private partial void LogMissingTypeName(string character);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` has an empty radical number <{TagName}> element")]
+    private partial void LogMissingRadicalNumber(string character, string tagName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` has a radical number that is non-numeric: `{Text}`")]
+    private partial void LogNonNumericRadicalNumber(string character, string text);
 }

@@ -27,7 +27,7 @@ public class QueryCode
     public required string Character { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public required string Type { get; set; }
+    public required string TypeName { get; set; }
     public string? Misclassification { get; set; }
 
     [ForeignKey(nameof(Character))]

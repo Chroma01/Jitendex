@@ -24,7 +24,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class CodepointGroupReader
+internal partial class CodepointGroupReader
 {
     private readonly ILogger<CodepointGroupReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -78,13 +78,31 @@ internal class CodepointGroupReader
 
     private async Task ReadCodepoint(CodepointGroup group)
     {
-        group.Codepoints.Add(new Codepoint
+        var codepoint = new Codepoint
         {
             Character = group.Character,
             Order = group.Codepoints.Count + 1,
-            Type = _xmlReader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
+            TypeName = GetTypeName(group),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
-        });
+        };
+        group.Codepoints.Add(codepoint);
     }
+
+    private string GetTypeName(CodepointGroup group)
+    {
+        var typeName = _xmlReader.GetAttribute("cp_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(group.Character);
+            group.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        return typeName;
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` is missing a codepoint type attribute")]
+    private partial void LogMissingTypeName(string character);
+
 }
