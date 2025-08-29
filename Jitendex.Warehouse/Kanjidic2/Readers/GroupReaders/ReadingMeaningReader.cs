@@ -23,7 +23,7 @@ using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
 namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
 
-internal class ReadingMeaningReader
+internal partial class ReadingMeaningReader
 {
     private readonly ILogger<ReadingMeaningReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -80,14 +80,22 @@ internal class ReadingMeaningReader
 
     private async Task ReadReading(ReadingMeaning readingMeaning)
     {
-        readingMeaning.Readings.Add(new Reading
+        var typeName = _xmlReader.GetAttribute("r_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(readingMeaning.Character);
+            readingMeaning.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        var reading = new Reading
         {
             Character = readingMeaning.Character,
             Order = readingMeaning.Readings.Count + 1,
-            TypeName = _xmlReader.GetAttribute("r_type") ?? string.Empty,
+            TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = readingMeaning.Entry,
-        });
+        };
+        readingMeaning.Readings.Add(reading);
     }
 
     private async Task ReadMeaning(ReadingMeaning readingMeaning)
@@ -111,4 +119,8 @@ internal class ReadingMeaningReader
         }
         readingMeaning.Meanings.Add(meaning);
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Character `{Character}` is missing a reading type attribute")]
+    private partial void LogMissingTypeName(string character);
 }
