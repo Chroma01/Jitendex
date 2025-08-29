@@ -36,14 +36,14 @@ internal class Service
     public async Task<List<Entry>> CreateEntriesAsync()
     {
         var entries = new List<Entry>();
-        await foreach (var entry in EnumerateEntriesAsync())
+        await foreach (var entry in ReadKanjidic2Async())
         {
             entries.Add(entry);
         }
         return entries;
     }
 
-    private async IAsyncEnumerable<Entry> EnumerateEntriesAsync()
+    private async IAsyncEnumerable<Entry> ReadKanjidic2Async()
     {
         while (await _xmlReader.ReadAsync())
         {

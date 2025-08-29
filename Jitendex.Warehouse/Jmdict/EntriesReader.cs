@@ -22,15 +22,15 @@ using Jitendex.Warehouse.Jmdict.Models;
 
 namespace Jitendex.Warehouse.Jmdict;
 
-internal class Service
+internal class EntriesReader
 {
-    private readonly ILogger<Service> _logger;
+    private readonly ILogger<EntriesReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly IJmdictReader<NoParent, NoChild> _documentReader;
     private readonly IJmdictReader<List<Entry>, Entry> _entryReader;
     private readonly ReferenceSequencer _referenceSequencer;
 
-    public Service(ILogger<Service> logger, XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<List<Entry>, Entry> entryReader, ReferenceSequencer referenceSequencer) =>
+    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<List<Entry>, Entry> entryReader, ReferenceSequencer referenceSequencer) =>
         (_logger, _xmlReader, _documentReader, _entryReader, _referenceSequencer) =
         (@logger, @xmlReader, @documentReader, @entryReader, @referenceSequencer);
 

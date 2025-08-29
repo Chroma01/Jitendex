@@ -37,7 +37,7 @@ internal record FilePaths(string XmlFile, string XRefCache);
 
 internal static class JmdictServiceProvider
 {
-    public static Service GetService(FilePaths paths) => new ServiceCollection()
+    public static EntriesReader GetService(FilePaths paths) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -97,7 +97,7 @@ internal static class JmdictServiceProvider
         })
 
         // Build and return the Jmdict service.
-        .AddTransient<Service>()
+        .AddTransient<EntriesReader>()
         .BuildServiceProvider()
-        .GetRequiredService<Service>();
+        .GetRequiredService<EntriesReader>();
 }
