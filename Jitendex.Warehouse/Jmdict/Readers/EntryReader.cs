@@ -133,12 +133,10 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
         }
     }
 
-    private Entry PostProcess(Entry entry)
+    private void PostProcess(Entry entry)
     {
         BridgeReadingsAndKanjiForms(entry);
         CheckForKanjiFormOrphans(entry);
-
-        return entry;
     }
 
     private static void BridgeReadingsAndKanjiForms(Entry entry)
