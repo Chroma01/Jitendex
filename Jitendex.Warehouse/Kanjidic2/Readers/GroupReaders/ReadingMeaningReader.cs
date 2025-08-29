@@ -66,39 +66,49 @@ internal class ReadingMeaningReader
         switch (_xmlReader.Name)
         {
             case Reading.XmlTagName:
-                readingMeaning.Readings.Add(new Reading
-                {
-                    Character = readingMeaning.Character,
-                    Order = readingMeaning.Readings.Count + 1,
-                    Type = _xmlReader.GetAttribute("r_type") ?? string.Empty,
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = readingMeaning.Entry,
-                });
+                await ReadReading(readingMeaning);
                 break;
             case Meaning.XmlTagName:
-                var meaning = new Meaning
-                {
-                    Character = readingMeaning.Character,
-                    Order = readingMeaning.Meanings.Count + 1,
-                    Language = _xmlReader.GetAttribute("m_lang") ?? "en",
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = readingMeaning.Entry,
-                };
-                if (meaning.Language != "en")
-                {
-                    break; // Only want English meanings
-                }
-                if (meaning.Text == "(kokuji)")
-                {
-                    readingMeaning.IsKokuji = true;
-                    break; // Don't add these "meanings"
-                }
-                readingMeaning.Meanings.Add(meaning);
+                await ReadMeaning(readingMeaning);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, readingMeaning.Entry.Character, _xmlReader.Name, ReadingMeaning.XmlTagName);
                 readingMeaning.Entry.IsCorrupt = true;
-                return;
+                break;
         }
+    }
+
+    private async Task ReadReading(ReadingMeaning readingMeaning)
+    {
+        readingMeaning.Readings.Add(new Reading
+        {
+            Character = readingMeaning.Character,
+            Order = readingMeaning.Readings.Count + 1,
+            Type = _xmlReader.GetAttribute("r_type") ?? string.Empty,
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = readingMeaning.Entry,
+        });
+    }
+
+    private async Task ReadMeaning(ReadingMeaning readingMeaning)
+    {
+        var meaning = new Meaning
+        {
+            Character = readingMeaning.Character,
+            Order = readingMeaning.Meanings.Count + 1,
+            Language = _xmlReader.GetAttribute("m_lang") ?? "en",
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = readingMeaning.Entry,
+        };
+        if (meaning.Language != "en")
+        {
+            return; // Only want English meanings
+        }
+        if (meaning.Text == "(kokuji)")
+        {
+            readingMeaning.IsKokuji = true;
+            return; // Don't add these "meanings"
+        }
+        readingMeaning.Meanings.Add(meaning);
     }
 }

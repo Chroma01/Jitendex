@@ -75,18 +75,23 @@ internal class ReadingMeaningGroupReader
                 group.ReadingMeaning = readingMeaning;
                 break;
             case Nanori.XmlTagName:
-                group.Nanoris.Add(new Nanori
-                {
-                    Character = group.Character,
-                    Order = group.Nanoris.Count + 1,
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
+                await ReadNanori(group);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
-                return;
+                break;
         }
+    }
+
+    private async Task ReadNanori(ReadingMeaningGroup group)
+    {
+        group.Nanoris.Add(new Nanori
+        {
+            Character = group.Character,
+            Order = group.Nanoris.Count + 1,
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = group.Entry,
+        });
     }
 }

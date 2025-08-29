@@ -35,7 +35,7 @@ internal class RadicalGroupReader
 
     public async Task<RadicalGroup> ReadAsync(Entry entry)
     {
-        var radicalGroup = new RadicalGroup
+        var group = new RadicalGroup
         {
             Character = entry.Character,
             Entry = entry,
@@ -47,7 +47,7 @@ internal class RadicalGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(radicalGroup);
+                    await ReadChildElementAsync(group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
@@ -59,7 +59,7 @@ internal class RadicalGroupReader
                     break;
             }
         }
-        return radicalGroup;
+        return group;
     }
 
     private async Task ReadChildElementAsync(RadicalGroup group)
@@ -67,19 +67,24 @@ internal class RadicalGroupReader
         switch (_xmlReader.Name)
         {
             case Radical.XmlTagName:
-                group.Radicals.Add(new Radical
-                {
-                    Character = group.Character,
-                    Order = group.Radicals.Count + 1,
-                    Type = _xmlReader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
-                    Number = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
-                    Entry = group.Entry,
-                });
+                await ReadRadical(group);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, RadicalGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
-                return;
+                break;
         }
+    }
+
+    private async Task ReadRadical(RadicalGroup group)
+    {
+        group.Radicals.Add(new Radical
+        {
+            Character = group.Character,
+            Order = group.Radicals.Count + 1,
+            Type = _xmlReader.GetAttribute("rad_type") ?? throw new Exception($"Character `{group.Character}` missing radical type"),
+            Number = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
+            Entry = group.Entry,
+        });
     }
 }

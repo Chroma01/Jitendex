@@ -35,7 +35,7 @@ internal class CodepointGroupReader
 
     public async Task<CodepointGroup> ReadAsync(Entry entry)
     {
-        var codepointGroup = new CodepointGroup
+        var group = new CodepointGroup
         {
             Character = entry.Character,
             Entry = entry,
@@ -47,7 +47,7 @@ internal class CodepointGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(codepointGroup);
+                    await ReadChildElementAsync(group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
@@ -59,7 +59,7 @@ internal class CodepointGroupReader
                     break;
             }
         }
-        return codepointGroup;
+        return group;
     }
 
     private async Task ReadChildElementAsync(CodepointGroup group)
@@ -67,19 +67,24 @@ internal class CodepointGroupReader
         switch (_xmlReader.Name)
         {
             case Codepoint.XmlTagName:
-                group.Codepoints.Add(new Codepoint
-                {
-                    Character = group.Character,
-                    Order = group.Codepoints.Count + 1,
-                    Type = _xmlReader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
+                await ReadCodepoint(group);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, CodepointGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
+    }
+
+    private async Task ReadCodepoint(CodepointGroup group)
+    {
+        group.Codepoints.Add(new Codepoint
+        {
+            Character = group.Character,
+            Order = group.Codepoints.Count + 1,
+            Type = _xmlReader.GetAttribute("cp_type") ?? throw new Exception($"Character `{group.Character}` missing codepoint type"),
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = group.Entry,
+        });
     }
 }

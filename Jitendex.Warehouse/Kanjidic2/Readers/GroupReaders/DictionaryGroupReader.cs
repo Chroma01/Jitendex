@@ -35,7 +35,7 @@ internal class DictionaryGroupReader
 
     public async Task<DictionaryGroup> ReadAsync(Entry entry)
     {
-        var dicNumberGroup = new DictionaryGroup
+        var group = new DictionaryGroup
         {
             Character = entry.Character,
             Entry = entry,
@@ -47,7 +47,7 @@ internal class DictionaryGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(dicNumberGroup);
+                    await ReadChildElementAsync(group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
@@ -59,7 +59,7 @@ internal class DictionaryGroupReader
                     break;
             }
         }
-        return dicNumberGroup;
+        return group;
     }
 
     private async Task ReadChildElementAsync(DictionaryGroup group)
@@ -67,23 +67,28 @@ internal class DictionaryGroupReader
         switch (_xmlReader.Name)
         {
             case Dictionary.XmlTagName:
-                var volume = _xmlReader.GetAttribute("m_vol");
-                var page = _xmlReader.GetAttribute("m_page");
-                group.Dictionaries.Add(new Dictionary
-                {
-                    Character = group.Character,
-                    Order = group.Dictionaries.Count + 1,
-                    Type = _xmlReader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
-                    Volume = volume != null ? int.Parse(volume) : null,
-                    Page = page != null ? int.Parse(page) : null,
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
+                await ReadDictionary(group);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, DictionaryGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
+    }
+
+    private async Task ReadDictionary(DictionaryGroup group)
+    {
+        var volume = _xmlReader.GetAttribute("m_vol");
+        var page = _xmlReader.GetAttribute("m_page");
+        group.Dictionaries.Add(new Dictionary
+        {
+            Character = group.Character,
+            Order = group.Dictionaries.Count + 1,
+            Type = _xmlReader.GetAttribute("dr_type") ?? throw new Exception($"Character `{group.Character}` missing dictionary type"),
+            Volume = volume != null ? int.Parse(volume) : null,
+            Page = page != null ? int.Parse(page) : null,
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = group.Entry,
+        });
     }
 }

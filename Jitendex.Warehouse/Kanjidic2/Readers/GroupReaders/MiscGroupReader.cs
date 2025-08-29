@@ -35,7 +35,7 @@ internal class MiscGroupReader
 
     public async Task<MiscGroup> ReadAsync(Entry entry)
     {
-        var miscGroup = new MiscGroup
+        var group = new MiscGroup
         {
             Character = entry.Character,
             Entry = entry,
@@ -47,7 +47,7 @@ internal class MiscGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(miscGroup);
+                    await ReadChildElementAsync(group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
@@ -59,7 +59,7 @@ internal class MiscGroupReader
                     break;
             }
         }
-        return miscGroup;
+        return group;
     }
 
     private async Task ReadChildElementAsync(MiscGroup group)
@@ -67,46 +67,76 @@ internal class MiscGroupReader
         switch (_xmlReader.Name)
         {
             case "grade":
-                group.Grade = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+                await ReadGrade(group);
                 break;
             case "freq":
-                group.Frequency = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+                await ReadFrequency(group);
                 break;
             case "jlpt":
-                group.JlptLevel = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+                await ReadJlpt(group);
                 break;
             case StrokeCount.XmlTagName:
-                group.StrokeCounts.Add(new StrokeCount
-                {
-                    Character = group.Character,
-                    Order = group.StrokeCounts.Count + 1,
-                    Value = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
-                    Entry = group.Entry,
-                });
+                await ReadStrokeCount(group);
                 break;
             case Variant.XmlTagName:
-                group.Variants.Add(new Variant
-                {
-                    Character = group.Character,
-                    Order = group.Variants.Count + 1,
-                    Type = _xmlReader.GetAttribute("var_type") ?? throw new Exception($"Character `{group.Character}` missing variant type"),
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
+                await ReadVariant(group);
                 break;
             case RadicalName.XmlTagName:
-                group.RadicalNames.Add(new RadicalName
-                {
-                    Character = group.Character,
-                    Order = group.RadicalNames.Count + 1,
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
+                await ReadRadicalName(group);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, MiscGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
-                return;
+                break;
         }
+    }
+
+    private async Task ReadGrade(MiscGroup group)
+    {
+        group.Grade = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+    }
+
+    private async Task ReadFrequency(MiscGroup group)
+    {
+        group.Frequency = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+    }
+
+    private async Task ReadJlpt(MiscGroup group)
+    {
+        group.JlptLevel = int.Parse(await _xmlReader.ReadElementContentAsStringAsync());
+    }
+
+    private async Task ReadStrokeCount(MiscGroup group)
+    {
+        group.StrokeCounts.Add(new StrokeCount
+        {
+            Character = group.Character,
+            Order = group.StrokeCounts.Count + 1,
+            Value = int.Parse(await _xmlReader.ReadElementContentAsStringAsync()),
+            Entry = group.Entry,
+        });
+    }
+
+    private async Task ReadVariant(MiscGroup group)
+    {
+        group.Variants.Add(new Variant
+        {
+            Character = group.Character,
+            Order = group.Variants.Count + 1,
+            Type = _xmlReader.GetAttribute("var_type") ?? throw new Exception($"Character `{group.Character}` missing variant type"),
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = group.Entry,
+        });
+    }
+
+    private async Task ReadRadicalName(MiscGroup group)
+    {
+        group.RadicalNames.Add(new RadicalName
+        {
+            Character = group.Character,
+            Order = group.RadicalNames.Count + 1,
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = group.Entry,
+        });
     }
 }

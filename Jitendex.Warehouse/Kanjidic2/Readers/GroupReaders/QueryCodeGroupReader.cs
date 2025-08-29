@@ -35,7 +35,7 @@ internal class QueryCodeGroupReader
 
     public async Task<QueryCodeGroup> ReadAsync(Entry entry)
     {
-        var queryCodeGroup = new QueryCodeGroup
+        var group = new QueryCodeGroup
         {
             Character = entry.Character,
             Entry = entry,
@@ -47,7 +47,7 @@ internal class QueryCodeGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(queryCodeGroup);
+                    await ReadChildElementAsync(group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
@@ -59,7 +59,7 @@ internal class QueryCodeGroupReader
                     break;
             }
         }
-        return queryCodeGroup;
+        return group;
     }
 
     private async Task ReadChildElementAsync(QueryCodeGroup group)
@@ -67,20 +67,25 @@ internal class QueryCodeGroupReader
         switch (_xmlReader.Name)
         {
             case QueryCode.XmlTagName:
-                group.QueryCodes.Add(new QueryCode
-                {
-                    Character = group.Character,
-                    Order = group.QueryCodes.Count + 1,
-                    Type = _xmlReader.GetAttribute("qc_type") ?? throw new Exception($"Character `{group.Character}` missing query code type"),
-                    Misclassification = _xmlReader.GetAttribute("skip_misclass"),
-                    Text = await _xmlReader.ReadElementContentAsStringAsync(),
-                    Entry = group.Entry,
-                });
+                await ReadQueryCode(group);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, QueryCodeGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
-                return;
+                break;
         }
+    }
+
+    private async Task ReadQueryCode(QueryCodeGroup group)
+    {
+        group.QueryCodes.Add(new QueryCode
+        {
+            Character = group.Character,
+            Order = group.QueryCodes.Count + 1,
+            Type = _xmlReader.GetAttribute("qc_type") ?? throw new Exception($"Character `{group.Character}` missing query code type"),
+            Misclassification = _xmlReader.GetAttribute("skip_misclass"),
+            Text = await _xmlReader.ReadElementContentAsStringAsync(),
+            Entry = group.Entry,
+        });
     }
 }
