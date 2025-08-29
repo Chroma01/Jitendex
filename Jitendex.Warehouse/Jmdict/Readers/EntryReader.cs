@@ -200,6 +200,6 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
     private partial void LogUnsetEntryId(string tagName);
 
     [LoggerMessage(LogLevel.Error,
-    "Cannot parse entry ID from text {Text}")]
+    "Cannot parse entry ID from text `{Text}`")]
     private partial void LogUnparsableId(string Text);
 }
