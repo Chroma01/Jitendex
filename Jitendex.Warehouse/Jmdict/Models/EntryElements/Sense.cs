@@ -51,4 +51,5 @@ public class Sense
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "sense";
+    internal const string Note_XmlTagName = "s_inf";
 }

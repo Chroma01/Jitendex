@@ -74,10 +74,10 @@ internal partial class ReadingReader : IJmdictReader<Entry, Reading>
     {
         switch (_xmlReader.Name)
         {
-            case "reb":
+            case Reading.Text_XmlTagName:
                 await ReadReadingText(reading);
                 break;
-            case "re_nokanji":
+            case Reading.NoKanji_XmlTagName:
                 reading.NoKanji = true;
                 break;
             case Restriction.XmlTagName:

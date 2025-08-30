@@ -42,6 +42,8 @@ public class Reading
     internal List<Restriction> Restrictions { get; set; } = [];
 
     internal const string XmlTagName = "r_ele";
+    internal const string Text_XmlTagName = "reb";
+    internal const string NoKanji_XmlTagName = "re_nokanji";
 
     public bool IsHidden() => Infos.Any(x => x.TagName == "sk");
 }

@@ -71,7 +71,7 @@ internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
     {
         switch (_xmlReader.Name)
         {
-            case "keb":
+            case KanjiForm.Text_XmlTagName:
                 await ReadKanjiFormText(kanjiForm);
                 break;
             case KanjiFormInfo.XmlTagName:
