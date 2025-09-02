@@ -17,9 +17,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.Extensions;
+namespace Jitendex.Furigana;
 
-public static class ListExtensions
+internal static class ListExtensions
 {
     public static List<T> Clone<T>(this List<T> list) where T : ICloneable
     {

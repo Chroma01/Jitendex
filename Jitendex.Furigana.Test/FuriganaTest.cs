@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jitendex.Furigana.Test;
 

@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
-using Jitendex.Furigana.Extensions;
 
 namespace Jitendex.Furigana.Business.Solvers;
 
