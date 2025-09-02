@@ -1,0 +1,77 @@
+﻿/*
+Copyright (c) 2025 Doublevil
+Copyright (c) 2025 Stephen Kraus
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+namespace Jitendex.Furigana.Models;
+
+/// <summary>
+/// Contains a set of furigana solutions that solves a vocab entry.
+/// </summary>
+public class FuriganaSolutionSet(VocabEntry vocab)
+{
+    public List<FuriganaSolution> Solutions { get; set; } = [];
+    public VocabEntry Vocab { get; set; } = vocab;
+
+    public bool Any() => Solutions.Count != 0;
+
+    public FuriganaSolution? GetSingleSolution()
+    {
+        return Solutions.Count == 1 ? Solutions.First() : null;
+    }
+
+    public bool SafeAdd(FuriganaSolution solution)
+    {
+        if (!solution.Check())
+        {
+            return false;
+        }
+        if (Solutions.Any(s => s.Equals(solution)))
+        {
+            return false;
+        }
+        Solutions.Add(solution);
+        return true;
+    }
+
+    public int SafeAdd(IEnumerable<FuriganaSolution> solutions)
+    {
+        int count = 0;
+        foreach (var solution in solutions)
+        {
+            if (SafeAdd(solution))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public override string ToString()
+    {
+        if (Solutions.Count == 0)
+        {
+            return "???";
+        }
+
+        return string.Join
+        (
+            ", ",
+            Solutions.Select(x => x.ToString()).ToArray()
+        );
+    }
+}

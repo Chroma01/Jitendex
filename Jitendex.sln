@@ -5,6 +5,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Warehouse", "Jitendex.Warehouse\Jitendex.Warehouse.csproj", "{32F9E596-3A5E-4954-92DF-D078F8509421}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Furigana", "Jitendex.Furigana\Jitendex.Furigana.csproj", "{EC818159-168A-4ECD-8200-D6CC89EA6502}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Furigana.Test", "Jitendex.Furigana.Test\Jitendex.Furigana.Test.csproj", "{7FEA625F-F4F9-49C9-94A4-571DE0933C71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{32F9E596-3A5E-4954-92DF-D078F8509421}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32F9E596-3A5E-4954-92DF-D078F8509421}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32F9E596-3A5E-4954-92DF-D078F8509421}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC818159-168A-4ECD-8200-D6CC89EA6502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC818159-168A-4ECD-8200-D6CC89EA6502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC818159-168A-4ECD-8200-D6CC89EA6502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC818159-168A-4ECD-8200-D6CC89EA6502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
