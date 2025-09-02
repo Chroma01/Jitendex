@@ -75,7 +75,12 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaObocchan()
     {
-        // TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ");
+        var resourceSet = new FuriganaResourceSet(new()
+        {
+            ['御'] = new Kanji { Character = '御', Readings = [] },
+            ['坊'] = new Kanji { Character = '坊', Readings = [] },
+        }, [], []);
+        TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", resourceSet);
     }
 
     [TestMethod]
