@@ -17,10 +17,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models;
 using System.Text.RegularExpressions;
+using Jitendex.Furigana.Business;
+using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Business.Solvers;
+namespace Jitendex.Furigana.Solvers;
 
 public class NoConsecutiveKanjiSolver : FuriganaSolver
 {

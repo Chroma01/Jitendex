@@ -17,26 +17,22 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Furigana.Business;
+using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Business.Solvers;
+namespace Jitendex.Furigana.Solvers;
 
-public class OverrideSolver : FuriganaSolver
+public class SingleCharacterSolver : FuriganaSolver
 {
-    public OverrideSolver()
-    {
-        Priority = 9999; // Critical hit.
-    }
-
     /// <summary>
-    /// Attempts to solve furigana by looking up for solutions in the override list.
+    /// Attempts to solve furigana when the kanji reading only has one character.
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        var solution = r.GetOverride(v);
-        if (solution is not null)
+        if (v.KanjiFormText.Length == 1 && !KanaHelper.IsAllKana(v.KanjiFormText))
         {
-            yield return new FuriganaSolution(v, solution.Furigana);
+            yield return new FuriganaSolution(v, new FuriganaPart(v.ReadingText, 0, 0));
         }
     }
 }

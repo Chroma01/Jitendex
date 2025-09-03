@@ -18,10 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
 
-namespace Jitendex.Furigana.Business.Solvers;
+namespace Jitendex.Furigana.Solvers;
 
 public class KanaReadingSolver : FuriganaSolver
 {

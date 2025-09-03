@@ -17,26 +17,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Business.Solvers;
+namespace Jitendex.Furigana.Solvers;
 
-public class RepeatedKanjiSolver : FuriganaSolver
+public class OverrideSolver : FuriganaSolver
 {
+    public OverrideSolver()
+    {
+        Priority = 9999; // Critical hit.
+    }
+
     /// <summary>
-    /// Solves cases where the kanji reading consists in a repeated kanji.
+    /// Attempts to solve furigana by looking up for solutions in the override list.
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        if (v.KanjiFormText.Length == 2 && v.ReadingText.Length % 2 == 0
-            && (v.KanjiFormText[1] == '々' || v.KanjiFormText[1] == v.KanjiFormText[0]))
+        var solution = r.GetOverride(v);
+        if (solution is not null)
         {
-            // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
-            // and our kana string can be cut in two. Just do that.
-
-            yield return new FuriganaSolution(v,
-                new FuriganaPart(v.ReadingText[..(v.ReadingText.Length / 2)], 0),
-                new FuriganaPart(v.ReadingText[(v.ReadingText.Length / 2)..], 1));
+            yield return new FuriganaSolution(v, solution.Furigana);
         }
     }
 }
