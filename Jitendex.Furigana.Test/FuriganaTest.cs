@@ -34,22 +34,12 @@ public class FuriganaTest
         [],
         new()
         {
-            ["ヶ月"] = new SpecialExpression
+            ["ヶ月"] = new SpecialExpression("ヶ月", new List<SpecialReading>()
             {
-                KanjiReading = "ヶ月",
-                Readings =
-                [
-                    new SpecialReading
-                    (
-                        "かげつ",
-                        new FuriganaSolution
-                        (
-                            new VocabEntry { KanjiReading = "ヶ月", KanaReading = "かげつ"},
-                            new List<FuriganaPart>() { new("か", 0), new("げつ", 1) }
-                        )
-                    )
-                ]
-            },
+                new("かげつ", new FuriganaSolution(
+                    new VocabEntry("ヶ月", "かげつ"),
+                    new List<FuriganaPart>() { new("か", 0), new("げつ", 1) }))
+            }),
         }
     );
 
@@ -126,7 +116,7 @@ public class FuriganaTest
     public void TestFuriganaHakabakashii()
     {
         var resourceSet = new FuriganaResourceSet(new()
-        { 
+        {
             ['捗'] = new Kanji { Character = '捗', Readings = ["はか"] }
         }, [], []);
         // Rendaku is applied to the second instance of 捗.

@@ -36,16 +36,16 @@ public class LengthMatchSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        if (v.KanjiReading.Length == v.KanaReading.Length)
+        if (v.KanjiFormText.Length == v.ReadingText.Length)
         {
             var parts = new List<FuriganaPart>();
-            for (int i = 0; i < v.KanjiReading.Length; i++)
+            for (int i = 0; i < v.KanjiFormText.Length; i++)
             {
-                if (r.GetKanji(v.KanjiReading[i]) != null)
+                if (r.GetKanji(v.KanjiFormText[i]) != null)
                 {
-                    parts.Add(new FuriganaPart(v.KanaReading[i].ToString(), i));
+                    parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
                 }
-                else if (!KanaHelper.IsAllKana(v.KanjiReading[i].ToString()))
+                else if (!KanaHelper.IsAllKana(v.KanjiFormText[i].ToString()))
                 {
                     // Our character is not a kanji and apparently not a kana either.
                     // Stop right there. It's probably a trap.
@@ -53,7 +53,7 @@ public class LengthMatchSolver : FuriganaSolver
                 }
                 else
                 {
-                    if (!KanaHelper.AreEquivalent(v.KanjiReading[i].ToString(), v.KanaReading[i].ToString()))
+                    if (!KanaHelper.AreEquivalent(v.KanjiFormText[i].ToString(), v.ReadingText[i].ToString()))
                     {
                         // We are reading kana characters that are not equivalent. Stop.
                         yield break;

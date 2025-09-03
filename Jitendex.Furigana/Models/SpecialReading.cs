@@ -19,22 +19,4 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Furigana.Models;
 
-public class SpecialReading(string kanaReading, FuriganaSolution? furigana) : IEqualityComparer<SpecialReading>
-{
-    public string KanaReading { get; set; } = kanaReading;
-    public FuriganaSolution? Furigana { get; set; } = furigana;
-
-    public bool Equals(SpecialReading x, SpecialReading y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return true;
-        }
-        return x.KanaReading == y.KanaReading && x.Furigana.Equals(y.Furigana);
-    }
-
-    public int GetHashCode(SpecialReading obj)
-    {
-        return GetHashCode();
-    }
-}
+public record SpecialReading(string ReadingText, FuriganaSolution Furigana);

@@ -24,18 +24,4 @@ namespace Jitendex.Furigana.Models;
 /// For example, 大人 - おとな can't be cut as おと.な or お.とな.
 /// These readings are loaded from the SpecialReadings.txt file.
 /// </summary>
-public class SpecialExpression(string kanjiReading, List<SpecialReading> readings)
-{
-    public string KanjiReading { get; set; } = kanjiReading;
-    public List<SpecialReading> Readings { get; set; } = readings;
-
-    public SpecialExpression() : this(string.Empty, new List<SpecialReading>())
-    {
-
-    }
-
-    public SpecialExpression(string kanjiReading, params SpecialReading[] readings) : this(kanjiReading, readings.ToList())
-    {
-
-    }
-}
+public record SpecialExpression(string KanjiFormText, List<SpecialReading> Readings);

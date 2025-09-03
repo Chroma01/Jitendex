@@ -29,9 +29,9 @@ public class SingleCharacterSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        if (v.KanjiReading.Length == 1 && !KanaHelper.IsAllKana(v.KanjiReading))
+        if (v.KanjiFormText.Length == 1 && !KanaHelper.IsAllKana(v.KanjiFormText))
         {
-            yield return new FuriganaSolution(v, new FuriganaPart(v.KanaReading, 0, 0));
+            yield return new FuriganaSolution(v, new FuriganaPart(v.ReadingText, 0, 0));
         }
     }
 }

@@ -68,24 +68,24 @@ public class FuriganaBusiness
 
     public FuriganaSolutionSet Execute(VocabEntry v)
     {
-        if (string.IsNullOrWhiteSpace(v.KanjiReading) || string.IsNullOrWhiteSpace(v.KanaReading))
+        if (string.IsNullOrWhiteSpace(v.KanjiFormText) || string.IsNullOrWhiteSpace(v.ReadingText))
         {
             // Cannot solve when we do not have a kanji or kana reading.
             return new FuriganaSolutionSet(v);
         }
 
         var result = Process(v);
-        if (!result.Any() && v.KanjiReading.StartsWith('御'))
+        if (!result.Any() && v.KanjiFormText.StartsWith('御'))
         {
             // When a word starts with 御 (honorific, often used), try to override the
             // result by replacing it with an お or a ご. It will sometimes bring a
             // result where the kanji form wouldn't.
 
-            result = Process(new VocabEntry(v.KanaReading, "お" + v.KanjiReading[1..]));
+            result = Process(new VocabEntry(v.ReadingText, "お" + v.KanjiFormText[1..]));
 
             if (!result.Any())
             {
-                result = Process(new VocabEntry(v.KanaReading, "ご" + v.KanjiReading[1..]));
+                result = Process(new VocabEntry(v.ReadingText, "ご" + v.KanjiFormText[1..]));
             }
 
             result.Vocab = v;

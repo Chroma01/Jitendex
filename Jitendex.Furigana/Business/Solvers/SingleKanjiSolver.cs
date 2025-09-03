@@ -31,19 +31,19 @@ public class SingleKanjiSolver : FuriganaSolver
 
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        int kanjiCount = v.KanjiReading.Count(c => r.GetKanji(c) != null);
+        int kanjiCount = v.KanjiFormText.Count(c => r.GetKanji(c) != null);
         if (kanjiCount == 1)
         {
             int kanjiIndex = 0;
 
-            string kanaReading = v.KanaReading;
+            string kanaReading = v.ReadingText;
             // See if there are only obvious characters around.
 
             // Browse the kanji reading and eat characters until we get to
             // the kanji character.
-            for (int i = 0; i < v.KanjiReading.Length; i++)
+            for (int i = 0; i < v.KanjiFormText.Length; i++)
             {
-                char c = v.KanjiReading[i];
+                char c = v.KanjiFormText[i];
                 Kanji? k = r.GetKanji(c);
                 if (k == null)
                 {
@@ -69,9 +69,9 @@ public class SingleKanjiSolver : FuriganaSolver
 
             // Now browse in reverse and eat characters until we get back to
             // the kanji character.
-            for (int i = v.KanjiReading.Length - 1; i >= 0; i--)
+            for (int i = v.KanjiFormText.Length - 1; i >= 0; i--)
             {
-                char c = v.KanjiReading[i];
+                char c = v.KanjiFormText[i];
                 Kanji? k = r.GetKanji(c);
                 if (k == null)
                 {

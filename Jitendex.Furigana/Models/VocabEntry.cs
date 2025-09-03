@@ -21,24 +21,10 @@ using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Models;
 
-public class VocabEntry
+public record VocabEntry(string KanjiFormText, string ReadingText)
 {
-    public string? KanjiReading { get; set; }
-    public string? KanaReading { get; set; }
-
-    public VocabEntry()
-    {
-
-    }
-
-    public VocabEntry(string kanjiReading, string kanaReading)
-    {
-        KanjiReading = kanjiReading;
-        KanaReading = kanaReading;
-    }
-
     public override string ToString()
     {
-        return $"{KanjiReading}{SeparatorHelper.FileFieldSeparator}{KanaReading}";
+        return $"{KanjiFormText}{SeparatorHelper.FileFieldSeparator}{ReadingText}";
     }
 }

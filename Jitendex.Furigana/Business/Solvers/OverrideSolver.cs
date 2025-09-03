@@ -36,11 +36,7 @@ public class OverrideSolver : FuriganaSolver
         var solution = r.GetOverride(v);
         if (solution is not null)
         {
-            yield return new FuriganaSolution()
-            {
-                Furigana = solution.Furigana,
-                Vocab = v,
-            };
+            yield return new FuriganaSolution(v, solution.Furigana);
         }
     }
 }

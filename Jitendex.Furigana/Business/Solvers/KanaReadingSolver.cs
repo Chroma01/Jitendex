@@ -49,9 +49,9 @@ public class KanaReadingSolver : FuriganaSolver
         /// Read the だ for 陀;
         /// Read the ら for 羅.
 
-        string kana = v.KanaReading;
+        string kana = v.ReadingText;
         var furigana = new List<FuriganaPart>();
-        for (int i = 0; i < v.KanjiReading.Length; i++)
+        for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             if (kana.Length == 0)
             {
@@ -60,27 +60,27 @@ public class KanaReadingSolver : FuriganaSolver
                 yield break;
             }
 
-            char c = v.KanjiReading[i];
+            char c = v.KanjiFormText[i];
             // Check for special expressions
             bool foundExpression = false;
-            for (int j = v.KanjiReading.Length - 1; j >= i; j--)
+            for (int j = v.KanjiFormText.Length - 1; j >= i; j--)
             {
-                string lookup = v.KanjiReading.Substring(i, (j - i) + 1);
+                string lookup = v.KanjiFormText.Substring(i, (j - i) + 1);
                 var expression = r.GetExpression(lookup);
                 if (expression != null)
                 {
                     // We found an expression.
                     foreach (var expressionReading in ReadingExpander.GetPotentialSpecialReadings(
-                        expression, i == 0, j == v.KanjiReading.Length - 1))
+                        expression, i == 0, j == v.KanjiFormText.Length - 1))
                     {
-                        if (kana.Length >= expressionReading.KanaReading.Length
-                            && kana[..expressionReading.KanaReading.Length] == expressionReading.KanaReading)
+                        if (kana.Length >= expressionReading.ReadingText.Length
+                            && kana[..expressionReading.ReadingText.Length] == expressionReading.ReadingText)
                         {
                             // The reading matches.
                             // Eat the kana chain.
                             furigana.AddRange(expressionReading.Furigana.Furigana
                                 .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
-                            kana = kana[expressionReading.KanaReading.Length..];
+                            kana = kana[expressionReading.ReadingText.Length..];
                             i = j;
                             foundExpression = true;
                             break;

@@ -37,9 +37,9 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
         string regLazy = "^";
         bool consecutiveMarker = false;
         var kanjiIndexes = new List<int>(4);
-        for (int i = 0; i < v.KanjiReading.Length; i++)
+        for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
-            char c = v.KanjiReading[i];
+            char c = v.KanjiFormText[i];
             var kanji = r.GetKanji(c);
             if (kanji == null)
             {
@@ -73,8 +73,8 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
 
         var regexGreedy = new Regex(regGreedy);
         var regexLazy = new Regex(regLazy);
-        var matchGreedy = regexGreedy.Match(v.KanaReading);
-        var matchLazy = regexLazy.Match(v.KanaReading);
+        var matchGreedy = regexGreedy.Match(v.ReadingText);
+        var matchLazy = regexLazy.Match(v.ReadingText);
 
         if (matchGreedy.Success && matchLazy.Success)
         {
