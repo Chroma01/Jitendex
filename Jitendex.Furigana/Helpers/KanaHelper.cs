@@ -68,30 +68,24 @@ public static class KanaHelper
     public static bool IsAllHiragana(string text)
     {
         foreach (char c in text)
-        {
             if (!IsHiragana(c))
                 return false;
-        }
         return true;
     }
 
     public static bool IsAllKatakana(string text)
     {
         foreach (char c in text)
-        {
             if (!IsKatakana(c))
                 return false;
-        }
         return true;
     }
 
     public static bool IsAllKana(string text)
     {
         foreach (char c in text)
-        {
             if (!IsKana(c))
                 return false;
-        }
         return true;
     }
 
