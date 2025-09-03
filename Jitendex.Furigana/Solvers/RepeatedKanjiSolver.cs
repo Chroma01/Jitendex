@@ -27,17 +27,30 @@ public class RepeatedKanjiSolver : FuriganaSolver
     /// <summary>
     /// Solves cases where the kanji reading consists in a repeated kanji.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet _, VocabEntry v)
     {
-        if (v.KanjiFormText.Length == 2 && v.ReadingText.Length % 2 == 0
-            && (v.KanjiFormText[1] == '々' || v.KanjiFormText[1] == v.KanjiFormText[0]))
+        if (v.KanjiFormText.Length != 2)
+        {
+            yield break;
+        }
+        if (v.ReadingText.Length % 2 != 0)
+        {
+            yield break;
+        }
+
+        var firstCharacter = v.KanjiFormText[0];
+        var secondCharacter = v.KanjiFormText[1];
+
+        if (firstCharacter == secondCharacter || secondCharacter == '々')
         {
             // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
             // and our kana string can be cut in two. Just do that.
-
-            yield return new FuriganaSolution(v,
+            yield return new FuriganaSolution
+            (
+                v,
                 new FuriganaPart(v.ReadingText[..(v.ReadingText.Length / 2)], 0),
-                new FuriganaPart(v.ReadingText[(v.ReadingText.Length / 2)..], 1));
+                new FuriganaPart(v.ReadingText[(v.ReadingText.Length / 2)..], 1)
+            );
         }
     }
 }

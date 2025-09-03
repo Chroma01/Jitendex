@@ -37,35 +37,34 @@ public class LengthMatchSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        if (v.KanjiFormText.Length == v.ReadingText.Length)
+        if (v.KanjiFormText.Length != v.ReadingText.Length)
         {
-            var parts = new List<FuriganaPart>();
-            for (int i = 0; i < v.KanjiFormText.Length; i++)
-            {
-                if (r.GetKanji(v.KanjiFormText[i]) != null)
-                {
-                    parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
-                }
-                else if (!KanaHelper.IsAllKana(v.KanjiFormText[i].ToString()))
-                {
-                    // Our character is not a kanji and apparently not a kana either.
-                    // Stop right there. It's probably a trap.
-                    yield break;
-                }
-                else
-                {
-                    if (!KanaHelper.AreEquivalent(v.KanjiFormText[i].ToString(), v.ReadingText[i].ToString()))
-                    {
-                        // We are reading kana characters that are not equivalent. Stop.
-                        yield break;
-                    }
-                }
-            }
+            yield break;
+        }
 
-            if (parts.Count > 0)
+        var parts = new List<FuriganaPart>();
+        for (int i = 0; i < v.KanjiFormText.Length; i++)
+        {
+            if (r.GetKanji(v.KanjiFormText[i]) != null)
             {
-                yield return new FuriganaSolution(v, parts);
+                parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
             }
+            else if (!KanaHelper.IsAllKana(v.KanjiFormText[i].ToString()))
+            {
+                // Our character is not a kanji and apparently not a kana either.
+                // Stop right there. It's probably a trap.
+                yield break;
+            }
+            else if (!KanaHelper.AreEquivalent(v.KanjiFormText[i].ToString(), v.ReadingText[i].ToString()))
+            {
+                // We are reading kana characters that are not equivalent. Stop.
+                yield break;
+            }
+        }
+
+        if (parts.Count > 0)
+        {
+            yield return new FuriganaSolution(v, parts);
         }
     }
 }

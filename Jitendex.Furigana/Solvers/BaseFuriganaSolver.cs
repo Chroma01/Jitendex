@@ -22,10 +22,9 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
-public interface IFuriganaSolver
+public interface IFuriganaSolver : IComparable<IFuriganaSolver>
 {
     int Priority { get; set; }
-    int CompareTo(IFuriganaSolver? other);
     IEnumerable<FuriganaSolution> Solve(FuriganaResourceSet r, VocabEntry v);
 }
 
@@ -33,7 +32,7 @@ public interface IFuriganaSolver
 /// A class that aims to provide the furigana business with solutions for tested
 /// vocab entries.
 /// </summary>
-public abstract class FuriganaSolver : IComparable<IFuriganaSolver>, IFuriganaSolver
+public abstract class FuriganaSolver : IFuriganaSolver
 {
     public int Priority { get; set; }
 

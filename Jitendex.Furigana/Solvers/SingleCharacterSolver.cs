@@ -26,13 +26,19 @@ namespace Jitendex.Furigana.Solvers;
 public class SingleCharacterSolver : FuriganaSolver
 {
     /// <summary>
-    /// Attempts to solve furigana when the kanji reading only has one character.
+    /// Attempts to solve furigana when the kanji form only has one character.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet _, VocabEntry v)
     {
-        if (v.KanjiFormText.Length == 1 && !KanaHelper.IsAllKana(v.KanjiFormText))
+        if (v.KanjiFormText.Length != 1)
         {
-            yield return new FuriganaSolution(v, new FuriganaPart(v.ReadingText, 0, 0));
+            yield break;
         }
+        if (KanaHelper.IsAllKana(v.KanjiFormText))
+        {
+            yield break;
+        }
+
+        yield return new FuriganaSolution(v, new FuriganaPart(v.ReadingText, 0));
     }
 }
