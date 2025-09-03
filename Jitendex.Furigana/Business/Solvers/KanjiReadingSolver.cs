@@ -77,7 +77,7 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
 
         // Search for special expressions.
         bool foundSpecialExpressions = false;
-        foreach (FuriganaSolution solution in FindSpecialExpressions(r, v, currentIndexKanji, currentIndexKana, currentCut))
+        foreach (var solution in FindSpecialExpressions(r, v, currentIndexKanji, currentIndexKana, currentCut))
         {
             foundSpecialExpressions = true;
             yield return solution;
@@ -96,12 +96,13 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
             // Special case: handle the repeater kanji by using the previous character instead.
             c = v.KanjiReading[currentIndexKanji - 1];
         }
+
         Kanji? k = r.GetKanji(c);
 
         if (k != null)
         {
             // Read as kanji subpart.
-            foreach (FuriganaSolution solution in ReadAsKanji(r, v, currentIndexKanji, currentIndexKana, currentCut, k))
+            foreach (var solution in ReadAsKanji(r, v, currentIndexKanji, currentIndexKana, currentCut, k))
             {
                 yield return solution;
             }
@@ -109,7 +110,7 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
         else
         {
             // Read as kana subpart.
-            foreach (FuriganaSolution solution in ReadAsKana(r, v, currentIndexKanji, currentIndexKana, currentCut, c))
+            foreach (var solution in ReadAsKana(r, v, currentIndexKanji, currentIndexKana, currentCut, c))
             {
                 yield return solution;
             }
@@ -120,8 +121,12 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
     /// Subpart of TryReading. Attempts to find a matching special expression.
     /// If found, iterates on TryReading.
     /// </summary>
-    private IEnumerable<FuriganaSolution> FindSpecialExpressions(FuriganaResourceSet r, VocabEntry v,
-        int currentIndexKanji, int currentIndexKana, List<FuriganaPart> currentCut)
+    private IEnumerable<FuriganaSolution> FindSpecialExpressions(
+        FuriganaResourceSet r,
+        VocabEntry v,
+        int currentIndexKanji,
+        int currentIndexKana,
+        List<FuriganaPart> currentCut)
     {
         string lookup = string.Empty;
         for (int i = v.KanjiReading.Length - 1; i >= currentIndexKanji; i--)
@@ -208,8 +213,13 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
     /// Subpart of TryReading. Attempts to find a match between the current kanji reading character
     /// and the current kana reading character. If found, iterates on TryReading.
     /// </summary>
-    private IEnumerable<FuriganaSolution> ReadAsKana(FuriganaResourceSet r, VocabEntry v,
-        int currentIndexKanji, int currentIndexKana, List<FuriganaPart> currentCut, char c)
+    private IEnumerable<FuriganaSolution> ReadAsKana(
+        FuriganaResourceSet r,
+        VocabEntry v,
+        int currentIndexKanji,
+        int currentIndexKana,
+        List<FuriganaPart> currentCut,
+        char c)
     {
         char kc = v.KanaReading[currentIndexKana];
         if (c == kc || KanaHelper.KatakanaToHiragana(c.ToString()) == KanaHelper.KatakanaToHiragana(kc.ToString()))

@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
@@ -27,7 +28,7 @@ namespace Jitendex.Furigana.Business;
 /// </summary>
 public static class ReadingExpander
 {
-    private static readonly Dictionary<char, char[]> RendakuDictionary = new()
+    private static readonly FrozenDictionary<char, char[]> HiraToRendakus = new Dictionary<char, char[]>
     {
         ['か'] = ['が'],
         ['き'] = ['ぎ'],
@@ -49,9 +50,9 @@ public static class ReadingExpander
         ['ふ'] = ['ぶ','ぷ'],
         ['へ'] = ['べ','ぺ'],
         ['ほ'] = ['ぼ','ぽ'],
-    };
+    }.ToFrozenDictionary();
 
-    private static readonly Dictionary<string, string> AfterDotKunYomiTransformDictionary = new()
+    private static readonly FrozenDictionary<string, string> GodanVerbEndingToMasuInflection = new Dictionary<string, string>
     {
         ["く"] = "き",
         ["ぐ"] = "ぎ",
@@ -61,15 +62,9 @@ public static class ReadingExpander
         ["る"] = "り",
         ["ぶ"] = "び",
         ["う"] = "い",
-    };
+    }.ToFrozenDictionary();
 
-    private static readonly char[] SmallTsuRendakuList =
-    [
-        'つ',
-        'く',
-        'き',
-        'ち',
-    ];
+    private static readonly FrozenSet<char> SmallTsuRendakuList = ['つ', 'く', 'き', 'ち'];
 
     /// <summary>
     /// Given a kanji, finds and returns all potential readings that it could take in a string.
@@ -102,7 +97,7 @@ public static class ReadingExpander
                 output.Add(dotSplit[0]);
                 output.Add(r.Replace(".", string.Empty));
 
-                if (AfterDotKunYomiTransformDictionary.TryGetValue(dotSplit[1], out string? newTerm))
+                if (GodanVerbEndingToMasuInflection.TryGetValue(dotSplit[1], out string? newTerm))
                 {
                     string newReading = r.Replace(".", string.Empty);
                     newReading = newReading[..^dotSplit[1].Length];
@@ -181,7 +176,7 @@ public static class ReadingExpander
             var add = new List<SpecialReading>();
             foreach (var r in output)
             {
-                if (RendakuDictionary.TryGetValue(r.KanaReading.First(), out char[]? rendakuChars))
+                if (HiraToRendakus.TryGetValue(r.KanaReading.First(), out char[]? rendakuChars))
                 {
                     foreach (var renChar in rendakuChars)
                     {
@@ -222,7 +217,7 @@ public static class ReadingExpander
         var rendakuOutput = new List<string>();
         foreach (var reading in readings)
         {
-            if (RendakuDictionary.TryGetValue(reading.First(), out char[]? rendakuChars))
+            if (HiraToRendakus.TryGetValue(reading.First(), out char[]? rendakuChars))
             {
                 foreach (var renChar in rendakuChars)
                 {
