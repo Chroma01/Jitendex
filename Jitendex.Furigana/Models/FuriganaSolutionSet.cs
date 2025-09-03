@@ -34,7 +34,7 @@ public class FuriganaSolutionSet(VocabEntry vocab)
         return Solutions.Count == 1 ? Solutions.First() : null;
     }
 
-    public bool SafeAdd(FuriganaSolution solution)
+    public bool Add(FuriganaSolution solution)
     {
         if (!solution.Check())
         {
@@ -48,12 +48,12 @@ public class FuriganaSolutionSet(VocabEntry vocab)
         return true;
     }
 
-    public int SafeAdd(IEnumerable<FuriganaSolution> solutions)
+    public int AddRange(IEnumerable<FuriganaSolution> solutions)
     {
         int count = 0;
         foreach (var solution in solutions)
         {
-            if (SafeAdd(solution))
+            if (Add(solution))
             {
                 count++;
             }

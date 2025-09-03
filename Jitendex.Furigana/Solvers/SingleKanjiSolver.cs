@@ -49,7 +49,7 @@ public class SingleKanjiSolver : FuriganaSolver
         {
             char c = v.KanjiFormText[i];
             Kanji? k = r.GetKanji(c);
-            if (k == null)
+            if (k is null)
             {
                 if (kanaReading.First() == c)
                 {
@@ -101,6 +101,5 @@ public class SingleKanjiSolver : FuriganaSolver
         // We are done. Our kanaReading contains only what's left when eating the kana
         // before and after the kanji. It's the reading of our kanji.
         yield return new FuriganaSolution(v, new FuriganaPart(kanaReading, kanjiIndex));
-
     }
 }

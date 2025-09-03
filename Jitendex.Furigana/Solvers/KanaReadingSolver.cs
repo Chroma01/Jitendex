@@ -52,6 +52,7 @@ public class KanaReadingSolver : FuriganaSolver
 
         string kana = v.ReadingText;
         var furigana = new List<FuriganaPart>();
+
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             if (kana.Length == 0)
@@ -62,36 +63,43 @@ public class KanaReadingSolver : FuriganaSolver
             }
 
             char c = v.KanjiFormText[i];
-            // Check for special expressions
             bool foundExpression = false;
+
+            // Check for special expressions
             for (int j = v.KanjiFormText.Length - 1; j >= i; j--)
             {
                 string lookup = v.KanjiFormText.Substring(i, (j - i) + 1);
                 var expression = r.GetExpression(lookup);
-                if (expression != null)
-                {
-                    // We found an expression.
-                    foreach (var expressionReading in ReadingExpander.GetPotentialSpecialReadings(
-                        expression, i == 0, j == v.KanjiFormText.Length - 1))
-                    {
-                        if (kana.Length >= expressionReading.ReadingText.Length
-                            && kana[..expressionReading.ReadingText.Length] == expressionReading.ReadingText)
-                        {
-                            // The reading matches.
-                            // Eat the kana chain.
-                            furigana.AddRange(expressionReading.Furigana.Furigana
-                                .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
-                            kana = kana[expressionReading.ReadingText.Length..];
-                            i = j;
-                            foundExpression = true;
-                            break;
-                        }
-                    }
 
-                    if (foundExpression)
+                if (expression is null) continue;
+
+                var expressionReadings = ReadingExpander.GetPotentialSpecialReadings(
+                        expression,
+                        isFirstChar: i == 0,
+                        isLastChar: j == v.KanjiFormText.Length - 1);
+
+                // We found an expression.
+                foreach (var expressionReading in expressionReadings)
+                {
+                    if (kana.Length >= expressionReading.ReadingText.Length
+                        && kana[..expressionReading.ReadingText.Length] == expressionReading.ReadingText)
                     {
+                        // The reading matches.
+                        // Eat the kana chain.
+                        furigana.AddRange(
+                            expressionReading.Furigana.Furigana
+                            .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
+
+                        kana = kana[expressionReading.ReadingText.Length..];
+                        i = j;
+                        foundExpression = true;
                         break;
                     }
+                }
+
+                if (foundExpression)
+                {
+                    break;
                 }
             }
 
@@ -104,16 +112,15 @@ public class KanaReadingSolver : FuriganaSolver
             string eaten = kana.First().ToString();
             kana = kana[1..];
             Kanji? k = r.GetKanji(c);
-            if (k != null)
+
+            if (k is not null)
             {
                 // On a kanji case, also eat consecutive "impossible start characters"
-                // (ん, ょ, ゃ, ゅ, っ)
                 while (kana.Length > 0 && ImpossibleCutStart.Contains(kana.First()))
                 {
                     eaten += kana.First();
                     kana = kana[1..];
                 }
-
                 furigana.Add(new FuriganaPart(eaten, i));
             }
             else if (!KanaHelper.IsAllKana(c.ToString()))
@@ -122,16 +129,13 @@ public class KanaReadingSolver : FuriganaSolver
                 // Cannot solve.
                 yield break;
             }
-            else
+            else if (eaten != c.ToString())
             {
-                if (eaten != c.ToString())
-                {
-                    // The character browsed is a kana but is not the
-                    // character that we just ate. We made a mistake
-                    // in one of the kanji readings, meaning that we...
-                    // Cannot solve.
-                    yield break;
-                }
+                // The character browsed is a kana but is not the
+                // character that we just ate. We made a mistake
+                // in one of the kanji readings, meaning that we...
+                // Cannot solve.
+                yield break;
             }
         }
 

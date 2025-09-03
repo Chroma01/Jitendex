@@ -52,12 +52,12 @@ public class FuriganaBusiness
     /// Starts the process of associating a furigana string to vocab.
     /// </summary>
     /// <returns>The furigana vocab entries.</returns>
-    public async IAsyncEnumerable<FuriganaSolutionSet> ExecuteAsync(IAsyncEnumerable<VocabEntry> vocab)
+    public async IAsyncEnumerable<FuriganaSolutionSet> SolveRangeAsync(ICollection<VocabEntry> vocab)
     {
         var processingTasks = new List<Task<FuriganaSolutionSet>>();
-        await foreach (var v in vocab)
+        foreach (var v in vocab)
         {
-            var task = Task.Run(() => Execute(v));
+            var task = Task.Run(() => Solve(v));
             processingTasks.Add(task);
         }
         await foreach (var task in Task.WhenEach(processingTasks))
@@ -66,39 +66,21 @@ public class FuriganaBusiness
         }
     }
 
-    public FuriganaSolutionSet Execute(VocabEntry v)
+    public FuriganaSolutionSet Solve(VocabEntry v)
     {
         if (string.IsNullOrWhiteSpace(v.KanjiFormText) || string.IsNullOrWhiteSpace(v.ReadingText))
         {
-            // Cannot solve when we do not have a kanji or kana reading.
+            // Cannot solve when we do not have a kanji form or reading.
             return new FuriganaSolutionSet(v);
         }
-
-        var result = Process(v);
-        if (!result.Any() && v.KanjiFormText.StartsWith('御'))
-        {
-            // When a word starts with 御 (honorific, often used), try to override the
-            // result by replacing it with an お or a ご. It will sometimes bring a
-            // result where the kanji form wouldn't.
-
-            result = Process(new VocabEntry(v.ReadingText, "お" + v.KanjiFormText[1..]));
-
-            if (!result.Any())
-            {
-                result = Process(new VocabEntry(v.ReadingText, "ご" + v.KanjiFormText[1..]));
-            }
-
-            result.Vocab = v;
-        }
-
-        return result;
+        return Process(v);
     }
 
     private FuriganaSolutionSet Process(VocabEntry v)
     {
         var solutionSet = new FuriganaSolutionSet(v);
-
         int priority = _solvers.First().Priority;
+
         foreach (var solver in _solvers)
         {
             if (solver.Priority < priority)
@@ -116,7 +98,7 @@ public class FuriganaBusiness
 
             // Add all solutions if they are correct and unique.
             var solution = solver.Solve(_resourceSet, v);
-            solutionSet.SafeAdd(solution);
+            solutionSet.AddRange(solution);
         }
 
         return solutionSet;

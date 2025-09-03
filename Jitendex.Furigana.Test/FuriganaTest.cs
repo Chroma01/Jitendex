@@ -167,7 +167,7 @@ public class FuriganaTest
     {
         var v = new VocabEntry(kanjiForm, reading);
         var business = new FuriganaBusiness(resourceSet);
-        var result = business.Execute(v);
+        var result = business.Solve(v);
         var solution = result.GetSingleSolution();
         Assert.IsNotNull(solution);
 
