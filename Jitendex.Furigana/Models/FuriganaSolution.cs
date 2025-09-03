@@ -51,12 +51,9 @@ public class FuriganaSolution(VocabEntry? vocab, List<FuriganaPart> furigana)
     /// <param name="s">String to parse.</param>
     /// <param name="v">Reference vocab entry.</param>
     /// <returns>The parsed solution if the operation was successful. Null otherwise.</returns>
-    public static FuriganaSolution? Parse(string? s, VocabEntry? v)
+    public static FuriganaSolution? Parse(string s, VocabEntry? v)
     {
-        if (s == null)
-        {
-            return null;
-        }
+        ArgumentNullException.ThrowIfNull(s);
 
         var parts = new List<FuriganaPart>();
         var partSplit = s.Split(SeparatorHelper.MultiValueSeparator);
@@ -186,19 +183,6 @@ public class FuriganaSolution(VocabEntry? vocab, List<FuriganaPart> furigana)
     #endregion
 
     /// <summary>
-    /// Absorbs the specified solution's furigana parts.
-    /// </summary>
-    /// <param name="other">Solution to absorb.</param>
-    /// <param name="index">Index to add to each of the other furigana part's indexes.</param>
-    public void EatSubsolution(FuriganaSolution other, int index)
-    {
-        foreach (FuriganaPart part in other.Furigana)
-        {
-            Furigana.Add(new FuriganaPart(part.Value, part.StartIndex + index, part.EndIndex + index));
-        }
-    }
-
-    /// <summary>
     /// Gets the parts covering the given index.
     /// Remember that an invalid solution may have several parts for a given index.
     /// </summary>
@@ -206,7 +190,9 @@ public class FuriganaSolution(VocabEntry? vocab, List<FuriganaPart> furigana)
     /// <returns>All parts covering the given index.</returns>
     public List<FuriganaPart> GetPartsForIndex(int index)
     {
-        return Furigana.Where(f => index >= f.StartIndex && index <= f.EndIndex).ToList();
+        return Furigana
+            .Where(f => index >= f.StartIndex && index <= f.EndIndex)
+            .ToList();
     }
 
     /// <summary>
@@ -217,14 +203,6 @@ public class FuriganaSolution(VocabEntry? vocab, List<FuriganaPart> furigana)
     public bool Check()
     {
         return Check(Vocab, Furigana);
-    }
-
-    /// <summary>
-    /// Sorts the furigana parts by start index.
-    /// </summary>
-    public void ReorderFurigana()
-    {
-        Furigana.Sort();
     }
 
     /// <summary>

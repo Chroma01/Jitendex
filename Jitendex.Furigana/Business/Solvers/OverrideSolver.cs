@@ -34,7 +34,7 @@ public class OverrideSolver : FuriganaSolver
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
         var solution = r.GetOverride(v);
-        if (solution != null)
+        if (solution is not null)
         {
             yield return new FuriganaSolution()
             {
