@@ -41,7 +41,7 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
     {
-        foreach (FuriganaSolution solution in TryReading(r, v, 0, 0, []))
+        foreach (var solution in TryReading(r, v, 0, 0, []))
         {
             yield return solution;
         }
@@ -172,8 +172,11 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
     {
         // Our character is a kanji. Try to consume kana strings that match that kanji.
         int remainingKanjiLength = v.KanjiFormText.Length - currentIndexKanji - 1;
-        List<string> kanjiReadings = ReadingExpander.GetPotentialKanjiReadings(k,
-            currentIndexKanji == 0, currentIndexKanji == v.KanjiFormText.Length - 1, UseNanori);
+        var kanjiReadings = ReadingExpander.GetPotentialKanjiReadings(
+            kanji: k,
+            isFirstChar: currentIndexKanji == 0,
+            isLastChar: currentIndexKanji == v.KanjiFormText.Length - 1,
+            useNanori: UseNanori);
 
         // Iterate on the kana reading.
         for (int i = currentIndexKana; i < v.ReadingText.Length && i < currentIndexKana + MaxKanaPerKanji; i++)

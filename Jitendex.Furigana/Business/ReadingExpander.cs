@@ -69,17 +69,17 @@ public static class ReadingExpander
     /// <summary>
     /// Given a kanji, finds and returns all potential readings that it could take in a string.
     /// </summary>
-    /// <param name="k">Kanji to evaluate.</param>
+    /// <param name="kanji">Kanji to evaluate.</param>
     /// <param name="isFirstChar">Set to true if this kanji is the first character of the string
     /// that the kanji is found in.</param>
     /// <param name="isLastChar">Set to true if this kanji is the last character of the string
     /// that the kanji is found in.</param>
     /// <param name="useNanori">Set to true to use nanori readings as well.</param>
     /// <returns>A list containing all potential readings that the kanji could take.</returns>
-    public static List<string> GetPotentialKanjiReadings(Kanji k, bool isFirstChar, bool isLastChar, bool useNanori)
+    public static List<string> GetPotentialKanjiReadings(Kanji kanji, bool isFirstChar, bool isLastChar, bool useNanori)
     {
         var output = new List<string>();
-        foreach (string reading in useNanori ? k.ReadingsWithNanori : k.Readings)
+        foreach (string reading in useNanori ? kanji.ReadingsWithNanori : kanji.Readings)
         {
             string r = reading.Replace("-", string.Empty);
             if (!KanaHelper.IsAllKatakana(r))
@@ -115,7 +115,7 @@ public static class ReadingExpander
             }
             else
             {
-                throw new Exception(string.Format("Weird reading: {0} for kanji {1}.", reading, k.Character));
+                throw new Exception(string.Format("Weird reading: {0} for kanji {1}.", reading, kanji.Character));
             }
         }
 
@@ -137,15 +137,15 @@ public static class ReadingExpander
     /// <summary>
     /// Given a special reading expression, returns all potential kana readings the expression could use.
     /// </summary>
-    /// <param name="sp">Target special reading expression.</param>
+    /// <param name="expression">Target special reading expression.</param>
     /// <param name="isFirstChar">Set to true if the first character of the expression is the first
     /// character of the string that the expression is found in.</param>
     /// <param name="isLastChar">Set to true if the last character of the expression is the last
     /// character of the string that the expression is found in.</param>
     /// <returns>A list containing all potential readings the expression could assume.</returns>
-    public static List<SpecialReading> GetPotentialSpecialReadings(SpecialExpression sp, bool isFirstChar, bool isLastChar)
+    public static List<SpecialReading> GetPotentialSpecialReadings(SpecialExpression expression, bool isFirstChar, bool isLastChar)
     {
-        var output = new List<SpecialReading>(sp.Readings);
+        var output = new List<SpecialReading>(expression.Readings);
 
         // Add final small tsu rendaku
         if (!isLastChar)
@@ -208,7 +208,6 @@ public static class ReadingExpander
                 addedOutput.Add(reading[..^1] + "っ");
             }
         }
-
         return addedOutput;
     }
 
