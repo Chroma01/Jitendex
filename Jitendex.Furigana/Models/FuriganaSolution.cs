@@ -36,67 +36,6 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
     #region Static
 
     /// <summary>
-    /// Attempts to parse a furigana solution from the given string.
-    /// The expected format is the ToString format.
-    /// </summary>
-    /// <param name="s">String to parse.</param>
-    /// <param name="v">Reference vocab entry.</param>
-    /// <returns>The parsed solution if the operation was successful. Null otherwise.</returns>
-    public static FuriganaSolution? Parse(string s, VocabEntry v)
-    {
-        var parts = new List<FuriganaPart>();
-        var partSplit = s.Split(SeparatorHelper.MultiValueSeparator);
-
-        foreach (var partString in partSplit)
-        {
-            var fieldSeparator = partString.Split(SeparatorHelper.AssociationSeparator);
-            if (fieldSeparator.Length == 2)
-            {
-                var indexesString = fieldSeparator[0];
-                var furiganaValue = fieldSeparator[1];
-
-                int? minIndex, maxIndex;
-
-                var indexSplit = indexesString.Split(SeparatorHelper.RangeSeparator);
-                if (indexSplit.Length == 2)
-                {
-                    minIndex = int.TryParse(indexSplit[0], out int x) ? x : null;
-                    maxIndex = int.TryParse(indexSplit[1], out int y) ? y : null;
-                }
-                else if (indexSplit.Length == 1)
-                {
-                    minIndex = ParsingHelper.ParseInt(indexSplit[0]);
-                    maxIndex = minIndex;
-                }
-                else
-                {
-                    // Malformed input.
-                    return null;
-                }
-
-                if (minIndex.HasValue && maxIndex.HasValue && minIndex.Value <= maxIndex.Value)
-                {
-                    parts.Add(new FuriganaPart(furiganaValue, minIndex.Value, maxIndex.Value));
-                }
-                else
-                {
-                    // Malformed input.
-                    return null;
-                }
-            }
-            else
-            {
-                // Malformed input or just a simple reading.
-                // Treat it like a simple reading.
-                parts.Add(new FuriganaPart(partString, 0, v.KanjiFormText.Length));
-            }
-        }
-
-        // Everything went fine. Return the solution.
-        return new FuriganaSolution(v, parts);
-    }
-
-    /// <summary>
     /// Checks if the solution is correctly solved for the given coupling of vocab and furigana.
     /// </summary>
     /// <param name="v">Vocab to check.</param>

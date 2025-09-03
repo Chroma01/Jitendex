@@ -34,12 +34,12 @@ public class FuriganaTest
         [],
         new()
         {
-            ["ヶ月"] = new SpecialExpression("ヶ月", new List<SpecialReading>()
-            {
+            ["ヶ月"] = new SpecialExpression("ヶ月",
+            [
                 new("かげつ", new FuriganaSolution(
                     new VocabEntry("ヶ月", "かげつ"),
                     new List<FuriganaPart>() { new("か", 0), new("げつ", 1) }))
-            }),
+            ]),
         }
     );
 
@@ -171,7 +171,7 @@ public class FuriganaTest
         var solution = result.GetSingleSolution();
         Assert.IsNotNull(solution);
 
-        var expectedSolution = FuriganaSolution.Parse(expectedFurigana, v);
+        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, v);
         Assert.AreEqual(expectedSolution, solution);
     }
 
