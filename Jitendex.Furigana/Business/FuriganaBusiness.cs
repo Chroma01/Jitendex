@@ -28,7 +28,7 @@ namespace Jitendex.Furigana.Business;
 public class FuriganaBusiness
 {
     private readonly FuriganaResourceSet _resourceSet;
-    private readonly List<FuriganaSolver> _solvers;
+    private readonly List<IFuriganaSolver> _solvers;
 
     public FuriganaBusiness(FuriganaResourceSet resourceSet, bool useNanori = false)
     {
