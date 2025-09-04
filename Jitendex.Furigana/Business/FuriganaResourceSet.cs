@@ -24,8 +24,8 @@ namespace Jitendex.Furigana.Business;
 public class FuriganaResourceSet
 {
     private readonly Dictionary<char, Kanji> _kanjiDictionary = [];
-    private readonly Dictionary<string, FuriganaSolution> _overrideList = [];
     private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
+    private readonly Dictionary<string, FuriganaSolution> _overrideList = [];
 
     public FuriganaResourceSet(
         Dictionary<char, Kanji> kanjiDictionary,
@@ -33,8 +33,8 @@ public class FuriganaResourceSet
         Dictionary<string, SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanjiDictionary;
-        _overrideList = overrideList;
         _specialExpressions = specialExpressions;
+        _overrideList = overrideList;
     }
 
     public Kanji? GetKanji(char c)

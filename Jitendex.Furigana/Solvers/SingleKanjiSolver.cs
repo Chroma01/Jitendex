@@ -76,25 +76,22 @@ public class SingleKanjiSolver : FuriganaSolver
         for (int i = v.KanjiFormText.Length - 1; i >= 0; i--)
         {
             char c = v.KanjiFormText[i];
-            Kanji? k = r.GetKanji(c);
-            if (k == null)
-            {
-                if (kanaReading.Last() == c)
-                {
-                    // Eat the last character of the reading.
-                    kanaReading = kanaReading[..^1];
-                }
-                else
-                {
-                    // There is something wrong. Readings don't add up.
-                    // Can't solve.
-                    yield break;
-                }
-            }
-            else
+
+            if (r.GetKanji(c) is not null)
             {
                 // We are on the kanji. Skip.
                 break;
+            }
+            else if (kanaReading.Last() == c)
+            {
+                // Eat the last character of the reading.
+                kanaReading = kanaReading[..^1];
+            }
+            else
+            {
+                // There is something wrong. Readings don't add up.
+                // Can't solve.
+                yield break;
             }
         }
 
