@@ -39,7 +39,6 @@ public class FuriganaBusiness
             new KanjiReadingSolver(useNanori: useNanori),
             new LengthMatchSolver(),
             new NoConsecutiveKanjiSolver(),
-            new OverrideSolver(),
             new RepeatedKanjiSolver(),
             new SingleCharacterSolver(),
             new SingleKanjiSolver(),

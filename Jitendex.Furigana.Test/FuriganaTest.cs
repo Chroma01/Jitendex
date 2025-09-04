@@ -31,7 +31,6 @@ public class FuriganaTest
         {
             ['一'] = new Kanji { Character = '一', Readings = [] },
         },
-        [],
         new()
         {
             ["ヶ月"] = new SpecialExpression("ヶ月",
@@ -50,7 +49,7 @@ public class FuriganaTest
         {
             ['頑'] = new Kanji { Character = '頑', Readings = [] },
             ['張'] = new Kanji { Character = '張', Readings = [] },
-        }, [], []);
+        }, []);
         // Readings cannot begin with 'ん', so there is 1 possible solution.
         // No need to supply any character readings.
         TestFurigana("頑張る", "がんばる", "0:がん;1:ば", resourceSet);
@@ -69,7 +68,7 @@ public class FuriganaTest
         {
             ['御'] = new Kanji { Character = '御', Readings = [] },
             ['坊'] = new Kanji { Character = '坊', Readings = [] },
-        }, [], []);
+        }, []);
         TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", resourceSet);
     }
 
@@ -89,7 +88,7 @@ public class FuriganaTest
         {
             ['弄'] = new Kanji { Character = '弄', Readings = [] },
             ['回'] = new Kanji { Character = '回', Readings = [] },
-        }, [], []);
+        }, []);
         // 1 possible solution. No need to supply any character readings.
         TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", resourceSet);
     }
@@ -101,7 +100,7 @@ public class FuriganaTest
         {
             ['掻'] = new Kanji { Character = '掻', Readings = [] },
             ['攫'] = new Kanji { Character = '攫', Readings = [] },
-        }, [], []);
+        }, []);
         // 1 possible solution. No need to supply any character readings.
         TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", resourceSet);
     }
@@ -118,7 +117,7 @@ public class FuriganaTest
         var resourceSet = new FuriganaResourceSet(new()
         {
             ['捗'] = new Kanji { Character = '捗', Readings = ["はか"] }
-        }, [], []);
+        }, []);
         // Rendaku is applied to the second instance of 捗.
         TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
         TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", resourceSet);

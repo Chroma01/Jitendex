@@ -25,16 +25,13 @@ public class FuriganaResourceSet
 {
     private readonly Dictionary<char, Kanji> _kanjiDictionary = [];
     private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
-    private readonly Dictionary<string, FuriganaSolution> _overrideList = [];
 
     public FuriganaResourceSet(
         Dictionary<char, Kanji> kanjiDictionary,
-        Dictionary<string, FuriganaSolution> overrideList,
         Dictionary<string, SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanjiDictionary;
         _specialExpressions = specialExpressions;
-        _overrideList = overrideList;
     }
 
     public Kanji? GetKanji(char c)
@@ -49,14 +46,6 @@ public class FuriganaResourceSet
     {
         if (_specialExpressions.TryGetValue(s, out SpecialExpression? exp))
             return exp;
-        else
-            return null;
-    }
-
-    public FuriganaSolution? GetOverride(VocabEntry v)
-    {
-        if (_overrideList.TryGetValue(v.ToString(), out FuriganaSolution? solution))
-            return solution;
         else
             return null;
     }
