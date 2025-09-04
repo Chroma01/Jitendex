@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
@@ -52,16 +53,16 @@ public static class ReadingExpander
         ['ほ'] = ['ぼ', 'ぽ'],
     }.ToFrozenDictionary();
 
-    private static readonly FrozenDictionary<string, string> _godanVerbEndingToMasuInflection = new Dictionary<string, string>
+    private static readonly FrozenDictionary<char, char> _godanVerbEndingToMasuInflection = new Dictionary<char, char>
     {
-        ["く"] = "き",
-        ["ぐ"] = "ぎ",
-        ["す"] = "し",
-        ["ず"] = "じ",
-        ["む"] = "み",
-        ["る"] = "り",
-        ["ぶ"] = "び",
-        ["う"] = "い",
+        ['く'] = 'き',
+        ['ぐ'] = 'ぎ',
+        ['す'] = 'し',
+        ['ず'] = 'じ',
+        ['む'] = 'み',
+        ['る'] = 'り',
+        ['ぶ'] = 'び',
+        ['う'] = 'い',
     }.ToFrozenDictionary();
 
     private static readonly FrozenSet<char> _smallTsuRendakuList = ['つ', 'く', 'き', 'ち'];
@@ -81,15 +82,13 @@ public static class ReadingExpander
         var output = new List<string>();
         foreach (string reading in useNanori ? kanji.ReadingsWithNanori : kanji.Readings)
         {
-            // This hyphen is used to indicate if a reading is only valid
-            // as a suffix or prefix. We use that info along with the isFirstChar
-            // and isLastChar flags instead of just discarding it.
-            string r = reading.Replace("-", string.Empty);
+            if (isFirstChar && reading.StartsWith('-'))
+                continue; // No suffix readings for the first char.
 
-            if (!r.IsAllKatakana())
-            {
-                r = r.Replace("ー", string.Empty);
-            }
+            if (isLastChar && reading.EndsWith('-'))
+                continue; // No prefix readings for the last char.
+
+            string r = reading.Replace("-", string.Empty);
 
             var dotSplit = r.Split('.');
             if (dotSplit.Length == 1)
@@ -98,28 +97,29 @@ public static class ReadingExpander
             }
             else if (dotSplit.Length == 2)
             {
-                output.Add(dotSplit[0]);
-                output.Add(r.Replace(".", string.Empty));
+                var stemChars = dotSplit[0];
+                var suffixChars = dotSplit[1];
 
-                if (_godanVerbEndingToMasuInflection.TryGetValue(dotSplit[1], out string? newTerm))
+                output.Add(stemChars);
+
+                var sum = new StringBuilder(stemChars);
+                foreach (var suffixChar in suffixChars[..^1])
                 {
-                    string newReading = r.Replace(".", string.Empty);
-                    newReading = newReading[..^dotSplit[1].Length];
-                    newReading += newTerm;
-                    output.Add(newReading);
+                    sum.Append(suffixChar);
+                    output.Add(sum.ToString());
                 }
 
-                if (dotSplit[1].Length >= 2 && dotSplit[1][1] == 'る')
+                var verbEnding = suffixChars.Last();
+                if (_godanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
                 {
-                    // Add variant without the ending る.
-                    string newReading = r.Replace(".", string.Empty);
-                    newReading = newReading[..^1];
+                    var newReading = stemChars + suffixChars[..^1] + newEnding;
                     output.Add(newReading);
                 }
             }
             else
             {
-                throw new Exception(string.Format("Weird reading: {0} for kanji {1}.", reading, kanji.Character));
+                continue;
+                // throw new Exception($"Reading `{reading}` for kanji `{kanji.Character}` should only have one dot separator");
             }
         }
 
