@@ -151,7 +151,7 @@ public class KanjiReadingSolver(bool useNanori) : FuriganaSolver
                     // The reading matches. Iterate with this possibility.
                     var newFuriganaParts = furiganaParts.Clone();
                     newFuriganaParts.AddRange(
-                        expressionReading.Solution.Furigana
+                        expressionReading.Solution.FuriganaParts
                         .Select(fp => new FuriganaPart(
                             fp.Value,
                             fp.StartIndex + currentIndexKanji,

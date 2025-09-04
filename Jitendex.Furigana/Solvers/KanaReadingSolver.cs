@@ -84,7 +84,7 @@ public class KanaReadingSolver : FuriganaSolver
                         continue;
 
                     // The reading matches. Eat the kana chain.
-                    furiganaParts.AddRange(expressionReading.Solution.Furigana
+                    furiganaParts.AddRange(expressionReading.Solution.FuriganaParts
                         .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
 
                     kana = kana[expressionReading.ReadingText.Length..];

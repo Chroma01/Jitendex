@@ -25,11 +25,18 @@ namespace Jitendex.Furigana.Models;
 /// <summary>
 /// A vocab entry with a furigana reading string.
 /// </summary>
-public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
+public class FuriganaSolution
 {
-    public VocabEntry Vocab { get; set; } = vocab;
-    public List<FuriganaPart> Furigana { get; set; } = furigana;
-    public FuriganaSolution(VocabEntry vocab, params FuriganaPart[] parts) : this(vocab, parts.ToList()) { }
+    public VocabEntry Vocab { get; set; }
+    public List<FuriganaPart> FuriganaParts { get; set; }
+
+    public FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furiganaParts)
+    {
+        Vocab = vocab;
+        FuriganaParts = furiganaParts;
+    }
+
+    public FuriganaSolution(VocabEntry vocab, params FuriganaPart[] furiganaParts) : this(vocab, furiganaParts.ToList()) { }
 
     #region Methods
 
@@ -39,10 +46,10 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
     /// Checks if the solution is correctly solved for the given coupling of vocab and furigana.
     /// </summary>
     /// <param name="v">Vocab to check.</param>
-    /// <param name="furigana">Furigana to check.</param>
+    /// <param name="furiganaParts">Furigana to check.</param>
     /// <returns>True if the furigana covers all characters of the vocab reading without
     /// overlapping.</returns>
-    public static bool Check(VocabEntry v, List<FuriganaPart> furigana)
+    public static bool Check(VocabEntry v, List<FuriganaPart> furiganaParts)
     {
         // There are three conditions to check:
         // 1. Furigana parts are not overlapping: for any given index in the kanji reading string,
@@ -55,7 +62,7 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
         // furigana parts covering kana.
 
         // Check condition 1.
-        if (Enumerable.Range(0, v.KanjiFormText.Length).Any(i => furigana.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
+        if (Enumerable.Range(0, v.KanjiFormText.Length).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
             // There are multiple furigana parts that are appliable for a given index.
             // This constitutes an overlap and results in the check being negative.
@@ -69,7 +76,7 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             // Try to find a matching part.
-            var matchingPart = furigana.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);
+            var matchingPart = furiganaParts.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);
             if (matchingPart != null)
             {
                 // We have a matching part. Add the furigana string to the reconstituted reading.
@@ -118,7 +125,7 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
     /// <returns>All parts covering the given index.</returns>
     public List<FuriganaPart> GetPartsForIndex(int index)
     {
-        return Furigana
+        return FuriganaParts
             .Where(f => index >= f.StartIndex && index <= f.EndIndex)
             .ToList();
     }
@@ -130,7 +137,7 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
     /// False otherwise.</returns>
     public bool Check()
     {
-        return Check(Vocab, Furigana);
+        return Check(Vocab, FuriganaParts);
     }
 
     /// <summary>
@@ -139,28 +146,26 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
     public IEnumerable<ReadingPart> BreakIntoParts()
     {
         int? kanaStart = null;
-        for (int i = 0; i < (Vocab?.KanjiFormText?.Length ?? 0); i++)
+        for (int i = 0; i < Vocab.KanjiFormText.Length; i++)
         {
-            var matchingFurigana = Furigana.FirstOrDefault(f => f.StartIndex == i);
+            var matchingFurigana = FuriganaParts.FirstOrDefault(f => f.StartIndex == i);
             if (matchingFurigana != null)
             {
                 // We are on a furigana start index.
                 // If there was any kana, output that part first
                 if (kanaStart.HasValue)
                 {
-                    yield return new ReadingPart()
-                    {
-                        Text = Vocab?.KanjiFormText?[kanaStart.Value..i]
-                    };
+                    yield return new ReadingPart(
+                        Text: Vocab.KanjiFormText[kanaStart.Value..i],
+                        Furigana: null);
+
                     kanaStart = null;
                 }
 
                 // Then output the furigana part
-                yield return new ReadingPart()
-                {
-                    Text = Vocab?.KanjiFormText?.Substring(i, matchingFurigana.EndIndex - i + 1),
-                    Furigana = matchingFurigana.Value
-                };
+                yield return new ReadingPart(
+                    Text: Vocab.KanjiFormText.Substring(i, matchingFurigana.EndIndex - i + 1),
+                    Furigana: matchingFurigana.Value);
 
                 // Then set both i and kanaStart to the end index of the furigana part
                 i = matchingFurigana.EndIndex;
@@ -175,10 +180,9 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
         // Output the final kana part if any
         if (kanaStart.HasValue)
         {
-            yield return new ReadingPart()
-            {
-                Text = Vocab?.KanjiFormText?[kanaStart.Value..]
-            };
+            yield return new ReadingPart(
+                Text: Vocab.KanjiFormText[kanaStart.Value..],
+                Furigana: null);
         }
     }
 
@@ -187,23 +191,20 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
         // Example output:
         // For 大人買い (おとながい):
         // 0-1:おとな,2:が
-        var result = new StringBuilder();
-
-        result.Append(Vocab.KanjiFormText);
-        result.Append(SeparatorHelper.FileFieldSeparator);
-        result.Append(Vocab.ReadingText);
-        result.Append(SeparatorHelper.FileFieldSeparator);
-
-        for (int i = 0; i < Furigana.Count; i++)
-        {
-            result.Append(Furigana[i]);
-            if (i < Furigana.Count - 1)
+        return string.Join
+        (
+            SeparatorHelper.FileFieldSeparator,
+            new string[]
             {
-                result.Append(SeparatorHelper.MultiValueSeparator);
+                Vocab.KanjiFormText,
+                Vocab.ReadingText,
+                string.Join
+                (
+                    SeparatorHelper.MultiValueSeparator,
+                    FuriganaParts.Select(x => x.ToString()).ToArray()
+                )
             }
-        }
-
-        return result.ToString();
+        );
     }
 
     public override bool Equals(object? obj)
@@ -211,7 +212,7 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
         if (obj is FuriganaSolution other)
         {
             // Compare both solutions.
-            if (Vocab != other.Vocab || Furigana.Count != other.Furigana.Count)
+            if (Vocab != other.Vocab || FuriganaParts.Count != other.FuriganaParts.Count)
             {
                 // Not the same vocab or not the same count of furigana parts.
                 return false;
@@ -219,8 +220,8 @@ public class FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furigana)
 
             // If there is at least one furigana part that has no equivalent in the other
             // furigana solution, then the readings differ.
-            return Furigana.All(f1 => other.Furigana.Any(f2 => f1.Equals(f2)))
-                && other.Furigana.All(f2 => Furigana.Any(f1 => f1.Equals(f2)));
+            return FuriganaParts.All(f1 => other.FuriganaParts.Any(f2 => f1.Equals(f2)))
+                && other.FuriganaParts.All(f2 => FuriganaParts.Any(f1 => f1.Equals(f2)));
         }
         return base.Equals(obj);
     }
