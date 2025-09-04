@@ -33,7 +33,7 @@ public class KanaHelperTest
         Assert.AreEqual
         (
             hiraTest,
-            KanaHelper.KatakanaToHiragana(kataTest)
+            kataTest.KatakanaToHiragana()
         );
     }
 
@@ -42,7 +42,7 @@ public class KanaHelperTest
     {
         Assert.AreEqual
         (
-            KanaHelper.HiraganaToKatakana(hiraTest),
+            hiraTest.HiraganaToKatakana(),
             kataTest
         );
     }
@@ -50,32 +50,32 @@ public class KanaHelperTest
     [TestMethod]
     public void TestIsAllHiragana()
     {
-        Assert.IsFalse(KanaHelper.IsAllHiragana("Abcあかさたアカサタ安加左太"));
-        Assert.IsTrue(KanaHelper.IsAllHiragana("ぁあぃいぅうぇえぉんゝゞゟ"));
+        Assert.IsFalse("Abcあかさたアカサタ安加左太".IsAllHiragana());
+        Assert.IsTrue("ぁあぃいぅうぇえぉんゝゞゟ".IsAllHiragana());
 
-        Assert.IsTrue(KanaHelper.IsAllHiragana('\u3096'.ToString()));
-        Assert.IsFalse(KanaHelper.IsAllHiragana('\u3097'.ToString()));
-        Assert.IsFalse(KanaHelper.IsAllHiragana('\u3098'.ToString()));
-        Assert.IsTrue(KanaHelper.IsAllHiragana('\u3099'.ToString()));
+        Assert.IsTrue('\u3096'.IsHiragana());
+        Assert.IsFalse('\u3097'.IsHiragana());
+        Assert.IsFalse('\u3098'.IsHiragana());
+        Assert.IsTrue('\u3099'.IsHiragana());
     }
 
     [TestMethod]
     public void TestIsAllKatakana()
     {
-        Assert.IsFalse(KanaHelper.IsAllKatakana("Abcあかさたアカサタ安加左太"));
-        Assert.IsTrue(KanaHelper.IsAllKatakana("゠アヲンヴヵヶヷヸヹヺ・ーヽヾヿ"));
+        Assert.IsFalse("Abcあかさたアカサタ安加左太".IsAllKatakana());
+        Assert.IsTrue("゠アヲンヴヵヶヷヸヹヺ・ーヽヾヿ".IsAllKatakana());
     }
 
     [TestMethod]
     public void TestIsAllKana()
     {
-        Assert.IsFalse(KanaHelper.IsAllKana("Abcあかさたアカサタ安加左太"));
-        Assert.IsTrue(KanaHelper.IsAllKana("ぁあぃいぅうぇえぉんゝゞゟ"));
-        Assert.IsTrue(KanaHelper.IsAllKana("゠アヲンヴヵヶヷヸヹヺ・ーヽヾヿ"));
+        Assert.IsFalse("Abcあかさたアカサタ安加左太".IsAllKana());
+        Assert.IsTrue("ぁあぃいぅうぇえぉんゝゞゟ".IsAllKana());
+        Assert.IsTrue("゠アヲンヴヵヶヷヸヹヺ・ーヽヾヿ".IsAllKana());
 
-        Assert.IsTrue(KanaHelper.IsAllKana('\u3096'.ToString()));
-        Assert.IsFalse(KanaHelper.IsAllKana('\u3097'.ToString()));
-        Assert.IsFalse(KanaHelper.IsAllKana('\u3098'.ToString()));
-        Assert.IsTrue(KanaHelper.IsAllKana('\u3099'.ToString()));
+        Assert.IsTrue('\u3096'.IsKana());
+        Assert.IsFalse('\u3097'.IsKana());
+        Assert.IsFalse('\u3098'.IsKana());
+        Assert.IsTrue('\u3099'.IsKana());
     }
 }

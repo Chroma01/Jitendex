@@ -89,7 +89,7 @@ public class FuriganaSolution
 
             // Characters that are not covered by a furigana part should be kana.
             char c = v.KanjiFormText[i];
-            if (KanaHelper.IsAllKana(c.ToString()))
+            if (c.IsKana())
             {
                 // It is kana. Add the character to the reconstituted reading.
                 reconstitutedReading.Append(c);

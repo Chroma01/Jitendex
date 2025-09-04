@@ -51,7 +51,7 @@ public class LengthMatchSolver : FuriganaSolver
             {
                 parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
             }
-            else if (!KanaHelper.IsAllKana(v.KanjiFormText[i].ToString()))
+            else if (!v.KanjiFormText[i].IsKana())
             {
                 // Our character is not a kanji and apparently not a kana either.
                 // Stop right there. It's probably a trap.

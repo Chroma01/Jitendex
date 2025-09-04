@@ -33,7 +33,7 @@ public class SingleCharacterSolver : FuriganaSolver
         {
             yield break;
         }
-        if (KanaHelper.IsAllKana(v.KanjiFormText))
+        if (v.KanjiFormText.IsAllKana())
         {
             yield break;
         }

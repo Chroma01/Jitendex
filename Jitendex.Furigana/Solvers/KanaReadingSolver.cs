@@ -128,7 +128,7 @@ public class KanaReadingSolver : FuriganaSolver
                 }
                 furiganaParts.Add(new FuriganaPart(eaten, i));
             }
-            else if (!KanaHelper.IsAllKana(c.ToString()))
+            else if (!c.IsKana())
             {
                 // The character is neither a kanji or a kana.
                 // Cannot solve.

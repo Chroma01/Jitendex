@@ -86,7 +86,7 @@ public static class ReadingExpander
             // and isLastChar flags instead of just discarding it.
             string r = reading.Replace("-", string.Empty);
 
-            if (!KanaHelper.IsAllKatakana(r))
+            if (!r.IsAllKatakana())
             {
                 r = r.Replace("ー", string.Empty);
             }

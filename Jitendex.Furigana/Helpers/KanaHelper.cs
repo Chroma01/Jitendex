@@ -23,7 +23,7 @@ namespace Jitendex.Furigana.Helpers;
 
 public static class KanaHelper
 {
-    private static bool IsHiragana(char c) => c switch
+    public static bool IsHiragana(this char c) => c switch
     {
         < '\u3041' => false,
         < '\u3097' => true,
@@ -32,14 +32,14 @@ public static class KanaHelper
                  _ => false
     };
 
-    private static bool IsKatakana(char c) => c switch
+    public static bool IsKatakana(this char c) => c switch
     {
         < '\u30A0' => false,
         < '\u3100' => true,
                  _ => false
     };
 
-    private static bool IsKana(char c) => c switch
+    public static bool IsKana(this char c) => c switch
     {
         < '\u3041' => false,
         < '\u3097' => true,
@@ -57,34 +57,34 @@ public static class KanaHelper
     private static readonly FrozenDictionary<char, char> _katakanaToHiragana =
         _hiraganaToKatakana.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-    public static string KatakanaToHiragana(string text) => new(text
+    public static string KatakanaToHiragana(this string text) => new(text
         .Select(x => _katakanaToHiragana.TryGetValue(x, out char c) ? c : x)
         .ToArray());
 
-    public static string HiraganaToKatakana(string text) => new(text
+    public static string HiraganaToKatakana(this string text) => new(text
         .Select(x => _hiraganaToKatakana.TryGetValue(x, out char c) ? c : x)
         .ToArray());
 
-    public static bool IsAllHiragana(string text)
+    public static bool IsAllHiragana(this string text)
     {
         foreach (char c in text)
-            if (!IsHiragana(c))
+            if (!c.IsHiragana())
                 return false;
         return true;
     }
 
-    public static bool IsAllKatakana(string text)
+    public static bool IsAllKatakana(this string text)
     {
         foreach (char c in text)
-            if (!IsKatakana(c))
+            if (!c.IsKatakana())
                 return false;
         return true;
     }
 
-    public static bool IsAllKana(string text)
+    public static bool IsAllKana(this string text)
     {
         foreach (char c in text)
-            if (!IsKana(c))
+            if (!c.IsKana())
                 return false;
         return true;
     }
@@ -96,6 +96,6 @@ public static class KanaHelper
 
     private static string ToCommonFormat(string input)
     {
-        return KatakanaToHiragana(input.Replace("・", string.Empty));
+        return input.Replace("・", string.Empty).KatakanaToHiragana();
     }
 }

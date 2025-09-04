@@ -252,7 +252,7 @@ public class KanjiReadingSolver : FuriganaSolver
     )
     {
         char kc = v.ReadingText[currentIndexKana];
-        if (c == kc || KanaHelper.KatakanaToHiragana(c.ToString()) == KanaHelper.KatakanaToHiragana(kc.ToString()))
+        if (c == kc || c.ToString().KatakanaToHiragana() == kc.ToString().KatakanaToHiragana())
         {
             // This kanji form substring matches the kana form substring.
             // We can iterate with the same cut (no added furigana) because we are reading kana.
