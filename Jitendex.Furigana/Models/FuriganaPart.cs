@@ -21,17 +21,25 @@ namespace Jitendex.Furigana.Models;
 
 public class FuriganaPart : IComparable<FuriganaPart>, ICloneable
 {
-    public int StartIndex { get; set; }
-    public int EndIndex { get; set; }
+    public int StartIndex { get; }
+    public int EndIndex { get; }
     public string Value { get; set; }
 
-    public FuriganaPart(string value, int startIndex) : this(value, startIndex, startIndex)
-    {
-
-    }
+    public FuriganaPart(string value, int startIndex)
+        : this(value, startIndex, startIndex) { }
 
     public FuriganaPart(string value, int startIndex, int endIndex)
     {
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentOutOfRangeException(nameof(value),
+                "Furigana character string cannot be empty or whitespace");
+        if (startIndex < 0)
+            throw new ArgumentOutOfRangeException(nameof(startIndex),
+                "Starting position must be non-negative");
+        if (endIndex < startIndex)
+            throw new ArgumentOutOfRangeException(nameof(endIndex),
+                "End position must be after the start position");
+
         Value = value;
         StartIndex = startIndex;
         EndIndex = endIndex;

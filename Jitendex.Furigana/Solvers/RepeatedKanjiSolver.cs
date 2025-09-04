@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
@@ -27,7 +26,7 @@ public class RepeatedKanjiSolver : FuriganaSolver
     /// <summary>
     /// Solves cases where the kanji reading consists in a repeated kanji.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet _, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
         if (v.KanjiFormText.Length != 2)
         {

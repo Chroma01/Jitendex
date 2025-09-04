@@ -27,12 +27,18 @@ namespace Jitendex.Furigana.Solvers;
 public class KanaReadingSolver : FuriganaSolver
 {
     private static readonly FrozenSet<char> ImpossibleCutStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
+    private readonly FuriganaResourceSet _resourceSet;
+
+    public KanaReadingSolver(FuriganaResourceSet resourceSet)
+    {
+        _resourceSet = resourceSet;
+    }
 
     /// <summary>
     /// Attempts to solve furigana by reading the kana string and attributing kanji a reading based
     /// not on the readings of the kanji, but on the kana characters that come up.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
         // Basically, we are reading the kanji reading character by character, eating the kana from
         // the kana reading and associating each kanji the piece of kana that comes next.
@@ -68,7 +74,7 @@ public class KanaReadingSolver : FuriganaSolver
             for (int j = v.KanjiFormText.Length - 1; j >= i; j--)
             {
                 string lookup = v.KanjiFormText.Substring(i, (j - i) + 1);
-                var expression = r.GetExpression(lookup);
+                var expression = _resourceSet.GetExpression(lookup);
 
                 if (expression is null) continue;
 
@@ -110,7 +116,7 @@ public class KanaReadingSolver : FuriganaSolver
             kana = kana[1..];
 
             char c = v.KanjiFormText[i];
-            Kanji? k = r.GetKanji(c);
+            Kanji? k = _resourceSet.GetKanji(c);
 
             if (k is not null)
             {

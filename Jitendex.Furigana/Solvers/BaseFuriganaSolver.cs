@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
@@ -25,7 +24,7 @@ namespace Jitendex.Furigana.Solvers;
 public interface IFuriganaSolver : IComparable<IFuriganaSolver>
 {
     int Priority { get; set; }
-    IEnumerable<FuriganaSolution> Solve(FuriganaResourceSet r, VocabEntry v);
+    IEnumerable<FuriganaSolution> Solve(VocabEntry v);
 }
 
 /// <summary>
@@ -36,9 +35,9 @@ public abstract class FuriganaSolver : IFuriganaSolver
 {
     public int Priority { get; set; }
 
-    public IEnumerable<FuriganaSolution> Solve(FuriganaResourceSet r, VocabEntry v)
+    public IEnumerable<FuriganaSolution> Solve(VocabEntry v)
     {
-        foreach (var solution in DoSolve(r, v))
+        foreach (var solution in DoSolve(v))
         {
             if (!solution.Check())
             {
@@ -48,7 +47,7 @@ public abstract class FuriganaSolver : IFuriganaSolver
         }
     }
 
-    protected abstract IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v);
+    protected abstract IEnumerable<FuriganaSolution> DoSolve(VocabEntry v);
 
     public int CompareTo(IFuriganaSolver? other)
     {

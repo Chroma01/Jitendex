@@ -27,21 +27,19 @@ namespace Jitendex.Furigana.Business;
 /// </summary>
 public class FuriganaBusiness
 {
-    private readonly FuriganaResourceSet _resourceSet;
     private readonly List<IFuriganaSolver> _solvers;
 
     public FuriganaBusiness(FuriganaResourceSet resourceSet, bool useNanori = false)
     {
-        _resourceSet = resourceSet;
         _solvers =
         [
-            new KanaReadingSolver(),
-            new KanjiReadingSolver(useNanori: useNanori),
-            new LengthMatchSolver(),
-            new NoConsecutiveKanjiSolver(),
+            new KanaReadingSolver(resourceSet),
+            new KanjiReadingSolver(resourceSet, useNanori),
+            new LengthMatchSolver(resourceSet),
+            new NoConsecutiveKanjiSolver(resourceSet),
             new RepeatedKanjiSolver(),
             new SingleCharacterSolver(),
-            new SingleKanjiSolver(),
+            new SingleKanjiSolver(resourceSet),
         ];
         _solvers.Sort();
         _solvers.Reverse();
@@ -51,7 +49,7 @@ public class FuriganaBusiness
     /// Starts the process of associating a furigana string to vocab.
     /// </summary>
     /// <returns>The furigana vocab entries.</returns>
-    public async IAsyncEnumerable<FuriganaSolutionSet> SolveRangeAsync(ICollection<VocabEntry> vocab)
+    public async IAsyncEnumerable<FuriganaSolutionSet> SolveRangeAsync(IEnumerable<VocabEntry> vocab)
     {
         var processingTasks = new List<Task<FuriganaSolutionSet>>();
         foreach (var v in vocab)
@@ -96,7 +94,7 @@ public class FuriganaBusiness
             }
 
             // Add all solutions if they are correct and unique.
-            var solution = solver.Solve(_resourceSet, v);
+            var solution = solver.Solve(v);
             solutionSet.AddRange(solution);
         }
 

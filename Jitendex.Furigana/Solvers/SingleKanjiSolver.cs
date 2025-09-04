@@ -24,15 +24,17 @@ namespace Jitendex.Furigana.Solvers;
 
 public class SingleKanjiSolver : FuriganaSolver
 {
-    public SingleKanjiSolver()
+    private readonly FuriganaResourceSet _resourceSet;
+
+    public SingleKanjiSolver(FuriganaResourceSet resourceSet)
     {
-        // Priority up because it's quick and guarantees the only correct solution when appliable.
-        Priority = 1;
+        Priority = 1;  // Priority up because it's quick and guarantees the only correct solution when appliable.
+        _resourceSet = resourceSet;
     }
 
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
-        int kanjiCount = v.KanjiFormText.Count(c => r.GetKanji(c) != null);
+        int kanjiCount = v.KanjiFormText.Count(c => _resourceSet.GetKanji(c) != null);
         if (kanjiCount != 1)
         {
             yield break;
@@ -48,7 +50,7 @@ public class SingleKanjiSolver : FuriganaSolver
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             char c = v.KanjiFormText[i];
-            Kanji? k = r.GetKanji(c);
+            Kanji? k = _resourceSet.GetKanji(c);
             if (k is null)
             {
                 if (kanaReading.First() == c)
@@ -77,7 +79,7 @@ public class SingleKanjiSolver : FuriganaSolver
         {
             char c = v.KanjiFormText[i];
 
-            if (r.GetKanji(c) is not null)
+            if (_resourceSet.GetKanji(c) is not null)
             {
                 // We are on the kanji. Skip.
                 break;

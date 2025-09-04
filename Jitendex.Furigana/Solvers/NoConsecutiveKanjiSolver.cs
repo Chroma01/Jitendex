@@ -25,11 +25,18 @@ namespace Jitendex.Furigana.Solvers;
 
 public class NoConsecutiveKanjiSolver : FuriganaSolver
 {
+    private readonly FuriganaResourceSet _resourceSet;
+
+    public NoConsecutiveKanjiSolver(FuriganaResourceSet resourceSet)
+    {
+        _resourceSet = resourceSet;
+    }
+
     /// <summary>
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,
     /// using regular expressions.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
         // We are using both a greedy expression and a lazy expression because we want to make sure
         // there is only one way to read them. If the result differs with a greedy or a lazy expression,
@@ -41,7 +48,7 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             char c = v.KanjiFormText[i];
-            var kanji = r.GetKanji(c);
+            var kanji = _resourceSet.GetKanji(c);
             if (kanji == null)
             {
                 // Add the characters to the string. No capture group for kana.

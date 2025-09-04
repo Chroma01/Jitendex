@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
@@ -28,7 +27,7 @@ public class SingleCharacterSolver : FuriganaSolver
     /// <summary>
     /// Attempts to solve furigana when the kanji form only has one character.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet _, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
         if (v.KanjiFormText.Length != 1)
         {

@@ -28,7 +28,7 @@ namespace Jitendex.Furigana.Business;
 /// </summary>
 public static class ReadingExpander
 {
-    private static readonly FrozenDictionary<char, char[]> HiraToRendakus = new Dictionary<char, char[]>
+    private static readonly FrozenDictionary<char, char[]> _hiraToRendakus = new Dictionary<char, char[]>
     {
         ['か'] = ['が'],
         ['き'] = ['ぎ'],
@@ -41,18 +41,18 @@ public static class ReadingExpander
         ['せ'] = ['ぜ'],
         ['そ'] = ['ぞ'],
         ['た'] = ['だ'],
-        ['ち'] = ['ぢ','じ'],
-        ['つ'] = ['づ','ず'],
+        ['ち'] = ['ぢ', 'じ'],
+        ['つ'] = ['づ', 'ず'],
         ['て'] = ['で'],
         ['と'] = ['ど'],
-        ['は'] = ['ば','ぱ'],
-        ['ひ'] = ['び','ぴ'],
-        ['ふ'] = ['ぶ','ぷ'],
-        ['へ'] = ['べ','ぺ'],
-        ['ほ'] = ['ぼ','ぽ'],
+        ['は'] = ['ば', 'ぱ'],
+        ['ひ'] = ['び', 'ぴ'],
+        ['ふ'] = ['ぶ', 'ぷ'],
+        ['へ'] = ['べ', 'ぺ'],
+        ['ほ'] = ['ぼ', 'ぽ'],
     }.ToFrozenDictionary();
 
-    private static readonly FrozenDictionary<string, string> GodanVerbEndingToMasuInflection = new Dictionary<string, string>
+    private static readonly FrozenDictionary<string, string> _godanVerbEndingToMasuInflection = new Dictionary<string, string>
     {
         ["く"] = "き",
         ["ぐ"] = "ぎ",
@@ -64,7 +64,7 @@ public static class ReadingExpander
         ["う"] = "い",
     }.ToFrozenDictionary();
 
-    private static readonly FrozenSet<char> SmallTsuRendakuList = ['つ', 'く', 'き', 'ち'];
+    private static readonly FrozenSet<char> _smallTsuRendakuList = ['つ', 'く', 'き', 'ち'];
 
     /// <summary>
     /// Given a kanji, finds and returns all potential readings that it could take in a string.
@@ -81,13 +81,17 @@ public static class ReadingExpander
         var output = new List<string>();
         foreach (string reading in useNanori ? kanji.ReadingsWithNanori : kanji.Readings)
         {
+            // This hyphen is used to indicate if a reading is only valid
+            // as a suffix or prefix. We use that info along with the isFirstChar
+            // and isLastChar flags instead of just discarding it.
             string r = reading.Replace("-", string.Empty);
+
             if (!KanaHelper.IsAllKatakana(r))
             {
                 r = r.Replace("ー", string.Empty);
             }
 
-            string[] dotSplit = r.Split('.');
+            var dotSplit = r.Split('.');
             if (dotSplit.Length == 1)
             {
                 output.Add(r);
@@ -97,7 +101,7 @@ public static class ReadingExpander
                 output.Add(dotSplit[0]);
                 output.Add(r.Replace(".", string.Empty));
 
-                if (GodanVerbEndingToMasuInflection.TryGetValue(dotSplit[1], out string? newTerm))
+                if (_godanVerbEndingToMasuInflection.TryGetValue(dotSplit[1], out string? newTerm))
                 {
                     string newReading = r.Replace(".", string.Empty);
                     newReading = newReading[..^dotSplit[1].Length];
@@ -145,43 +149,53 @@ public static class ReadingExpander
     /// <returns>A list containing all potential readings the expression could assume.</returns>
     public static List<SpecialReading> GetPotentialSpecialReadings(SpecialExpression expression, bool isFirstChar, bool isLastChar)
     {
-        var output = new List<SpecialReading>(expression.Readings);
+        var specialReadings = new List<SpecialReading>(expression.Readings);
 
         // Add final small tsu rendaku
         if (!isLastChar)
         {
-            var add = new List<SpecialReading>();
-            foreach (var r in output)
+            var newSpecialReadings = new List<SpecialReading>();
+            foreach (var specialReading in specialReadings)
             {
-                if (SmallTsuRendakuList.Contains(r.ReadingText.Last()))
-                {
-                    string newKanaReading = r.ReadingText[..^1] + "っ";
-                    var newSolution = new FuriganaSolution(r.Solution.Vocab, r.Solution.FuriganaParts.Clone());
-                    var newReading = new SpecialReading(newKanaReading, newSolution);
+                if (!_smallTsuRendakuList.Contains(specialReading.ReadingText.Last()))
+                    continue;
 
-                    var affectedParts = newReading.Solution.GetPartsForIndex(newReading.Solution.Vocab.KanjiFormText.Length - 1);
-                    foreach (var part in affectedParts)
-                    {
-                        part.Value = part.Value.Remove(part.Value.Length - 1) + "っ";
-                    }
-                    add.Add(newReading);
+                string newKanaReading = specialReading.ReadingText[..^1] + "っ";
+                var newSolution = new FuriganaSolution
+                (
+                    specialReading.Solution.Vocab,
+                    specialReading.Solution.FuriganaParts.Clone()
+                );
+                var newSpecialReading = new SpecialReading(newKanaReading, newSolution);
+
+                var index = newSpecialReading.Solution.Vocab.KanjiFormText.Length - 1;
+                var affectedParts = newSpecialReading.Solution.GetPartsForIndex(index);
+
+                foreach (var part in affectedParts)
+                {
+                    part.Value = part.Value[..^1] + "っ";
                 }
+                newSpecialReadings.Add(newSpecialReading);
             }
-            output.AddRange(add);
+            specialReadings.AddRange(newSpecialReadings);
         }
 
         // Rendaku
         if (!isFirstChar)
         {
-            var add = new List<SpecialReading>();
-            foreach (var r in output)
+            var newSpecialReadings = new List<SpecialReading>();
+            foreach (var specialReading in specialReadings)
             {
-                if (HiraToRendakus.TryGetValue(r.ReadingText.First(), out char[]? rendakuChars))
+                if (_hiraToRendakus.TryGetValue(specialReading.ReadingText.First(), out char[]? rendakuChars))
                 {
                     foreach (var renChar in rendakuChars)
                     {
-                        var newKanaReading = renChar + r.ReadingText[1..];
-                        var newSolution = new FuriganaSolution(r.Solution.Vocab, r.Solution.FuriganaParts.Clone());
+                        var newKanaReading = renChar + specialReading.ReadingText[1..];
+                        var newSolution = new FuriganaSolution
+                        (
+                            specialReading.Solution.Vocab,
+                            specialReading.Solution.FuriganaParts.Clone()
+                        );
                         var newReading = new SpecialReading(newKanaReading, newSolution);
 
                         var affectedParts = newReading.Solution.GetPartsForIndex(0);
@@ -189,41 +203,42 @@ public static class ReadingExpander
                         {
                             part.Value = renChar + part.Value[1..];
                         }
-                        add.Add(newReading);
+                        newSpecialReadings.Add(newReading);
                     }
                 }
             }
-            output.AddRange(add);
+            specialReadings.AddRange(newSpecialReadings);
         }
-        return output.Distinct().ToList();
+
+        return specialReadings.Distinct().ToList();
     }
 
     private static List<string> GetSmallTsuRendaku(List<string> readings)
     {
-        var addedOutput = new List<string>();
+        var newReadings = new List<string>();
         foreach (var reading in readings)
         {
-            if (SmallTsuRendakuList.Contains(reading.Last()))
+            if (_smallTsuRendakuList.Contains(reading.Last()))
             {
-                addedOutput.Add(reading[..^1] + "っ");
+                newReadings.Add(reading[..^1] + "っ");
             }
         }
-        return addedOutput;
+        return newReadings;
     }
 
     private static List<string> GetAllRendaku(List<string> readings)
     {
-        var rendakuOutput = new List<string>();
+        var newReadings = new List<string>();
         foreach (var reading in readings)
         {
-            if (HiraToRendakus.TryGetValue(reading.First(), out char[]? rendakuChars))
+            if (_hiraToRendakus.TryGetValue(reading.First(), out char[]? rendakuChars))
             {
-                foreach (var renChar in rendakuChars)
+                foreach (var rendakuChar in rendakuChars)
                 {
-                    rendakuOutput.Add(renChar + reading[1..]);
+                    newReadings.Add(rendakuChar + reading[1..]);
                 }
             }
         }
-        return rendakuOutput;
+        return newReadings;
     }
 }

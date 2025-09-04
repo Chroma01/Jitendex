@@ -25,17 +25,19 @@ namespace Jitendex.Furigana.Solvers;
 
 public class LengthMatchSolver : FuriganaSolver
 {
-    public LengthMatchSolver()
+    private readonly FuriganaResourceSet _resourceSet;
+
+    public LengthMatchSolver(FuriganaResourceSet resourceSet)
     {
-        // Priority down because it's not good with special expressions.
-        Priority = -1;
+        Priority = -1; // Priority down because it's not good with special expressions.
+        _resourceSet = resourceSet;
     }
 
     /// <summary>
     /// Attempts to solve cases where the length of the kanji reading matches the length of the
     /// kana reading.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(FuriganaResourceSet r, VocabEntry v)
+    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
         if (v.KanjiFormText.Length != v.ReadingText.Length)
         {
@@ -45,7 +47,7 @@ public class LengthMatchSolver : FuriganaSolver
         var parts = new List<FuriganaPart>();
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
-            if (r.GetKanji(v.KanjiFormText[i]) != null)
+            if (_resourceSet.GetKanji(v.KanjiFormText[i]) is not null)
             {
                 parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
             }

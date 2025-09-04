@@ -126,7 +126,7 @@ public class FuriganaSolution
     public List<FuriganaPart> GetPartsForIndex(int index)
     {
         return FuriganaParts
-            .Where(f => index >= f.StartIndex && index <= f.EndIndex)
+            .Where(f => f.StartIndex <= index && index <= f.EndIndex)
             .ToList();
     }
 
@@ -188,9 +188,6 @@ public class FuriganaSolution
 
     public override string ToString()
     {
-        // Example output:
-        // For 大人買い (おとながい):
-        // 0-1:おとな,2:が
         return string.Join
         (
             SeparatorHelper.FileFieldSeparator,
