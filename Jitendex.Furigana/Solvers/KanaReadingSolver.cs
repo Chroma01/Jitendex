@@ -51,7 +51,7 @@ public class KanaReadingSolver : FuriganaSolver
         /// Read the ら for 羅.
 
         string kana = v.ReadingText;
-        var furigana = new List<FuriganaPart>();
+        var furiganaParts = new List<FuriganaPart>();
 
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
@@ -62,7 +62,6 @@ public class KanaReadingSolver : FuriganaSolver
                 yield break;
             }
 
-            char c = v.KanjiFormText[i];
             bool foundExpression = false;
 
             // Check for special expressions
@@ -75,26 +74,23 @@ public class KanaReadingSolver : FuriganaSolver
 
                 // We found an expression.
                 var expressionReadings = ReadingExpander.GetPotentialSpecialReadings(
-                        expression: expression,
-                        isFirstChar: i == 0,
-                        isLastChar: j == v.KanjiFormText.Length - 1);
+                    expression: expression,
+                    isFirstChar: i == 0,
+                    isLastChar: j == v.KanjiFormText.Length - 1);
 
                 foreach (var expressionReading in expressionReadings)
                 {
-                    if (kana.Length >= expressionReading.ReadingText.Length
-                        && kana[..expressionReading.ReadingText.Length] == expressionReading.ReadingText)
-                    {
-                        // The reading matches.
-                        // Eat the kana chain.
-                        furigana.AddRange(
-                            expressionReading.Furigana.Furigana
-                            .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
+                    if (!kana.StartsWith(expressionReading.ReadingText))
+                        continue;
 
-                        kana = kana[expressionReading.ReadingText.Length..];
-                        i = j;
-                        foundExpression = true;
-                        break;
-                    }
+                    // The reading matches. Eat the kana chain.
+                    furiganaParts.AddRange(expressionReading.Solution.Furigana
+                        .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
+
+                    kana = kana[expressionReading.ReadingText.Length..];
+                    i = j;
+                    foundExpression = true;
+                    break;
                 }
 
                 if (foundExpression)
@@ -112,6 +108,8 @@ public class KanaReadingSolver : FuriganaSolver
             // Normal process: eat the first character of our kana string.
             string eaten = kana.First().ToString();
             kana = kana[1..];
+
+            char c = v.KanjiFormText[i];
             Kanji? k = r.GetKanji(c);
 
             if (k is not null)
@@ -122,7 +120,7 @@ public class KanaReadingSolver : FuriganaSolver
                     eaten += kana.First();
                     kana = kana[1..];
                 }
-                furigana.Add(new FuriganaPart(eaten, i));
+                furiganaParts.Add(new FuriganaPart(eaten, i));
             }
             else if (!KanaHelper.IsAllKana(c.ToString()))
             {
@@ -144,7 +142,7 @@ public class KanaReadingSolver : FuriganaSolver
         {
             // We consumed the whole kana string.
             // The case is solved.
-            yield return new FuriganaSolution(v, furigana);
+            yield return new FuriganaSolution(v, furiganaParts);
         }
     }
 }

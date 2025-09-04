@@ -156,10 +156,10 @@ public static class ReadingExpander
                 if (SmallTsuRendakuList.Contains(r.ReadingText.Last()))
                 {
                     string newKanaReading = r.ReadingText[..^1] + "っ";
-                    var newSolution = new FuriganaSolution(r.Furigana.Vocab, r.Furigana.Furigana.Clone());
+                    var newSolution = new FuriganaSolution(r.Solution.Vocab, r.Solution.Furigana.Clone());
                     var newReading = new SpecialReading(newKanaReading, newSolution);
 
-                    var affectedParts = newReading.Furigana.GetPartsForIndex(newReading.Furigana.Vocab.KanjiFormText.Length - 1);
+                    var affectedParts = newReading.Solution.GetPartsForIndex(newReading.Solution.Vocab.KanjiFormText.Length - 1);
                     foreach (var part in affectedParts)
                     {
                         part.Value = part.Value.Remove(part.Value.Length - 1) + "っ";
@@ -181,10 +181,10 @@ public static class ReadingExpander
                     foreach (var renChar in rendakuChars)
                     {
                         var newKanaReading = renChar + r.ReadingText[1..];
-                        var newSolution = new FuriganaSolution(r.Furigana.Vocab, r.Furigana.Furigana.Clone());
+                        var newSolution = new FuriganaSolution(r.Solution.Vocab, r.Solution.Furigana.Clone());
                         var newReading = new SpecialReading(newKanaReading, newSolution);
 
-                        var affectedParts = newReading.Furigana.GetPartsForIndex(0);
+                        var affectedParts = newReading.Solution.GetPartsForIndex(0);
                         foreach (var part in affectedParts)
                         {
                             part.Value = renChar + part.Value[1..];

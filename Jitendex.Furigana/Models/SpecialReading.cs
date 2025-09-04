@@ -19,4 +19,4 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Furigana.Models;
 
-public record SpecialReading(string ReadingText, FuriganaSolution Furigana);
+public record SpecialReading(string ReadingText, FuriganaSolution Solution);
