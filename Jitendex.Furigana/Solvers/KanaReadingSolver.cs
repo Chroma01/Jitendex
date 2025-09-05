@@ -79,7 +79,7 @@ public class KanaReadingSolver : FuriganaSolver
                 if (expression is null) continue;
 
                 // We found an expression.
-                var expressionReadings = ReadingExpander.GetPotentialSpecialReadings(
+                var expressionReadings = SpecialReadingExpander.GetPotentialSpecialReadings(
                     expression: expression,
                     isFirstChar: i == 0,
                     isLastChar: j == v.KanjiFormText.Length - 1);

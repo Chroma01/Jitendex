@@ -23,6 +23,44 @@ namespace Jitendex.Furigana.Helpers;
 
 public static class KanaHelper
 {
+    public static readonly FrozenDictionary<char, char[]> HiraganaToDiacriticForms = new Dictionary<char, char[]>
+    {
+        ['か'] = ['が'],
+        ['き'] = ['ぎ'],
+        ['く'] = ['ぐ'],
+        ['け'] = ['げ'],
+        ['こ'] = ['ご'],
+        ['さ'] = ['ざ'],
+        ['し'] = ['じ'],
+        ['す'] = ['ず'],
+        ['せ'] = ['ぜ'],
+        ['そ'] = ['ぞ'],
+        ['た'] = ['だ'],
+        ['ち'] = ['ぢ', 'じ'],
+        ['つ'] = ['づ', 'ず'],
+        ['て'] = ['で'],
+        ['と'] = ['ど'],
+        ['は'] = ['ば', 'ぱ'],
+        ['ひ'] = ['び', 'ぴ'],
+        ['ふ'] = ['ぶ', 'ぷ'],
+        ['へ'] = ['べ', 'ぺ'],
+        ['ほ'] = ['ぼ', 'ぽ'],
+    }.ToFrozenDictionary();
+
+    public static readonly FrozenDictionary<char, char> GodanVerbEndingToMasuInflection = new Dictionary<char, char>
+    {
+        ['く'] = 'き',
+        ['ぐ'] = 'ぎ',
+        ['す'] = 'し',
+        ['ず'] = 'じ',
+        ['む'] = 'み',
+        ['る'] = 'り',
+        ['ぶ'] = 'び',
+        ['う'] = 'い',
+    }.ToFrozenDictionary();
+
+    public static readonly FrozenSet<char> SmallTsuRendakus = ['つ', 'く', 'き', 'ち'];
+
     public static bool IsHiragana(this char c) => c switch
     {
         < '\u3041' => false,

@@ -141,7 +141,7 @@ public class KanjiReadingSolver : FuriganaSolver
             var expression = _resourceSet.GetExpression(lookup);
             if (expression is null) continue;
 
-            var potentialSpecialReadings = ReadingExpander.GetPotentialSpecialReadings
+            var potentialSpecialReadings = SpecialReadingExpander.GetPotentialSpecialReadings
             (
                 expression: expression,
                 isFirstChar: currentIndexKanji == 0,
