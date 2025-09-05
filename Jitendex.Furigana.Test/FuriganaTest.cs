@@ -73,12 +73,12 @@ public class FuriganaTest
     }
 
     [TestMethod]
-    [Ignore]
     public void TestFuriganaAra()
     {
-        // Will fail. This is a weird kanji. The string containing only the kanji is Length == 2.
-        // Would be cool to find a solution but don't worry too much about it.
-        // TestFurigana("𩺊", "あら", "0:あら");
+        // This kanji is represented by a UTF-16 "Surrogate Pair."
+        // The string has Length == 2.
+        var resourceSet = new FuriganaResourceSet([], []);
+        TestFurigana("𩺊", "あら", "0-1:あら", resourceSet);
     }
 
     [TestMethod]
@@ -108,7 +108,12 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaOneesan()
     {
-        // TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ");
+        var resourceSet = new FuriganaResourceSet(new()
+        {
+            ['御'] = new Kanji { Character = '御', Readings = ["お"] },
+            ['姉'] = new Kanji { Character = '姉', Readings = ["ねえ"] },
+        }, []);
+        TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", resourceSet);
     }
 
     [TestMethod]
