@@ -25,20 +25,72 @@ namespace Jitendex.Furigana.Models;
 
 public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName = false)
 {
+    private ImmutableList<Rune>? _rawKanjiFormRunes;
     private ImmutableList<Rune>? _kanjiFormRunes;
+
+    public ImmutableList<Rune> RawKanjiFormRunes()
+    {
+        if (_rawKanjiFormRunes is not null)
+            return _rawKanjiFormRunes;
+
+        var runes = new List<Rune>();
+        foreach (var rune in KanjiFormText.EnumerateRunes())
+        {
+            runes.Add(rune);
+        }
+        _rawKanjiFormRunes = runes.ToImmutableList();
+        return _rawKanjiFormRunes;
+    }
 
     public ImmutableList<Rune> KanjiFormRunes()
     {
         if (_kanjiFormRunes is not null)
             return _kanjiFormRunes;
 
-        var textElements = new List<Rune>();
-        foreach (var rune in KanjiFormText.EnumerateRunes())
+        var runes = new List<Rune>();
+        var rawRunes = RawKanjiFormRunes();
+        var repeaterIndices = GetRepeaterIndices();
+
+        /*
+            Replace repeaters (々) and double repeaters (々々) with their respective kanji.
+            E.g. 一杯々々 --> 一杯一杯
+                 古々々米 --> 古古古米
+                 事々物々 --> 事事物物
+                 時々　　 --> 時時
+        */
+        for (int i = 0; i < rawRunes.Count; i++)
         {
-            textElements.Add(rune);
+            if (i > 1 && repeaterIndices.Contains(i) && repeaterIndices.Contains(i + 1))
+            {
+                runes.Add(runes[i - 2]);
+                runes.Add(runes[i - 1]);
+                i++;
+            }
+            else if (i > 0 && repeaterIndices.Contains(i))
+            {
+                runes.Add(runes[i - 1]);
+            }
+            else
+            {
+                runes.Add(rawRunes[i]);
+            }
         }
-        _kanjiFormRunes = textElements.ToImmutableList();
+        _kanjiFormRunes = runes.ToImmutableList();
         return _kanjiFormRunes;
+    }
+
+    private HashSet<int> GetRepeaterIndices()
+    {
+        var repeaterIndices = new HashSet<int>();
+
+        var rawRunes = RawKanjiFormRunes();
+        for (int i = 0; i < rawRunes.Count; i++)
+        {
+            if (rawRunes[i].Value == '々')
+                repeaterIndices.Add(i);
+        }
+
+        return repeaterIndices;
     }
 
     public override string ToString()

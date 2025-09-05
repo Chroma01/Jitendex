@@ -42,7 +42,7 @@ public class RepeatedKanjiSolver : FuriganaSolver
         var firstRune = runes[0];
         var secondRune = runes[1];
 
-        if (firstRune == secondRune || secondRune.Value == 0x3005) // "々"
+        if (firstRune == secondRune)
         {
             // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
             // and our kana string can be cut in two. Just do that.

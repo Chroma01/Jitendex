@@ -93,15 +93,9 @@ public class KanjiReadingSolver : FuriganaSolver
         }
 
         // General case. Get the current character and see if it is a kanji.
-        var c = runes[currentIndexKanji];
+        var rune = runes[currentIndexKanji];
 
-        if (c.Value == '々' && currentIndexKanji > 0)
-        {
-            // Special case: handle the repeater kanji by using the previous character instead.
-            c = runes[currentIndexKanji - 1];
-        }
-
-        Kanji? kanji = _resourceSet.GetKanji(c);
+        Kanji? kanji = _resourceSet.GetKanji(rune);
 
         if (kanji is not null)
         {
@@ -111,10 +105,10 @@ public class KanjiReadingSolver : FuriganaSolver
                 yield return solution;
             }
         }
-        else if (c.IsKana())
+        else if (rune.IsKana())
         {
             // Read as kana subpart.
-            char kana = (char)c.Value;
+            char kana = (char)rune.Value;
             foreach (var solution in ReadAsKana(v, currentIndexKanji, currentIndexKana, furiganaParts, kana))
             {
                 yield return solution;
