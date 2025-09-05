@@ -31,24 +31,13 @@ public class SingleKanjiSolver : FuriganaSolver
 
     protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
+        if (!EligibleForThisSolution(v)) yield break;
+
         var kanjiFormRunes = v.KanjiFormRunes();
-
-        int kanjiCount = 0;
-        foreach (var rune in kanjiFormRunes)
-        {
-            if (rune.IsKanji())
-                kanjiCount++;
-        }
-
-        if (kanjiCount != 1)
-        {
-            yield break;
-        }
-
         int kanjiIndex = 0;
         string kanaReading = v.ReadingText;
-        // See if there are only obvious characters around.
 
+        // See if there are only obvious characters around.
         // Browse the kanji reading and eat characters until we get to
         // the kanji character.
         for (int i = 0; i < kanjiFormRunes.Count; i++)
@@ -100,5 +89,16 @@ public class SingleKanjiSolver : FuriganaSolver
         // We are done. Our kanaReading contains only what's left when eating the kana
         // before and after the kanji. It's the reading of our kanji.
         yield return new FuriganaSolution(v, new FuriganaPart(kanaReading, kanjiIndex));
+    }
+
+    private static bool EligibleForThisSolution(VocabEntry v)
+    {
+        int kanjiCount = 0;
+        foreach (var rune in v.KanjiFormRunes())
+        {
+            if (rune.IsKanji() && ++kanjiCount > 1)
+                return false;
+        }
+        return true;
     }
 }
