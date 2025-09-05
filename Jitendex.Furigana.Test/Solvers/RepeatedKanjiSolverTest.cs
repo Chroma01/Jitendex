@@ -25,6 +25,8 @@ namespace Jitendex.Furigana.Test;
 [TestClass]
 public class RepeatedKanjiSolverTest
 {
+    #region Tests expected to succeed
+
     [TestMethod]
     public void TestOneKanaPerKanji()
     {
@@ -72,6 +74,22 @@ public class RepeatedKanjiSolverTest
         TestSuccess("州々", "しゅうしゅう", "0:しゅう;1:しゅう");
     }
 
+    private static void TestSuccess(string kanjiForm, string reading, string expectedFurigana)
+    {
+        var solver = new RepeatedKanjiSolver();
+        var vocab = new VocabEntry(kanjiForm, reading);
+        var solutions = solver.Solve(vocab).ToList();
+        Assert.HasCount(1, solutions);
+
+        var solution = solutions.First();
+        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, vocab);
+        Assert.AreEqual(expectedSolution, solution);
+    }
+
+    #endregion
+
+    #region Tests expected to fail
+
     [TestMethod]
     public void TestNonKanji()
     {
@@ -110,18 +128,6 @@ public class RepeatedKanjiSolverTest
         TestFailure("捗々しい", "はかばかしい");
     }
 
-    private static void TestSuccess(string kanjiForm, string reading, string expectedFurigana)
-    {
-        var solver = new RepeatedKanjiSolver();
-        var vocab = new VocabEntry(kanjiForm, reading);
-        var solutions = solver.Solve(vocab).ToList();
-        Assert.HasCount(1, solutions);
-
-        var solution = solutions.First();
-        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, vocab);
-        Assert.AreEqual(expectedSolution, solution);
-    }
-
     private static void TestFailure(string kanjiForm, string reading)
     {
         var solver = new RepeatedKanjiSolver();
@@ -129,4 +135,6 @@ public class RepeatedKanjiSolverTest
         var solution = solver.Solve(vocab).FirstOrDefault();
         Assert.IsNull(solution);
     }
+
+    #endregion
 }
