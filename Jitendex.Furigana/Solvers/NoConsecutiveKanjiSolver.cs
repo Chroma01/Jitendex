@@ -48,8 +48,8 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             char c = v.KanjiFormText[i];
-            var kanji = _resourceSet.GetKanji(c);
-            if (kanji == null)
+
+            if (_resourceSet.GetKanji(c) is null)
             {
                 // Add the characters to the string. No capture group for kana.
                 regGreedy += string.Format(c.ToString());

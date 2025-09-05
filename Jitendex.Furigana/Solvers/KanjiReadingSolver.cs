@@ -137,7 +137,7 @@ public class KanjiReadingSolver : FuriganaSolver
         string lookup = string.Empty;
         for (int i = v.KanjiFormText.Length - 1; i >= currentIndexKanji; i--)
         {
-            lookup = v.KanjiFormText.Substring(currentIndexKanji, (i - currentIndexKanji) + 1);
+            lookup = v.KanjiFormText.Substring(currentIndexKanji, i - currentIndexKanji + 1);
             var expression = _resourceSet.GetExpression(lookup);
             if (expression is null) continue;
 
@@ -175,7 +175,6 @@ public class KanjiReadingSolver : FuriganaSolver
                     }
                 }
             }
-
         }
     }
 
