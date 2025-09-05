@@ -73,7 +73,7 @@ public class KanaReadingSolver : FuriganaSolver
             // Check for special expressions
             for (int j = v.KanjiFormText.Length - 1; j >= i; j--)
             {
-                string lookup = v.KanjiFormText.Substring(i, (j - i) + 1);
+                string lookup = v.KanjiFormText.Substring(i, j - i + 1);
                 var expression = _resourceSet.GetExpression(lookup);
 
                 if (expression is null) continue;
