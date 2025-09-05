@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
-using System.Text;
 using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
@@ -75,7 +74,6 @@ public class KanaReadingSolver : FuriganaSolver
             // Check for special expressions
             for (int j = runes.Count - 1; j >= i; j--)
             {
-                // string lookup = v.KanjiFormText.Substring(i, j - i + 1);
                 string lookup = string.Join("", runes.GetRange(i, j - i + 1));
                 var expression = _resourceSet.GetExpression(lookup);
 
@@ -118,9 +116,9 @@ public class KanaReadingSolver : FuriganaSolver
             string eaten = kana.First().ToString();
             kana = kana[1..];
 
-            Rune c = runes[i];
+            var rune = runes[i];
 
-            if (c.IsKanji())
+            if (rune.IsKanji())
             {
                 // On a kanji case, also eat consecutive "impossible start characters"
                 while (kana.Length > 0 && _impossibleCutStart.Contains(kana.First()))
@@ -130,13 +128,13 @@ public class KanaReadingSolver : FuriganaSolver
                 }
                 furiganaParts.Add(new FuriganaPart(eaten, i));
             }
-            else if (!c.IsKana())
+            else if (!rune.IsKana())
             {
                 // The character is neither a kanji or a kana.
                 // Cannot solve.
                 yield break;
             }
-            else if (eaten != c.ToString())
+            else if (eaten != rune.ToString())
             {
                 // The character browsed is a kana but is not the
                 // character that we just ate. We made a mistake
