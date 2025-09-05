@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
@@ -42,7 +43,7 @@ public class RepeatedKanjiSolver : FuriganaSolver
         var firstRune = runes[0];
         var secondRune = runes[1];
 
-        if (firstRune == secondRune)
+        if (firstRune == secondRune && firstRune.IsKanji())
         {
             // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
             // and our kana string can be cut in two. Just do that.
