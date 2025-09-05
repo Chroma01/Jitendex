@@ -49,7 +49,7 @@ public static class ReadingExpander
             if (isLastChar && reading.EndsWith('-'))
                 continue; // No prefix readings for the last char.
 
-            string r = reading.Replace("-", string.Empty);
+            string r = reading.Replace("-", string.Empty).KatakanaToHiragana();
 
             var dotSplit = r.Split('.');
             if (dotSplit.Length == 1)
