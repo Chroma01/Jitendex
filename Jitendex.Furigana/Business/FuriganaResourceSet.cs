@@ -17,24 +17,25 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Business;
 
 public class FuriganaResourceSet
 {
-    private readonly Dictionary<char, Kanji> _kanjiDictionary = [];
+    private readonly Dictionary<Rune, Kanji> _kanjiDictionary = [];
     private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
 
     public FuriganaResourceSet(
-        Dictionary<char, Kanji> kanjiDictionary,
+        Dictionary<Rune, Kanji> kanjiDictionary,
         Dictionary<string, SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanjiDictionary;
         _specialExpressions = specialExpressions;
     }
 
-    public Kanji? GetKanji(char c)
+    public Kanji? GetKanji(Rune c)
     {
         if (_kanjiDictionary.TryGetValue(c, out Kanji? kanji))
             return kanji;

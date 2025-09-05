@@ -18,20 +18,13 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text.RegularExpressions;
-using Jitendex.Furigana.Business;
+using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
 public class NoConsecutiveKanjiSolver : FuriganaSolver
 {
-    private readonly FuriganaResourceSet _resourceSet;
-
-    public NoConsecutiveKanjiSolver(FuriganaResourceSet resourceSet)
-    {
-        _resourceSet = resourceSet;
-    }
-
     /// <summary>
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,
     /// using regular expressions.
@@ -41,15 +34,17 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
         // We are using both a greedy expression and a lazy expression because we want to make sure
         // there is only one way to read them. If the result differs with a greedy or a lazy expression,
         // it means that we have no idea how to read the damn thing.
+        var runes = v.KanjiFormRunes();
+
         string regGreedy = "^";
         string regLazy = "^";
         bool consecutiveMarker = false;
-        var kanjiIndexes = new List<int>(4);
-        for (int i = 0; i < v.KanjiFormText.Length; i++)
+        var kanjiIndexes = new List<int>();
+        for (int i = 0; i < runes.Count; i++)
         {
-            char c = v.KanjiFormText[i];
+            var c = runes[i];
 
-            if (_resourceSet.GetKanji(c) is null)
+            if (!c.IsKanji())
             {
                 // Add the characters to the string. No capture group for kana.
                 regGreedy += string.Format(c.ToString());
@@ -91,7 +86,7 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
             var lazySolution = MakeSolutionFromMatch(v, matchLazy, kanjiIndexes);
 
             // Are both solutions non-null and equivalent?
-            if (greedySolution != null && lazySolution != null && greedySolution.Equals(lazySolution))
+            if (greedySolution is not null && lazySolution is not null && greedySolution.Equals(lazySolution))
             {
                 // Yes they are! Return only one of them of course.
                 // Greedy wins obviously.
@@ -110,7 +105,7 @@ public class NoConsecutiveKanjiSolver : FuriganaSolver
             return null;
         }
 
-        var parts = new List<FuriganaPart>(match.Groups.Count - 1);
+        var parts = new List<FuriganaPart>();
         for (int i = 1; i < match.Groups.Count; i++)
         {
             var group = match.Groups[i];

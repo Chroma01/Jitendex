@@ -17,11 +17,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
+
 namespace Jitendex.Furigana.Models;
 
 public class Kanji
 {
-    public char Character { get; set; }
+    public Rune Character { get; set; }
     public List<string> Readings { get; set; }
     public List<string> ReadingsWithNanori { get; set; }
     public bool IsRealKanji { get; set; }

@@ -28,9 +28,9 @@ public class RepeatedKanjiSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
-        var elements = v.KanjiFormTextElements();
+        var runes = v.KanjiFormRunes();
 
-        if (elements.Count != 2)
+        if (runes.Count != 2)
         {
             yield break;
         }
@@ -39,24 +39,18 @@ public class RepeatedKanjiSolver : FuriganaSolver
             yield break;
         }
 
-        var firstCharacter = elements[0];
-        var secondCharacter = elements[1];
+        var firstRune = runes[0];
+        var secondRune = runes[1];
 
-        if (firstCharacter == secondCharacter || secondCharacter == "々")
+        if (firstRune == secondRune || secondRune.Value == 0x3005) // "々"
         {
-            int startIndex1 = 0;
-            int endIndex1 = firstCharacter.Length - 1;
-
-            int startIndex2 = firstCharacter.Length;
-            int endIndex2 = firstCharacter.Length + secondCharacter.Length - 1;
-
             // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
             // and our kana string can be cut in two. Just do that.
             yield return new FuriganaSolution
             (
                 v,
-                new FuriganaPart(v.ReadingText[..(v.ReadingText.Length / 2)], startIndex1, endIndex1),
-                new FuriganaPart(v.ReadingText[(v.ReadingText.Length / 2)..], startIndex2, endIndex2)
+                new FuriganaPart(v.ReadingText[..(v.ReadingText.Length / 2)], 0),
+                new FuriganaPart(v.ReadingText[(v.ReadingText.Length / 2)..], 1)
             );
         }
     }

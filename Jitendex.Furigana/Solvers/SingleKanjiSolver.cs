@@ -17,73 +17,75 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Business;
+using System.Text;
+using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
 public class SingleKanjiSolver : FuriganaSolver
 {
-    private readonly FuriganaResourceSet _resourceSet;
-
-    public SingleKanjiSolver(FuriganaResourceSet resourceSet)
+    public SingleKanjiSolver()
     {
         Priority = 1;  // Priority up because it's quick and guarantees the only correct solution when appliable.
-        _resourceSet = resourceSet;
     }
 
     protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
-        int kanjiCount = v.KanjiFormText.Count(c => _resourceSet.GetKanji(c) != null);
+        var kanjiFormRunes = v.KanjiFormRunes();
+
+        int kanjiCount = 0;
+        foreach (var rune in kanjiFormRunes)
+        {
+            if (rune.IsKanji())
+                kanjiCount++;
+        }
+
         if (kanjiCount != 1)
         {
             yield break;
         }
 
         int kanjiIndex = 0;
-
         string kanaReading = v.ReadingText;
         // See if there are only obvious characters around.
 
         // Browse the kanji reading and eat characters until we get to
         // the kanji character.
-        for (int i = 0; i < v.KanjiFormText.Length; i++)
+        for (int i = 0; i < kanjiFormRunes.Count; i++)
         {
-            char c = v.KanjiFormText[i];
-            if (_resourceSet.GetKanji(c) is null)
-            {
-                if (kanaReading.First() == c)
-                {
-                    // Remove the first character of the reading.
-                    kanaReading = kanaReading[1..];
-                }
-                else
-                {
-                    // There is something wrong. Readings don't add up.
-                    // Can't solve.
-                    yield break;
-                }
-            }
-            else
+            Rune c = kanjiFormRunes[i];
+            if (c.IsKanji())
             {
                 // We are on the kanji. Skip.
                 kanjiIndex = i;
                 break;
             }
+            else if (kanaReading.First() == c.Value)
+            {
+                // Remove the first character of the reading.
+                kanaReading = kanaReading[1..];
+            }
+            else
+            {
+                // There is something wrong. Readings don't add up.
+                // Can't solve.
+                yield break;
+            }
         }
 
         // Now browse in reverse and eat characters until we get back to
         // the kanji character.
-        for (int i = v.KanjiFormText.Length - 1; i >= 0; i--)
+        for (int i = kanjiFormRunes.Count - 1; i >= 0; i--)
         {
-            char c = v.KanjiFormText[i];
+            Rune c = kanjiFormRunes[i];
 
-            if (_resourceSet.GetKanji(c) is not null)
+            if (c.IsKanji())
             {
                 // We are on the kanji. Skip.
                 break;
             }
-            else if (kanaReading.Last() == c)
+            else if (kanaReading.Last() == c.Value)
             {
                 // Eat the last character of the reading.
                 kanaReading = kanaReading[..^1];

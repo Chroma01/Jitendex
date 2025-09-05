@@ -18,31 +18,27 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Immutable;
-using System.Globalization;
+using System.Text;
 using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Models;
 
 public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName = false)
 {
-    private ImmutableList<string>? _kanjiFormTextElements;
+    private ImmutableList<Rune>? _kanjiFormRunes;
 
-    public ImmutableList<string> KanjiFormTextElements()
+    public ImmutableList<Rune> KanjiFormRunes()
     {
-        if (_kanjiFormTextElements is not null)
-            return _kanjiFormTextElements;
+        if (_kanjiFormRunes is not null)
+            return _kanjiFormRunes;
 
-        var textElements = new List<string>();
-        var enumerator = StringInfo.GetTextElementEnumerator(KanjiFormText);
-        while (enumerator.MoveNext())
+        var textElements = new List<Rune>();
+        foreach (var rune in KanjiFormText.EnumerateRunes())
         {
-            if (enumerator.Current is not null)
-            {
-                textElements.Add((string)enumerator.Current);
-            }
+            textElements.Add(rune);
         }
-        _kanjiFormTextElements = textElements.ToImmutableList();
-        return _kanjiFormTextElements;
+        _kanjiFormRunes = textElements.ToImmutableList();
+        return _kanjiFormRunes;
     }
 
     public override string ToString()

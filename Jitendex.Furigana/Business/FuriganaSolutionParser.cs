@@ -26,17 +26,19 @@ public static class FuriganaSolutionParser
 {
     public static FuriganaSolution? Parse(string s, VocabEntry v)
     {
+        var runes = v.KanjiFormRunes();
         var parts = new List<FuriganaPart>();
         var partSplit = s.Split(Separator.MultiValue);
 
         foreach (var partString in partSplit)
         {
             var fieldSeparator = partString.Split(Separator.Association);
+
             if (fieldSeparator.Length != 2)
             {
                 // Malformed input or just a simple reading.
                 // Treat it like a simple reading.
-                parts.Add(new FuriganaPart(partString, 0, v.KanjiFormText.Length));
+                parts.Add(new FuriganaPart(partString, 0, runes.Count - 1));
                 continue;
             }
 

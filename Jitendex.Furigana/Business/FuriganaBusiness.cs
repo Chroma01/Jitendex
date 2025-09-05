@@ -35,11 +35,11 @@ public class FuriganaBusiness
         [
             new KanaReadingSolver(resourceSet),
             new KanjiReadingSolver(resourceSet),
-            new LengthMatchSolver(resourceSet),
-            new NoConsecutiveKanjiSolver(resourceSet),
+            new LengthMatchSolver(),
+            new NoConsecutiveKanjiSolver(),
             new RepeatedKanjiSolver(),
             new SingleCharacterSolver(),
-            new SingleKanjiSolver(resourceSet),
+            new SingleKanjiSolver(),
         ];
         _solvers.Sort();
         _solvers.Reverse();

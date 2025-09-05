@@ -29,8 +29,8 @@ public class SingleCharacterSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
-        var elements = v.KanjiFormTextElements();
-        if (elements.Count != 1)
+        var runes = v.KanjiFormRunes();
+        if (runes.Count != 1)
         {
             yield break;
         }
@@ -39,8 +39,6 @@ public class SingleCharacterSolver : FuriganaSolver
             yield break;
         }
 
-        int elementLength = elements[0].Length;
-
-        yield return new FuriganaSolution(v, new FuriganaPart(v.ReadingText, 0, elementLength - 1));
+        yield return new FuriganaSolution(v, new FuriganaPart(v.ReadingText, 0));
     }
 }

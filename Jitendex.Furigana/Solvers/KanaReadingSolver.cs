@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using System.Text;
 using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
@@ -56,10 +57,11 @@ public class KanaReadingSolver : FuriganaSolver
         /// Read the だ for 陀;
         /// Read the ら for 羅.
 
+        var runes = v.KanjiFormRunes();
         string kana = v.ReadingText;
         var furiganaParts = new List<FuriganaPart>();
 
-        for (int i = 0; i < v.KanjiFormText.Length; i++)
+        for (int i = 0; i < runes.Count; i++)
         {
             if (kana.Length == 0)
             {
@@ -71,9 +73,10 @@ public class KanaReadingSolver : FuriganaSolver
             bool foundExpression = false;
 
             // Check for special expressions
-            for (int j = v.KanjiFormText.Length - 1; j >= i; j--)
+            for (int j = runes.Count - 1; j >= i; j--)
             {
-                string lookup = v.KanjiFormText.Substring(i, j - i + 1);
+                // string lookup = v.KanjiFormText.Substring(i, j - i + 1);
+                string lookup = string.Join("", runes.GetRange(i, j - i + 1));
                 var expression = _resourceSet.GetExpression(lookup);
 
                 if (expression is null) continue;
@@ -82,7 +85,7 @@ public class KanaReadingSolver : FuriganaSolver
                 var expressionReadings = SpecialReadingExpander.GetPotentialSpecialReadings(
                     expression: expression,
                     isFirstChar: i == 0,
-                    isLastChar: j == v.KanjiFormText.Length - 1);
+                    isLastChar: j == runes.Count - 1);
 
                 foreach (var expressionReading in expressionReadings)
                 {
@@ -115,9 +118,9 @@ public class KanaReadingSolver : FuriganaSolver
             string eaten = kana.First().ToString();
             kana = kana[1..];
 
-            char c = v.KanjiFormText[i];
+            Rune c = runes[i];
 
-            if (_resourceSet.GetKanji(c) is not null)
+            if (c.IsKanji())
             {
                 // On a kanji case, also eat consecutive "impossible start characters"
                 while (kana.Length > 0 && _impossibleCutStart.Contains(kana.First()))

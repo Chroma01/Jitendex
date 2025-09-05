@@ -61,8 +61,10 @@ public class FuriganaSolution
         // Keep in mind things like 真っ青 admit a correct "0-2:まっさお" solution. There can be
         // furigana parts covering kana.
 
+        var runes = v.KanjiFormRunes();
+
         // Check condition 1.
-        if (Enumerable.Range(0, v.KanjiFormText.Length).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
+        if (Enumerable.Range(0, runes.Count).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
             // There are multiple furigana parts that are appliable for a given index.
             // This constitutes an overlap and results in the check being negative.
@@ -73,7 +75,7 @@ public class FuriganaSolution
         // Now try to reconstitute the reading using the furigana parts.
         // This will allow us to test both 2 and 3.
         var reconstitutedReading = new StringBuilder();
-        for (int i = 0; i < v.KanjiFormText.Length; i++)
+        for (int i = 0; i < runes.Count; i++)
         {
             // Try to find a matching part.
             var matchingPart = furiganaParts.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);
@@ -88,11 +90,12 @@ public class FuriganaSolution
             }
 
             // Characters that are not covered by a furigana part should be kana.
-            char c = v.KanjiFormText[i];
+            var c = runes[i];
             if (c.IsKana())
             {
                 // It is kana. Add the character to the reconstituted reading.
-                reconstitutedReading.Append(c);
+                char kana = (char)c.Value;
+                reconstitutedReading.Append(kana);
             }
             else
             {
@@ -145,8 +148,9 @@ public class FuriganaSolution
     /// </summary>
     public IEnumerable<ReadingPart> BreakIntoParts()
     {
+        var runes = Vocab.KanjiFormRunes();
         int? kanaStart = null;
-        for (int i = 0; i < Vocab.KanjiFormText.Length; i++)
+        for (int i = 0; i < runes.Count; i++)
         {
             var matchingFurigana = FuriganaParts.FirstOrDefault(f => f.StartIndex == i);
             if (matchingFurigana != null)
@@ -156,7 +160,7 @@ public class FuriganaSolution
                 if (kanaStart.HasValue)
                 {
                     yield return new ReadingPart(
-                        Text: Vocab.KanjiFormText[kanaStart.Value..i],
+                        Text: string.Join("", runes.ToArray()[kanaStart.Value..i]),
                         Furigana: null);
 
                     kanaStart = null;
@@ -164,7 +168,7 @@ public class FuriganaSolution
 
                 // Then output the furigana part
                 yield return new ReadingPart(
-                    Text: Vocab.KanjiFormText.Substring(i, matchingFurigana.EndIndex - i + 1),
+                    Text: string.Join("", runes.GetRange(i, matchingFurigana.EndIndex - i + 1)),
                     Furigana: matchingFurigana.Value);
 
                 // Then set both i and kanaStart to the end index of the furigana part
@@ -181,7 +185,7 @@ public class FuriganaSolution
         if (kanaStart.HasValue)
         {
             yield return new ReadingPart(
-                Text: Vocab.KanjiFormText[kanaStart.Value..],
+                Text: string.Join("", runes.ToArray()[kanaStart.Value..]),
                 Furigana: null);
         }
     }

@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
 
@@ -25,12 +24,9 @@ namespace Jitendex.Furigana.Solvers;
 
 public class LengthMatchSolver : FuriganaSolver
 {
-    private readonly FuriganaResourceSet _resourceSet;
-
-    public LengthMatchSolver(FuriganaResourceSet resourceSet)
+    public LengthMatchSolver()
     {
         Priority = -1; // Priority down because it's not good with special expressions.
-        _resourceSet = resourceSet;
     }
 
     /// <summary>
@@ -39,25 +35,26 @@ public class LengthMatchSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
     {
-        if (v.KanjiFormText.Length != v.ReadingText.Length)
+        var runes = v.KanjiFormRunes();
+        if (runes.Count != v.ReadingText.Length)
         {
             yield break;
         }
 
         var parts = new List<FuriganaPart>();
-        for (int i = 0; i < v.KanjiFormText.Length; i++)
+        for (int i = 0; i < runes.Count; i++)
         {
-            if (_resourceSet.GetKanji(v.KanjiFormText[i]) is not null)
+            if (runes[i].IsKanji())
             {
                 parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
             }
-            else if (!v.KanjiFormText[i].IsKana())
+            else if (!runes[i].IsKana())
             {
                 // Our character is not a kanji and apparently not a kana either.
                 // Stop right there. It's probably a trap.
                 yield break;
             }
-            else if (!KanaHelper.AreEquivalent(v.KanjiFormText[i].ToString(), v.ReadingText[i].ToString()))
+            else if (!KanaHelper.AreEquivalent(runes[i].ToString(), v.ReadingText[i].ToString()))
             {
                 // We are reading kana characters that are not equivalent. Stop.
                 yield break;

@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using System.Text;
 
 namespace Jitendex.Furigana.Helpers;
 
@@ -84,6 +85,31 @@ public static class KanaHelper
         < '\u3099' => false,
         < '\u3100' => true,
                  _ => false
+    };
+
+    public static bool IsHiragana(this Rune c) => c.Value switch
+    {
+        < 0x3041 => false,
+        < 0x3097 => true,
+        < 0x3099 => false,
+        < 0x30A0 => true,
+               _ => false
+    };
+
+    public static bool IsKatakana(this Rune c) => c.Value switch
+    {
+        < 0x30A0 => false,
+        < 0x3100 => true,
+               _ => false
+    };
+
+    public static bool IsKana(this Rune c) => c.Value switch
+    {
+        < 0x3041 => false,
+        < 0x3097 => true,
+        < 0x3099 => false,
+        < 0x3100 => true,
+               _ => false
     };
 
     private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
