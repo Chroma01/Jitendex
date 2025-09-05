@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
@@ -54,14 +53,14 @@ public class SingleKanjiSolver : FuriganaSolver
         // the kanji character.
         for (int i = 0; i < kanjiFormRunes.Count; i++)
         {
-            Rune c = kanjiFormRunes[i];
-            if (c.IsKanji())
+            var rune = kanjiFormRunes[i];
+            if (rune.IsKanji())
             {
                 // We are on the kanji. Skip.
                 kanjiIndex = i;
                 break;
             }
-            else if (kanaReading.First() == c.Value)
+            else if (kanaReading.First() == rune.Value)
             {
                 // Remove the first character of the reading.
                 kanaReading = kanaReading[1..];
@@ -78,14 +77,14 @@ public class SingleKanjiSolver : FuriganaSolver
         // the kanji character.
         for (int i = kanjiFormRunes.Count - 1; i >= 0; i--)
         {
-            Rune c = kanjiFormRunes[i];
+            var rune = kanjiFormRunes[i];
 
-            if (c.IsKanji())
+            if (rune.IsKanji())
             {
                 // We are on the kanji. Skip.
                 break;
             }
-            else if (kanaReading.Last() == c.Value)
+            else if (kanaReading.Last() == rune.Value)
             {
                 // Eat the last character of the reading.
                 kanaReading = kanaReading[..^1];
