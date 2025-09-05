@@ -52,7 +52,6 @@ public class KanjiReadingSolver : FuriganaSolver
     /// Recursive method that reads the kanji reading string and attempts to find all the ways the
     /// kana reading could be cut by matching it with the potential kanji readings.
     /// </summary>
-    /// <param name="r">Resource set.</param>
     /// <param name="v">Vocab to solve.</param>
     /// <param name="currentIndexKanji">Current position in the kanji string. Used for recursion.</param>
     /// <param name="currentIndexKana">Current position in the kana string. Used for recursion.</param>

@@ -50,8 +50,7 @@ public class SingleKanjiSolver : FuriganaSolver
         for (int i = 0; i < v.KanjiFormText.Length; i++)
         {
             char c = v.KanjiFormText[i];
-            Kanji? k = _resourceSet.GetKanji(c);
-            if (k is null)
+            if (_resourceSet.GetKanji(c) is null)
             {
                 if (kanaReading.First() == c)
                 {
