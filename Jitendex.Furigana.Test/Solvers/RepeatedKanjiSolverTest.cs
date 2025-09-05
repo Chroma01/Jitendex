@@ -57,6 +57,15 @@ public class RepeatedKanjiSolverTest
     }
 
     [TestMethod]
+    public void TestUtf16SurrogatePair()
+    {
+        // "𩺊" is represented by a UTF-16 "Surrogate Pair"
+        // with string Length == 2.
+        TestSuccess("𩺊𩺊", "あらあら", "0:あら;1:あら");
+        TestSuccess("𩺊々", "あらあら", "0:あら;1:あら");
+    }
+
+    [TestMethod]
     public void TestThreeKanaPerKanji()
     {
         TestSuccess("州州", "しゅうしゅう", "0:しゅう;1:しゅう");
@@ -103,22 +112,21 @@ public class RepeatedKanjiSolverTest
 
     private static void TestSuccess(string kanjiForm, string reading, string expectedFurigana)
     {
-        var v = new VocabEntry(kanjiForm, reading);
         var solver = new RepeatedKanjiSolver();
-        var solutions = solver.Solve(v).ToList();
+        var vocab = new VocabEntry(kanjiForm, reading);
+        var solutions = solver.Solve(vocab).ToList();
         Assert.HasCount(1, solutions);
 
         var solution = solutions.First();
-        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, v);
+        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, vocab);
         Assert.AreEqual(expectedSolution, solution);
     }
 
     private static void TestFailure(string kanjiForm, string reading)
     {
-        var v = new VocabEntry(kanjiForm, reading);
         var solver = new RepeatedKanjiSolver();
-        var solutions = solver.Solve(v).ToList();
-        var solution = solutions.FirstOrDefault();
+        var vocab = new VocabEntry(kanjiForm, reading);
+        var solution = solver.Solve(vocab).FirstOrDefault();
         Assert.IsNull(solution);
     }
 }
