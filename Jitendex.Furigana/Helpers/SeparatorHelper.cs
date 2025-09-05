@@ -19,12 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Furigana.Helpers;
 
-static class SeparatorHelper
+static class Separator
 {
-    public static readonly char FuriganaSeparator = '.';
-    public static readonly char MultiValueSeparator = ';';
-    public static readonly char AssociationSeparator = ':';
-    public static readonly char RangeSeparator = '-';
-    public static readonly char FileFieldSeparator = '|';
-    public static readonly char FileReadingSeparator = ',';
+    public static readonly char Furigana = '.';
+    public static readonly char MultiValue = ';';
+    public static readonly char Association = ':';
+    public static readonly char Range = '-';
+    public static readonly char FileField = '|';
+    public static readonly char FileReading = ',';
 }

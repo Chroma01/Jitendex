@@ -190,14 +190,14 @@ public class FuriganaSolution
     {
         return string.Join
         (
-            SeparatorHelper.FileFieldSeparator,
+            Separator.FileField,
             new string[]
             {
                 Vocab.KanjiFormText,
                 Vocab.ReadingText,
                 string.Join
                 (
-                    SeparatorHelper.MultiValueSeparator,
+                    Separator.MultiValue,
                     FuriganaParts.Select(x => x.ToString()).ToArray()
                 )
             }

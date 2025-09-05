@@ -25,6 +25,6 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
 {
     public override string ToString()
     {
-        return $"{KanjiFormText}{SeparatorHelper.FileFieldSeparator}{ReadingText}";
+        return $"{KanjiFormText}{Separator.FileField}{ReadingText}";
     }
 }

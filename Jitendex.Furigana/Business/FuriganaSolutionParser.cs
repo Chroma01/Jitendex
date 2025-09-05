@@ -27,11 +27,11 @@ public static class FuriganaSolutionParser
     public static FuriganaSolution? Parse(string s, VocabEntry v)
     {
         var parts = new List<FuriganaPart>();
-        var partSplit = s.Split(SeparatorHelper.MultiValueSeparator);
+        var partSplit = s.Split(Separator.MultiValue);
 
         foreach (var partString in partSplit)
         {
-            var fieldSeparator = partString.Split(SeparatorHelper.AssociationSeparator);
+            var fieldSeparator = partString.Split(Separator.Association);
             if (fieldSeparator.Length != 2)
             {
                 // Malformed input or just a simple reading.
@@ -45,7 +45,7 @@ public static class FuriganaSolutionParser
 
             int? minIndex, maxIndex;
 
-            var indexSplit = indexesString.Split(SeparatorHelper.RangeSeparator);
+            var indexSplit = indexesString.Split(Separator.Range);
             if (indexSplit.Length == 2)
             {
                 minIndex = int.TryParse(indexSplit[0], out int x) ? x : null;
