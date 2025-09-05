@@ -21,7 +21,7 @@ using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Models;
 
-public record VocabEntry(string KanjiFormText, string ReadingText)
+public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName = false)
 {
     public override string ToString()
     {

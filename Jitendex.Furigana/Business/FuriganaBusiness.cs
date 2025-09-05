@@ -29,12 +29,12 @@ public class FuriganaBusiness
 {
     private readonly List<IFuriganaSolver> _solvers;
 
-    public FuriganaBusiness(FuriganaResourceSet resourceSet, bool useNanori = false)
+    public FuriganaBusiness(FuriganaResourceSet resourceSet)
     {
         _solvers =
         [
             new KanaReadingSolver(resourceSet),
-            new KanjiReadingSolver(resourceSet, useNanori),
+            new KanjiReadingSolver(resourceSet),
             new LengthMatchSolver(resourceSet),
             new NoConsecutiveKanjiSolver(resourceSet),
             new RepeatedKanjiSolver(),

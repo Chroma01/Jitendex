@@ -30,12 +30,10 @@ public class KanjiReadingSolver : FuriganaSolver
     /// </summary>
     private static readonly int MaxKanaPerKanji = 4;
     private readonly FuriganaResourceSet _resourceSet;
-    private readonly bool _useNanori;
 
-    public KanjiReadingSolver(FuriganaResourceSet resourceSet, bool useNanori)
+    public KanjiReadingSolver(FuriganaResourceSet resourceSet)
     {
         _resourceSet = resourceSet;
-        _useNanori = useNanori;
     }
 
     /// <summary>
@@ -197,7 +195,7 @@ public class KanjiReadingSolver : FuriganaSolver
             kanji: kanji,
             isFirstChar: currentIndexKanji == 0,
             isLastChar: currentIndexKanji == v.KanjiFormText.Length - 1,
-            useNanori: _useNanori);
+            useNanori: v.IsName);
 
         // Iterate on the kana reading.
         for (int i = currentIndexKana; i < v.ReadingText.Length && i < currentIndexKana + MaxKanaPerKanji; i++)
