@@ -62,31 +62,6 @@ public static class KanaHelper
 
     public static readonly FrozenSet<char> SmallTsuRendakus = ['つ', 'く', 'き', 'ち'];
 
-    public static bool IsHiragana(this char c) => c switch
-    {
-        < '\u3041' => false,
-        < '\u3097' => true,
-        < '\u3099' => false,
-        < '\u30A0' => true,
-                 _ => false
-    };
-
-    public static bool IsKatakana(this char c) => c switch
-    {
-        < '\u30A0' => false,
-        < '\u3100' => true,
-                 _ => false
-    };
-
-    public static bool IsKana(this char c) => c switch
-    {
-        < '\u3041' => false,
-        < '\u3097' => true,
-        < '\u3099' => false,
-        < '\u3100' => true,
-                 _ => false
-    };
-
     public static bool IsHiragana(this Rune c) => c.Value switch
     {
         < 0x3041 => false,
@@ -111,6 +86,10 @@ public static class KanaHelper
         < 0x3100 => true,
                _ => false
     };
+
+    public static bool IsHiragana(this char c) => IsHiragana(new Rune(c));
+    public static bool IsKatakana(this char c) => IsKatakana(new Rune(c));
+    public static bool IsKana(this char c) => IsKana(new Rune(c));
 
     private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
         Enumerable.Range(0x30A1, 86)
