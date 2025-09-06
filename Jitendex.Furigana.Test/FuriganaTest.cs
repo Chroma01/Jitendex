@@ -25,20 +25,24 @@ namespace Jitendex.Furigana.Test;
 [TestClass]
 public class FuriganaTest
 {
-    private static readonly FuriganaResourceSet IkkagetsuResourceSet = new
-    (
+    [TestMethod]
+    public void TestFuriganaIkkagetsu()
+    {
+        var resourceSet = new FuriganaResourceSet(
         [
-            new Kanji { Character = new Rune('一'), Readings = [] },
+            new Kanji { Character = new Rune('一'), Readings = ["イチ", "イツ", "ひと-", "ひと.つ"] },
+            new Kanji { Character = new Rune('月'), Readings = ["ゲツ", "ガツ", "つき"] },
         ],
         [
-            new SpecialExpression("ヶ月",
-            [
-                new("かげつ", new FuriganaSolution(
-                    new VocabEntry("ヶ月", "かげつ"),
-                    new List<FuriganaPart>() { new("か", 0), new("げつ", 1) }))
-            ]),
-        ]
-    );
+            new SpecialExpression("ヶ", [new("か",
+                new FuriganaSolution(
+                    new VocabEntry("ヶ", "か"),
+                    new List<FuriganaPart>() { new("か", 0) })
+                )
+            ])
+        ]);
+        TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
+    }
 
     [TestMethod]
     public void TestFuriganaGanbaru()
@@ -51,12 +55,6 @@ public class FuriganaTest
         // Readings cannot begin with 'ん', so there is 1 possible solution.
         // No need to supply any character readings.
         TestFurigana("頑張る", "がんばる", "0:がん;1:ば", resourceSet);
-    }
-
-    [TestMethod]
-    public void TestFuriganaIkkagetsu()
-    {
-        TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", IkkagetsuResourceSet);
     }
 
     [TestMethod]
