@@ -110,11 +110,66 @@ public class FuriganaTest
         TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
     }
 
-    [Ignore]
     [TestMethod]
     public void TestFuriganaIssue5()
     {
-        var resourceSet = new FuriganaResourceSet();
+        // These kanji readings are all in kanjidic2 except for
+        // 兄・にい, 姉・ねえ, and 母・かあ.
+        var resourceSet = new FuriganaResourceSet
+        ([
+            new Kanji(new Rune('御'), ["ギョ", "ゴ", "おん-", "お-", "み-"]),
+            new Kanji(new Rune('兄'), ["ケイ", "キョウ", "あに", "にい"]),
+            new Kanji(new Rune('姉'), ["シ", "あね", "はは", "ねえ"]),
+            new Kanji(new Rune('母'), ["ボ", "はは", "も", "かあ"]),
+            new Kanji(new Rune('抑'), ["ヨク", "おさ.える"]),
+            new Kanji(new Rune('犇'), ["ホン", "ひし.めく", "ひしひし", "はし.る"]),
+            new Kanji(new Rune('険'), ["ケン", "けわ.しい"]),
+            new Kanji(new Rune('路'), ["ロ", "ル", "-じ", "みち"]),
+            new Kanji(new Rune('芝'), ["シ", "しば"]),
+            new Kanji(new Rune('生'), ["セイ", "ショウ", "い.きる", "い.かす", "い.ける", "う.まれる", "うま.れる", "う.まれ", "うまれ", "う.む", "お.う", "は.える", "は.やす", "き", "なま", "なま-", "な.る", "な.す", "む.す", "-う"]),
+            new Kanji(new Rune('純'), ["ジュン"]),
+            new Kanji(new Rune('日'), ["ニチ", "ジツ", "ひ", "-び", "-か"]),
+            new Kanji(new Rune('本'), ["ホン", "もと"]),
+            new Kanji(new Rune('風'), ["フウ", "フ", "かぜ", "かざ-"]),
+            new Kanji(new Rune('真'), ["シン", "ま", "ま-", "まこと"]),
+            new Kanji(new Rune('珠'), ["シュ", "たま"]),
+            new Kanji(new Rune('湾'), ["ワン", "いりえ"]),
+            new Kanji(new Rune('草'), ["ソウ", "くさ", "くさ-", "-ぐさ"]),
+            new Kanji(new Rune('履'), ["リ", "は.く"]),
+            new Kanji(new Rune('大'), ["ダイ", "タイ", "おお-", "おお.きい", "-おお.いに"]),
+            new Kanji(new Rune('和'), ["ワ", "オ", "カ", "やわ.らぐ", "やわ.らげる", "なご.む", "なご.やか", "あ.える"]),
+            new Kanji(new Rune('魂'), ["コン", "たましい", "たま"]),
+            new Kanji(new Rune('竹'), ["チク", "たけ"]),
+            new Kanji(new Rune('刀'), ["トウ", "かたな", "そり"]),
+            new Kanji(new Rune('東'), ["トウ", "ひがし"]),
+            new Kanji(new Rune('京'), ["キョウ", "ケイ", "キン", "みやこ"]),
+            new Kanji(new Rune('学'), ["ガク", "まな.ぶ"]),
+            new Kanji(new Rune('者'), ["シャ", "もの"]),
+            new Kanji(new Rune('製'), ["セイ"]),
+            new Kanji(new Rune('側'), ["ソク", "かわ", "がわ", "そば"]),
+            new Kanji(new Rune('木'), ["ボク", "モク", "き", "こ-"]),
+            new Kanji(new Rune('葉'), ["ヨウ", "は"]),
+            new Kanji(new Rune('余'), ["ヨ", "あま.る", "あま.り", "あま.す", "あんま.り"]),
+            new Kanji(new Rune('所'), ["ショ", "ところ", "-ところ", "どころ", "とこ"]),
+            new Kanji(new Rune('見'), ["ケン", "み.る", "み.える", "み.せる"]),
+            new Kanji(new Rune('嗹'), ["レン", "おしゃべり"]),
+            new Kanji(new Rune('愈'), ["ユ", "いよいよ", "まさ.る"]),
+            new Kanji(new Rune('偶'), ["グウ", "たま"]),
+            new Kanji(new Rune('益'), ["エキ", "ヤク", "ま.す"]),
+            new Kanji(new Rune('邪'), ["ジャ", "よこし.ま"]),
+            new Kanji(new Rune('薬'), ["ヤク", "くすり"]),
+            new Kanji(new Rune('独'), ["ドク", "トク", "ひと.り"]),
+            new Kanji(new Rune('協'), ["キョウ"]),
+            new Kanji(new Rune('会'), ["カイ", "エ", "あ.う", "あ.わせる", "あつ.まる"]),
+        ],
+        [
+            new SpecialExpression("芝生", ["しばふ"]),
+            new SpecialExpression("草履", ["ぞうり"]),
+            new SpecialExpression("日本", ["にほん"]),
+            new SpecialExpression("大和", ["やまと"]),
+            new SpecialExpression("竹刀", ["しない"]),
+            new SpecialExpression("風邪", ["かぜ"]),
+        ]);
         var testData = new[]
         {
             ("御兄さん", "おにいさん", "0:お;1:にい"),

@@ -73,7 +73,7 @@ public class Kanji
                 output.Add(stemChars);
 
                 var sum = new StringBuilder(stemChars);
-                foreach (var suffixChar in suffixChars[..^1])
+                foreach (var suffixChar in suffixChars)
                 {
                     sum.Append(suffixChar);
                     output.Add(sum.ToString());
