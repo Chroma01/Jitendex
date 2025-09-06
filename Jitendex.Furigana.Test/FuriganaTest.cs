@@ -28,29 +28,27 @@ public class FuriganaTest
 {
     private static readonly FuriganaResourceSet IkkagetsuResourceSet = new
     (
-        new()
-        {
-            [new Rune('一')] = new Kanji { Character = new Rune('一'), Readings = [] },
-        },
-        new()
-        {
-            ["ヶ月"] = new SpecialExpression("ヶ月",
+        [
+            new Kanji { Character = new Rune('一'), Readings = [] },
+        ],
+        [
+            new SpecialExpression("ヶ月",
             [
                 new("かげつ", new FuriganaSolution(
                     new VocabEntry("ヶ月", "かげつ"),
                     new List<FuriganaPart>() { new("か", 0), new("げつ", 1) }))
             ]),
-        }
+        ]
     );
 
     [TestMethod]
     public void TestFuriganaGanbaru()
     {
-        var resourceSet = new FuriganaResourceSet(new()
-        {
-            [new Rune('頑')] = new Kanji { Character = new Rune('頑'), Readings = [] },
-            [new Rune('張')] = new Kanji { Character = new Rune('張'), Readings = [] },
-        }, []);
+        var resourceSet = new FuriganaResourceSet(
+        [
+            new Kanji { Character = new Rune('頑'), Readings = [] },
+            new Kanji { Character = new Rune('張'), Readings = [] },
+        ], []);
         // Readings cannot begin with 'ん', so there is 1 possible solution.
         // No need to supply any character readings.
         TestFurigana("頑張る", "がんばる", "0:がん;1:ば", resourceSet);
@@ -65,11 +63,11 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaObocchan()
     {
-        var resourceSet = new FuriganaResourceSet(new()
-        {
-            [new Rune('御')] = new Kanji { Character = new Rune('御'), Readings = [] },
-            [new Rune('坊')] = new Kanji { Character = new Rune('坊'), Readings = [] },
-        }, []);
+        var resourceSet = new FuriganaResourceSet(
+        [
+            new Kanji { Character = new Rune('御'), Readings = [] },
+            new Kanji { Character = new Rune('坊'), Readings = [] },
+        ], []);
         TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", resourceSet);
     }
 
@@ -85,11 +83,11 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaIjirimawasu()
     {
-        var resourceSet = new FuriganaResourceSet(new()
-        {
-            [new Rune('弄')] = new Kanji { Character = new Rune('弄'), Readings = [] },
-            [new Rune('回')] = new Kanji { Character = new Rune('回'), Readings = [] },
-        }, []);
+        var resourceSet = new FuriganaResourceSet(
+        [
+            new Kanji { Character = new Rune('弄'), Readings = [] },
+            new Kanji { Character = new Rune('回'), Readings = [] },
+        ], []);
         // 1 possible solution. No need to supply any character readings.
         TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", resourceSet);
     }
@@ -97,11 +95,11 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaKassarau()
     {
-        var resourceSet = new FuriganaResourceSet(new()
-        {
-            [new Rune('掻')] = new Kanji { Character = new Rune('掻'), Readings = [] },
-            [new Rune('攫')] = new Kanji { Character = new Rune('攫'), Readings = [] },
-        }, []);
+        var resourceSet = new FuriganaResourceSet(
+        [
+            new Kanji { Character = new Rune('掻'), Readings = [] },
+            new Kanji { Character = new Rune('攫'), Readings = [] },
+        ], []);
         // 1 possible solution. No need to supply any character readings.
         TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", resourceSet);
     }
@@ -109,21 +107,21 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaOneesan()
     {
-        var resourceSet = new FuriganaResourceSet(new()
-        {
-            [new Rune('御')] = new Kanji { Character = new Rune('御'), Readings = ["お"] },
-            [new Rune('姉')] = new Kanji { Character = new Rune('姉'), Readings = ["ねえ"] },
-        }, []);
+        var resourceSet = new FuriganaResourceSet(
+        [
+            new Kanji { Character = new Rune('御'), Readings = ["お"] },
+            new Kanji { Character = new Rune('姉'), Readings = ["ねえ"] },
+        ], []);
         TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaHakabakashii()
     {
-        var resourceSet = new FuriganaResourceSet(new()
-        {
-            [new Rune('捗')] = new Kanji { Character = new Rune('捗'), Readings = ["はか"] }
-        }, []);
+        var resourceSet = new FuriganaResourceSet
+        (
+            [new Kanji { Character = new Rune('捗'), Readings = ["はか"] }], []
+        );
         // Rendaku is applied to the second instance of 捗.
         TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
         TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", resourceSet);

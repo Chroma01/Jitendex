@@ -62,8 +62,9 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
         {
             if (i > 1 && repeaterIndices.Contains(i) && repeaterIndices.Contains(i + 1))
             {
-                runes.Add(runes[i - 2]);
-                runes.Add(runes[i - 1]);
+                var previousRunes = (runes[i - 2], runes[i - 1]);
+                runes.Add(previousRunes.Item1);
+                runes.Add(previousRunes.Item2);
                 i++;
             }
             else if (i > 0 && repeaterIndices.Contains(i))

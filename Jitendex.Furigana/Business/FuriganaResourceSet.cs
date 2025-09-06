@@ -27,12 +27,15 @@ public class FuriganaResourceSet
     private readonly Dictionary<Rune, Kanji> _kanjiDictionary = [];
     private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
 
-    public FuriganaResourceSet(
-        Dictionary<Rune, Kanji> kanjiDictionary,
-        Dictionary<string, SpecialExpression> specialExpressions)
+    public FuriganaResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
-        _kanjiDictionary = kanjiDictionary;
-        _specialExpressions = specialExpressions;
+        _kanjiDictionary = kanji
+            .Select(x => new KeyValuePair<Rune, Kanji>(x.Character, x))
+            .ToDictionary();
+
+        _specialExpressions = specialExpressions
+            .Select(x => new KeyValuePair<string, SpecialExpression>(x.KanjiFormText, x))
+            .ToDictionary();
     }
 
     public Kanji? GetKanji(Rune c)

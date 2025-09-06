@@ -20,7 +20,7 @@ using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Solvers;
 
-namespace Jitendex.Furigana.Test;
+namespace Jitendex.Furigana.Test.Solvers;
 
 [TestClass]
 public class RepeatedKanjiSolverTest
