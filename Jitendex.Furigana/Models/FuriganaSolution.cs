@@ -69,7 +69,7 @@ public class FuriganaSolution
         var runes = v.KanjiFormRunes();
 
         // Check condition 1.
-        if (Enumerable.Range(0, runes.Count - 1).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
+        if (Enumerable.Range(0, runes.Count).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
             // There are multiple furigana parts that are appliable for a given index.
             // This constitutes an overlap and results in the check being negative.
