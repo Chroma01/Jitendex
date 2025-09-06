@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 using Jitendex.Warehouse.Kanjidic2.Models.Groups;
 using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
 
@@ -70,6 +71,8 @@ public class Entry : ICorruptable
     internal ReadingMeaningGroup? ReadingMeaningGroup = null;
 
     public bool IsCorrupt { get; set; }
+
+    public Rune ToRune() => Character.EnumerateRunes().First();
 
     internal const string XmlTagName = "character";
     internal const string Character_XmlTagName = "literal";
