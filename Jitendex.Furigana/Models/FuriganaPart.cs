@@ -23,7 +23,7 @@ public class FuriganaPart : IComparable<FuriganaPart>, ICloneable
 {
     public int StartIndex { get; }
     public int EndIndex { get; }
-    public string Value { get; set; }
+    public string Value { get; }
 
     public FuriganaPart(string value, int startIndex)
         : this(value, startIndex, startIndex) { }
