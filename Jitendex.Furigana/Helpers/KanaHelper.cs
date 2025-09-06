@@ -132,13 +132,8 @@ public static class KanaHelper
         return true;
     }
 
-    public static bool AreEquivalent(string a, string b)
+    public static bool IsKanaEquivalent(this string text, string comparisonText)
     {
-        return ToCommonFormat(a) == ToCommonFormat(b);
-    }
-
-    private static string ToCommonFormat(string input)
-    {
-        return input.Replace("・", string.Empty).KatakanaToHiragana();
+        return text.KatakanaToHiragana() == comparisonText.KatakanaToHiragana();
     }
 }

@@ -112,7 +112,7 @@ public class FuriganaSolution
         }
 
         // Our reconstituted reading should be the same as the kana reading of the vocab.
-        if (!KanaHelper.AreEquivalent(reconstitutedReading.ToString(), v.ReadingText))
+        if (!v.ReadingText.IsKanaEquivalent(reconstitutedReading.ToString()))
         {
             // It is different. Something is not correct in the furigana reading values.
             // Condition 3 failed.

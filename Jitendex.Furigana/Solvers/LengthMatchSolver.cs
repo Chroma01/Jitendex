@@ -54,7 +54,7 @@ public class LengthMatchSolver : FuriganaSolver
                 // Stop right there. It's probably a trap.
                 yield break;
             }
-            else if (!KanaHelper.AreEquivalent(runes[i].ToString(), v.ReadingText[i].ToString()))
+            else if (!runes[i].ToString().IsKanaEquivalent(v.ReadingText[i].ToString()))
             {
                 // We are reading kana characters that are not equivalent. Stop.
                 yield break;
