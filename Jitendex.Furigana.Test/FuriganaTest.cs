@@ -28,8 +28,8 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaIkkagetsu()
     {
-        var resourceSet = new FuriganaResourceSet(
-        [
+        var resourceSet = new FuriganaResourceSet
+        ([
             new Kanji { Character = new Rune('一'), Readings = ["イチ", "イツ", "ひと-", "ひと.つ"] },
             new Kanji { Character = new Rune('月'), Readings = ["ゲツ", "ガツ", "つき"] },
         ],
@@ -37,9 +37,7 @@ public class FuriganaTest
             new SpecialExpression("ヶ", [new("か",
                 new FuriganaSolution(
                     new VocabEntry("ヶ", "か"),
-                    new List<FuriganaPart>() { new("か", 0) })
-                )
-            ])
+                    new List<FuriganaPart>() { new("か", 0) }))])
         ]);
         TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
     }
@@ -47,16 +45,16 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaGanbaru()
     {
-        var resourceSet = new FuriganaResourceSet([], []);
         // Readings cannot begin with 'ん', so there is 1 possible solution.
         // No need to supply any character readings.
+        var resourceSet = new FuriganaResourceSet([]);
         TestFurigana("頑張る", "がんばる", "0:がん;1:ば", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaObocchan()
     {
-        var resourceSet = new FuriganaResourceSet([], []);
+        var resourceSet = new FuriganaResourceSet([]);
         TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", resourceSet);
     }
 
@@ -65,52 +63,54 @@ public class FuriganaTest
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
-        var resourceSet = new FuriganaResourceSet([], []);
+        var resourceSet = new FuriganaResourceSet([]);
         TestFurigana("𩺊", "あら", "0:あら", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaIjirimawasu()
     {
-        var resourceSet = new FuriganaResourceSet([], []);
         // 1 possible solution. No need to supply any character readings.
+        var resourceSet = new FuriganaResourceSet([]);
         TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaKassarau()
     {
-        var resourceSet = new FuriganaResourceSet([], []);
         // 1 possible solution. No need to supply any character readings.
+        var resourceSet = new FuriganaResourceSet([]);
         TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaOneesan()
     {
-        var resourceSet = new FuriganaResourceSet(
-        [
+        var resourceSet = new FuriganaResourceSet
+        ([
             new Kanji { Character = new Rune('御'), Readings = ["ギョ", "ゴ", "おん-", "お-", "み-"] },
             new Kanji { Character = new Rune('姉'), Readings = ["シ", "あね", "はは", "ねえ"] },
-        ], []);
+        ]);
         TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaHakabakashii()
     {
-        var resourceSet = new FuriganaResourceSet(
-        [
-            new Kanji { Character = new Rune('捗'), Readings = ["チョク", "ホ", "はかど.る", "はか"] }
-        ], []);
         // Rendaku is applied to the second instance of 捗.
+        var resourceSet = new FuriganaResourceSet
+        ([
+            new Kanji { Character = new Rune('捗'), Readings = ["チョク", "ホ", "はかど.る", "はか"] }
+        ]);
         TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
         TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
     }
 
+    [Ignore]
     [TestMethod]
     public void TestFuriganaIssue5()
     {
+        var resourceSet = new FuriganaResourceSet([], []);
         var testData = new[]
         {
             ("御兄さん", "おにいさん", "0:お;1:にい"),
@@ -143,7 +143,7 @@ public class FuriganaTest
         };
         foreach (var x in testData)
         {
-            // TestFurigana(x.Item1, x.Item2, x.Item3);
+            TestFurigana(x.Item1, x.Item2, x.Item3, resourceSet);
         }
     }
 
