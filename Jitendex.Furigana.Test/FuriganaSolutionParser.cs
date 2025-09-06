@@ -24,9 +24,8 @@ namespace Jitendex.Furigana.Test;
 
 public static class FuriganaSolutionParser
 {
-    public static FuriganaSolution? Parse(string s, VocabEntry v)
+    public static FuriganaSolution Parse(string s, VocabEntry v)
     {
-        var runes = v.KanjiFormRunes();
         var parts = new List<FuriganaPart>();
         var partSplit = s.Split(Separator.MultiValue);
 
@@ -36,46 +35,33 @@ public static class FuriganaSolutionParser
 
             if (fieldSeparator.Length != 2)
             {
-                // Malformed input or just a simple reading.
-                // Treat it like a simple reading.
-                parts.Add(new FuriganaPart(partString, 0, runes.Count - 1));
-                continue;
+                throw new Exception($"partstring `{partString}` should contain one and only one separator `{Separator.Association}`");
             }
 
             var indexesString = fieldSeparator[0];
             var furiganaValue = fieldSeparator[1];
 
-            int? minIndex, maxIndex;
+            int minIndex, maxIndex;
 
             var indexSplit = indexesString.Split(Separator.Range);
             if (indexSplit.Length == 2)
             {
-                minIndex = int.TryParse(indexSplit[0], out int x) ? x : null;
-                maxIndex = int.TryParse(indexSplit[1], out int y) ? y : null;
+                minIndex = int.Parse(indexSplit[0]);
+                maxIndex = int.Parse(indexSplit[1]);
             }
             else if (indexSplit.Length == 1)
             {
-                minIndex = int.TryParse(indexSplit[0], out int x) ? x : null;
+                minIndex = int.Parse(indexSplit[0]);
                 maxIndex = minIndex;
             }
             else
             {
-                // Malformed input.
-                return null;
+                throw new Exception($"Malformed input `{indexesString}`");
             }
 
-            if (minIndex.HasValue && maxIndex.HasValue && minIndex.Value <= maxIndex.Value)
-            {
-                parts.Add(new FuriganaPart(furiganaValue, minIndex.Value, maxIndex.Value));
-            }
-            else
-            {
-                // Malformed input.
-                return null;
-            }
+            parts.Add(new FuriganaPart(furiganaValue, minIndex, maxIndex));
         }
 
-        // Everything went fine. Return the solution.
         return new FuriganaSolution(v, parts);
     }
 }
