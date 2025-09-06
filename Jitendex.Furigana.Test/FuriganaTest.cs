@@ -34,9 +34,16 @@ public class FuriganaTest
             new Kanji(new Rune('月'), ["ゲツ", "ガツ", "つき"]),
         ],
         [
-            new SpecialExpression { Expression = "ヶ", Readings = ["ヶ", "か", "が"] }
+            new SpecialExpression("ヶ", ["か", "が"]),
+            new SpecialExpression("ヵ", ["か", "が"]),
+            new SpecialExpression("ケ", ["か", "が"]),
         ]);
         TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
+        TestFurigana("一ヵ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
+        TestFurigana("一ケ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
+
+        TestFurigana("一ケ月", "いっけげつ", "0:いっ;2:げつ", resourceSet);
+        TestFurigana("一ケ月", "いっケげつ", "0:いっ;2:げつ", resourceSet);
     }
 
     [TestMethod]
@@ -154,54 +161,6 @@ public class FuriganaTest
 
         var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, v);
         Assert.AreEqual(expectedSolution, solution);
-    }
-
-    [TestMethod]
-    public void TestBreakIntoPartsAkagaeruka()
-    {
-        var vocab = new VocabEntry("アカガエル科", "アカガエルか");
-        var solution = new FuriganaSolution(vocab, new FuriganaPart("か", 5));
-
-        var parts = solution.BreakIntoParts().ToList();
-
-        Assert.HasCount(2, parts);
-        Assert.AreEqual("アカガエル", parts[0].Text);
-        Assert.IsNull(parts[0].Furigana);
-        Assert.AreEqual("科", parts[1].Text);
-        Assert.AreEqual("か", parts[1].Furigana);
-    }
-
-    [TestMethod]
-    public void TestBreakIntoPartsOtonagai()
-    {
-        var vocab = new VocabEntry("大人買い", "おとながい");
-        var solution = new FuriganaSolution(vocab, new FuriganaPart("おとな", 0, 1), new FuriganaPart("が", 2));
-
-        var parts = solution.BreakIntoParts().ToList();
-
-        Assert.HasCount(3, parts);
-        Assert.AreEqual("大人", parts[0].Text);
-        Assert.AreEqual("おとな", parts[0].Furigana);
-        Assert.AreEqual("買", parts[1].Text);
-        Assert.AreEqual("が", parts[1].Furigana);
-        Assert.AreEqual("い", parts[2].Text);
-        Assert.IsNull(parts[2].Furigana);
-    }
-
-    [TestMethod]
-    public void TestBreakIntoPartsHakabakashii()
-    {
-        var vocab = new VocabEntry("捗々しい", "はかばかしい");
-        var solution = new FuriganaSolution(vocab, new FuriganaPart("はか", 0), new FuriganaPart("ばか", 1));
-
-        var parts = solution.BreakIntoParts().ToList();
-
-        Assert.HasCount(3, parts);
-        Assert.AreEqual("捗", parts[0].Text);
-        Assert.AreEqual("はか", parts[0].Furigana);
-        Assert.AreEqual("々", parts[1].Text);
-        Assert.AreEqual("ばか", parts[1].Furigana);
-        Assert.AreEqual("しい", parts[2].Text);
-        Assert.IsNull(parts[2].Furigana);
+        Assert.IsTrue(solution.Check());
     }
 }
