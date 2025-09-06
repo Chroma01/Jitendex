@@ -72,4 +72,5 @@ public class Entry : ICorruptable
     public bool IsCorrupt { get; set; }
 
     internal const string XmlTagName = "character";
+    internal const string Character_XmlTagName = "literal";
 }

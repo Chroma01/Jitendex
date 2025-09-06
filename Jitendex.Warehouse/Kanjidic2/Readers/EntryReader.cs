@@ -73,8 +73,8 @@ internal partial class EntryReader
     {
         switch (_xmlReader.Name)
         {
-            case "literal":
-                entry.Character = await _xmlReader.ReadElementContentAsStringAsync();
+            case Entry.Character_XmlTagName:
+                await ReadCharacterAsync(entry);
                 break;
             case CodepointGroup.XmlTagName:
                 if (entry.CodepointGroup is not null)
@@ -146,8 +146,34 @@ internal partial class EntryReader
         }
     }
 
-    [LoggerMessage(LogLevel.Warning,
-    "Entry for character `{Character}` has more than one <{XmlTagName}> child element.")]
-    private partial void LogUnexpectedGroup(string character, string xmlTagName);
+    private async Task ReadCharacterAsync(Entry entry)
+    {
+        if (entry.Character != string.Empty)
+        {
+            LogUnexpectedGroup(entry.Character, Entry.Character_XmlTagName);
+        }
 
+        entry.Character = await _xmlReader.ReadElementContentAsStringAsync();
+
+        if (string.IsNullOrWhiteSpace(entry.Character))
+        {
+            LogMissingCharacter(Entry.Character_XmlTagName);
+        }
+        else if (entry.Character.EnumerateRunes().Count() > 1)
+        {
+            LogMultipleCharacters(Entry.Character_XmlTagName, entry.Character);
+        }
+    }
+
+    [LoggerMessage(LogLevel.Error,
+    "Entry contains no text in <{XmlTagName}> child element")]
+    private partial void LogMissingCharacter(string xmlTagName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry contains more than one character in <{XmlTagName}> child element: `{Text}`")]
+    private partial void LogMultipleCharacters(string xmlTagName, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry for character `{Character}` has more than one <{XmlTagName}> child element")]
+    private partial void LogUnexpectedGroup(string character, string xmlTagName);
 }
