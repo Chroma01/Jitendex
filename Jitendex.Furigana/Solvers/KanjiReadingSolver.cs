@@ -189,7 +189,7 @@ public class KanjiReadingSolver : FuriganaSolver
         var kanjiReadings = kanji.GetPotentialReadings(
             isFirstChar: currentIndexKanji == 0,
             isLastChar: currentIndexKanji == runes.Count - 1,
-            useNanori: v.IsName);
+            isUsedInName: v.IsName);
 
         // Iterate on the kana reading.
         for (int i = currentIndexKana; i < v.ReadingText.Length && i < currentIndexKana + MaxKanaPerKanji; i++)

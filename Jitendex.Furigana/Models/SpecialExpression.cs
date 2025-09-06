@@ -17,6 +17,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
+
 namespace Jitendex.Furigana.Models;
 
 /// <summary>
@@ -25,11 +27,6 @@ namespace Jitendex.Furigana.Models;
 /// </summary>
 public class SpecialExpression
 {
-    public required string Expression { get; set; }
-    public List<string> Readings { get; set; }
-
-    public SpecialExpression()
-    {
-        Readings = [];
-    }
+    public required string Expression { get; init; }
+    public required ImmutableList<string> Readings { get; init; }
 }

@@ -24,20 +24,19 @@ namespace Jitendex.Furigana.Models;
 
 public class Kanji
 {
-    public required Rune Character { get; set; }
-    public List<string> Readings { get; set; }
-    public List<string> ReadingsWithNanori { get; set; }
+    public required Rune Character { get; init; }
+    public required List<string> Readings { get; init; }
+    public List<string> ReadingsWithNanori { get; init; }
 
     public Kanji()
     {
-        Readings = [];
         ReadingsWithNanori = [];
     }
 
-    public List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool useNanori)
+    public List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
     {
         var output = new List<string>();
-        foreach (string reading in useNanori ? ReadingsWithNanori : Readings)
+        foreach (string reading in isUsedInName ? ReadingsWithNanori : Readings)
         {
             if (isFirstChar && reading.StartsWith('-'))
                 continue; // No suffix readings for the first char.
