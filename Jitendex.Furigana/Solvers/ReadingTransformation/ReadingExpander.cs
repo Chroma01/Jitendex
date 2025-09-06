@@ -21,7 +21,7 @@ using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Business;
+namespace Jitendex.Furigana.Solvers.ReadingTransformation;
 
 /// <summary>
 /// Provides a process that expands a given list of readings by adding rendaku versions and stuff like this.
