@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.Helpers;
 
-namespace Jitendex.Furigana.Test;
+namespace Jitendex.Furigana.Test.Helpers;
 
 [TestClass]
 public class KanaHelperTest
