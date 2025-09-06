@@ -135,37 +135,30 @@ public class KanjiReadingSolver : FuriganaSolver
         var runes = v.KanjiFormRunes();
         for (int i = runes.Count - 1; i >= currentIndexKanji; i--)
         {
-            // string lookup = v.KanjiFormText.Substring(currentIndexKanji, i - currentIndexKanji + 1);
-            string lookup = string.Join("", runes.GetRange(currentIndexKanji, i - currentIndexKanji + 1));
+            var subRunes = runes.GetRange(currentIndexKanji, i - currentIndexKanji + 1);
+            string lookup = string.Join("", subRunes);
             var expression = _resourceSet.GetExpression(lookup);
+
             if (expression is null) continue;
 
-            var potentialSpecialReadings = SpecialReadingExpander.GetPotentialSpecialReadings
-            (
-                expression: expression,
-                isFirstChar: currentIndexKanji == 0,
-                isLastChar: i == runes.Count - 1
-            );
-
-            foreach (var expressionReading in potentialSpecialReadings)
+            foreach (var reading in expression.Readings)
             {
-                if (v.ReadingText.Length < currentIndexKana + expressionReading.ReadingText.Length)
+                if (v.ReadingText.Length < currentIndexKana + reading.Length)
                     continue;
 
-                if (v.ReadingText.Substring(currentIndexKana, expressionReading.ReadingText.Length) == expressionReading.ReadingText)
+                if (v.ReadingText.Substring(currentIndexKana, reading.Length) == reading)
                 {
                     // The reading matches. Iterate with this possibility.
                     var newFuriganaParts = furiganaParts.Clone();
-                    newFuriganaParts.AddRange(
-                        expressionReading.Solution.FuriganaParts
-                        .Select(fp => new FuriganaPart(
-                            value: fp.Value,
-                            startIndex: fp.StartIndex + currentIndexKanji,
-                            endIndex: fp.EndIndex + currentIndexKanji)));
+
+                    newFuriganaParts.Add(new FuriganaPart(
+                        value: reading,
+                        startIndex: currentIndexKanji,
+                        endIndex: currentIndexKanji + subRunes.Count - 1));
 
                     var results = TryReading(v: v,
                         currentIndexKanji: i + 1,
-                        currentIndexKana: currentIndexKana + expressionReading.ReadingText.Length,
+                        currentIndexKana: currentIndexKana + reading.Length,
                         furiganaParts: newFuriganaParts);
 
                     foreach (var result in results)

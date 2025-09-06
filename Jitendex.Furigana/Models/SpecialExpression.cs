@@ -22,6 +22,14 @@ namespace Jitendex.Furigana.Models;
 /// <summary>
 /// Represents a special reading expression.
 /// For example, 大人 - おとな can't be cut as おと.な or お.とな.
-/// These readings are loaded from the SpecialReadings.txt file.
 /// </summary>
-public record SpecialExpression(string KanjiFormText, List<SpecialReading> Readings);
+public class SpecialExpression
+{
+    public required string Expression { get; set; }
+    public List<string> Readings { get; set; }
+
+    public SpecialExpression()
+    {
+        Readings = [];
+    }
+}

@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Linq.Expressions;
 using System.Text;
 using Jitendex.Furigana.Models;
 
@@ -34,10 +35,7 @@ public class FuriganaTest
             new Kanji { Character = new Rune('月'), Readings = ["ゲツ", "ガツ", "つき"] },
         ],
         [
-            new SpecialExpression("ヶ", [new("か",
-                new FuriganaSolution(
-                    new VocabEntry("ヶ", "か"),
-                    new List<FuriganaPart>() { new("か", 0) }))])
+            new SpecialExpression { Expression = "ヶ", Readings = ["ヶ", "か", "が"] }
         ]);
         TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
     }

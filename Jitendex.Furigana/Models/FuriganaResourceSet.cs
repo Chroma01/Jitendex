@@ -37,7 +37,7 @@ public class FuriganaResourceSet
             .ToDictionary();
 
         _specialExpressions = specialExpressions
-            .Select(x => new KeyValuePair<string, SpecialExpression>(x.KanjiFormText, x))
+            .Select(x => new KeyValuePair<string, SpecialExpression>(x.Expression, x))
             .ToDictionary();
     }
 

@@ -20,7 +20,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Frozen;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
-using Jitendex.Furigana.Solvers.ReadingTransformation;
 
 namespace Jitendex.Furigana.Solvers;
 
@@ -74,27 +73,23 @@ public class KanaReadingSolver : FuriganaSolver
             // Check for special expressions
             for (int j = runes.Count - 1; j >= i; j--)
             {
-                string lookup = string.Join("", runes.GetRange(i, j - i + 1));
+                var subRunes = runes.GetRange(i, j - i + 1);
+                string lookup = string.Join("", subRunes);
                 var expression = _resourceSet.GetExpression(lookup);
 
                 if (expression is null) continue;
 
                 // We found an expression.
-                var expressionReadings = SpecialReadingExpander.GetPotentialSpecialReadings(
-                    expression: expression,
-                    isFirstChar: i == 0,
-                    isLastChar: j == runes.Count - 1);
-
-                foreach (var expressionReading in expressionReadings)
+                foreach (var reading in expression.Readings)
                 {
-                    if (!kana.StartsWith(expressionReading.ReadingText))
+                    if (!kana.StartsWith(reading))
                         continue;
 
                     // The reading matches. Eat the kana chain.
-                    furiganaParts.AddRange(expressionReading.Solution.FuriganaParts
-                        .Select(fp => new FuriganaPart(fp.Value, fp.StartIndex + i, fp.EndIndex + i)));
+                    var newPart = new FuriganaPart(reading, i, i + subRunes.Count - 1);
+                    furiganaParts.Add(newPart);
 
-                    kana = kana[expressionReading.ReadingText.Length..];
+                    kana = kana[reading.Length..];
                     i = j;
                     foundExpression = true;
                     break;
