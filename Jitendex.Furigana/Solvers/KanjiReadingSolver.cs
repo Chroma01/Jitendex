@@ -93,7 +93,6 @@ public class KanjiReadingSolver : FuriganaSolver
 
         // General case. Get the current character and see if it is a kanji.
         var rune = runes[currentIndexKanji];
-
         Kanji? kanji = _resourceSet.GetKanji(rune);
 
         if (kanji is not null)
@@ -144,26 +143,25 @@ public class KanjiReadingSolver : FuriganaSolver
             {
                 if (v.ReadingText.Length < currentIndexKana + reading.Length)
                     continue;
+                if (v.ReadingText.Substring(currentIndexKana, reading.Length) != reading)
+                    continue;
 
-                if (v.ReadingText.Substring(currentIndexKana, reading.Length) == reading)
+                // The reading matches. Iterate with this possibility.
+                var newFuriganaParts = furiganaParts.Clone();
+
+                newFuriganaParts.Add(new FuriganaPart(
+                    value: reading,
+                    startIndex: currentIndexKanji,
+                    endIndex: currentIndexKanji + subRunes.Count - 1));
+
+                var results = TryReading(v: v,
+                    currentIndexKanji: i + 1,
+                    currentIndexKana: currentIndexKana + reading.Length,
+                    furiganaParts: newFuriganaParts);
+
+                foreach (var result in results)
                 {
-                    // The reading matches. Iterate with this possibility.
-                    var newFuriganaParts = furiganaParts.Clone();
-
-                    newFuriganaParts.Add(new FuriganaPart(
-                        value: reading,
-                        startIndex: currentIndexKanji,
-                        endIndex: currentIndexKanji + subRunes.Count - 1));
-
-                    var results = TryReading(v: v,
-                        currentIndexKanji: i + 1,
-                        currentIndexKana: currentIndexKana + reading.Length,
-                        furiganaParts: newFuriganaParts);
-
-                    foreach (var result in results)
-                    {
-                        yield return result;
-                    }
+                    yield return result;
                 }
             }
         }
@@ -208,7 +206,8 @@ public class KanjiReadingSolver : FuriganaSolver
             // Now try to match that string against one of the potential readings of our kanji.
             foreach (string reading in kanjiReadings)
             {
-                if (reading != testedString) continue;
+                if (reading != testedString)
+                    continue;
 
                 // We have a match. Create our new cut and iterate with it.
                 var newFuriganaParts = furiganaParts.Clone();
