@@ -95,17 +95,10 @@ public class KanaReadingSolver : FuriganaSolver
                     break;
                 }
 
-                if (foundExpression)
-                {
-                    break;
-                }
+                if (foundExpression) break;
             }
             // End check for special expression
-
-            if (foundExpression)
-            {
-                continue;
-            }
+            if (foundExpression) continue;
 
             // Normal process: eat the first character of our kana string.
             string eaten = kana.First().ToString();

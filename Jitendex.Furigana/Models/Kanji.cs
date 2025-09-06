@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text;
+using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Models;
 
@@ -31,6 +32,96 @@ public class Kanji
     {
         Readings = [];
         ReadingsWithNanori = [];
+    }
+
+    public List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool useNanori)
+    {
+        var output = new List<string>();
+        foreach (string reading in useNanori ? ReadingsWithNanori : Readings)
+        {
+            if (isFirstChar && reading.StartsWith('-'))
+                continue; // No suffix readings for the first char.
+
+            if (isLastChar && reading.EndsWith('-'))
+                continue; // No prefix readings for the last char.
+
+            string r = reading.Replace("-", string.Empty).KatakanaToHiragana();
+
+            var dotSplit = r.Split('.');
+            if (dotSplit.Length == 1)
+            {
+                output.Add(r);
+            }
+            else if (dotSplit.Length == 2)
+            {
+                var stemChars = dotSplit[0];
+                var suffixChars = dotSplit[1];
+
+                output.Add(stemChars);
+
+                var sum = new StringBuilder(stemChars);
+                foreach (var suffixChar in suffixChars[..^1])
+                {
+                    sum.Append(suffixChar);
+                    output.Add(sum.ToString());
+                }
+
+                var verbEnding = suffixChars.Last();
+                if (KanaHelper.GodanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
+                {
+                    var newReading = stemChars + suffixChars[..^1] + newEnding;
+                    output.Add(newReading);
+                }
+            }
+            else
+            {
+                continue;
+                // throw new Exception($"Reading `{reading}` for kanji `{kanji.Character}` should only have one dot separator");
+            }
+        }
+
+        // Add final small tsu rendaku
+        if (!isLastChar)
+        {
+            output.AddRange(GetSmallTsuRendaku(output));
+        }
+
+        // Rendaku
+        if (!isFirstChar)
+        {
+            output.AddRange(GetAllRendaku(output));
+        }
+
+        return output.Distinct().ToList();
+    }
+
+    private static List<string> GetSmallTsuRendaku(List<string> readings)
+    {
+        var newReadings = new List<string>();
+        foreach (var reading in readings)
+        {
+            if (KanaHelper.SmallTsuRendakus.Contains(reading.Last()))
+            {
+                newReadings.Add(reading[..^1] + "っ");
+            }
+        }
+        return newReadings;
+    }
+
+    private static List<string> GetAllRendaku(List<string> readings)
+    {
+        var newReadings = new List<string>();
+        foreach (var reading in readings)
+        {
+            if (KanaHelper.HiraganaToDiacriticForms.TryGetValue(reading.First(), out char[]? rendakuChars))
+            {
+                foreach (var rendakuChar in rendakuChars)
+                {
+                    newReadings.Add(rendakuChar + reading[1..]);
+                }
+            }
+        }
+        return newReadings;
     }
 
     public override string ToString()

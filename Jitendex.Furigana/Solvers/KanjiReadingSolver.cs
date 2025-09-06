@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
-using Jitendex.Furigana.Solvers.ReadingTransformation;
 
 namespace Jitendex.Furigana.Solvers;
 
@@ -116,7 +115,7 @@ public class KanjiReadingSolver : FuriganaSolver
         }
         else
         {
-
+            // TODO
         }
     }
 
@@ -187,8 +186,7 @@ public class KanjiReadingSolver : FuriganaSolver
 
         // Our character is a kanji. Try to consume kana strings that match that kanji.
         int remainingKanjiLength = runes.Count - currentIndexKanji - 1;
-        var kanjiReadings = ReadingExpander.GetPotentialKanjiReadings(
-            kanji: kanji,
+        var kanjiReadings = kanji.GetPotentialReadings(
             isFirstChar: currentIndexKanji == 0,
             isLastChar: currentIndexKanji == runes.Count - 1,
             useNanori: v.IsName);
