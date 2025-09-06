@@ -65,6 +65,7 @@ public class FuriganaBusiness
 
     public FuriganaSolutionSet Solve(VocabEntry v)
     {
+        // TODO: These checks should be done when constructing the vocab?
         if (string.IsNullOrWhiteSpace(v.KanjiFormText) || string.IsNullOrWhiteSpace(v.ReadingText))
         {
             // Cannot solve when we do not have a kanji form or reading.

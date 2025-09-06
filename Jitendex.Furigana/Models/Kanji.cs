@@ -23,16 +23,14 @@ namespace Jitendex.Furigana.Models;
 
 public class Kanji
 {
-    public Rune Character { get; set; }
+    public required Rune Character { get; set; }
     public List<string> Readings { get; set; }
     public List<string> ReadingsWithNanori { get; set; }
-    public bool IsRealKanji { get; set; }
 
     public Kanji()
     {
         Readings = [];
         ReadingsWithNanori = [];
-        IsRealKanji = true;
     }
 
     public override string ToString()
