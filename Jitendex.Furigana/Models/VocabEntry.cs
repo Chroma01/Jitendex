@@ -51,20 +51,12 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
         var rawRunes = RawKanjiFormRunes();
         var repeaterIndices = GetRepeaterIndices();
 
-        /*
-            Replace repeaters (々) and double repeaters (々々) with their respective kanji.
-            E.g. 一杯々々 --> 一杯一杯
-                 古々々米 --> 古古古米
-                 事々物々 --> 事事物物
-                 時々　　 --> 時時
-        */
+        // Replace repeaters (々) and double repeaters (々々) with their respective kanji.
         for (int i = 0; i < rawRunes.Count; i++)
         {
             if (i > 1 && repeaterIndices.Contains(i) && repeaterIndices.Contains(i + 1))
             {
-                var previousRunes = (runes[i - 2], runes[i - 1]);
-                runes.Add(previousRunes.Item1);
-                runes.Add(previousRunes.Item2);
+                runes.AddRange(runes[i - 2], runes[i - 1]);
                 i++;
             }
             else if (i > 0 && repeaterIndices.Contains(i))
