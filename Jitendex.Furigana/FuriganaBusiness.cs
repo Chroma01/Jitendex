@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Solvers;
 
-namespace Jitendex.Furigana.Business;
+namespace Jitendex.Furigana;
 
 /// <summary>
 /// Works with kanji and dictionary entries to attach each entry a furigana string.

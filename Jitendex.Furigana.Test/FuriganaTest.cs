@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text;
-using Jitendex.Furigana.Business;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Test;

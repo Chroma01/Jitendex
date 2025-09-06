@@ -18,9 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text;
-using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Business;
+namespace Jitendex.Furigana.Models;
 
 public class FuriganaResourceSet
 {
