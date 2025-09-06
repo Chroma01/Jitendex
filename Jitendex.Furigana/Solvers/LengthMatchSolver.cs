@@ -22,7 +22,7 @@ using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Solvers;
 
-public class LengthMatchSolver : FuriganaSolver
+internal class LengthMatchSolver : FuriganaSolver
 {
     public LengthMatchSolver()
     {

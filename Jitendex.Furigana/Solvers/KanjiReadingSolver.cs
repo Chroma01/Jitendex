@@ -22,7 +22,7 @@ using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Solvers;
 
-public class KanjiReadingSolver : FuriganaSolver
+internal class KanjiReadingSolver : FuriganaSolver
 {
     /// <summary>
     /// Defines the maximal number of kana that can be attributed to a single kanji (performance trick).

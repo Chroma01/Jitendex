@@ -21,7 +21,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
-public interface IFuriganaSolver : IComparable<IFuriganaSolver>
+internal interface IFuriganaSolver : IComparable<IFuriganaSolver>
 {
     int Priority { get; set; }
     IEnumerable<FuriganaSolution> Solve(VocabEntry v);
@@ -31,7 +31,7 @@ public interface IFuriganaSolver : IComparable<IFuriganaSolver>
 /// A class that aims to provide the furigana business with solutions for tested
 /// vocab entries.
 /// </summary>
-public abstract class FuriganaSolver : IFuriganaSolver
+internal abstract class FuriganaSolver : IFuriganaSolver
 {
     public int Priority { get; set; }
 

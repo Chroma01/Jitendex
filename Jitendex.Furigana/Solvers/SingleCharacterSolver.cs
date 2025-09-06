@@ -22,7 +22,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
-public class SingleCharacterSolver : FuriganaSolver
+internal class SingleCharacterSolver : FuriganaSolver
 {
     /// <summary>
     /// Attempts to solve furigana when the kanji form only has one character.

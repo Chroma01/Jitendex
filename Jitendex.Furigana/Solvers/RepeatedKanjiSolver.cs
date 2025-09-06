@@ -22,7 +22,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
-public class RepeatedKanjiSolver : FuriganaSolver
+internal class RepeatedKanjiSolver : FuriganaSolver
 {
     /// <summary>
     /// Solves cases where the kanji reading consists in a repeated kanji.

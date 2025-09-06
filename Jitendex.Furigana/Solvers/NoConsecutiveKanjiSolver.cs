@@ -23,7 +23,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solvers;
 
-public class NoConsecutiveKanjiSolver : FuriganaSolver
+internal class NoConsecutiveKanjiSolver : FuriganaSolver
 {
     /// <summary>
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,

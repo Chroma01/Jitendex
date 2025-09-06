@@ -23,7 +23,7 @@ using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Solvers;
 
-public class KanaReadingSolver : FuriganaSolver
+internal class KanaReadingSolver : FuriganaSolver
 {
     private static readonly FrozenSet<char> _impossibleCutStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
     private readonly FuriganaResourceSet _resourceSet;
