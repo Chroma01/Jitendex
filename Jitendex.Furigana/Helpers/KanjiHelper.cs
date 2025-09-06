@@ -25,8 +25,8 @@ public static class KanjiHelper
 {
     public static bool IsKanji(this Rune c) => c.Value switch
     {
-        (>= 0x4E00) and (<= 0x9FFF) => true,    // CJK Unified Ideographs
-        (>= 0x3400) and (<= 0x4DBF) => true,    // CJK Unified Ideographs Extension A
+        (>= 0x4E00)  and (<= 0x9FFF)  => true,  // CJK Unified Ideographs
+        (>= 0x3400)  and (<= 0x4DBF)  => true,  // CJK Unified Ideographs Extension A
         (>= 0x20000) and (<= 0x2A6DF) => true,  // CJK Unified Ideographs Extension B
         (>= 0x2A700) and (<= 0x2B73F) => true,  // CJK Unified Ideographs Extension C
         (>= 0x2B740) and (<= 0x2B81F) => true,  // CJK Unified Ideographs Extension D
@@ -35,10 +35,10 @@ public static class KanjiHelper
         (>= 0x30000) and (<= 0x3134F) => true,  // CJK Unified Ideographs Extension G
         (>= 0x31350) and (<= 0x323AF) => true,  // CJK Unified Ideographs Extension H
         (>= 0x2EBF0) and (<= 0x2EE5F) => true,  // CJK Unified Ideographs Extension I
-        (>= 0x2E80) and (<= 0x2EFF) => true,    // CJK Radicals Supplement
-        (>= 0x2F00) and (<= 0x2FDF) => true,    // Kangxi Radicals
-        (>= 0xF900) and (<= 0xFAFF) => true,    // CJK Compatibility Ideographs
+        (>= 0x2E80)  and (<= 0x2EFF)  => true,  // CJK Radicals Supplement
+        (>= 0x2F00)  and (<= 0x2FDF)  => true,  // Kangxi Radicals
+        (>= 0xF900)  and (<= 0xFAFF)  => true,  // CJK Compatibility Ideographs
         (>= 0x2F800) and (<= 0x2FA1F) => true,  // CJK Compatibility Ideographs Supplement
-        _ => false
+                                    _ => false
     };
 }
