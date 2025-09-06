@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 
@@ -24,19 +25,32 @@ namespace Jitendex.Furigana.Models;
 
 public class Kanji
 {
-    public required Rune Character { get; init; }
-    public required List<string> Readings { get; init; }
-    public List<string> ReadingsWithNanori { get; init; }
+    public Rune Character { get => _character; }
 
-    public Kanji()
+    private readonly Rune _character;
+    private readonly ImmutableList<string> _readings;
+    private readonly ImmutableList<string> _readingsWithNameReadings;
+
+    public Kanji(Rune character, List<string> readings)
     {
-        ReadingsWithNanori = [];
+        _character = character;
+        _readings = readings.ToImmutableList();
+        _readingsWithNameReadings = _readings;
+    }
+
+    public Kanji(Rune character, List<string> readings, List<string> nameReadings)
+    {
+        _character = character;
+        _readings = readings.ToImmutableList();
+        _readingsWithNameReadings = readings.Union(nameReadings).ToImmutableList();
     }
 
     public List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
     {
         var output = new List<string>();
-        foreach (string reading in isUsedInName ? ReadingsWithNanori : Readings)
+        var readings = isUsedInName ? _readingsWithNameReadings : _readings;
+
+        foreach (string reading in readings)
         {
             if (isFirstChar && reading.StartsWith('-'))
                 continue; // No suffix readings for the first char.

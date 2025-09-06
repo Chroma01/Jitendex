@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Linq.Expressions;
 using System.Text;
 using Jitendex.Furigana.Models;
 
@@ -31,8 +30,8 @@ public class FuriganaTest
     {
         var resourceSet = new FuriganaResourceSet
         ([
-            new Kanji { Character = new Rune('一'), Readings = ["イチ", "イツ", "ひと-", "ひと.つ"] },
-            new Kanji { Character = new Rune('月'), Readings = ["ゲツ", "ガツ", "つき"] },
+            new Kanji(new Rune('一'), ["イチ", "イツ", "ひと-", "ひと.つ"]),
+            new Kanji(new Rune('月'), ["ゲツ", "ガツ", "つき"]),
         ],
         [
             new SpecialExpression { Expression = "ヶ", Readings = ["ヶ", "か", "が"] }
@@ -86,8 +85,8 @@ public class FuriganaTest
     {
         var resourceSet = new FuriganaResourceSet
         ([
-            new Kanji { Character = new Rune('御'), Readings = ["ギョ", "ゴ", "おん-", "お-", "み-"] },
-            new Kanji { Character = new Rune('姉'), Readings = ["シ", "あね", "はは", "ねえ"] },
+            new Kanji(new Rune('御'), ["ギョ", "ゴ", "おん-", "お-", "み-"]),
+            new Kanji(new Rune('姉'), ["シ", "あね", "はは", "ねえ"]),
         ]);
         TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", resourceSet);
     }
@@ -98,7 +97,7 @@ public class FuriganaTest
         // Rendaku is applied to the second instance of 捗.
         var resourceSet = new FuriganaResourceSet
         ([
-            new Kanji { Character = new Rune('捗'), Readings = ["チョク", "ホ", "はかど.る", "はか"] }
+            new Kanji(new Rune('捗'), ["チョク", "ホ", "はかど.る", "はか"])
         ]);
         TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
         TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
