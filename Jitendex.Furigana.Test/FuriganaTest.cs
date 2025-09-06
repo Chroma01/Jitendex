@@ -211,4 +211,21 @@ public class FuriganaTest
         Assert.AreEqual("い", parts[2].Text);
         Assert.IsNull(parts[2].Furigana);
     }
+
+    [TestMethod]
+    public void TestBreakIntoPartsHakabakashii()
+    {
+        var vocab = new VocabEntry("捗々しい", "はかばかしい");
+        var solution = new FuriganaSolution(vocab, new FuriganaPart("はか", 0), new FuriganaPart("ばか", 1));
+
+        var parts = solution.BreakIntoParts().ToList();
+
+        Assert.HasCount(3, parts);
+        Assert.AreEqual("捗", parts[0].Text);
+        Assert.AreEqual("はか", parts[0].Furigana);
+        Assert.AreEqual("々", parts[1].Text);
+        Assert.AreEqual("ばか", parts[1].Furigana);
+        Assert.AreEqual("しい", parts[2].Text);
+        Assert.IsNull(parts[2].Furigana);
+    }
 }

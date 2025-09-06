@@ -64,7 +64,7 @@ public class FuriganaSolution
         var runes = v.KanjiFormRunes();
 
         // Check condition 1.
-        if (Enumerable.Range(0, runes.Count).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
+        if (Enumerable.Range(0, runes.Count - 1).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
             // There are multiple furigana parts that are appliable for a given index.
             // This constitutes an overlap and results in the check being negative.
@@ -148,12 +148,12 @@ public class FuriganaSolution
     /// </summary>
     public IEnumerable<ReadingPart> BreakIntoParts()
     {
-        var runes = Vocab.KanjiFormRunes();
+        var runes = Vocab.RawKanjiFormRunes();
         int? kanaStart = null;
         for (int i = 0; i < runes.Count; i++)
         {
             var matchingFurigana = FuriganaParts.FirstOrDefault(f => f.StartIndex == i);
-            if (matchingFurigana != null)
+            if (matchingFurigana is not null)
             {
                 // We are on a furigana start index.
                 // If there was any kana, output that part first
@@ -171,7 +171,6 @@ public class FuriganaSolution
                     Text: string.Join("", runes.GetRange(i, matchingFurigana.EndIndex - i + 1)),
                     Furigana: matchingFurigana.Value);
 
-                // Then set both i and kanaStart to the end index of the furigana part
                 i = matchingFurigana.EndIndex;
             }
             else
