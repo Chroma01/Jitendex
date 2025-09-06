@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Furigana.Helpers;
 
-static class Separator
+internal static class Separator
 {
     public static readonly char Furigana = '.';
     public static readonly char MultiValue = ';';

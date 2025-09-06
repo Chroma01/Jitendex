@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Helpers;
 
-namespace Jitendex.Furigana.Business;
+namespace Jitendex.Furigana.Test;
 
 public static class FuriganaSolutionParser
 {
