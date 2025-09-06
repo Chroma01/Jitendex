@@ -47,14 +47,14 @@ public class FuriganaTest
     {
         // Readings cannot begin with 'ん', so there is 1 possible solution.
         // No need to supply any character readings.
-        var resourceSet = new FuriganaResourceSet([]);
+        var resourceSet = new FuriganaResourceSet();
         TestFurigana("頑張る", "がんばる", "0:がん;1:ば", resourceSet);
     }
 
     [TestMethod]
     public void TestFuriganaObocchan()
     {
-        var resourceSet = new FuriganaResourceSet([]);
+        var resourceSet = new FuriganaResourceSet();
         TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", resourceSet);
     }
 
@@ -63,7 +63,7 @@ public class FuriganaTest
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
-        var resourceSet = new FuriganaResourceSet([]);
+        var resourceSet = new FuriganaResourceSet();
         TestFurigana("𩺊", "あら", "0:あら", resourceSet);
     }
 
@@ -71,7 +71,7 @@ public class FuriganaTest
     public void TestFuriganaIjirimawasu()
     {
         // 1 possible solution. No need to supply any character readings.
-        var resourceSet = new FuriganaResourceSet([]);
+        var resourceSet = new FuriganaResourceSet();
         TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", resourceSet);
     }
 
@@ -79,7 +79,7 @@ public class FuriganaTest
     public void TestFuriganaKassarau()
     {
         // 1 possible solution. No need to supply any character readings.
-        var resourceSet = new FuriganaResourceSet([]);
+        var resourceSet = new FuriganaResourceSet();
         TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", resourceSet);
     }
 
@@ -110,7 +110,7 @@ public class FuriganaTest
     [TestMethod]
     public void TestFuriganaIssue5()
     {
-        var resourceSet = new FuriganaResourceSet([], []);
+        var resourceSet = new FuriganaResourceSet();
         var testData = new[]
         {
             ("御兄さん", "おにいさん", "0:お;1:にい"),

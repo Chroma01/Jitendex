@@ -26,6 +26,8 @@ public class FuriganaResourceSet
     private readonly Dictionary<Rune, Kanji> _kanjiDictionary = [];
     private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
 
+    public FuriganaResourceSet() : this([], []) { }
+
     public FuriganaResourceSet(IEnumerable<Kanji> kanji) : this(kanji, []) { }
 
     public FuriganaResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
