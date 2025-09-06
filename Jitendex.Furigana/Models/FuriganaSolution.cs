@@ -23,6 +23,11 @@ using Jitendex.Furigana.Helpers;
 namespace Jitendex.Furigana.Models;
 
 /// <summary>
+/// Represents an individual part of the reading of a word or expression.
+/// </summary>
+public record ReadingPart(string Text, string? Furigana);
+
+/// <summary>
 /// A vocab entry with a furigana reading string.
 /// </summary>
 public class FuriganaSolution
