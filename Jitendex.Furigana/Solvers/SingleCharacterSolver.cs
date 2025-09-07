@@ -34,7 +34,7 @@ internal class SingleCharacterSolver : FuriganaSolver
         {
             yield break;
         }
-        if (v.KanjiFormText.IsAllKana())
+        if (runes[0].IsKana())
         {
             yield break;
         }

@@ -73,6 +73,13 @@ public class RepeatedKanjiSolverTest
         TestSuccess("州々", "しゅうしゅう", "0:しゅう;1:しゅう");
     }
 
+    [TestMethod]
+    public void TestNonKanji()
+    {
+        TestSuccess("々々", "ときどき", "0:とき;1:どき");
+        TestSuccess("〇〇", "まるまる", "0:まる;1:まる");
+    }
+
     private static void TestSuccess(string kanjiForm, string reading, string expectedFurigana)
     {
         var solver = new RepeatedKanjiSolver();
@@ -90,15 +97,11 @@ public class RepeatedKanjiSolverTest
     #region Tests expected to fail
 
     [TestMethod]
-    public void TestNonKanji()
+    public void TestKana()
     {
         TestFailure("あ", "あ");
-        TestFailure("々", "とき");
-        TestFailure("〇", "まる");
         TestFailure("あゝ", "ああ");
         TestFailure("ああ", "ああ");
-        TestFailure("々々", "ときどき");
-        TestFailure("〇〇", "まるまる");
     }
 
     [TestMethod]
@@ -120,6 +123,8 @@ public class RepeatedKanjiSolverTest
     [TestMethod]
     public void TestWrongLengthKanji()
     {
+        TestFailure("々", "とき");
+        TestFailure("〇", "まる");
         TestFailure("抑", "そも");
         TestFailure("捗捗し", "はかばかし");
         TestFailure("捗々し", "はかばかし");
