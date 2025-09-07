@@ -24,6 +24,8 @@ namespace Jitendex.Furigana.Helpers;
 
 public static class KanaHelper
 {
+    public static bool IsKana(this Rune c) => c.IsHiragana() || c.IsKatakana();
+
     public static bool IsHiragana(this Rune c) => c.Value switch
     {
         < 0x3041 => false,
@@ -40,11 +42,9 @@ public static class KanaHelper
                _ => false
     };
 
-    public static bool IsKana(this Rune c) => c.IsHiragana() || c.IsKatakana();
-
+    public static bool IsKana(this char c) => IsKana(new Rune(c));
     public static bool IsHiragana(this char c) => IsHiragana(new Rune(c));
     public static bool IsKatakana(this char c) => IsKatakana(new Rune(c));
-    public static bool IsKana(this char c) => IsKana(new Rune(c));
 
     private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
         Enumerable.Range(0x30A1, 86)
