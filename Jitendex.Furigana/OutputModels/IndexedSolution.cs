@@ -55,7 +55,7 @@ internal class IndexedSolution
     private ImmutableList<Solution.Part> MakeTextSolutionParts()
     {
         var parts = new List<Solution.Part>();
-        var runes = Vocab.RawKanjiFormRunes();
+        var runes = Vocab.RawKanjiFormRunes;
         foreach (var (value, start, end) in GetExplicitParts())
         {
             var baseText = string.Join("", runes.GetRange(start, end - start + 1));
@@ -67,7 +67,7 @@ internal class IndexedSolution
     private List<(string? value, int start, int end)> GetExplicitParts()
     {
         var parts = new List<(string?, int, int)>();
-        var runes = Vocab.KanjiFormRunes();
+        var runes = Vocab.KanjiFormRunes;
         int? emptyRangeStart = null;
         for (int i = 0; i < runes.Count; i++)
         {

@@ -56,7 +56,7 @@ internal class KanaReadingSolver : FuriganaSolver
         /// Read the だ for 陀;
         /// Read the ら for 羅.
 
-        var runes = v.KanjiFormRunes();
+        var runes = v.KanjiFormRunes;
         string kana = v.ReadingText;
         var furiganaParts = new List<IndexedFurigana>();
 

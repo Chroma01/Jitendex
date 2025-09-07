@@ -35,7 +35,7 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
         // We are using both a greedy expression and a lazy expression because we want to make sure
         // there is only one way to read them. If the result differs with a greedy or a lazy expression,
         // it means that we have no idea how to read the damn thing.
-        var runes = v.KanjiFormRunes();
+        var runes = v.KanjiFormRunes;
 
         string regGreedy = "^";
         string regLazy = "^";

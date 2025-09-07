@@ -41,7 +41,7 @@ internal static class IndexedSolutionChecker
         // Keep in mind things like 真っ青 admit a correct "0-2:まっさお" solution. There can be
         // furigana parts covering kana.
 
-        var runes = solution.Vocab.KanjiFormRunes();
+        var runes = solution.Vocab.KanjiFormRunes;
 
         // Check condition 1.
         if (Enumerable.Range(0, runes.Count).Any(i => solution.Parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))

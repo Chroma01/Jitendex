@@ -34,7 +34,7 @@ internal class SingleKanjiSolver : FuriganaSolver
     {
         if (!EligibleForThisSolution(v)) yield break;
 
-        var kanjiFormRunes = v.KanjiFormRunes();
+        var kanjiFormRunes = v.KanjiFormRunes;
         int kanjiIndex = 0;
         string kanaReading = v.ReadingText;
 
@@ -95,7 +95,7 @@ internal class SingleKanjiSolver : FuriganaSolver
     private static bool EligibleForThisSolution(VocabEntry v)
     {
         int kanjiCount = 0;
-        foreach (var rune in v.KanjiFormRunes())
+        foreach (var rune in v.KanjiFormRunes)
         {
             if (rune.IsKanji() && ++kanjiCount > 1)
                 return false;

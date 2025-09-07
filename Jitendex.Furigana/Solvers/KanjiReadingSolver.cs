@@ -64,7 +64,7 @@ internal class KanjiReadingSolver : FuriganaSolver
         List<IndexedFurigana> furiganaParts
     )
     {
-        var runes = v.KanjiFormRunes();
+        var runes = v.KanjiFormRunes;
 
         if (currentIndexKanji == runes.Count && currentIndexKana == v.ReadingText.Length)
         {
@@ -131,7 +131,7 @@ internal class KanjiReadingSolver : FuriganaSolver
         List<IndexedFurigana> furiganaParts
     )
     {
-        var runes = v.KanjiFormRunes();
+        var runes = v.KanjiFormRunes;
         for (int i = runes.Count - 1; i >= currentIndexKanji; i--)
         {
             var subRunes = runes.GetRange(currentIndexKanji, i - currentIndexKanji + 1);
@@ -181,7 +181,7 @@ internal class KanjiReadingSolver : FuriganaSolver
         Kanji kanji
     )
     {
-        var runes = v.KanjiFormRunes();
+        var runes = v.KanjiFormRunes;
 
         // Our character is a kanji. Try to consume kana strings that match that kanji.
         int remainingKanjiLength = runes.Count - currentIndexKanji - 1;

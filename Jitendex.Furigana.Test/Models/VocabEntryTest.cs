@@ -28,7 +28,7 @@ public class VocabEntryTest
     {
         var v = new VocabEntry("時々", "ときどき");
         var expectedRunes = "時時".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes());
+        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class VocabEntryTest
     {
         var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
         var expectedRunes = "一杯一杯".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes());
+        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
     }
 
     [TestMethod]
@@ -44,7 +44,7 @@ public class VocabEntryTest
     {
         var v = new VocabEntry("古々々米", "こここまい");
         var expectedRunes = "古古古米".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes());
+        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ public class VocabEntryTest
     {
         var v = new VocabEntry("事々物々", "じじぶつぶつ");
         var expectedRunes = "事事物物".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes());
+        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
     }
 
     [TestMethod]
@@ -60,7 +60,7 @@ public class VocabEntryTest
     {
         var v = new VocabEntry("時々", "ときどき");
         var expectedRunes = "時々".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes());
+        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
     }
 
     [TestMethod]
@@ -68,6 +68,6 @@ public class VocabEntryTest
     {
         var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
         var expectedRunes = "一杯々々".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes());
+        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
     }
 }

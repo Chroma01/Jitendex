@@ -22,27 +22,27 @@ using System.Text;
 
 namespace Jitendex.Furigana.InputModels;
 
-public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName = false)
+public class VocabEntry
 {
-    private ImmutableList<Rune>? _rawKanjiFormRunes;
-    private ImmutableList<Rune>? _kanjiFormRunes;
+    public string KanjiFormText { get; }
+    public string ReadingText { get; }
+    public bool IsName { get; }
+    internal ImmutableList<Rune> RawKanjiFormRunes { get; }
+    internal ImmutableList<Rune> KanjiFormRunes { get; }
 
-    internal ImmutableList<Rune> RawKanjiFormRunes()
+    public VocabEntry(string kanjiFormText, string readingText, bool isName = false)
     {
-        if (_rawKanjiFormRunes is not null)
-            return _rawKanjiFormRunes;
-        _rawKanjiFormRunes = KanjiFormText.EnumerateRunes().ToImmutableList();
-        return _rawKanjiFormRunes;
+        KanjiFormText = kanjiFormText;
+        ReadingText = readingText;
+        IsName = isName;
+        RawKanjiFormRunes = kanjiFormText.EnumerateRunes().ToImmutableList();
+        KanjiFormRunes = CreateKanjiFormRunes(RawKanjiFormRunes);
     }
 
-    internal ImmutableList<Rune> KanjiFormRunes()
+    private static ImmutableList<Rune> CreateKanjiFormRunes(IList<Rune> rawRunes)
     {
-        if (_kanjiFormRunes is not null)
-            return _kanjiFormRunes;
-
         var runes = new List<Rune>();
-        var rawRunes = RawKanjiFormRunes();
-        var repeaterIndices = GetRepeaterIndices();
+        var repeaterIndices = GetRepeaterIndices(rawRunes);
 
         // Replace repeaters (々) and double repeaters (々々) with their respective kanji.
         for (int i = 0; i < rawRunes.Count; i++)
@@ -64,19 +64,30 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
                 runes.Add(rawRunes[i]);
             }
         }
-        _kanjiFormRunes = runes.ToImmutableList();
-        return _kanjiFormRunes;
+        return runes.ToImmutableList();
     }
 
-    private HashSet<int> GetRepeaterIndices()
+    private static HashSet<int> GetRepeaterIndices(IList<Rune> rawRunes)
     {
         var repeaterIndices = new HashSet<int>();
-        var rawRunes = RawKanjiFormRunes();
         for (int i = 0; i < rawRunes.Count; i++)
         {
             if (rawRunes[i].Value == '々')
                 repeaterIndices.Add(i);
         }
         return repeaterIndices;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is VocabEntry entry &&
+               KanjiFormText == entry.KanjiFormText &&
+               ReadingText == entry.ReadingText &&
+               IsName == entry.IsName;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(KanjiFormText, ReadingText, IsName);
     }
 }

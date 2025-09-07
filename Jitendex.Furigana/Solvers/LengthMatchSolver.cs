@@ -36,7 +36,7 @@ internal class LengthMatchSolver : FuriganaSolver
     /// </summary>
     protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
     {
-        var runes = v.KanjiFormRunes();
+        var runes = v.KanjiFormRunes;
         if (runes.Count != v.ReadingText.Length)
         {
             yield break;
