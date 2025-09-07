@@ -31,13 +31,7 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
     {
         if (_rawKanjiFormRunes is not null)
             return _rawKanjiFormRunes;
-
-        var runes = new List<Rune>();
-        foreach (var rune in KanjiFormText.EnumerateRunes())
-        {
-            runes.Add(rune);
-        }
-        _rawKanjiFormRunes = runes.ToImmutableList();
+        _rawKanjiFormRunes = KanjiFormText.EnumerateRunes().ToImmutableList();
         return _rawKanjiFormRunes;
     }
 
