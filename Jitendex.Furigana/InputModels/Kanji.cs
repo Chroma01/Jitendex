@@ -26,30 +26,31 @@ namespace Jitendex.Furigana.InputModels;
 
 public class Kanji
 {
-    public Rune Character { get => _character; }
-
-    private readonly Rune _character;
-    private readonly ImmutableList<string> _readings;
+    public Rune Character { get; }
+    public ImmutableList<string> Readings { get; }
+    public ImmutableList<string> NameReadings { get; }
     private readonly ImmutableList<string> _readingsWithNameReadings;
 
-    public Kanji(Rune character, List<string> readings)
+    public Kanji(Rune character, IList<string> readings)
     {
-        _character = character;
-        _readings = readings.ToImmutableList();
-        _readingsWithNameReadings = _readings;
+        Character = character;
+        Readings = readings.ToImmutableList();
+        NameReadings = [];
+        _readingsWithNameReadings = Readings;
     }
 
-    public Kanji(Rune character, List<string> readings, List<string> nameReadings)
+    public Kanji(Rune character, IList<string> readings, IList<string> nameReadings)
     {
-        _character = character;
-        _readings = readings.ToImmutableList();
+        Character = character;
+        Readings = readings.ToImmutableList();
+        NameReadings = nameReadings.ToImmutableList();
         _readingsWithNameReadings = readings.Union(nameReadings).ToImmutableList();
     }
 
     internal List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
     {
         var output = new List<string>();
-        var readings = isUsedInName ? _readingsWithNameReadings : _readings;
+        var readings = isUsedInName ? _readingsWithNameReadings : Readings;
 
         foreach (string reading in readings)
         {
@@ -111,7 +112,7 @@ public class Kanji
         return output.Distinct().ToList();
     }
 
-    private static List<string> GetSmallTsuRendaku(List<string> readings)
+    private static List<string> GetSmallTsuRendaku(IEnumerable<string> readings)
     {
         var newReadings = new List<string>();
         foreach (var reading in readings)
@@ -124,7 +125,7 @@ public class Kanji
         return newReadings;
     }
 
-    private static List<string> GetAllRendaku(List<string> readings)
+    private static List<string> GetAllRendaku(IEnumerable<string> readings)
     {
         var newReadings = new List<string>();
         foreach (var reading in readings)

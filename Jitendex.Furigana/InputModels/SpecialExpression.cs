@@ -27,15 +27,12 @@ namespace Jitendex.Furigana.InputModels;
 /// </summary>
 public class SpecialExpression
 {
-    public string Expression { get => _expression; }
-    public ImmutableList<string> Readings { get => _readings; }
+    public string Expression { get; }
+    public ImmutableList<string> Readings { get; }
 
-    private readonly string _expression;
-    private readonly ImmutableList<string> _readings;
-
-    public SpecialExpression(string expression, List<string> readings)
+    public SpecialExpression(string expression, IList<string> readings)
     {
-        _expression = expression;
-        _readings = readings.ToImmutableList();
+        Expression = expression;
+        Readings = readings.ToImmutableList();
     }
 }
