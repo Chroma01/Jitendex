@@ -46,7 +46,7 @@ public class Kanji
         _readingsWithNameReadings = readings.Union(nameReadings).ToImmutableList();
     }
 
-    public List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
+    internal List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
     {
         var output = new List<string>();
         var readings = isUsedInName ? _readingsWithNameReadings : _readings;
@@ -177,9 +177,4 @@ public class Kanji
         ['ぶ'] = 'び',
         ['う'] = 'い',
     }.ToFrozenDictionary();
-
-    public override string ToString()
-    {
-        return Character.ToString();
-    }
 }
