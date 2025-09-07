@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using Jitendex.Furigana.Helpers;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.OutputModels;
 
 internal static class IndexedSolutionChecker
 {

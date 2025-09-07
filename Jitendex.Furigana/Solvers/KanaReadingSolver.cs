@@ -18,7 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
-using Jitendex.Furigana.Models;
+using Jitendex.Furigana.InputModels;
+using Jitendex.Furigana.OutputModels;
 using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Solvers;

@@ -18,8 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Helpers;
+using Jitendex.Furigana.InputModels;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.OutputModels;
 
 /// <summary>
 /// A vocab entry with a furigana reading string.

@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Text;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.InputModels;
 
 public class ResourceSet
 {

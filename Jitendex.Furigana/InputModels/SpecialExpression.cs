@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.InputModels;
 
 /// <summary>
 /// Represents a special reading expression.

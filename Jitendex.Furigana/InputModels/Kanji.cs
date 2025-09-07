@@ -21,7 +21,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.InputModels;
 
 public class Kanji
 {

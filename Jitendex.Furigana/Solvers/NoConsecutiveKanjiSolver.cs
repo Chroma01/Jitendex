@@ -19,7 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.Helpers;
-using Jitendex.Furigana.Models;
+using Jitendex.Furigana.InputModels;
+using Jitendex.Furigana.OutputModels;
 
 namespace Jitendex.Furigana.Solvers;
 
