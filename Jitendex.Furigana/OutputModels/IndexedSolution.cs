@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.OutputModels;
@@ -44,7 +45,51 @@ public class IndexedSolution
 
     public TextSolution ToTextSolution()
     {
-        return new TextSolution(this);
+        return new TextSolution
+        {
+            Vocab = Vocab,
+            Parts = MakeTextSolutionParts(),
+        };
+    }
+
+    private ImmutableList<TextSolution.Part> MakeTextSolutionParts()
+    {
+        var parts = new List<TextSolution.Part>();
+        var runes = Vocab.RawKanjiFormRunes();
+        foreach (var (value, start, end) in GetExplicitParts())
+        {
+            var baseText = string.Join("", runes.GetRange(start, end - start + 1));
+            parts.Add(new TextSolution.Part(baseText, value));
+        }
+        return parts.ToImmutableList();
+    }
+
+    private List<(string? value, int start, int end)> GetExplicitParts()
+    {
+        var parts = new List<(string?, int, int)>();
+        var runes = Vocab.KanjiFormRunes();
+        int? kanaStart = null;
+        for (int i = 0; i < runes.Count; i++)
+        {
+            var matchingPart = Parts.FirstOrDefault(f => f.StartIndex == i);
+            if (matchingPart is null)
+            {
+                kanaStart ??= i;
+                continue;
+            }
+            if (kanaStart is not null)
+            {
+                parts.Add(new(null, (int)kanaStart, i - 1));
+                kanaStart = null;
+            }
+            parts.Add(new(matchingPart.Value, matchingPart.StartIndex, matchingPart.EndIndex));
+            i = matchingPart.EndIndex;
+        }
+        if (kanaStart is not null)
+        {
+            parts.Add(new(null, (int)kanaStart, runes.Count - 1));
+        }
+        return parts;
     }
 
     public override bool Equals(object? obj)
