@@ -38,12 +38,13 @@ public class ServiceTest
             new SpecialExpression("ヵ", ["か", "が"]),
             new SpecialExpression("ケ", ["か", "が"]),
         ]);
-        TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
-        TestFurigana("一ヵ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
-        TestFurigana("一ケ月", "いっかげつ", "0:いっ;1:か;2:げつ", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", service);
+        TestFurigana("一ヵ月", "いっかげつ", "0:いっ;1:か;2:げつ", service);
+        TestFurigana("一ケ月", "いっかげつ", "0:いっ;1:か;2:げつ", service);
 
-        TestFurigana("一ケ月", "いっけげつ", "0:いっ;2:げつ", resourceSet);
-        TestFurigana("一ケ月", "いっケげつ", "0:いっ;2:げつ", resourceSet);
+        TestFurigana("一ケ月", "いっけげつ", "0:いっ;2:げつ", service);
+        TestFurigana("一ケ月", "いっケげつ", "0:いっ;2:げつ", service);
     }
 
     [TestMethod]
@@ -52,14 +53,16 @@ public class ServiceTest
         // Readings cannot begin with 'ん', so there is 1 possible solution.
         // No need to supply any character readings.
         var resourceSet = new ResourceSet();
-        TestFurigana("頑張る", "がんばる", "0:がん;1:ば", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("頑張る", "がんばる", "0:がん;1:ば", service);
     }
 
     [TestMethod]
     public void TestFuriganaObocchan()
     {
         var resourceSet = new ResourceSet();
-        TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", service);
     }
 
     [TestMethod]
@@ -68,7 +71,8 @@ public class ServiceTest
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
         var resourceSet = new ResourceSet();
-        TestFurigana("𩺊", "あら", "0:あら", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("𩺊", "あら", "0:あら", service);
     }
 
     [TestMethod]
@@ -76,7 +80,8 @@ public class ServiceTest
     {
         // 1 possible solution. No need to supply any character readings.
         var resourceSet = new ResourceSet();
-        TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", service);
     }
 
     [TestMethod]
@@ -84,7 +89,8 @@ public class ServiceTest
     {
         // 1 possible solution. No need to supply any character readings.
         var resourceSet = new ResourceSet();
-        TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", service);
     }
 
     [TestMethod]
@@ -95,7 +101,8 @@ public class ServiceTest
             new Kanji(new Rune('御'), ["ギョ", "ゴ", "おん-", "お-", "み-"]),
             new Kanji(new Rune('姉'), ["シ", "あね", "はは", "ねえ"]),
         ]);
-        TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", service);
     }
 
     [TestMethod]
@@ -106,8 +113,9 @@ public class ServiceTest
         ([
             new Kanji(new Rune('捗'), ["チョク", "ホ", "はかど.る", "はか"])
         ]);
-        TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
-        TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", resourceSet);
+        var service = new Service(resourceSet);
+        TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", service);
+        TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", service);
     }
 
     [TestMethod]
@@ -200,17 +208,17 @@ public class ServiceTest
             ("風邪薬", "かぜぐすり", "0-1:かぜ;2:ぐすり"),
             ("日独協会", "にちどくきょうかい", "0:にち;1:どく;2:きょう;3:かい"),
         };
-        foreach (var x in testData)
+        var service = new Service(resourceSet);
+        foreach (var (kanjiForm, reading, expectedFurigana) in testData)
         {
-            TestFurigana(x.Item1, x.Item2, x.Item3, resourceSet);
+            TestFurigana(kanjiForm, reading, expectedFurigana, service);
         }
     }
 
-    private static void TestFurigana(string kanjiForm, string reading, string expectedFurigana, ResourceSet resourceSet)
+    private static void TestFurigana(string kanjiForm, string reading, string expectedFurigana, Service service)
     {
         var v = new VocabEntry(kanjiForm, reading);
-        var furiganaService = new Service(resourceSet);
-        var solution = furiganaService.Solve(v);
+        var solution = service.Solve(v);
         Assert.IsNotNull(solution);
 
         var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, v);
