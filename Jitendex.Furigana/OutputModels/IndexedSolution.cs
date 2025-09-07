@@ -57,7 +57,7 @@ internal class IndexedSolution
         foreach (var (value, start, end) in EnumerateAllRanges())
         {
             var baseRunes = Vocab.RawKanjiFormRunes.GetRange(start, end - start + 1);
-            var baseText = string.Join("", baseRunes);
+            var baseText = string.Join(string.Empty, baseRunes);
             yield return new Solution.Part(baseText, value);
         }
     }

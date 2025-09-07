@@ -135,7 +135,7 @@ internal class KanjiReadingSolver : FuriganaSolver
         for (int i = runes.Count - 1; i >= currentIndexKanji; i--)
         {
             var subRunes = runes.GetRange(currentIndexKanji, i - currentIndexKanji + 1);
-            string lookup = string.Join("", subRunes);
+            string lookup = string.Join(string.Empty, subRunes);
             var expression = _resourceSet.GetExpression(lookup);
 
             if (expression is null) continue;

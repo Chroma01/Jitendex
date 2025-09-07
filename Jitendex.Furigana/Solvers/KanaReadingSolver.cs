@@ -75,7 +75,7 @@ internal class KanaReadingSolver : FuriganaSolver
             for (int j = runes.Count - 1; j >= i; j--)
             {
                 var subRunes = runes.GetRange(i, j - i + 1);
-                string lookup = string.Join("", subRunes);
+                string lookup = string.Join(string.Empty, subRunes);
                 var expression = _resourceSet.GetExpression(lookup);
 
                 if (expression is null) continue;
