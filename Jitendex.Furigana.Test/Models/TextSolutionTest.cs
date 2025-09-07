@@ -21,54 +21,71 @@ using Jitendex.Furigana.Models;
 namespace Jitendex.Furigana.Test.Models;
 
 [TestClass]
-public class FuriganaSolutionTest
+public class TextSolutionTest
 {
     [TestMethod]
-    public void TestBreakIntoPartsAkagaeruka()
+    public void TestRubySolutionAkagaeruka()
     {
         var vocab = new VocabEntry("アカガエル科", "アカガエルか");
-        var solution = new IndexedSolution(vocab, new IndexedFurigana("か", 5));
+        var indexedSolution = new IndexedSolution
+        (
+            vocab,
+            new IndexedFurigana("か", 5)
+        );
 
-        var parts = solution.BreakIntoParts().ToList();
+        var textSolution = indexedSolution.ToTextSolution();
+        var parts = textSolution.Parts;
 
         Assert.HasCount(2, parts);
-        Assert.AreEqual("アカガエル", parts[0].Text);
+        Assert.AreEqual("アカガエル", parts[0].BaseText);
         Assert.IsNull(parts[0].Furigana);
-        Assert.AreEqual("科", parts[1].Text);
+        Assert.AreEqual("科", parts[1].BaseText);
         Assert.AreEqual("か", parts[1].Furigana);
     }
 
     [TestMethod]
-    public void TestBreakIntoPartsOtonagai()
+    public void TestRubySolutionOtonagai()
     {
         var vocab = new VocabEntry("大人買い", "おとながい");
-        var solution = new IndexedSolution(vocab, new IndexedFurigana("おとな", 0, 1), new IndexedFurigana("が", 2));
+        var indexedSolution = new IndexedSolution
+        (
+            vocab,
+            new IndexedFurigana("おとな", 0, 1),
+            new IndexedFurigana("が", 2)
+        );
 
-        var parts = solution.BreakIntoParts().ToList();
+        var textSolution = indexedSolution.ToTextSolution();
+        var parts = textSolution.Parts;
 
         Assert.HasCount(3, parts);
-        Assert.AreEqual("大人", parts[0].Text);
+        Assert.AreEqual("大人", parts[0].BaseText);
         Assert.AreEqual("おとな", parts[0].Furigana);
-        Assert.AreEqual("買", parts[1].Text);
+        Assert.AreEqual("買", parts[1].BaseText);
         Assert.AreEqual("が", parts[1].Furigana);
-        Assert.AreEqual("い", parts[2].Text);
+        Assert.AreEqual("い", parts[2].BaseText);
         Assert.IsNull(parts[2].Furigana);
     }
 
     [TestMethod]
-    public void TestBreakIntoPartsHakabakashii()
+    public void TestRubySolutionHakabakashii()
     {
         var vocab = new VocabEntry("捗々しい", "はかばかしい");
-        var solution = new IndexedSolution(vocab, new IndexedFurigana("はか", 0), new IndexedFurigana("ばか", 1));
+        var indexedSolution = new IndexedSolution
+        (
+            vocab,
+            new IndexedFurigana("はか", 0),
+            new IndexedFurigana("ばか", 1)
+        );
 
-        var parts = solution.BreakIntoParts().ToList();
+        var textSolution = indexedSolution.ToTextSolution();
+        var parts = textSolution.Parts;
 
         Assert.HasCount(3, parts);
-        Assert.AreEqual("捗", parts[0].Text);
+        Assert.AreEqual("捗", parts[0].BaseText);
         Assert.AreEqual("はか", parts[0].Furigana);
-        Assert.AreEqual("々", parts[1].Text);
+        Assert.AreEqual("々", parts[1].BaseText);
         Assert.AreEqual("ばか", parts[1].Furigana);
-        Assert.AreEqual("しい", parts[2].Text);
+        Assert.AreEqual("しい", parts[2].BaseText);
         Assert.IsNull(parts[2].Furigana);
     }
 }

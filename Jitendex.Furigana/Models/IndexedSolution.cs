@@ -23,11 +23,6 @@ using Jitendex.Furigana.Helpers;
 namespace Jitendex.Furigana.Models;
 
 /// <summary>
-/// Represents an individual part of the reading of a word or expression.
-/// </summary>
-public record ReadingPart(string Text, string? Furigana);
-
-/// <summary>
 /// A vocab entry with a furigana reading string.
 /// </summary>
 public class IndexedSolution
@@ -35,13 +30,13 @@ public class IndexedSolution
     public VocabEntry Vocab { get; set; }
     public List<IndexedFurigana> Parts { get; set; }
 
+    public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
+
     public IndexedSolution(VocabEntry vocab, List<IndexedFurigana> parts)
     {
         Vocab = vocab;
         Parts = parts;
     }
-
-    public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
 
     #region Methods
 
@@ -148,50 +143,9 @@ public class IndexedSolution
         return Check(Vocab, Parts);
     }
 
-    /// <summary>
-    /// Breaks down the solution to its individual reading parts.
-    /// </summary>
-    public IEnumerable<ReadingPart> BreakIntoParts()
+    public TextSolution ToTextSolution()
     {
-        var runes = Vocab.RawKanjiFormRunes();
-        int? kanaStart = null;
-        for (int i = 0; i < runes.Count; i++)
-        {
-            var matchingFurigana = Parts.FirstOrDefault(f => f.StartIndex == i);
-            if (matchingFurigana is not null)
-            {
-                // We are on a furigana start index.
-                // If there was any kana, output that part first
-                if (kanaStart.HasValue)
-                {
-                    yield return new ReadingPart(
-                        Text: string.Join("", runes.ToArray()[kanaStart.Value..i]),
-                        Furigana: null);
-
-                    kanaStart = null;
-                }
-
-                // Then output the furigana part
-                yield return new ReadingPart(
-                    Text: string.Join("", runes.GetRange(i, matchingFurigana.EndIndex - i + 1)),
-                    Furigana: matchingFurigana.Value);
-
-                i = matchingFurigana.EndIndex;
-            }
-            else
-            {
-                // We are not on a furigana-covered character, must be kana. Set kanaStart if not already set.
-                kanaStart ??= i;
-            }
-        }
-
-        // Output the final kana part if any
-        if (kanaStart.HasValue)
-        {
-            yield return new ReadingPart(
-                Text: string.Join("", runes.ToArray()[kanaStart.Value..]),
-                Furigana: null);
-        }
+        return new TextSolution(this);
     }
 
     public override string ToString()
