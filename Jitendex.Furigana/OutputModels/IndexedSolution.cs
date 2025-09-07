@@ -53,10 +53,10 @@ internal class IndexedSolution
 
     private IEnumerable<Solution.Part> EnumerateTextSolutionParts()
     {
-        var runes = Vocab.RawKanjiFormRunes;
         foreach (var (value, start, end) in EnumerateAllRanges())
         {
-            var baseText = string.Join("", runes.GetRange(start, end - start + 1));
+            var baseRunes = Vocab.RawKanjiFormRunes.GetRange(start, end - start + 1);
+            var baseText = string.Join("", baseRunes);
             yield return new Solution.Part(baseText, value);
         }
     }
