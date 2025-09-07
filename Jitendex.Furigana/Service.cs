@@ -26,11 +26,11 @@ namespace Jitendex.Furigana;
 /// <summary>
 /// Works with kanji and dictionary entries to attach each entry a furigana string.
 /// </summary>
-public class FuriganaBusiness
+public class Service
 {
     private readonly List<IFuriganaSolver> _solvers;
 
-    public FuriganaBusiness(ResourceSet resourceSet)
+    public Service(ResourceSet resourceSet)
     {
         _solvers =
         [

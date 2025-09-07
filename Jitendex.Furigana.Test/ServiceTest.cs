@@ -23,7 +23,7 @@ using Jitendex.Furigana.InputModels;
 namespace Jitendex.Furigana.Test;
 
 [TestClass]
-public class FuriganaTest
+public class ServiceTest
 {
     [TestMethod]
     public void TestFuriganaIkkagetsu()
@@ -209,8 +209,8 @@ public class FuriganaTest
     private static void TestFurigana(string kanjiForm, string reading, string expectedFurigana, ResourceSet resourceSet)
     {
         var v = new VocabEntry(kanjiForm, reading);
-        var business = new FuriganaBusiness(resourceSet);
-        var result = business.Solve(v);
+        var furiganaService = new Service(resourceSet);
+        var result = furiganaService.Solve(v);
         var solution = result.GetSingleSolution();
         Assert.IsNotNull(solution);
 
