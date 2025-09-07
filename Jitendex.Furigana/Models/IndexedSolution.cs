@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
 using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Models;
@@ -37,88 +36,6 @@ public class IndexedSolution
         Vocab = vocab;
         Parts = parts;
     }
-
-    #region Methods
-
-    #region Static
-
-    /// <summary>
-    /// Checks if the solution is correctly solved for the given coupling of vocab and furigana.
-    /// </summary>
-    /// <param name="v">Vocab to check.</param>
-    /// <param name="parts">Furigana to check.</param>
-    /// <returns>True if the furigana covers all characters of the vocab reading without
-    /// overlapping.</returns>
-    public static bool Check(VocabEntry v, List<IndexedFurigana> parts)
-    {
-        // There are three conditions to check:
-        // 1. Furigana parts are not overlapping: for any given index in the kanji reading string,
-        // there is between 0 and 1 matching furigana parts.
-        // 2. All non-kana characters are covered by a furigana part.
-        // 3. Reconstituting the kana reading from the kanji reading using the furigana parts when
-        // available will give the kana reading of the vocab entry.
-
-        // Keep in mind things like 真っ青 admit a correct "0-2:まっさお" solution. There can be
-        // furigana parts covering kana.
-
-        var runes = v.KanjiFormRunes();
-
-        // Check condition 1.
-        if (Enumerable.Range(0, runes.Count).Any(i => parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
-        {
-            // There are multiple furigana parts that are appliable for a given index.
-            // This constitutes an overlap and results in the check being negative.
-            // Condition 1 failed.
-            return false;
-        }
-
-        // Now try to reconstitute the reading using the furigana parts.
-        // This will allow us to test both 2 and 3.
-        var reconstitutedReading = new StringBuilder();
-        for (int i = 0; i < runes.Count; i++)
-        {
-            // Try to find a matching part.
-            var matchingPart = parts.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);
-            if (matchingPart != null)
-            {
-                // We have a matching part. Add the furigana string to the reconstituted reading.
-                reconstitutedReading.Append(matchingPart.Value);
-
-                // Advance i to the end index and continue.
-                i = matchingPart.EndIndex;
-                continue;
-            }
-
-            // Characters that are not covered by a furigana part should be kana.
-            var c = runes[i];
-            if (c.IsKana())
-            {
-                // It is kana. Add the character to the reconstituted reading.
-                char kana = (char)c.Value;
-                reconstitutedReading.Append(kana);
-            }
-            else
-            {
-                // This is not kana and this is not covered by any furigana part.
-                // The solution is not complete and is therefore not valid.
-                // Condition 2 failed.
-                return false;
-            }
-        }
-
-        // Our reconstituted reading should be the same as the kana reading of the vocab.
-        if (!v.ReadingText.IsKanaEquivalent(reconstitutedReading.ToString()))
-        {
-            // It is different. Something is not correct in the furigana reading values.
-            // Condition 3 failed.
-            return false;
-        }
-
-        // Nothing has failed. Everything is good.
-        return true;
-    }
-
-    #endregion
 
     /// <summary>
     /// Gets the parts covering the given index.
@@ -140,7 +57,7 @@ public class IndexedSolution
     /// False otherwise.</returns>
     public bool Check()
     {
-        return Check(Vocab, Parts);
+        return IndexedSolutionChecker.Check(this);
     }
 
     public TextSolution ToTextSolution()
@@ -189,6 +106,4 @@ public class IndexedSolution
     {
         return base.GetHashCode();
     }
-
-    #endregion
 }
