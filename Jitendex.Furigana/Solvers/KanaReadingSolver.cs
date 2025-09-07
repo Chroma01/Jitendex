@@ -37,7 +37,7 @@ internal class KanaReadingSolver : FuriganaSolver
     /// Attempts to solve furigana by reading the kana string and attributing kanji a reading based
     /// not on the readings of the kanji, but on the kana characters that come up.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
+    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
     {
         // Basically, we are reading the kanji reading character by character, eating the kana from
         // the kana reading and associating each kanji the piece of kana that comes next.
@@ -57,7 +57,7 @@ internal class KanaReadingSolver : FuriganaSolver
 
         var runes = v.KanjiFormRunes();
         string kana = v.ReadingText;
-        var furiganaParts = new List<FuriganaPart>();
+        var furiganaParts = new List<IndexedFurigana>();
 
         for (int i = 0; i < runes.Count; i++)
         {
@@ -86,7 +86,7 @@ internal class KanaReadingSolver : FuriganaSolver
                         continue;
 
                     // The reading matches. Eat the kana chain.
-                    var newPart = new FuriganaPart(reading, i, i + subRunes.Count - 1);
+                    var newPart = new IndexedFurigana(reading, i, i + subRunes.Count - 1);
                     furiganaParts.Add(newPart);
 
                     kana = kana[reading.Length..];
@@ -114,7 +114,7 @@ internal class KanaReadingSolver : FuriganaSolver
                     eaten += kana.First();
                     kana = kana[1..];
                 }
-                furiganaParts.Add(new FuriganaPart(eaten, i));
+                furiganaParts.Add(new IndexedFurigana(eaten, i));
             }
             else if (!rune.IsKana())
             {
@@ -136,7 +136,7 @@ internal class KanaReadingSolver : FuriganaSolver
         {
             // We consumed the whole kana string.
             // The case is solved.
-            yield return new FuriganaSolution(v, furiganaParts);
+            yield return new IndexedSolution(v, furiganaParts);
         }
     }
 }

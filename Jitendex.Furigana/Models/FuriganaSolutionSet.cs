@@ -24,17 +24,17 @@ namespace Jitendex.Furigana.Models;
 /// </summary>
 public class FuriganaSolutionSet(VocabEntry vocab)
 {
-    public List<FuriganaSolution> Solutions { get; set; } = [];
+    public List<IndexedSolution> Solutions { get; set; } = [];
     public VocabEntry Vocab { get; set; } = vocab;
 
     public bool Any() => Solutions.Count != 0;
 
-    public FuriganaSolution? GetSingleSolution()
+    public IndexedSolution? GetSingleSolution()
     {
         return Solutions.Count == 1 ? Solutions.First() : null;
     }
 
-    public bool Add(FuriganaSolution solution)
+    public bool Add(IndexedSolution solution)
     {
         if (!solution.Check())
         {
@@ -48,7 +48,7 @@ public class FuriganaSolutionSet(VocabEntry vocab)
         return true;
     }
 
-    public int AddRange(IEnumerable<FuriganaSolution> solutions)
+    public int AddRange(IEnumerable<IndexedSolution> solutions)
     {
         int count = 0;
         foreach (var solution in solutions)

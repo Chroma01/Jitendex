@@ -24,9 +24,9 @@ namespace Jitendex.Furigana.Test;
 
 public static class FuriganaSolutionParser
 {
-    public static FuriganaSolution Parse(string s, VocabEntry v)
+    public static IndexedSolution Parse(string s, VocabEntry v)
     {
-        var parts = new List<FuriganaPart>();
+        var parts = new List<IndexedFurigana>();
         var partSplit = s.Split(Separator.MultiValue);
 
         foreach (var partString in partSplit)
@@ -59,9 +59,9 @@ public static class FuriganaSolutionParser
                 throw new Exception($"Malformed input `{indexesString}`");
             }
 
-            parts.Add(new FuriganaPart(furiganaValue, minIndex, maxIndex));
+            parts.Add(new IndexedFurigana(furiganaValue, minIndex, maxIndex));
         }
 
-        return new FuriganaSolution(v, parts);
+        return new IndexedSolution(v, parts);
     }
 }

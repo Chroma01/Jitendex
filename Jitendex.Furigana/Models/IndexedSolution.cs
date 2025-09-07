@@ -30,18 +30,18 @@ public record ReadingPart(string Text, string? Furigana);
 /// <summary>
 /// A vocab entry with a furigana reading string.
 /// </summary>
-public class FuriganaSolution
+public class IndexedSolution
 {
     public VocabEntry Vocab { get; set; }
-    public List<FuriganaPart> FuriganaParts { get; set; }
+    public List<IndexedFurigana> Parts { get; set; }
 
-    public FuriganaSolution(VocabEntry vocab, List<FuriganaPart> furiganaParts)
+    public IndexedSolution(VocabEntry vocab, List<IndexedFurigana> parts)
     {
         Vocab = vocab;
-        FuriganaParts = furiganaParts;
+        Parts = parts;
     }
 
-    public FuriganaSolution(VocabEntry vocab, params FuriganaPart[] furiganaParts) : this(vocab, furiganaParts.ToList()) { }
+    public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
 
     #region Methods
 
@@ -51,10 +51,10 @@ public class FuriganaSolution
     /// Checks if the solution is correctly solved for the given coupling of vocab and furigana.
     /// </summary>
     /// <param name="v">Vocab to check.</param>
-    /// <param name="furiganaParts">Furigana to check.</param>
+    /// <param name="parts">Furigana to check.</param>
     /// <returns>True if the furigana covers all characters of the vocab reading without
     /// overlapping.</returns>
-    public static bool Check(VocabEntry v, List<FuriganaPart> furiganaParts)
+    public static bool Check(VocabEntry v, List<IndexedFurigana> parts)
     {
         // There are three conditions to check:
         // 1. Furigana parts are not overlapping: for any given index in the kanji reading string,
@@ -69,7 +69,7 @@ public class FuriganaSolution
         var runes = v.KanjiFormRunes();
 
         // Check condition 1.
-        if (Enumerable.Range(0, runes.Count).Any(i => furiganaParts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
+        if (Enumerable.Range(0, runes.Count).Any(i => parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
             // There are multiple furigana parts that are appliable for a given index.
             // This constitutes an overlap and results in the check being negative.
@@ -83,7 +83,7 @@ public class FuriganaSolution
         for (int i = 0; i < runes.Count; i++)
         {
             // Try to find a matching part.
-            var matchingPart = furiganaParts.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);
+            var matchingPart = parts.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);
             if (matchingPart != null)
             {
                 // We have a matching part. Add the furigana string to the reconstituted reading.
@@ -131,9 +131,9 @@ public class FuriganaSolution
     /// </summary>
     /// <param name="index">Target index.</param>
     /// <returns>All parts covering the given index.</returns>
-    public List<FuriganaPart> GetPartsForIndex(int index)
+    public List<IndexedFurigana> GetPartsForIndex(int index)
     {
-        return FuriganaParts
+        return Parts
             .Where(f => f.StartIndex <= index && index <= f.EndIndex)
             .ToList();
     }
@@ -145,7 +145,7 @@ public class FuriganaSolution
     /// False otherwise.</returns>
     public bool Check()
     {
-        return Check(Vocab, FuriganaParts);
+        return Check(Vocab, Parts);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public class FuriganaSolution
         int? kanaStart = null;
         for (int i = 0; i < runes.Count; i++)
         {
-            var matchingFurigana = FuriganaParts.FirstOrDefault(f => f.StartIndex == i);
+            var matchingFurigana = Parts.FirstOrDefault(f => f.StartIndex == i);
             if (matchingFurigana is not null)
             {
                 // We are on a furigana start index.
@@ -206,7 +206,7 @@ public class FuriganaSolution
                 string.Join
                 (
                     Separator.MultiValue,
-                    FuriganaParts.Select(x => x.ToString()).ToArray()
+                    Parts.Select(x => x.ToString()).ToArray()
                 )
             }
         );
@@ -214,10 +214,10 @@ public class FuriganaSolution
 
     public override bool Equals(object? obj)
     {
-        if (obj is FuriganaSolution other)
+        if (obj is IndexedSolution other)
         {
             // Compare both solutions.
-            if (Vocab != other.Vocab || FuriganaParts.Count != other.FuriganaParts.Count)
+            if (Vocab != other.Vocab || Parts.Count != other.Parts.Count)
             {
                 // Not the same vocab or not the same count of furigana parts.
                 return false;
@@ -225,8 +225,8 @@ public class FuriganaSolution
 
             // If there is at least one furigana part that has no equivalent in the other
             // furigana solution, then the readings differ.
-            return FuriganaParts.All(f1 => other.FuriganaParts.Any(f2 => f1.Equals(f2)))
-                && other.FuriganaParts.All(f2 => FuriganaParts.Any(f1 => f1.Equals(f2)));
+            return Parts.All(f1 => other.Parts.Any(f2 => f1.Equals(f2)))
+                && other.Parts.All(f2 => Parts.Any(f1 => f1.Equals(f2)));
         }
         return base.Equals(obj);
     }

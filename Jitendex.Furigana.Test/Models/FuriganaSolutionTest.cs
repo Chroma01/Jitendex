@@ -27,7 +27,7 @@ public class FuriganaSolutionTest
     public void TestBreakIntoPartsAkagaeruka()
     {
         var vocab = new VocabEntry("アカガエル科", "アカガエルか");
-        var solution = new FuriganaSolution(vocab, new FuriganaPart("か", 5));
+        var solution = new IndexedSolution(vocab, new IndexedFurigana("か", 5));
 
         var parts = solution.BreakIntoParts().ToList();
 
@@ -42,7 +42,7 @@ public class FuriganaSolutionTest
     public void TestBreakIntoPartsOtonagai()
     {
         var vocab = new VocabEntry("大人買い", "おとながい");
-        var solution = new FuriganaSolution(vocab, new FuriganaPart("おとな", 0, 1), new FuriganaPart("が", 2));
+        var solution = new IndexedSolution(vocab, new IndexedFurigana("おとな", 0, 1), new IndexedFurigana("が", 2));
 
         var parts = solution.BreakIntoParts().ToList();
 
@@ -59,7 +59,7 @@ public class FuriganaSolutionTest
     public void TestBreakIntoPartsHakabakashii()
     {
         var vocab = new VocabEntry("捗々しい", "はかばかしい");
-        var solution = new FuriganaSolution(vocab, new FuriganaPart("はか", 0), new FuriganaPart("ばか", 1));
+        var solution = new IndexedSolution(vocab, new IndexedFurigana("はか", 0), new IndexedFurigana("ばか", 1));
 
         var parts = solution.BreakIntoParts().ToList();
 

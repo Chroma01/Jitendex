@@ -33,7 +33,7 @@ internal class LengthMatchSolver : FuriganaSolver
     /// Attempts to solve cases where the length of the kanji reading matches the length of the
     /// kana reading.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
+    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
     {
         var runes = v.KanjiFormRunes();
         if (runes.Count != v.ReadingText.Length)
@@ -41,12 +41,12 @@ internal class LengthMatchSolver : FuriganaSolver
             yield break;
         }
 
-        var parts = new List<FuriganaPart>();
+        var parts = new List<IndexedFurigana>();
         for (int i = 0; i < runes.Count; i++)
         {
             if (runes[i].IsKanji())
             {
-                parts.Add(new FuriganaPart(v.ReadingText[i].ToString(), i));
+                parts.Add(new IndexedFurigana(v.ReadingText[i].ToString(), i));
             }
             else if (!runes[i].IsKana())
             {
@@ -63,7 +63,7 @@ internal class LengthMatchSolver : FuriganaSolver
 
         if (parts.Count > 0)
         {
-            yield return new FuriganaSolution(v, parts);
+            yield return new IndexedSolution(v, parts);
         }
     }
 }

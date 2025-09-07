@@ -27,7 +27,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
     /// <summary>
     /// Solves cases where the kanji reading consists in a repeated kanji.
     /// </summary>
-    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
+    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
     {
         var runes = v.KanjiFormRunes();
 
@@ -47,11 +47,11 @@ internal class RepeatedKanjiSolver : FuriganaSolver
         {
             // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
             // and our kana string can be cut in two. Just do that.
-            yield return new FuriganaSolution
+            yield return new IndexedSolution
             (
                 v,
-                new FuriganaPart(v.ReadingText[..(v.ReadingText.Length / 2)], 0),
-                new FuriganaPart(v.ReadingText[(v.ReadingText.Length / 2)..], 1)
+                new IndexedFurigana(v.ReadingText[..(v.ReadingText.Length / 2)], 0),
+                new IndexedFurigana(v.ReadingText[(v.ReadingText.Length / 2)..], 1)
             );
         }
     }

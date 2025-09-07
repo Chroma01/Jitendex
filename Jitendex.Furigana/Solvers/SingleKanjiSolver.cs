@@ -29,7 +29,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         Priority = 1;  // Priority up because it's quick and guarantees the only correct solution when appliable.
     }
 
-    protected override IEnumerable<FuriganaSolution> DoSolve(VocabEntry v)
+    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
     {
         if (!EligibleForThisSolution(v)) yield break;
 
@@ -88,7 +88,7 @@ internal class SingleKanjiSolver : FuriganaSolver
 
         // We are done. Our kanaReading contains only what's left when eating the kana
         // before and after the kanji. It's the reading of our kanji.
-        yield return new FuriganaSolution(v, new FuriganaPart(kanaReading, kanjiIndex));
+        yield return new IndexedSolution(v, new IndexedFurigana(kanaReading, kanjiIndex));
     }
 
     private static bool EligibleForThisSolution(VocabEntry v)

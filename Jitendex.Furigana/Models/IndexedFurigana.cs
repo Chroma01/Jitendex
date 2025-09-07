@@ -19,16 +19,16 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Furigana.Models;
 
-public class FuriganaPart : IComparable<FuriganaPart>, ICloneable
+public class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
 {
+    public string Value { get; }
     public int StartIndex { get; }
     public int EndIndex { get; }
-    public string Value { get; }
 
-    public FuriganaPart(string value, int startIndex)
+    public IndexedFurigana(string value, int startIndex)
         : this(value, startIndex, startIndex) { }
 
-    public FuriganaPart(string value, int startIndex, int endIndex)
+    public IndexedFurigana(string value, int startIndex, int endIndex)
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentOutOfRangeException(nameof(value),
@@ -57,14 +57,14 @@ public class FuriganaPart : IComparable<FuriganaPart>, ICloneable
         }
     }
 
-    public int CompareTo(FuriganaPart? other)
+    public int CompareTo(IndexedFurigana? other)
     {
         return StartIndex.CompareTo(other?.StartIndex);
     }
 
     public override bool Equals(object? obj)
     {
-        if (obj is FuriganaPart other)
+        if (obj is IndexedFurigana other)
         {
             return StartIndex == other.StartIndex
                 && EndIndex == other.EndIndex
@@ -80,6 +80,6 @@ public class FuriganaPart : IComparable<FuriganaPart>, ICloneable
 
     public object Clone()
     {
-        return new FuriganaPart(Value, StartIndex, EndIndex);
+        return new IndexedFurigana(Value, StartIndex, EndIndex);
     }
 }

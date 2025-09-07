@@ -24,7 +24,7 @@ namespace Jitendex.Furigana.Solvers;
 internal interface IFuriganaSolver : IComparable<IFuriganaSolver>
 {
     int Priority { get; set; }
-    IEnumerable<FuriganaSolution> Solve(VocabEntry v);
+    IEnumerable<IndexedSolution> Solve(VocabEntry v);
 }
 
 /// <summary>
@@ -35,7 +35,7 @@ internal abstract class FuriganaSolver : IFuriganaSolver
 {
     public int Priority { get; set; }
 
-    public IEnumerable<FuriganaSolution> Solve(VocabEntry v)
+    public IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         foreach (var solution in DoSolve(v))
         {
@@ -47,7 +47,7 @@ internal abstract class FuriganaSolver : IFuriganaSolver
         }
     }
 
-    protected abstract IEnumerable<FuriganaSolution> DoSolve(VocabEntry v);
+    protected abstract IEnumerable<IndexedSolution> DoSolve(VocabEntry v);
 
     public int CompareTo(IFuriganaSolver? other)
     {
