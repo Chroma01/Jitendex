@@ -68,26 +68,26 @@ internal class IndexedSolution
     {
         var parts = new List<(string?, int, int)>();
         var runes = Vocab.KanjiFormRunes();
-        int? noFuriganaStart = null;
+        int? emptyRangeStart = null;
         for (int i = 0; i < runes.Count; i++)
         {
-            var matchingPart = Parts.FirstOrDefault(f => f.StartIndex == i);
-            if (matchingPart is null)
+            var indexedFurigana = Parts.FirstOrDefault(f => f.StartIndex == i);
+            if (indexedFurigana is null)
             {
-                noFuriganaStart ??= i;
+                emptyRangeStart ??= i;
                 continue;
             }
-            if (noFuriganaStart is not null)
+            if (emptyRangeStart is not null)
             {
-                parts.Add(new(null, (int)noFuriganaStart, i - 1));
-                noFuriganaStart = null;
+                parts.Add(new(null, (int)emptyRangeStart, i - 1));
+                emptyRangeStart = null;
             }
-            parts.Add(new(matchingPart.Value, matchingPart.StartIndex, matchingPart.EndIndex));
-            i = matchingPart.EndIndex;
+            parts.Add(new(indexedFurigana.Value, indexedFurigana.StartIndex, indexedFurigana.EndIndex));
+            i = indexedFurigana.EndIndex;
         }
-        if (noFuriganaStart is not null)
+        if (emptyRangeStart is not null)
         {
-            parts.Add(new(null, (int)noFuriganaStart, runes.Count - 1));
+            parts.Add(new(null, (int)emptyRangeStart, runes.Count - 1));
         }
         return parts;
     }
