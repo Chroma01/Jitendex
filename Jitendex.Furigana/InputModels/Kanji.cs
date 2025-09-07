@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Helpers;
@@ -52,12 +53,15 @@ public class Kanji
 
         foreach (string reading in readings)
         {
+            // No suffix readings for the first char.
             if (isFirstChar && reading.StartsWith('-'))
-                continue; // No suffix readings for the first char.
+                continue;
 
+            // No prefix readings for the last char.
             if (isLastChar && reading.EndsWith('-'))
-                continue; // No prefix readings for the last char.
+                continue;
 
+            // Ensure all readings are in hiragana
             string r = reading.Replace("-", string.Empty).KatakanaToHiragana();
 
             var dotSplit = r.Split('.');
@@ -80,7 +84,7 @@ public class Kanji
                 }
 
                 var verbEnding = suffixChars.Last();
-                if (KanaHelper.GodanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
+                if (GodanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
                 {
                     var newReading = stemChars + suffixChars[..^1] + newEnding;
                     output.Add(newReading);
@@ -88,7 +92,6 @@ public class Kanji
             }
             else
             {
-                continue;
                 // throw new Exception($"Reading `{reading}` for kanji `{kanji.Character}` should only have one dot separator");
             }
         }
@@ -113,7 +116,7 @@ public class Kanji
         var newReadings = new List<string>();
         foreach (var reading in readings)
         {
-            if (KanaHelper.SmallTsuRendakus.Contains(reading.Last()))
+            if (SmallTsuRendakus.Contains(reading.Last()))
             {
                 newReadings.Add(reading[..^1] + "っ");
             }
@@ -126,7 +129,7 @@ public class Kanji
         var newReadings = new List<string>();
         foreach (var reading in readings)
         {
-            if (KanaHelper.HiraganaToDiacriticForms.TryGetValue(reading.First(), out char[]? rendakuChars))
+            if (HiraganaToDiacriticForms.TryGetValue(reading.First(), out char[]? rendakuChars))
             {
                 foreach (var rendakuChar in rendakuChars)
                 {
@@ -136,6 +139,44 @@ public class Kanji
         }
         return newReadings;
     }
+
+    private static readonly FrozenSet<char> SmallTsuRendakus = ['つ', 'く', 'き', 'ち'];
+
+    private static readonly FrozenDictionary<char, char[]> HiraganaToDiacriticForms = new Dictionary<char, char[]>
+    {
+        ['か'] = ['が'],
+        ['き'] = ['ぎ'],
+        ['く'] = ['ぐ'],
+        ['け'] = ['げ'],
+        ['こ'] = ['ご'],
+        ['さ'] = ['ざ'],
+        ['し'] = ['じ'],
+        ['す'] = ['ず'],
+        ['せ'] = ['ぜ'],
+        ['そ'] = ['ぞ'],
+        ['た'] = ['だ'],
+        ['ち'] = ['ぢ', 'じ'],
+        ['つ'] = ['づ', 'ず'],
+        ['て'] = ['で'],
+        ['と'] = ['ど'],
+        ['は'] = ['ば', 'ぱ'],
+        ['ひ'] = ['び', 'ぴ'],
+        ['ふ'] = ['ぶ', 'ぷ'],
+        ['へ'] = ['べ', 'ぺ'],
+        ['ほ'] = ['ぼ', 'ぽ'],
+    }.ToFrozenDictionary();
+
+    private static readonly FrozenDictionary<char, char> GodanVerbEndingToMasuInflection = new Dictionary<char, char>
+    {
+        ['く'] = 'き',
+        ['ぐ'] = 'ぎ',
+        ['す'] = 'し',
+        ['ず'] = 'じ',
+        ['む'] = 'み',
+        ['る'] = 'り',
+        ['ぶ'] = 'び',
+        ['う'] = 'い',
+    }.ToFrozenDictionary();
 
     public override string ToString()
     {
