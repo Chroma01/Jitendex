@@ -46,24 +46,6 @@ public class Service
         _solvers.Reverse();
     }
 
-    /// <summary>
-    /// Starts the process of associating a furigana string to vocab.
-    /// </summary>
-    /// <returns>The furigana vocab entries.</returns>
-    public async IAsyncEnumerable<Solution?> SolveRangeAsync(IEnumerable<VocabEntry> vocab)
-    {
-        var processingTasks = new List<Task<Solution?>>();
-        foreach (var v in vocab)
-        {
-            var task = Task.Run(() => Solve(v));
-            processingTasks.Add(task);
-        }
-        await foreach (var task in Task.WhenEach(processingTasks))
-        {
-            yield return await task;
-        }
-    }
-
     public Solution? Solve(VocabEntry v)
     {
         // TODO: These checks should be done when constructing the vocab?
@@ -77,14 +59,14 @@ public class Service
 
     private Solution? Process(VocabEntry v)
     {
-        var solutionSet = new SolutionSet(v);
+        var solutionSet = new SolutionSet();
         int priority = _solvers.First().Priority;
 
         foreach (var solver in _solvers)
         {
             if (solver.Priority < priority)
             {
-                if (solutionSet.Any())
+                if (solutionSet.Count > 0)
                 {
                     // Priority goes down and we already have solutions.
                     // Stop solving.
@@ -95,8 +77,8 @@ public class Service
             }
             // Add all solutions if they are correct and unique.
             var solutions = solver.Solve(v);
-            solutionSet.AddRange(solutions);
+            solutionSet.Add(solutions);
         }
-        return solutionSet.GetSingleSolution()?.ToTextSolution();
+        return solutionSet.GetSolution();
     }
 }

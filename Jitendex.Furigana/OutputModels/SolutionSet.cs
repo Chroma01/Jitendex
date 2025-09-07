@@ -17,49 +17,39 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.InputModels;
-
 namespace Jitendex.Furigana.OutputModels;
 
 /// <summary>
 /// Contains a set of furigana solutions that solves a vocab entry.
 /// </summary>
-internal class SolutionSet(VocabEntry vocab)
+internal class SolutionSet()
 {
-    public List<IndexedSolution> Solutions { get; set; } = [];
-    public VocabEntry Vocab { get; set; } = vocab;
+    private readonly List<IndexedSolution> _solutions = [];
 
-    public bool Any() => Solutions.Count != 0;
+    public int Count { get => _solutions.Count; }
 
-    public IndexedSolution? GetSingleSolution()
+    public void Add(IEnumerable<IndexedSolution> solutions)
     {
-        return Solutions.Count == 1 ? Solutions.First() : null;
-    }
-
-    public bool Add(IndexedSolution solution)
-    {
-        if (!solution.Check())
-        {
-            return false;
-        }
-        if (Solutions.Any(s => s.Equals(solution)))
-        {
-            return false;
-        }
-        Solutions.Add(solution);
-        return true;
-    }
-
-    public int AddRange(IEnumerable<IndexedSolution> solutions)
-    {
-        int count = 0;
         foreach (var solution in solutions)
         {
-            if (Add(solution))
-            {
-                count++;
-            }
+            Add(solution);
         }
-        return count;
+    }
+
+    private void Add(IndexedSolution solution)
+    {
+        if (!solution.Check())
+            return;
+        if (_solutions.Any(s => s.Equals(solution)))
+            return;
+        _solutions.Add(solution);
+    }
+
+    public Solution? GetSolution()
+    {
+        if (Count == 1)
+            return _solutions.First().ToTextSolution();
+        else
+            return null;
     }
 }

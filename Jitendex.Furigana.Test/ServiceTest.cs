@@ -132,7 +132,8 @@ public class ServiceTest
     {
         // These kanji readings are all in kanjidic2 except for
         // 兄・にい, 姉・ねえ, and 母・かあ.
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeResourceSet(
+        new()
         {
             ['御'] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
             ['兄'] = ["ケイ", "キョウ", "あに", "にい"],
