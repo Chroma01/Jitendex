@@ -17,33 +17,32 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
 using System.Text;
 
 namespace Jitendex.Furigana.InputModels;
 
 public class ResourceSet
 {
-    private readonly Dictionary<Rune, Kanji> _kanjiDictionary = [];
-    private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
-
-    public ResourceSet() : this([], []) { }
+    private readonly FrozenDictionary<int, Kanji> _kanjiDictionary;
+    private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
 
     public ResourceSet(IEnumerable<Kanji> kanji) : this(kanji, []) { }
 
     public ResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanji
-            .Select(x => new KeyValuePair<Rune, Kanji>(x.Character, x))
-            .ToDictionary();
+            .Select(x => new KeyValuePair<int, Kanji>(x.Character.Value, x))
+            .ToFrozenDictionary();
 
         _specialExpressions = specialExpressions
             .Select(x => new KeyValuePair<string, SpecialExpression>(x.Expression, x))
-            .ToDictionary();
+            .ToFrozenDictionary();
     }
 
     public Kanji? GetKanji(Rune c)
     {
-        if (_kanjiDictionary.TryGetValue(c, out Kanji? kanji))
+        if (_kanjiDictionary.TryGetValue(c.Value, out Kanji? kanji))
             return kanji;
         else
             return null;
