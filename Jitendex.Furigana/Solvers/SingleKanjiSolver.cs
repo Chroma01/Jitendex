@@ -30,7 +30,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         Priority = 1;  // Priority up because it's quick and guarantees the only correct solution when appliable.
     }
 
-    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         if (!EligibleForThisSolution(v)) yield break;
 

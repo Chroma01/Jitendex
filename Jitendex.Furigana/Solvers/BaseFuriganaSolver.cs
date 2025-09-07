@@ -28,27 +28,11 @@ internal interface IFuriganaSolver : IComparable<IFuriganaSolver>
     IEnumerable<IndexedSolution> Solve(VocabEntry v);
 }
 
-/// <summary>
-/// A class that aims to provide the furigana business with solutions for tested
-/// vocab entries.
-/// </summary>
 internal abstract class FuriganaSolver : IFuriganaSolver
 {
     public int Priority { get; set; }
 
-    public IEnumerable<IndexedSolution> Solve(VocabEntry v)
-    {
-        foreach (var solution in DoSolve(v))
-        {
-            if (!solution.Check())
-            {
-                throw new Exception("The solution did not pass the check test.");
-            }
-            yield return solution;
-        }
-    }
-
-    protected abstract IEnumerable<IndexedSolution> DoSolve(VocabEntry v);
+    public abstract IEnumerable<IndexedSolution> Solve(VocabEntry v);
 
     public int CompareTo(IFuriganaSolver? other)
     {

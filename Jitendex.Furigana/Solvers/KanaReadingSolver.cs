@@ -38,7 +38,7 @@ internal class KanaReadingSolver : FuriganaSolver
     /// Attempts to solve furigana by reading the kana string and attributing kanji a reading based
     /// not on the readings of the kanji, but on the kana characters that come up.
     /// </summary>
-    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         // Basically, we are reading the kanji reading character by character, eating the kana from
         // the kana reading and associating each kanji the piece of kana that comes next.

@@ -28,7 +28,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
     /// <summary>
     /// Solves cases where the kanji reading consists in a repeated kanji.
     /// </summary>
-    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         var runes = v.KanjiFormRunes;
 

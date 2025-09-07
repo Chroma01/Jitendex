@@ -40,7 +40,7 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// Attempts to solve furigana by reading the kanji reading string and finding matching kanji
     /// kanji readings.
     /// </summary>
-    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         foreach (var solution in TryReading(v, 0, 0, []))
         {

@@ -34,7 +34,7 @@ internal class LengthMatchSolver : FuriganaSolver
     /// Attempts to solve cases where the length of the kanji reading matches the length of the
     /// kana reading.
     /// </summary>
-    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         var runes = v.KanjiFormRunes;
         if (runes.Count != v.ReadingText.Length)

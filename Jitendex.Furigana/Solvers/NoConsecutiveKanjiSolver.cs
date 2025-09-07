@@ -30,7 +30,7 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,
     /// using regular expressions.
     /// </summary>
-    protected override IEnumerable<IndexedSolution> DoSolve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         // We are using both a greedy expression and a lazy expression because we want to make sure
         // there is only one way to read them. If the result differs with a greedy or a lazy expression,
