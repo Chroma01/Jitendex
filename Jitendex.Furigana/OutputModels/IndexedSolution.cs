@@ -91,7 +91,7 @@ internal class IndexedSolution
 
     public override bool Equals(object? obj) =>
         obj is IndexedSolution other &&
-        Vocab.Equals(other.Vocab) &&  // Pointless; vocabs will always reference the same object
+        (ReferenceEquals(Vocab, other.Vocab) || Vocab.Equals(other.Vocab)) &&
         Parts.SequenceEqual(other.Parts);
 
     public override int GetHashCode() =>
