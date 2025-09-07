@@ -88,9 +88,4 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
 
         return repeaterIndices;
     }
-
-    public override string ToString()
-    {
-        return $"{KanjiFormText}{Separator.FileField}{ReadingText}";
-    }
 }

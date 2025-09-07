@@ -25,18 +25,23 @@ namespace Jitendex.Furigana.Test;
 
 public static class FuriganaSolutionParser
 {
+    private const char MultiValueSeparator = ';';
+    private const char AssociationSeparator = ':';
+    private const char RangeSeparator = '-';
+    private const char FileFieldSeparator = '|';
+
     public static IndexedSolution Parse(string s, VocabEntry v)
     {
         var parts = new List<IndexedFurigana>();
-        var partSplit = s.Split(Separator.MultiValue);
+        var partSplit = s.Split(MultiValueSeparator);
 
         foreach (var partString in partSplit)
         {
-            var fieldSeparator = partString.Split(Separator.Association);
+            var fieldSeparator = partString.Split(AssociationSeparator);
 
             if (fieldSeparator.Length != 2)
             {
-                throw new Exception($"partstring `{partString}` should contain one and only one separator `{Separator.Association}`");
+                throw new Exception($"partstring `{partString}` should contain one and only one separator `{AssociationSeparator}`");
             }
 
             var indexesString = fieldSeparator[0];
@@ -44,7 +49,7 @@ public static class FuriganaSolutionParser
 
             int minIndex, maxIndex;
 
-            var indexSplit = indexesString.Split(Separator.Range);
+            var indexSplit = indexesString.Split(RangeSeparator);
             if (indexSplit.Length == 2)
             {
                 minIndex = int.Parse(indexSplit[0]);

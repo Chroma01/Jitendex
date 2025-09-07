@@ -48,24 +48,6 @@ public class IndexedSolution
         return new TextSolution(this);
     }
 
-    public override string ToString()
-    {
-        return string.Join
-        (
-            Separator.FileField,
-            new string[]
-            {
-                Vocab.KanjiFormText,
-                Vocab.ReadingText,
-                string.Join
-                (
-                    Separator.MultiValue,
-                    Parts.Select(x => x.ToString()).ToArray()
-                )
-            }
-        );
-    }
-
     public override bool Equals(object? obj)
     {
         if (obj is IndexedSolution other)
