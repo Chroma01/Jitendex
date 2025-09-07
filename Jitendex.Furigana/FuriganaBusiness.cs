@@ -29,7 +29,7 @@ public class FuriganaBusiness
 {
     private readonly List<IFuriganaSolver> _solvers;
 
-    public FuriganaBusiness(FuriganaResourceSet resourceSet)
+    public FuriganaBusiness(ResourceSet resourceSet)
     {
         _solvers =
         [
@@ -49,9 +49,9 @@ public class FuriganaBusiness
     /// Starts the process of associating a furigana string to vocab.
     /// </summary>
     /// <returns>The furigana vocab entries.</returns>
-    public async IAsyncEnumerable<FuriganaSolutionSet> SolveRangeAsync(IEnumerable<VocabEntry> vocab)
+    public async IAsyncEnumerable<SolutionSet> SolveRangeAsync(IEnumerable<VocabEntry> vocab)
     {
-        var processingTasks = new List<Task<FuriganaSolutionSet>>();
+        var processingTasks = new List<Task<SolutionSet>>();
         foreach (var v in vocab)
         {
             var task = Task.Run(() => Solve(v));
@@ -63,20 +63,20 @@ public class FuriganaBusiness
         }
     }
 
-    public FuriganaSolutionSet Solve(VocabEntry v)
+    public SolutionSet Solve(VocabEntry v)
     {
         // TODO: These checks should be done when constructing the vocab?
         if (string.IsNullOrWhiteSpace(v.KanjiFormText) || string.IsNullOrWhiteSpace(v.ReadingText))
         {
             // Cannot solve when we do not have a kanji form or reading.
-            return new FuriganaSolutionSet(v);
+            return new SolutionSet(v);
         }
         return Process(v);
     }
 
-    private FuriganaSolutionSet Process(VocabEntry v)
+    private SolutionSet Process(VocabEntry v)
     {
-        var solutionSet = new FuriganaSolutionSet(v);
+        var solutionSet = new SolutionSet(v);
         int priority = _solvers.First().Priority;
 
         foreach (var solver in _solvers)

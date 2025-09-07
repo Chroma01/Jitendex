@@ -22,7 +22,7 @@ namespace Jitendex.Furigana.Models;
 /// <summary>
 /// Contains a set of furigana solutions that solves a vocab entry.
 /// </summary>
-public class FuriganaSolutionSet(VocabEntry vocab)
+public class SolutionSet(VocabEntry vocab)
 {
     public List<IndexedSolution> Solutions { get; set; } = [];
     public VocabEntry Vocab { get; set; } = vocab;

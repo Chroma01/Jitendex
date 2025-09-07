@@ -26,9 +26,9 @@ namespace Jitendex.Furigana.Solvers;
 internal class KanaReadingSolver : FuriganaSolver
 {
     private static readonly FrozenSet<char> _impossibleCutStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
-    private readonly FuriganaResourceSet _resourceSet;
+    private readonly ResourceSet _resourceSet;
 
-    public KanaReadingSolver(FuriganaResourceSet resourceSet)
+    public KanaReadingSolver(ResourceSet resourceSet)
     {
         _resourceSet = resourceSet;
     }

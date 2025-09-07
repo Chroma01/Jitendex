@@ -28,9 +28,9 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// Defines the maximal number of kana that can be attributed to a single kanji (performance trick).
     /// </summary>
     private static readonly int MaxKanaPerKanji = 4;
-    private readonly FuriganaResourceSet _resourceSet;
+    private readonly ResourceSet _resourceSet;
 
-    public KanjiReadingSolver(FuriganaResourceSet resourceSet)
+    public KanjiReadingSolver(ResourceSet resourceSet)
     {
         _resourceSet = resourceSet;
     }

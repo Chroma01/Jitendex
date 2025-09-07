@@ -21,16 +21,16 @@ using System.Text;
 
 namespace Jitendex.Furigana.Models;
 
-public class FuriganaResourceSet
+public class ResourceSet
 {
     private readonly Dictionary<Rune, Kanji> _kanjiDictionary = [];
     private readonly Dictionary<string, SpecialExpression> _specialExpressions = [];
 
-    public FuriganaResourceSet() : this([], []) { }
+    public ResourceSet() : this([], []) { }
 
-    public FuriganaResourceSet(IEnumerable<Kanji> kanji) : this(kanji, []) { }
+    public ResourceSet(IEnumerable<Kanji> kanji) : this(kanji, []) { }
 
-    public FuriganaResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
+    public ResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanji
             .Select(x => new KeyValuePair<Rune, Kanji>(x.Character, x))

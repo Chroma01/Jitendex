@@ -38,7 +38,7 @@ public class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
                 "Starting position must be non-negative");
         if (endIndex < startIndex)
             throw new ArgumentOutOfRangeException(nameof(endIndex),
-                "End position must be after the start position");
+                "End position must be greater than or equal to the start position");
 
         Value = value;
         StartIndex = startIndex;
