@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
 using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.OutputModels;
@@ -48,30 +47,27 @@ internal class IndexedSolution
         return new Solution
         {
             Vocab = Vocab,
-            Parts = MakeTextSolutionParts(),
+            Parts = [.. EnumerateTextSolutionParts()],
         };
     }
 
-    private ImmutableList<Solution.Part> MakeTextSolutionParts()
+    private IEnumerable<Solution.Part> EnumerateTextSolutionParts()
     {
-        var parts = new List<Solution.Part>();
         var runes = Vocab.RawKanjiFormRunes;
-        foreach (var (value, start, end) in GetExplicitParts())
+        foreach (var (value, start, end) in EnumerateAllRanges())
         {
             var baseText = string.Join("", runes.GetRange(start, end - start + 1));
-            parts.Add(new Solution.Part(baseText, value));
+            yield return new Solution.Part(baseText, value);
         }
-        return parts.ToImmutableList();
     }
 
-    private List<(string? value, int start, int end)> GetExplicitParts()
+    private IEnumerable<(string? value, int start, int end)> EnumerateAllRanges()
     {
-        var parts = new List<(string?, int, int)>();
-        var runes = Vocab.KanjiFormRunes;
+        int runeCount = Vocab.KanjiFormRunes.Count;
         int? emptyRangeStart = null;
-        for (int i = 0; i < runes.Count; i++)
+        for (int i = 0; i < runeCount; i++)
         {
-            var indexedFurigana = Parts.FirstOrDefault(f => f.StartIndex == i);
+            var indexedFurigana = Parts.FirstOrDefault(x => x.StartIndex == i);
             if (indexedFurigana is null)
             {
                 emptyRangeStart ??= i;
@@ -79,17 +75,16 @@ internal class IndexedSolution
             }
             if (emptyRangeStart is not null)
             {
-                parts.Add(new(null, (int)emptyRangeStart, i - 1));
+                yield return new(null, (int)emptyRangeStart, i - 1);
                 emptyRangeStart = null;
             }
-            parts.Add(new(indexedFurigana.Value, indexedFurigana.StartIndex, indexedFurigana.EndIndex));
+            yield return new(indexedFurigana.Value, indexedFurigana.StartIndex, indexedFurigana.EndIndex);
             i = indexedFurigana.EndIndex;
         }
         if (emptyRangeStart is not null)
         {
-            parts.Add(new(null, (int)emptyRangeStart, runes.Count - 1));
+            yield return new(null, (int)emptyRangeStart, runeCount - 1);
         }
-        return parts;
     }
 
     public override bool Equals(object? obj)

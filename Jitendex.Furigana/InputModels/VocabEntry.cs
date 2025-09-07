@@ -35,7 +35,7 @@ public class VocabEntry
         KanjiFormText = kanjiFormText;
         ReadingText = readingText;
         IsName = isName;
-        RawKanjiFormRunes = kanjiFormText.EnumerateRunes().ToImmutableList();
+        RawKanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
         KanjiFormRunes = CreateKanjiFormRunes(RawKanjiFormRunes);
     }
 
@@ -64,7 +64,7 @@ public class VocabEntry
                 runes.Add(rawRunes[i]);
             }
         }
-        return runes.ToImmutableList();
+        return [.. runes];
     }
 
     private static HashSet<int> GetRepeaterIndices(IList<Rune> rawRunes)

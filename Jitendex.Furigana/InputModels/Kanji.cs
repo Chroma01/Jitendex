@@ -34,7 +34,7 @@ public class Kanji
     public Kanji(Rune character, IList<string> readings)
     {
         Character = character;
-        Readings = readings.ToImmutableList();
+        Readings = [.. readings];
         NameReadings = [];
         _readingsWithNameReadings = Readings;
     }
@@ -42,8 +42,8 @@ public class Kanji
     public Kanji(Rune character, IList<string> readings, IList<string> nameReadings)
     {
         Character = character;
-        Readings = readings.ToImmutableList();
-        NameReadings = nameReadings.ToImmutableList();
+        Readings = [.. readings];
+        NameReadings = [.. nameReadings];
         _readingsWithNameReadings = readings.Union(nameReadings).ToImmutableList();
     }
 
@@ -111,7 +111,7 @@ public class Kanji
                 output.Add(reading);
         }
 
-        return output.ToList();
+        return [.. output];
     }
 
     private static IEnumerable<string> GetSmallTsuRendaku(IEnumerable<string> readings)

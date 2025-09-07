@@ -25,14 +25,8 @@ namespace Jitendex.Furigana.InputModels;
 /// Represents a special reading expression.
 /// For example, 大人 - おとな can't be cut as おと.な or お.とな.
 /// </summary>
-public class SpecialExpression
+public class SpecialExpression(string expression, IList<string> readings)
 {
-    public string Expression { get; }
-    public ImmutableList<string> Readings { get; }
-
-    public SpecialExpression(string expression, IList<string> readings)
-    {
-        Expression = expression;
-        Readings = readings.ToImmutableList();
-    }
+    public string Expression { get; } = expression;
+    public ImmutableList<string> Readings { get; } = [.. readings];
 }
