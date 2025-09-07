@@ -88,27 +88,15 @@ internal class IndexedSolution
         }
     }
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is IndexedSolution other)
-        {
-            // Compare both solutions.
-            if (Vocab != other.Vocab || Parts.Count != other.Parts.Count)
-            {
-                // Not the same vocab or not the same count of furigana parts.
-                return false;
-            }
+    public override bool Equals(object? obj) =>
+        obj is IndexedSolution other &&
+        Vocab.Equals(other.Vocab) &&
+        Parts.SequenceEqual(other.Parts);
 
-            // If there is at least one furigana part that has no equivalent in the other
-            // furigana solution, then the readings differ.
-            return Parts.All(f1 => other.Parts.Any(f2 => f1.Equals(f2)))
-                && other.Parts.All(f2 => Parts.Any(f1 => f1.Equals(f2)));
-        }
-        return base.Equals(obj);
-    }
-
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
+    public override int GetHashCode() =>
+        Parts.Aggregate
+        (
+            seed: Vocab.GetHashCode(),
+            func: (hashcode, part) => HashCode.Combine(hashcode, part.GetHashCode())
+        );
 }

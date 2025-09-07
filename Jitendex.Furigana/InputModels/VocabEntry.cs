@@ -78,16 +78,12 @@ public class VocabEntry
         return repeaterIndices;
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is VocabEntry entry &&
-               KanjiFormText == entry.KanjiFormText &&
-               ReadingText == entry.ReadingText &&
-               IsName == entry.IsName;
-    }
+    public override bool Equals(object? obj) =>
+        obj is VocabEntry entry &&
+        KanjiFormText == entry.KanjiFormText &&
+        ReadingText == entry.ReadingText &&
+        IsName == entry.IsName;
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(KanjiFormText, ReadingText, IsName);
-    }
+    public override int GetHashCode() =>
+        HashCode.Combine(KanjiFormText, ReadingText, IsName);
 }

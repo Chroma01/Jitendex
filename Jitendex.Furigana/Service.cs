@@ -59,7 +59,7 @@ public class Service
 
     private Solution? Process(VocabEntry v)
     {
-        var solutionSet = new SolutionSet();
+        var solutionSet = new HashSet<IndexedSolution>();
         int priority = _solvers.First().Priority;
 
         foreach (var solver in _solvers)
@@ -76,9 +76,13 @@ public class Service
                 priority = solver.Priority;
             }
             // Add all solutions if they are correct and unique.
-            var solutions = solver.Solve(v);
-            solutionSet.Add(solutions);
+            foreach (var solution in solver.Solve(v))
+                solutionSet.Add(solution);
         }
-        return solutionSet.GetSolution();
+
+        if (solutionSet.Count == 1)
+            return solutionSet.First().ToTextSolution();
+        else
+            return null;
     }
 }

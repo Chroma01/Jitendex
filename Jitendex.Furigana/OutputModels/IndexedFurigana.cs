@@ -45,38 +45,18 @@ internal class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
         EndIndex = endIndex;
     }
 
-    public override string ToString()
-    {
-        if (StartIndex == EndIndex)
-        {
-            return $"{StartIndex}:{Value}";
-        }
-        else
-        {
-            return $"{StartIndex}-{EndIndex}:{Value}";
-        }
-    }
+    public int CompareTo(IndexedFurigana? other) =>
+        StartIndex.CompareTo(other?.StartIndex);
 
-    public int CompareTo(IndexedFurigana? other)
-    {
-        return StartIndex.CompareTo(other?.StartIndex);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IndexedFurigana other &&
+        Value == other.Value &&
+        StartIndex == other.StartIndex &&
+        EndIndex == other.EndIndex;
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IndexedFurigana other &&
-               Value == other.Value &&
-               StartIndex == other.StartIndex &&
-               EndIndex == other.EndIndex;
-    }
+    public override int GetHashCode() =>
+        HashCode.Combine(Value, StartIndex, EndIndex);
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Value, StartIndex, EndIndex);
-    }
-
-    public object Clone()
-    {
-        return new IndexedFurigana(Value, StartIndex, EndIndex);
-    }
+    public object Clone() =>
+        new IndexedFurigana(Value, StartIndex, EndIndex);
 }
