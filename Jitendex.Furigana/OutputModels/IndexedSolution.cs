@@ -38,24 +38,6 @@ public class IndexedSolution
         Parts = parts;
     }
 
-    /// <summary>
-    /// Gets the parts covering the given index.
-    /// Remember that an invalid solution may have several parts for a given index.
-    /// </summary>
-    /// <param name="index">Target index.</param>
-    /// <returns>All parts covering the given index.</returns>
-    public List<IndexedFurigana> GetPartsForIndex(int index)
-    {
-        return Parts
-            .Where(f => f.StartIndex <= index && index <= f.EndIndex)
-            .ToList();
-    }
-
-    /// <summary>
-    /// Checks if the solution is correctly solved.
-    /// </summary>
-    /// <returns>True if the furigana covers all characters without overlapping.
-    /// False otherwise.</returns>
     public bool Check()
     {
         return IndexedSolutionChecker.Check(this);
