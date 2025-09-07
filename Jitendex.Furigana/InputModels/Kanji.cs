@@ -49,7 +49,7 @@ public class Kanji
 
     internal List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
     {
-        var output = new List<string>();
+        var output = new HashSet<string>();
         var readings = isUsedInName ? _readingsWithNameReadings : Readings;
 
         foreach (string reading in readings)
@@ -97,48 +97,46 @@ public class Kanji
             }
         }
 
-        // Add final small tsu rendaku
-        if (!isLastChar)
-        {
-            output.AddRange(GetSmallTsuRendaku(output));
-        }
-
         // Rendaku
         if (!isFirstChar)
         {
-            output.AddRange(GetAllRendaku(output));
+            foreach (var reading in GetAllRendaku([.. output]))
+                output.Add(reading);
         }
 
-        return output.Distinct().ToList();
+        // Add final small tsu rendaku
+        if (!isLastChar)
+        {
+            foreach (var reading in GetSmallTsuRendaku([.. output]))
+                output.Add(reading);
+        }
+
+        return output.ToList();
     }
 
-    private static List<string> GetSmallTsuRendaku(IEnumerable<string> readings)
+    private static IEnumerable<string> GetSmallTsuRendaku(IEnumerable<string> readings)
     {
-        var newReadings = new List<string>();
         foreach (var reading in readings)
         {
             if (SmallTsuRendakus.Contains(reading.Last()))
             {
-                newReadings.Add(reading[..^1] + "っ");
+                yield return reading[..^1] + "っ";
             }
         }
-        return newReadings;
     }
 
-    private static List<string> GetAllRendaku(IEnumerable<string> readings)
+    private static IEnumerable<string> GetAllRendaku(IEnumerable<string> readings)
     {
-        var newReadings = new List<string>();
         foreach (var reading in readings)
         {
             if (HiraganaToDiacriticForms.TryGetValue(reading.First(), out char[]? rendakuChars))
             {
                 foreach (var rendakuChar in rendakuChars)
                 {
-                    newReadings.Add(rendakuChar + reading[1..]);
+                    yield return rendakuChar + reading[1..];
                 }
             }
         }
-        return newReadings;
     }
 
     private static readonly FrozenSet<char> SmallTsuRendakus = ['つ', 'く', 'き', 'ち'];

@@ -40,18 +40,18 @@ public class ResourceSet
             .ToFrozenDictionary();
     }
 
-    public Kanji? GetKanji(Rune c)
+    public Kanji? GetKanji(Rune character)
     {
-        if (_kanjiDictionary.TryGetValue(c.Value, out Kanji? kanji))
+        if (_kanjiDictionary.TryGetValue(character.Value, out Kanji? kanji))
             return kanji;
         else
             return null;
     }
 
-    public SpecialExpression? GetExpression(string s)
+    public SpecialExpression? GetExpression(string text)
     {
-        if (_specialExpressions.TryGetValue(s, out SpecialExpression? exp))
-            return exp;
+        if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
+            return expression;
         else
             return null;
     }
