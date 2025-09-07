@@ -46,7 +46,7 @@ internal static class IndexedSolutionChecker
         // Check condition 1.
         if (Enumerable.Range(0, runes.Count).Any(i => solution.Parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
-            // There are multiple furigana parts that are appliable for a given index.
+            // There are multiple furigana parts that are applicable for a given index.
             // This constitutes an overlap and results in the check being negative.
             // Condition 1 failed.
             return false;

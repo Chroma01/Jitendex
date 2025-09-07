@@ -39,6 +39,7 @@ internal class IndexedSolution
 
         if (!IndexedSolutionChecker.Check(this))
         {
+            // TODO: More details
             throw new ArgumentException("Invalid solution parts for this vocab entry");
         }
     }
