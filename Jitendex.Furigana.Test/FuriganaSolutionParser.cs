@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
-using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.Test;
 
@@ -28,9 +27,8 @@ public static class FuriganaSolutionParser
     private const char MultiValueSeparator = ';';
     private const char AssociationSeparator = ':';
     private const char RangeSeparator = '-';
-    private const char FileFieldSeparator = '|';
 
-    public static IndexedSolution Parse(string s, VocabEntry v)
+    public static Solution Parse(string s, VocabEntry v)
     {
         var parts = new List<IndexedFurigana>();
         var partSplit = s.Split(MultiValueSeparator);
@@ -68,6 +66,6 @@ public static class FuriganaSolutionParser
             parts.Add(new IndexedFurigana(furiganaValue, minIndex, maxIndex));
         }
 
-        return new IndexedSolution(v, parts);
+        return new IndexedSolution(v, parts).ToTextSolution();
     }
 }

@@ -27,7 +27,7 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
     private ImmutableList<Rune>? _rawKanjiFormRunes;
     private ImmutableList<Rune>? _kanjiFormRunes;
 
-    public ImmutableList<Rune> RawKanjiFormRunes()
+    internal ImmutableList<Rune> RawKanjiFormRunes()
     {
         if (_rawKanjiFormRunes is not null)
             return _rawKanjiFormRunes;
@@ -41,7 +41,7 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
         return _rawKanjiFormRunes;
     }
 
-    public ImmutableList<Rune> KanjiFormRunes()
+    internal ImmutableList<Rune> KanjiFormRunes()
     {
         if (_kanjiFormRunes is not null)
             return _kanjiFormRunes;
@@ -77,14 +77,12 @@ public record VocabEntry(string KanjiFormText, string ReadingText, bool IsName =
     private HashSet<int> GetRepeaterIndices()
     {
         var repeaterIndices = new HashSet<int>();
-
         var rawRunes = RawKanjiFormRunes();
         for (int i = 0; i < rawRunes.Count; i++)
         {
             if (rawRunes[i].Value == '々')
                 repeaterIndices.Add(i);
         }
-
         return repeaterIndices;
     }
 }

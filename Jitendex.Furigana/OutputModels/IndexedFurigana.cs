@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Furigana.OutputModels;
 
-public class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
+internal class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
 {
     public string Value { get; }
     public int StartIndex { get; }

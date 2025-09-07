@@ -50,9 +50,9 @@ public class Service
     /// Starts the process of associating a furigana string to vocab.
     /// </summary>
     /// <returns>The furigana vocab entries.</returns>
-    public async IAsyncEnumerable<SolutionSet> SolveRangeAsync(IEnumerable<VocabEntry> vocab)
+    public async IAsyncEnumerable<Solution?> SolveRangeAsync(IEnumerable<VocabEntry> vocab)
     {
-        var processingTasks = new List<Task<SolutionSet>>();
+        var processingTasks = new List<Task<Solution?>>();
         foreach (var v in vocab)
         {
             var task = Task.Run(() => Solve(v));
@@ -64,18 +64,18 @@ public class Service
         }
     }
 
-    public SolutionSet Solve(VocabEntry v)
+    public Solution? Solve(VocabEntry v)
     {
         // TODO: These checks should be done when constructing the vocab?
         if (string.IsNullOrWhiteSpace(v.KanjiFormText) || string.IsNullOrWhiteSpace(v.ReadingText))
         {
             // Cannot solve when we do not have a kanji form or reading.
-            return new SolutionSet(v);
+            return null;
         }
         return Process(v);
     }
 
-    private SolutionSet Process(VocabEntry v)
+    private Solution? Process(VocabEntry v)
     {
         var solutionSet = new SolutionSet(v);
         int priority = _solvers.First().Priority;
@@ -90,16 +90,13 @@ public class Service
                     // Stop solving.
                     break;
                 }
-
                 // No solutions yet. Continue with the next level of priority.
                 priority = solver.Priority;
             }
-
             // Add all solutions if they are correct and unique.
-            var solution = solver.Solve(v);
-            solutionSet.AddRange(solution);
+            var solutions = solver.Solve(v);
+            solutionSet.AddRange(solutions);
         }
-
-        return solutionSet;
+        return solutionSet.GetSingleSolution()?.ToTextSolution();
     }
 }

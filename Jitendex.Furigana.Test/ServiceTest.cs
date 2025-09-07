@@ -210,12 +210,10 @@ public class ServiceTest
     {
         var v = new VocabEntry(kanjiForm, reading);
         var furiganaService = new Service(resourceSet);
-        var result = furiganaService.Solve(v);
-        var solution = result.GetSingleSolution();
+        var solution = furiganaService.Solve(v);
         Assert.IsNotNull(solution);
 
         var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, v);
-        Assert.AreEqual(expectedSolution, solution);
-        Assert.IsTrue(solution.Check());
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 }

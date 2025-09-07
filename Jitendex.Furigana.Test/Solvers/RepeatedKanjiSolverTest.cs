@@ -87,9 +87,9 @@ public class RepeatedKanjiSolverTest
         var solutions = solver.Solve(vocab).ToList();
         Assert.HasCount(1, solutions);
 
-        var solution = solutions.First();
+        var solution = solutions.First().ToTextSolution();
         var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, vocab);
-        Assert.AreEqual(expectedSolution, solution);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
     #endregion

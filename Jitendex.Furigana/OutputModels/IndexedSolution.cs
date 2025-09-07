@@ -25,7 +25,7 @@ namespace Jitendex.Furigana.OutputModels;
 /// <summary>
 /// A vocab entry with a furigana reading string.
 /// </summary>
-public class IndexedSolution
+internal class IndexedSolution
 {
     public VocabEntry Vocab { get; set; }
     public List<IndexedFurigana> Parts { get; set; }
@@ -43,23 +43,23 @@ public class IndexedSolution
         return IndexedSolutionChecker.Check(this);
     }
 
-    public TextSolution ToTextSolution()
+    public Solution ToTextSolution()
     {
-        return new TextSolution
+        return new Solution
         {
             Vocab = Vocab,
             Parts = MakeTextSolutionParts(),
         };
     }
 
-    private ImmutableList<TextSolution.Part> MakeTextSolutionParts()
+    private ImmutableList<Solution.Part> MakeTextSolutionParts()
     {
-        var parts = new List<TextSolution.Part>();
+        var parts = new List<Solution.Part>();
         var runes = Vocab.RawKanjiFormRunes();
         foreach (var (value, start, end) in GetExplicitParts())
         {
             var baseText = string.Join("", runes.GetRange(start, end - start + 1));
-            parts.Add(new TextSolution.Part(baseText, value));
+            parts.Add(new Solution.Part(baseText, value));
         }
         return parts.ToImmutableList();
     }

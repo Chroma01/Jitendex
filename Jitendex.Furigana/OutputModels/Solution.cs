@@ -22,7 +22,7 @@ using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.OutputModels;
 
-public class TextSolution
+public class Solution
 {
     public record Part(string BaseText, string? Furigana);
 
