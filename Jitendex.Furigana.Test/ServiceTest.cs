@@ -28,17 +28,18 @@ public class ServiceTest
     [TestMethod]
     public void TestFuriganaIkkagetsu()
     {
-        var resourceSet = new ResourceSet
-        ([
-            new Kanji(new Rune('一'), ["イチ", "イツ", "ひと-", "ひと.つ"]),
-            new Kanji(new Rune('月'), ["ゲツ", "ガツ", "つき"]),
-        ],
-        [
-            new SpecialExpression("ヶ", ["か", "が"]),
-            new SpecialExpression("ヵ", ["か", "が"]),
-            new SpecialExpression("ケ", ["か", "が"]),
-        ]);
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(
+        new()
+        {
+            ['一'] = ["イチ", "イツ", "ひと-", "ひと.つ"],
+            ['月'] = ["ゲツ", "ガツ", "つき"],
+        },
+        new()
+        {
+            ["ヶ"] = ["か", "が"],
+            ["ヵ"] = ["か", "が"],
+            ["ケ"] = ["か", "が"],
+        }));
         TestFurigana("一ヶ月", "いっかげつ", "0:いっ;1:か;2:げつ", service);
         TestFurigana("一ヵ月", "いっかげつ", "0:いっ;1:か;2:げつ", service);
         TestFurigana("一ケ月", "いっかげつ", "0:いっ;1:か;2:げつ", service);
@@ -50,18 +51,22 @@ public class ServiceTest
     [TestMethod]
     public void TestFuriganaGanbaru()
     {
-        // Readings cannot begin with 'ん', so there is 1 possible solution.
-        // No need to supply any character readings.
-        var resourceSet = new ResourceSet();
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['頑'] = ["ガン", "かたく.な"],
+            ['張'] = ["チョウ", "は.る", "-は.り", "-ば.り"],
+        }));
         TestFurigana("頑張る", "がんばる", "0:がん;1:ば", service);
     }
 
     [TestMethod]
     public void TestFuriganaObocchan()
     {
-        var resourceSet = new ResourceSet();
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['御'] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
+            ['坊'] = ["ボウ", "ボッ"],
+        }));
         TestFurigana("御坊っちゃん", "おぼっちゃん", "0:お;1:ぼ", service);
     }
 
@@ -70,38 +75,43 @@ public class ServiceTest
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
-        var resourceSet = new ResourceSet();
-        var service = new Service(resourceSet);
+        var service = new Service(new ResourceSet(new List<Kanji>()
+        {
+            new("𩺊".EnumerateRunes().First(), [])
+        }));
         TestFurigana("𩺊", "あら", "0:あら", service);
     }
 
     [TestMethod]
     public void TestFuriganaIjirimawasu()
     {
-        // 1 possible solution. No need to supply any character readings.
-        var resourceSet = new ResourceSet();
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['弄'] = ["ロウ", "ル", "いじく.る", "ろう.する", "いじ.る", "ひねく.る", "たわむ.れる", "もてあそ.ぶ"],
+            ['回'] = ["カイ", "エ", "まわ.る", "-まわ.る", "-まわ.り", "まわ.す", "-まわ.す", "まわ.し-", "-まわ.し", "もとお.る", "か.える"],
+        }));
         TestFurigana("弄り回す", "いじりまわす", "0:いじ;2:まわ", service);
     }
 
     [TestMethod]
     public void TestFuriganaKassarau()
     {
-        // 1 possible solution. No need to supply any character readings.
-        var resourceSet = new ResourceSet();
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['掻'] = ["ソウ", "か.く"],
+            ['攫'] = ["カク", "さら.う", "つか.む"],
+        }));
         TestFurigana("掻っ攫う", "かっさらう", "0:か;2:さら", service);
     }
 
     [TestMethod]
     public void TestFuriganaOneesan()
     {
-        var resourceSet = new ResourceSet
-        ([
-            new Kanji(new Rune('御'), ["ギョ", "ゴ", "おん-", "お-", "み-"]),
-            new Kanji(new Rune('姉'), ["シ", "あね", "はは", "ねえ"]),
-        ]);
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['御'] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
+            ['姉'] = ["シ", "あね", "はは", "ねえ"],
+        }));
         TestFurigana("御姉さん", "おねえさん", "0:お;1:ねえ", service);
     }
 
@@ -109,11 +119,10 @@ public class ServiceTest
     public void TestFuriganaHakabakashii()
     {
         // Rendaku is applied to the second instance of 捗.
-        var resourceSet = new ResourceSet
-        ([
-            new Kanji(new Rune('捗'), ["チョク", "ホ", "はかど.る", "はか"])
-        ]);
-        var service = new Service(resourceSet);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['捗'] = ["チョク", "ホ", "はかど.る", "はか"],
+        }));
         TestFurigana("捗捗しい", "はかばかしい", "0:はか;1:ばか", service);
         TestFurigana("捗々しい", "はかばかしい", "0:はか;1:ばか", service);
     }
@@ -123,61 +132,62 @@ public class ServiceTest
     {
         // These kanji readings are all in kanjidic2 except for
         // 兄・にい, 姉・ねえ, and 母・かあ.
-        var resourceSet = new ResourceSet
-        ([
-            new Kanji(new Rune('御'), ["ギョ", "ゴ", "おん-", "お-", "み-"]),
-            new Kanji(new Rune('兄'), ["ケイ", "キョウ", "あに", "にい"]),
-            new Kanji(new Rune('姉'), ["シ", "あね", "はは", "ねえ"]),
-            new Kanji(new Rune('母'), ["ボ", "はは", "も", "かあ"]),
-            new Kanji(new Rune('抑'), ["ヨク", "おさ.える"]),
-            new Kanji(new Rune('犇'), ["ホン", "ひし.めく", "ひしひし", "はし.る"]),
-            new Kanji(new Rune('険'), ["ケン", "けわ.しい"]),
-            new Kanji(new Rune('路'), ["ロ", "ル", "-じ", "みち"]),
-            new Kanji(new Rune('芝'), ["シ", "しば"]),
-            new Kanji(new Rune('生'), ["セイ", "ショウ", "い.きる", "い.かす", "い.ける", "う.まれる", "うま.れる", "う.まれ", "うまれ", "う.む", "お.う", "は.える", "は.やす", "き", "なま", "なま-", "な.る", "な.す", "む.す", "-う"]),
-            new Kanji(new Rune('純'), ["ジュン"]),
-            new Kanji(new Rune('日'), ["ニチ", "ジツ", "ひ", "-び", "-か"]),
-            new Kanji(new Rune('本'), ["ホン", "もと"]),
-            new Kanji(new Rune('風'), ["フウ", "フ", "かぜ", "かざ-"]),
-            new Kanji(new Rune('真'), ["シン", "ま", "ま-", "まこと"]),
-            new Kanji(new Rune('珠'), ["シュ", "たま"]),
-            new Kanji(new Rune('湾'), ["ワン", "いりえ"]),
-            new Kanji(new Rune('草'), ["ソウ", "くさ", "くさ-", "-ぐさ"]),
-            new Kanji(new Rune('履'), ["リ", "は.く"]),
-            new Kanji(new Rune('大'), ["ダイ", "タイ", "おお-", "おお.きい", "-おお.いに"]),
-            new Kanji(new Rune('和'), ["ワ", "オ", "カ", "やわ.らぐ", "やわ.らげる", "なご.む", "なご.やか", "あ.える"]),
-            new Kanji(new Rune('魂'), ["コン", "たましい", "たま"]),
-            new Kanji(new Rune('竹'), ["チク", "たけ"]),
-            new Kanji(new Rune('刀'), ["トウ", "かたな", "そり"]),
-            new Kanji(new Rune('東'), ["トウ", "ひがし"]),
-            new Kanji(new Rune('京'), ["キョウ", "ケイ", "キン", "みやこ"]),
-            new Kanji(new Rune('学'), ["ガク", "まな.ぶ"]),
-            new Kanji(new Rune('者'), ["シャ", "もの"]),
-            new Kanji(new Rune('製'), ["セイ"]),
-            new Kanji(new Rune('側'), ["ソク", "かわ", "がわ", "そば"]),
-            new Kanji(new Rune('木'), ["ボク", "モク", "き", "こ-"]),
-            new Kanji(new Rune('葉'), ["ヨウ", "は"]),
-            new Kanji(new Rune('余'), ["ヨ", "あま.る", "あま.り", "あま.す", "あんま.り"]),
-            new Kanji(new Rune('所'), ["ショ", "ところ", "-ところ", "どころ", "とこ"]),
-            new Kanji(new Rune('見'), ["ケン", "み.る", "み.える", "み.せる"]),
-            new Kanji(new Rune('嗹'), ["レン", "おしゃべり"]),
-            new Kanji(new Rune('愈'), ["ユ", "いよいよ", "まさ.る"]),
-            new Kanji(new Rune('偶'), ["グウ", "たま"]),
-            new Kanji(new Rune('益'), ["エキ", "ヤク", "ま.す"]),
-            new Kanji(new Rune('邪'), ["ジャ", "よこし.ま"]),
-            new Kanji(new Rune('薬'), ["ヤク", "くすり"]),
-            new Kanji(new Rune('独'), ["ドク", "トク", "ひと.り"]),
-            new Kanji(new Rune('協'), ["キョウ"]),
-            new Kanji(new Rune('会'), ["カイ", "エ", "あ.う", "あ.わせる", "あつ.まる"]),
-        ],
-        [
-            new SpecialExpression("芝生", ["しばふ"]),
-            new SpecialExpression("草履", ["ぞうり"]),
-            new SpecialExpression("日本", ["にほん"]),
-            new SpecialExpression("大和", ["やまと"]),
-            new SpecialExpression("竹刀", ["しない"]),
-            new SpecialExpression("風邪", ["かぜ"]),
-        ]);
+        var service = new Service(MakeResourceSet(new()
+        {
+            ['御'] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
+            ['兄'] = ["ケイ", "キョウ", "あに", "にい"],
+            ['姉'] = ["シ", "あね", "はは", "ねえ"],
+            ['母'] = ["ボ", "はは", "も", "かあ"],
+            ['抑'] = ["ヨク", "おさ.える"],
+            ['犇'] = ["ホン", "ひし.めく", "ひしひし", "はし.る"],
+            ['険'] = ["ケン", "けわ.しい"],
+            ['路'] = ["ロ", "ル", "-じ", "みち"],
+            ['芝'] = ["シ", "しば"],
+            ['生'] = ["セイ", "ショウ", "い.きる", "い.かす", "い.ける", "う.まれる", "うま.れる", "う.まれ", "うまれ", "う.む", "お.う", "は.える", "は.やす", "き", "なま", "なま-", "な.る", "な.す", "む.す", "-う"],
+            ['純'] = ["ジュン"],
+            ['日'] = ["ニチ", "ジツ", "ひ", "-び", "-か"],
+            ['本'] = ["ホン", "もと"],
+            ['風'] = ["フウ", "フ", "かぜ", "かざ-"],
+            ['真'] = ["シン", "ま", "ま-", "まこと"],
+            ['珠'] = ["シュ", "たま"],
+            ['湾'] = ["ワン", "いりえ"],
+            ['草'] = ["ソウ", "くさ", "くさ-", "-ぐさ"],
+            ['履'] = ["リ", "は.く"],
+            ['大'] = ["ダイ", "タイ", "おお-", "おお.きい", "-おお.いに"],
+            ['和'] = ["ワ", "オ", "カ", "やわ.らぐ", "やわ.らげる", "なご.む", "なご.やか", "あ.える"],
+            ['魂'] = ["コン", "たましい", "たま"],
+            ['竹'] = ["チク", "たけ"],
+            ['刀'] = ["トウ", "かたな", "そり"],
+            ['東'] = ["トウ", "ひがし"],
+            ['京'] = ["キョウ", "ケイ", "キン", "みやこ"],
+            ['学'] = ["ガク", "まな.ぶ"],
+            ['者'] = ["シャ", "もの"],
+            ['製'] = ["セイ"],
+            ['側'] = ["ソク", "かわ", "がわ", "そば"],
+            ['木'] = ["ボク", "モク", "き", "こ-"],
+            ['葉'] = ["ヨウ", "は"],
+            ['余'] = ["ヨ", "あま.る", "あま.り", "あま.す", "あんま.り"],
+            ['所'] = ["ショ", "ところ", "-ところ", "どころ", "とこ"],
+            ['見'] = ["ケン", "み.る", "み.える", "み.せる"],
+            ['嗹'] = ["レン", "おしゃべり"],
+            ['愈'] = ["ユ", "いよいよ", "まさ.る"],
+            ['偶'] = ["グウ", "たま"],
+            ['益'] = ["エキ", "ヤク", "ま.す"],
+            ['邪'] = ["ジャ", "よこし.ま"],
+            ['薬'] = ["ヤク", "くすり"],
+            ['独'] = ["ドク", "トク", "ひと.り"],
+            ['協'] = ["キョウ"],
+            ['会'] = ["カイ", "エ", "あ.う", "あ.わせる", "あつ.まる"],
+        },
+        new()
+        {
+            ["芝生"] = ["しばふ"],
+            ["草履"] = ["ぞうり"],
+            ["日本"] = ["にほん"],
+            ["大和"] = ["やまと"],
+            ["竹刀"] = ["しない"],
+            ["風邪"] = ["かぜ"],
+        }));
         var testData = new[]
         {
             ("御兄さん", "おにいさん", "0:お;1:にい"),
@@ -208,7 +218,6 @@ public class ServiceTest
             ("風邪薬", "かぜぐすり", "0-1:かぜ;2:ぐすり"),
             ("日独協会", "にちどくきょうかい", "0:にち;1:どく;2:きょう;3:かい"),
         };
-        var service = new Service(resourceSet);
         foreach (var (kanjiForm, reading, expectedFurigana) in testData)
         {
             TestFurigana(kanjiForm, reading, expectedFurigana, service);
@@ -217,11 +226,25 @@ public class ServiceTest
 
     private static void TestFurigana(string kanjiForm, string reading, string expectedFurigana, Service service)
     {
-        var v = new VocabEntry(kanjiForm, reading);
-        var solution = service.Solve(v);
+        var vocab = new VocabEntry(kanjiForm, reading);
+        var solution = service.Solve(vocab);
         Assert.IsNotNull(solution);
 
-        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, v);
+        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, vocab);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
+    }
+
+    public static ResourceSet MakeResourceSet(Dictionary<char, List<string>> kanjiInfo)
+    {
+        return MakeResourceSet(kanjiInfo, new());
+    }
+
+    public static ResourceSet MakeResourceSet(Dictionary<char, List<string>> kanjiInfo, Dictionary<string, List<string>> specialExpressionInfo)
+    {
+        return new ResourceSet
+        (
+            kanji: kanjiInfo.Select(x => new Kanji(new Rune(x.Key), x.Value)),
+            specialExpressions: specialExpressionInfo.Select(x => new SpecialExpression(x.Key, x.Value))
+        );
     }
 }
