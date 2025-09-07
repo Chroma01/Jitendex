@@ -38,8 +38,6 @@ internal class SolutionSet()
 
     private void Add(IndexedSolution solution)
     {
-        if (!solution.Check())
-            return;
         if (_solutions.Any(s => s.Equals(solution)))
             return;
         _solutions.Add(solution);

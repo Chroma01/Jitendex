@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.OutputModels;
@@ -27,7 +28,7 @@ namespace Jitendex.Furigana.OutputModels;
 internal class IndexedSolution
 {
     public VocabEntry Vocab { get; }
-    public List<IndexedFurigana> Parts { get; }
+    public ImmutableList<IndexedFurigana> Parts { get; }
 
     public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
 
@@ -35,11 +36,11 @@ internal class IndexedSolution
     {
         Vocab = vocab;
         Parts = [.. parts];
-    }
 
-    public bool Check()
-    {
-        return IndexedSolutionChecker.Check(this);
+        if (!IndexedSolutionChecker.Check(this))
+        {
+            throw new ArgumentException("Invalid solution parts for this vocab entry");
+        }
     }
 
     public Solution ToTextSolution()
