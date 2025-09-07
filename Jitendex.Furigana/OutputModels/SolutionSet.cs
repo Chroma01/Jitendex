@@ -62,18 +62,4 @@ public class SolutionSet(VocabEntry vocab)
         }
         return count;
     }
-
-    public override string ToString()
-    {
-        if (Solutions.Count == 0)
-        {
-            return "???";
-        }
-
-        return string.Join
-        (
-            ", ",
-            Solutions.Select(x => x.ToString()).ToArray()
-        );
-    }
 }

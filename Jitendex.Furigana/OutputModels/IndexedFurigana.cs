@@ -75,7 +75,7 @@ public class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
 
     public override int GetHashCode()
     {
-        return base.GetHashCode();
+        return HashCode.Combine(Value, StartIndex, EndIndex);
     }
 
     public object Clone()
