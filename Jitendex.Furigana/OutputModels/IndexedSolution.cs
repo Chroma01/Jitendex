@@ -26,15 +26,15 @@ namespace Jitendex.Furigana.OutputModels;
 /// </summary>
 internal class IndexedSolution
 {
-    public VocabEntry Vocab { get; set; }
-    public List<IndexedFurigana> Parts { get; set; }
+    public VocabEntry Vocab { get; }
+    public List<IndexedFurigana> Parts { get; }
 
     public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
 
-    public IndexedSolution(VocabEntry vocab, List<IndexedFurigana> parts)
+    public IndexedSolution(VocabEntry vocab, IEnumerable<IndexedFurigana> parts)
     {
         Vocab = vocab;
-        Parts = parts;
+        Parts = [.. parts];
     }
 
     public bool Check()

@@ -64,13 +64,10 @@ internal class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
 
     public override bool Equals(object? obj)
     {
-        if (obj is IndexedFurigana other)
-        {
-            return StartIndex == other.StartIndex
-                && EndIndex == other.EndIndex
-                && Value == other.Value;
-        }
-        return base.Equals(obj);
+        return obj is IndexedFurigana other &&
+               Value == other.Value &&
+               StartIndex == other.StartIndex &&
+               EndIndex == other.EndIndex;
     }
 
     public override int GetHashCode()

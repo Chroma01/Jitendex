@@ -36,10 +36,10 @@ public class VocabEntry
         ReadingText = readingText;
         IsName = isName;
         RawKanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
-        KanjiFormRunes = CreateKanjiFormRunes(RawKanjiFormRunes);
+        KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
     }
 
-    private static ImmutableList<Rune> CreateKanjiFormRunes(IList<Rune> rawRunes)
+    private static List<Rune> CreateKanjiFormRunes(IList<Rune> rawRunes)
     {
         var runes = new List<Rune>();
         var repeaterIndices = GetRepeaterIndices(rawRunes);
@@ -64,7 +64,7 @@ public class VocabEntry
                 runes.Add(rawRunes[i]);
             }
         }
-        return [.. runes];
+        return runes;
     }
 
     private static HashSet<int> GetRepeaterIndices(IList<Rune> rawRunes)
