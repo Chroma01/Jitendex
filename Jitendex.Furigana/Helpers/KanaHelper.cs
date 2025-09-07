@@ -40,14 +40,7 @@ public static class KanaHelper
                _ => false
     };
 
-    public static bool IsKana(this Rune c) => c.Value switch
-    {
-        < 0x3041 => false,
-        < 0x3097 => true,
-        < 0x3099 => false,
-        < 0x3100 => true,
-               _ => false
-    };
+    public static bool IsKana(this Rune c) => c.IsHiragana() || c.IsKatakana();
 
     public static bool IsHiragana(this char c) => IsHiragana(new Rune(c));
     public static bool IsKatakana(this char c) => IsKatakana(new Rune(c));
