@@ -24,9 +24,33 @@ namespace Jitendex.Furigana.Helpers;
 
 public static class KanaHelper
 {
-    public static bool IsKana(this Rune c) => c.IsHiragana() || c.IsKatakana();
+    #region Public
 
-    public static bool IsHiragana(this Rune c) => c.Value switch
+    public static bool IsKana(this Rune c) => IsKana(c.Value);
+    public static bool IsHiragana(this Rune c) => IsHiragana(c.Value);
+    public static bool IsKatakana(this Rune c) => IsKatakana(c.Value);
+
+    public static bool IsKana(this char c) => IsKana((int)c);
+    public static bool IsHiragana(this char c) => IsHiragana((int)c);
+    public static bool IsKatakana(this char c) => IsKatakana((int)c);
+
+    public static bool IsAllKana(this string text) => text.All(c => c.IsKana());
+    public static bool IsAllHiragana(this string text) => text.All(c => c.IsHiragana());
+    public static bool IsAllKatakana(this string text) => text.All(c => c.IsKatakana());
+
+    public static string KatakanaToHiragana(this string text) => TransformText(text, _katakanaToHiragana);
+    public static string HiraganaToKatakana(this string text) => TransformText(text, _hiraganaToKatakana);
+
+    public static bool IsKanaEquivalent(this string text, string comparisonText) =>
+        text.KatakanaToHiragana() == comparisonText.KatakanaToHiragana();
+
+    #endregion
+
+    #region Private
+
+    private static bool IsKana(int c) => IsHiragana(c) || IsKatakana(c);
+
+    private static bool IsHiragana(int c) => c switch
     {
         < 0x3041 => false,
         < 0x3097 => true,
@@ -35,16 +59,12 @@ public static class KanaHelper
                _ => false
     };
 
-    public static bool IsKatakana(this Rune c) => c.Value switch
+    private static bool IsKatakana(int c) => c switch
     {
         < 0x30A0 => false,
         < 0x3100 => true,
                _ => false
     };
-
-    public static bool IsKana(this char c) => IsKana(new Rune(c));
-    public static bool IsHiragana(this char c) => IsHiragana(new Rune(c));
-    public static bool IsKatakana(this char c) => IsKatakana(new Rune(c));
 
     private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
         Enumerable.Range(0x30A1, 86)
@@ -55,40 +75,12 @@ public static class KanaHelper
     private static readonly FrozenDictionary<char, char> _katakanaToHiragana =
         _hiraganaToKatakana.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-    public static string KatakanaToHiragana(this string text) => new(text
-        .Select(x => _katakanaToHiragana.TryGetValue(x, out char c) ? c : x)
-        .ToArray());
+    private static string TransformText(string text, FrozenDictionary<char, char> transformation) =>
+        string.Join
+        (
+            separator: string.Empty,
+            values: text.Select(x => transformation.TryGetValue(x, out char c) ? c : x)
+        );
 
-    public static string HiraganaToKatakana(this string text) => new(text
-        .Select(x => _hiraganaToKatakana.TryGetValue(x, out char c) ? c : x)
-        .ToArray());
-
-    public static bool IsAllHiragana(this string text)
-    {
-        foreach (char c in text)
-            if (!c.IsHiragana())
-                return false;
-        return true;
-    }
-
-    public static bool IsAllKatakana(this string text)
-    {
-        foreach (char c in text)
-            if (!c.IsKatakana())
-                return false;
-        return true;
-    }
-
-    public static bool IsAllKana(this string text)
-    {
-        foreach (char c in text)
-            if (!c.IsKana())
-                return false;
-        return true;
-    }
-
-    public static bool IsKanaEquivalent(this string text, string comparisonText)
-    {
-        return text.KatakanaToHiragana() == comparisonText.KatakanaToHiragana();
-    }
+    #endregion
 }
