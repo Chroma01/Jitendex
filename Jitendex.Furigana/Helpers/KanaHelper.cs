@@ -75,12 +75,19 @@ public static class KanaHelper
     private static readonly FrozenDictionary<char, char> _katakanaToHiragana =
         _hiraganaToKatakana.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-    private static string TransformText(string text, FrozenDictionary<char, char> transformation) =>
-        string.Join
-        (
-            separator: string.Empty,
-            values: text.Select(x => transformation.TryGetValue(x, out char c) ? c : x)
-        );
+    private static string TransformText(string text, FrozenDictionary<char, char> transformer)
+    {
+        char[] transformedText = new char[text.Length];
+        for (int i = 0; i < text.Length; i++)
+        {
+            char original = text[i];
+            if (transformer.TryGetValue(original, out char transformed))
+                transformedText[i] = transformed;
+            else
+                transformedText[i] = original;
+        }
+        return new string(transformedText);
+    }
 
     #endregion
 }
