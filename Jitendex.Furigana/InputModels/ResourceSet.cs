@@ -19,18 +19,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Frozen;
 using System.Text;
+using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.InputModels;
 
 public class ResourceSet
 {
-    private readonly FrozenDictionary<(int, bool), Kanji> _kanjiDictionary;
+    private readonly FrozenDictionary<(int, Type), Kanji> _kanjiDictionary;
     private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
 
     public ResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanji
-            .Select(x => new KeyValuePair<(int, bool), Kanji>((x.Character.Value, x is NameKanji), x))
+            .Select(x => new KeyValuePair<(int, Type), Kanji>((x.Character.Value, x.GetType()), x))
             .ToFrozenDictionary();
 
         _specialExpressions = specialExpressions
@@ -40,10 +41,19 @@ public class ResourceSet
 
     public Kanji? GetKanji(Rune character, Entry entry)
     {
-        if (_kanjiDictionary.TryGetValue((character.Value, entry is NameEntry), out Kanji? kanji))
+        if (entry is NameEntry && _kanjiDictionary.TryGetValue((character.Value, typeof(NameKanji)), out Kanji? nameKanji))
+        {
+            return nameKanji;
+        }
+        if (_kanjiDictionary.TryGetValue((character.Value, typeof(VocabKanji)), out Kanji? kanji))
+        {
             return kanji;
-        else
-            return null;
+        }
+        if (character.IsKanji())
+        {
+            return new VocabKanji(character, []);
+        }
+        return null;
     }
 
     public SpecialExpression? GetExpression(string text)
