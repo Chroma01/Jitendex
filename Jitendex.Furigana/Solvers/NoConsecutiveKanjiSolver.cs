@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
@@ -32,24 +33,20 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
     /// </summary>
     public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
-        // We are using both a greedy expression and a lazy expression because we want to make sure
-        // there is only one way to read them. If the result differs with a greedy or a lazy expression,
-        // it means that we have no idea how to read the damn thing.
         var runes = v.KanjiFormRunes;
-
-        string regGreedy = "^";
-        string regLazy = "^";
-        bool consecutiveMarker = false;
+        var greedyPattern = new StringBuilder("^");
+        var lazyPattern = new StringBuilder("^");
         var kanjiIndexes = new List<int>();
+        bool consecutiveMarker = false;
+
         for (int i = 0; i < runes.Length; i++)
         {
             var c = runes[i];
-
             if (!c.IsKanji())
             {
                 // Add the characters to the string. No capture group for kana.
-                regGreedy += string.Format(c.ToString());
-                regLazy += string.Format(c.ToString());
+                greedyPattern.Append(c);
+                lazyPattern.Append(c);
                 consecutiveMarker = false;
             }
             else if (consecutiveMarker)
@@ -60,37 +57,33 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
             else
             {
                 // Add the characters inside a capture group for kanji.
-                regGreedy += "(.+)";
-                regLazy += "(.+?)";
+                greedyPattern.Append("(.+)");
+                lazyPattern.Append("(.+?)");
                 consecutiveMarker = true;
                 kanjiIndexes.Add(i);
             }
         }
-        regGreedy += "$";
-        regLazy += "$";
+        greedyPattern.Append('$');
+        lazyPattern.Append('$');
 
-        // Example regex:
-        // For 持ち運ぶ (もちはこぶ)
-        // The regexes would be:
-        // ^(.+)ち(.+)ぶ$
-        // ^(.+?)ち(.+?)ぶ$
+        // E.g., for 持ち運ぶ (もちはこぶ) the regexes would be
+        // greedy: ^(.+)ち(.+)ぶ$
+        // lazy: ^(.+?)ち(.+?)ぶ$
 
-        var regexGreedy = new Regex(regGreedy);
-        var regexLazy = new Regex(regLazy);
+        var regexGreedy = new Regex(greedyPattern.ToString());
+        var regexLazy = new Regex(lazyPattern.ToString());
+
         var matchGreedy = regexGreedy.Match(v.ReadingText);
         var matchLazy = regexLazy.Match(v.ReadingText);
 
         if (matchGreedy.Success && matchLazy.Success)
         {
-            // Obtain both solutions.
             var greedySolution = MakeSolutionFromMatch(v, matchGreedy, kanjiIndexes);
             var lazySolution = MakeSolutionFromMatch(v, matchLazy, kanjiIndexes);
 
-            // Are both solutions non-null and equivalent?
+            // If solutions are not equivalent, then we don't know which is correct.
             if (greedySolution is not null && lazySolution is not null && greedySolution.Equals(lazySolution))
             {
-                // Yes they are! Return only one of them of course.
-                // Greedy wins obviously.
                 yield return greedySolution;
             }
         }

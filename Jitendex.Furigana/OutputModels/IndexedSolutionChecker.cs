@@ -27,8 +27,9 @@ internal static class IndexedSolutionChecker
     /// <summary>
     /// Checks if the solution is correctly solved for the given coupling of vocab and furigana.
     /// </summary>
-    /// <returns>True if the furigana covers all characters of the vocab reading without
-    /// overlapping.</returns>
+    /// <returns>
+    /// True if the furigana covers all characters of the vocab reading without overlapping.
+    /// </returns>
     public static bool Check(IndexedSolution solution)
     {
         // There are three conditions to check:

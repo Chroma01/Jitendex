@@ -22,9 +22,6 @@ using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.OutputModels;
 
-/// <summary>
-/// A vocab entry with a furigana reading string.
-/// </summary>
 internal class IndexedSolution
 {
     public VocabEntry Vocab { get; }
