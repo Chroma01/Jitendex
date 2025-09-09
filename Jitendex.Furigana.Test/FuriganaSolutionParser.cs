@@ -28,7 +28,7 @@ public static class FuriganaSolutionParser
     private const char AssociationSeparator = ':';
     private const char RangeSeparator = '-';
 
-    public static Solution Parse(string s, VocabEntry v)
+    public static Solution Parse(string s, Entry v)
     {
         var parts = new List<IndexedFurigana>();
         var partSplit = s.Split(MultiValueSeparator);

@@ -38,7 +38,7 @@ internal class KanaReadingSolver : FuriganaSolver
     /// Attempts to solve furigana by reading the kana string and attributing kanji a reading based
     /// not on the readings of the kanji, but on the kana characters that come up.
     /// </summary>
-    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
         // Basically, we are reading the kanji reading character by character, eating the kana from
         // the kana reading and associating each kanji the piece of kana that comes next.
@@ -56,8 +56,8 @@ internal class KanaReadingSolver : FuriganaSolver
         /// Read the だ for 陀;
         /// Read the ら for 羅.
 
-        var runes = v.KanjiFormRunes;
-        string kana = v.ReadingText;
+        var runes = entry.KanjiFormRunes;
+        string kana = entry.ReadingText;
         var furiganaParts = new List<IndexedFurigana>();
 
         for (int i = 0; i < runes.Length; i++)
@@ -137,7 +137,7 @@ internal class KanaReadingSolver : FuriganaSolver
         {
             // We consumed the whole kana string.
             // The case is solved.
-            yield return new IndexedSolution(v, furiganaParts);
+            yield return new IndexedSolution(entry, furiganaParts);
         }
     }
 }

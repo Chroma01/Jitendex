@@ -24,14 +24,14 @@ namespace Jitendex.Furigana.OutputModels;
 
 internal class IndexedSolution
 {
-    public VocabEntry Vocab { get; }
+    public Entry Entry { get; }
     public ImmutableArray<IndexedFurigana> Parts { get; }
 
-    public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
+    public IndexedSolution(Entry entry, params IndexedFurigana[] parts) : this(entry, parts.ToList()) { }
 
-    public IndexedSolution(VocabEntry vocab, IEnumerable<IndexedFurigana> parts)
+    public IndexedSolution(Entry entry, IEnumerable<IndexedFurigana> parts)
     {
-        Vocab = vocab;
+        Entry = entry;
         Parts = [.. parts];
 
         if (!IndexedSolutionChecker.Check(this))
@@ -45,7 +45,7 @@ internal class IndexedSolution
     {
         return new Solution
         {
-            Vocab = Vocab,
+            Entry = Entry,
             Parts = [.. EnumerateTextSolutionParts()],
         };
     }
@@ -54,7 +54,7 @@ internal class IndexedSolution
     {
         foreach (var (value, start, end) in EnumerateAllRanges())
         {
-            var baseRunes = Vocab.RawKanjiFormRunes[start..(end + 1)];
+            var baseRunes = Entry.RawKanjiFormRunes[start..(end + 1)];
             var baseText = string.Join(string.Empty, baseRunes);
             yield return new Solution.Part(baseText, value);
         }
@@ -62,7 +62,7 @@ internal class IndexedSolution
 
     private IEnumerable<(string? value, int start, int end)> EnumerateAllRanges()
     {
-        int runeCount = Vocab.KanjiFormRunes.Length;
+        int runeCount = Entry.KanjiFormRunes.Length;
         int? emptyRangeStart = null;
         for (int i = 0; i < runeCount; i++)
         {
@@ -88,13 +88,13 @@ internal class IndexedSolution
 
     public override bool Equals(object? obj) =>
         obj is IndexedSolution other &&
-        (ReferenceEquals(Vocab, other.Vocab) || Vocab.Equals(other.Vocab)) &&
+        (ReferenceEquals(Entry, other.Entry) || Entry.Equals(other.Entry)) &&
         Parts.SequenceEqual(other.Parts);
 
     public override int GetHashCode() =>
         Parts.Aggregate
         (
-            seed: Vocab.GetHashCode(),
+            seed: Entry.GetHashCode(),
             func: (hashcode, part) => HashCode.Combine(hashcode, part.GetHashCode())
         );
 }

@@ -25,7 +25,7 @@ using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.InputModels;
 
-public class Kanji
+public abstract class Kanji
 {
     public Rune Character { get; }
     public ImmutableArray<string> Readings { get; }

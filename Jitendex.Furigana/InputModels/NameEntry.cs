@@ -1,5 +1,4 @@
 /*
-Copyright (c) 2015 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -17,15 +16,17 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
-using Jitendex.Furigana.InputModels;
+namespace Jitendex.Furigana.InputModels;
 
-namespace Jitendex.Furigana.OutputModels;
-
-public class Solution
+public class NameEntry : Entry
 {
-    public record Part(string BaseText, string? Furigana);
+    public NameEntry(string kanjiFormText, string readingText) : base(kanjiFormText, readingText) { }
 
-    public required Entry Entry { get; init; }
-    public required ImmutableArray<Part> Parts { get; init; }
+    public override bool Equals(object? obj) =>
+        obj is NameEntry entry &&
+        KanjiFormText == entry.KanjiFormText &&
+        ReadingText == entry.ReadingText;
+
+    public override int GetHashCode() =>
+        HashCode.Combine(typeof(NameEntry), KanjiFormText, ReadingText);
 }

@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.Test;
@@ -45,6 +46,31 @@ public class ServiceTest
 
         TestFurigana("一ケ月", "いっけげつ", "0:いっ;2:げつ", service);
         TestFurigana("一ケ月", "いっケげつ", "0:いっ;2:げつ", service);
+    }
+
+    [TestMethod]
+    public void TestNameKanji()
+    {
+        var service = new Service(new ResourceSet(
+            kanji: [
+                new VocabKanji(new Rune('佐'), ["あ"]),
+                new VocabKanji(new Rune('藤'), ["あ"]),
+                new NameKanji(new Rune('佐'), ["あ", "さ"]),
+                new NameKanji(new Rune('藤'), ["あ", "とう"]),
+            ],
+            specialExpressions: []
+        ));
+
+        var vocab = new VocabEntry("佐藤", "さとう");
+        var vocabSolution = service.Solve(vocab);
+        Assert.IsNull(vocabSolution);
+
+        var name = new NameEntry("佐藤", "さとう");
+        var nameSolution = service.Solve(name);
+        Assert.IsNotNull(nameSolution);
+
+        var expectedSolution = FuriganaSolutionParser.Parse("0:さ;1:とう", name);
+        CollectionAssert.AreEqual(expectedSolution.Parts, nameSolution.Parts);
     }
 
     [TestMethod]
@@ -243,7 +269,7 @@ public class ServiceTest
     {
         return new ResourceSet
         (
-            kanji: kanjiInfo.Select(x => new Kanji(x.Key.EnumerateRunes().First(), x.Value)),
+            kanji: kanjiInfo.Select(x => new VocabKanji(x.Key.EnumerateRunes().First(), x.Value)),
             specialExpressions: specialExpressionInfo.Select(x => new SpecialExpression(x.Key, x.Value))
         );
     }

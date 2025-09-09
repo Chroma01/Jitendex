@@ -31,9 +31,9 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,
     /// using regular expressions.
     /// </summary>
-    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        var runes = v.KanjiFormRunes;
+        var runes = entry.KanjiFormRunes;
         var greedyPattern = new StringBuilder("^");
         var lazyPattern = new StringBuilder("^");
         var kanjiIndexes = new List<int>();
@@ -73,13 +73,13 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
         var regexGreedy = new Regex(greedyPattern.ToString());
         var regexLazy = new Regex(lazyPattern.ToString());
 
-        var matchGreedy = regexGreedy.Match(v.ReadingText);
-        var matchLazy = regexLazy.Match(v.ReadingText);
+        var matchGreedy = regexGreedy.Match(entry.ReadingText);
+        var matchLazy = regexLazy.Match(entry.ReadingText);
 
         if (matchGreedy.Success && matchLazy.Success)
         {
-            var greedySolution = MakeSolutionFromMatch(v, matchGreedy, kanjiIndexes);
-            var lazySolution = MakeSolutionFromMatch(v, matchLazy, kanjiIndexes);
+            var greedySolution = MakeSolutionFromMatch(entry, matchGreedy, kanjiIndexes);
+            var lazySolution = MakeSolutionFromMatch(entry, matchLazy, kanjiIndexes);
 
             // If solutions are not equivalent, then we don't know which is correct.
             if (greedySolution is not null && lazySolution is not null && greedySolution.Equals(lazySolution))
@@ -92,7 +92,7 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
     /// <summary>
     /// Creates a furigana solution from a regex match computed in the DoSolve method.
     /// </summary>
-    private static IndexedSolution? MakeSolutionFromMatch(VocabEntry v, Match match, List<int> kanjiIndexes)
+    private static IndexedSolution? MakeSolutionFromMatch(Entry entry, Match match, List<int> kanjiIndexes)
     {
         if (match.Groups.Count != kanjiIndexes.Count + 1)
         {
@@ -106,6 +106,6 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
             parts.Add(new IndexedFurigana(group.Value, kanjiIndexes[i - 1]));
         }
 
-        return new IndexedSolution(v, parts);
+        return new IndexedSolution(entry, parts);
     }
 }

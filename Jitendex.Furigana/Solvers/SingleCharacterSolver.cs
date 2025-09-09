@@ -28,9 +28,9 @@ internal class SingleCharacterSolver : FuriganaSolver
     /// <summary>
     /// Attempts to solve furigana when the kanji form only has one character.
     /// </summary>
-    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        var runes = v.KanjiFormRunes;
+        var runes = entry.KanjiFormRunes;
         if (runes.Length != 1)
         {
             yield break;
@@ -40,6 +40,6 @@ internal class SingleCharacterSolver : FuriganaSolver
             yield break;
         }
 
-        yield return new IndexedSolution(v, new IndexedFurigana(v.ReadingText, 0));
+        yield return new IndexedSolution(entry, new IndexedFurigana(entry.ReadingText, 0));
     }
 }

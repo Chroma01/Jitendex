@@ -46,18 +46,18 @@ public class Service
         _solvers.Reverse();
     }
 
-    public Solution? Solve(VocabEntry v)
+    public Solution? Solve(Entry entry)
     {
-        // TODO: These checks should be done when constructing the vocab?
-        if (string.IsNullOrWhiteSpace(v.KanjiFormText) || string.IsNullOrWhiteSpace(v.ReadingText))
+        // TODO: These checks should be done when constructing the entry?
+        if (string.IsNullOrWhiteSpace(entry.KanjiFormText) || string.IsNullOrWhiteSpace(entry.ReadingText))
         {
             // Cannot solve when we do not have a kanji form or reading.
             return null;
         }
-        return Process(v);
+        return Process(entry);
     }
 
-    private Solution? Process(VocabEntry v)
+    private Solution? Process(Entry entry)
     {
         var solutionSet = new HashSet<IndexedSolution>();
         int priority = _solvers.First().Priority;
@@ -76,7 +76,7 @@ public class Service
                 priority = solver.Priority;
             }
             // Add all solutions if they are correct and unique.
-            foreach (var solution in solver.Solve(v))
+            foreach (var solution in solver.Solve(entry))
                 solutionSet.Add(solution);
         }
 

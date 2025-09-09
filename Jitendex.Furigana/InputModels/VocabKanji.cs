@@ -1,5 +1,4 @@
 /*
-Copyright (c) 2015 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -17,15 +16,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
-using Jitendex.Furigana.InputModels;
+using System.Text;
 
-namespace Jitendex.Furigana.OutputModels;
+namespace Jitendex.Furigana.InputModels;
 
-public class Solution
+public class VocabKanji : Kanji
 {
-    public record Part(string BaseText, string? Furigana);
-
-    public required Entry Entry { get; init; }
-    public required ImmutableArray<Part> Parts { get; init; }
+    public VocabKanji(Rune character, IEnumerable<string> readings) : base(character, readings)
+    {
+    }
 }

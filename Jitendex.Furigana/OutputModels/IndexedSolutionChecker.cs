@@ -42,7 +42,7 @@ internal static class IndexedSolutionChecker
         // Keep in mind things like 真っ青 admit a correct "0-2:まっさお" solution. There can be
         // furigana parts covering kana.
 
-        var runes = solution.Vocab.KanjiFormRunes;
+        var runes = solution.Entry.KanjiFormRunes;
 
         // Check condition 1.
         if (Enumerable.Range(0, runes.Length).Any(i => solution.Parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
@@ -88,7 +88,7 @@ internal static class IndexedSolutionChecker
         }
 
         // Our reconstituted reading should be the same as the kana reading of the vocab.
-        if (!solution.Vocab.ReadingText.IsKanaEquivalent(reconstitutedReading.ToString()))
+        if (!solution.Entry.ReadingText.IsKanaEquivalent(reconstitutedReading.ToString()))
         {
             // It is different. Something is not correct in the furigana reading values.
             // Condition 3 failed.

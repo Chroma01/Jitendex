@@ -27,8 +27,6 @@ public class ResourceSet
     private readonly FrozenDictionary<(int, bool), Kanji> _kanjiDictionary;
     private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
 
-    public ResourceSet(IEnumerable<Kanji> kanji) : this(kanji, []) { }
-
     public ResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanji
@@ -40,9 +38,9 @@ public class ResourceSet
             .ToFrozenDictionary();
     }
 
-    public Kanji? GetKanji(Rune character, bool isUsedInName)
+    public Kanji? GetKanji(Rune character, Entry entry)
     {
-        if (_kanjiDictionary.TryGetValue((character.Value, isUsedInName), out Kanji? kanji))
+        if (_kanjiDictionary.TryGetValue((character.Value, entry is NameEntry), out Kanji? kanji))
             return kanji;
         else
             return null;

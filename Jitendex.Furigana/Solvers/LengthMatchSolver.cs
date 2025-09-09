@@ -34,10 +34,10 @@ internal class LengthMatchSolver : FuriganaSolver
     /// Attempts to solve cases where the length of the kanji reading matches the length of the
     /// kana reading.
     /// </summary>
-    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        var runes = v.KanjiFormRunes;
-        if (runes.Length != v.ReadingText.Length)
+        var runes = entry.KanjiFormRunes;
+        if (runes.Length != entry.ReadingText.Length)
         {
             yield break;
         }
@@ -47,7 +47,7 @@ internal class LengthMatchSolver : FuriganaSolver
         {
             if (runes[i].IsKanji())
             {
-                parts.Add(new IndexedFurigana(v.ReadingText[i].ToString(), i));
+                parts.Add(new IndexedFurigana(entry.ReadingText[i].ToString(), i));
             }
             else if (!runes[i].IsKana())
             {
@@ -55,7 +55,7 @@ internal class LengthMatchSolver : FuriganaSolver
                 // Stop right there. It's probably a trap.
                 yield break;
             }
-            else if (!runes[i].ToString().IsKanaEquivalent(v.ReadingText[i].ToString()))
+            else if (!runes[i].ToString().IsKanaEquivalent(entry.ReadingText[i].ToString()))
             {
                 // We are reading kana characters that are not equivalent. Stop.
                 yield break;
@@ -64,7 +64,7 @@ internal class LengthMatchSolver : FuriganaSolver
 
         if (parts.Count > 0)
         {
-            yield return new IndexedSolution(v, parts);
+            yield return new IndexedSolution(entry, parts);
         }
     }
 }

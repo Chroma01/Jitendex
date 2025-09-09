@@ -40,9 +40,9 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// Attempts to solve furigana by reading the kanji reading string and finding matching kanji
     /// kanji readings.
     /// </summary>
-    public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
+    public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        foreach (var solution in TryReading(v, 0, 0, []))
+        foreach (var solution in TryReading(entry, 0, 0, []))
         {
             yield return solution;
         }
@@ -52,28 +52,28 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// Recursive method that reads the kanji reading string and attempts to find all the ways the
     /// kana reading could be cut by matching it with the potential kanji readings.
     /// </summary>
-    /// <param name="v">Vocab to solve.</param>
+    /// <param name="entry">Vocab to solve.</param>
     /// <param name="currentIndexKanji">Current position in the kanji string. Used for recursion.</param>
     /// <param name="currentIndexKana">Current position in the kana string. Used for recursion.</param>
     /// <param name="furiganaParts">Current furigana parts. Used for recursion.</param>
     private IEnumerable<IndexedSolution> TryReading
     (
-        VocabEntry v,
+        Entry entry,
         int currentIndexKanji,
         int currentIndexKana,
         List<IndexedFurigana> furiganaParts
     )
     {
-        var runes = v.KanjiFormRunes;
+        var runes = entry.KanjiFormRunes;
 
-        if (currentIndexKanji == runes.Length && currentIndexKana == v.ReadingText.Length)
+        if (currentIndexKanji == runes.Length && currentIndexKana == entry.ReadingText.Length)
         {
             // We successfuly read the word and stopped at the last character in both kanji and kana readings.
             // Our current cut is valid. Return it.
-            yield return new IndexedSolution(v, furiganaParts);
+            yield return new IndexedSolution(entry, furiganaParts);
             yield break;
         }
-        else if (currentIndexKanji >= runes.Length || currentIndexKana >= v.ReadingText.Length)
+        else if (currentIndexKanji >= runes.Length || currentIndexKana >= entry.ReadingText.Length)
         {
             // Broken case. Do not return anything.
             yield break;
@@ -81,7 +81,7 @@ internal class KanjiReadingSolver : FuriganaSolver
 
         // Search for special expressions.
         bool foundSpecialExpressions = false;
-        foreach (var solution in FindSpecialExpressions(v, currentIndexKanji, currentIndexKana, furiganaParts))
+        foreach (var solution in FindSpecialExpressions(entry, currentIndexKanji, currentIndexKana, furiganaParts))
         {
             foundSpecialExpressions = true;
             yield return solution;
@@ -94,12 +94,12 @@ internal class KanjiReadingSolver : FuriganaSolver
 
         // General case. Get the current character and see if it is a kanji.
         var rune = runes[currentIndexKanji];
-        Kanji? kanji = _resourceSet.GetKanji(rune, v.IsName);
+        Kanji? kanji = _resourceSet.GetKanji(rune, entry);
 
         if (kanji is not null)
         {
             // Read as kanji subpart.
-            foreach (var solution in ReadAsKanji(v, currentIndexKanji, currentIndexKana, furiganaParts, kanji))
+            foreach (var solution in ReadAsKanji(entry, currentIndexKanji, currentIndexKana, furiganaParts, kanji))
             {
                 yield return solution;
             }
@@ -108,7 +108,7 @@ internal class KanjiReadingSolver : FuriganaSolver
         {
             // Read as kana subpart.
             char kana = (char)rune.Value;
-            foreach (var solution in ReadAsKana(v, currentIndexKanji, currentIndexKana, furiganaParts, kana))
+            foreach (var solution in ReadAsKana(entry, currentIndexKanji, currentIndexKana, furiganaParts, kana))
             {
                 yield return solution;
             }
@@ -125,13 +125,13 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// </summary>
     private IEnumerable<IndexedSolution> FindSpecialExpressions
     (
-        VocabEntry v,
+        Entry entry,
         int currentIndexKanji,
         int currentIndexKana,
         List<IndexedFurigana> furiganaParts
     )
     {
-        var runes = v.KanjiFormRunes;
+        var runes = entry.KanjiFormRunes;
         for (int i = runes.Length - 1; i >= currentIndexKanji; i--)
         {
             var subRunes = runes[currentIndexKanji..(i + 1)];
@@ -142,9 +142,9 @@ internal class KanjiReadingSolver : FuriganaSolver
 
             foreach (var reading in expression.Readings)
             {
-                if (v.ReadingText.Length < currentIndexKana + reading.Length)
+                if (entry.ReadingText.Length < currentIndexKana + reading.Length)
                     continue;
-                if (v.ReadingText.Substring(currentIndexKana, reading.Length) != reading)
+                if (entry.ReadingText.Substring(currentIndexKana, reading.Length) != reading)
                     continue;
 
                 // The reading matches. Iterate with this possibility.
@@ -155,7 +155,7 @@ internal class KanjiReadingSolver : FuriganaSolver
                     startIndex: currentIndexKanji,
                     endIndex: currentIndexKanji + subRunes.Length - 1));
 
-                var results = TryReading(v: v,
+                var results = TryReading(entry: entry,
                     currentIndexKanji: i + 1,
                     currentIndexKana: currentIndexKana + reading.Length,
                     furiganaParts: newFuriganaParts);
@@ -174,14 +174,14 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// </summary>
     private IEnumerable<IndexedSolution> ReadAsKanji
     (
-        VocabEntry v,
+        Entry entry,
         int currentIndexKanji,
         int currentIndexKana,
         List<IndexedFurigana> furiganaParts,
         Kanji kanji
     )
     {
-        var runes = v.KanjiFormRunes;
+        var runes = entry.KanjiFormRunes;
 
         // Our character is a kanji. Try to consume kana strings that match that kanji.
         int remainingKanjiLength = runes.Length - currentIndexKanji - 1;
@@ -190,9 +190,9 @@ internal class KanjiReadingSolver : FuriganaSolver
             isLastChar: currentIndexKanji == runes.Length - 1);
 
         // Iterate on the kana reading.
-        for (int i = currentIndexKana; i < v.ReadingText.Length && i < currentIndexKana + MaxKanaPerKanji; i++)
+        for (int i = currentIndexKana; i < entry.ReadingText.Length && i < currentIndexKana + MaxKanaPerKanji; i++)
         {
-            int remainingKanaLength = v.ReadingText.Length - i - 1;
+            int remainingKanaLength = entry.ReadingText.Length - i - 1;
             if (remainingKanaLength < remainingKanjiLength)
             {
                 // We consumed too many characters: not enough kana remaining for the number of kanji.
@@ -201,7 +201,7 @@ internal class KanjiReadingSolver : FuriganaSolver
             }
 
             // Get the kana string between currentIndexKana and i.
-            string testedString = v.ReadingText.Substring(currentIndexKana, i - currentIndexKana + 1);
+            string testedString = entry.ReadingText.Substring(currentIndexKana, i - currentIndexKana + 1);
 
             // Now try to match that string against one of the potential readings of our kanji.
             foreach (string reading in kanjiReadings)
@@ -213,7 +213,7 @@ internal class KanjiReadingSolver : FuriganaSolver
                 var newFuriganaParts = furiganaParts.Clone();
                 newFuriganaParts.Add(new IndexedFurigana(reading, currentIndexKanji));
 
-                var solutions = TryReading(v: v,
+                var solutions = TryReading(entry: entry,
                     currentIndexKanji: currentIndexKanji + 1,
                     currentIndexKana: i + 1,
                     furiganaParts: newFuriganaParts);
@@ -234,19 +234,19 @@ internal class KanjiReadingSolver : FuriganaSolver
     /// </summary>
     private IEnumerable<IndexedSolution> ReadAsKana
     (
-        VocabEntry v,
+        Entry entry,
         int currentIndexKanji,
         int currentIndexKana,
         List<IndexedFurigana> furiganaParts,
         char c
     )
     {
-        char kc = v.ReadingText[currentIndexKana];
+        char kc = entry.ReadingText[currentIndexKana];
         if (c == kc || c.IsKanaEquivalent(kc))
         {
             // This kanji form substring matches the kana form substring.
             // We can iterate with the same cut (no added furigana) because we are reading kana.
-            foreach (var result in TryReading(v, currentIndexKanji + 1, currentIndexKana + 1, furiganaParts))
+            foreach (var result in TryReading(entry, currentIndexKanji + 1, currentIndexKana + 1, furiganaParts))
             {
                 yield return result;
             }
