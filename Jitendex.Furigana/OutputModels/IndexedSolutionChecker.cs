@@ -44,7 +44,7 @@ internal static class IndexedSolutionChecker
         var runes = solution.Vocab.KanjiFormRunes;
 
         // Check condition 1.
-        if (Enumerable.Range(0, runes.Count).Any(i => solution.Parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
+        if (Enumerable.Range(0, runes.Length).Any(i => solution.Parts.Count(f => i >= f.StartIndex && i <= f.EndIndex) > 1))
         {
             // There are multiple furigana parts that are applicable for a given index.
             // This constitutes an overlap and results in the check being negative.
@@ -55,7 +55,7 @@ internal static class IndexedSolutionChecker
         // Now try to reconstitute the reading using the furigana parts.
         // This will allow us to test both 2 and 3.
         var reconstitutedReading = new StringBuilder();
-        for (int i = 0; i < runes.Count; i++)
+        for (int i = 0; i < runes.Length; i++)
         {
             // Try to find a matching part.
             var matchingPart = solution.Parts.FirstOrDefault(f => i >= f.StartIndex && i <= f.EndIndex);

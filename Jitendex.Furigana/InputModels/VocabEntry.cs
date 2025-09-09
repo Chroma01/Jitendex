@@ -27,8 +27,8 @@ public class VocabEntry
     public string KanjiFormText { get; }
     public string ReadingText { get; }
     public bool IsName { get; }
-    internal ImmutableList<Rune> RawKanjiFormRunes { get; }
-    internal ImmutableList<Rune> KanjiFormRunes { get; }
+    internal ImmutableArray<Rune> RawKanjiFormRunes { get; }
+    internal ImmutableArray<Rune> KanjiFormRunes { get; }
 
     public VocabEntry(string kanjiFormText, string readingText, bool isName = false)
     {
@@ -39,13 +39,13 @@ public class VocabEntry
         KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
     }
 
-    private static List<Rune> CreateKanjiFormRunes(IList<Rune> rawRunes)
+    private static List<Rune> CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
     {
         var runes = new List<Rune>();
         var repeaterIndices = GetRepeaterIndices(rawRunes);
 
         // Replace repeaters (々) and double repeaters (々々) with their respective kanji.
-        for (int i = 0; i < rawRunes.Count; i++)
+        for (int i = 0; i < rawRunes.Length; i++)
         {
             if (i > 1 && repeaterIndices.Contains(i) && repeaterIndices.Contains(i + 1))
             {
@@ -67,10 +67,10 @@ public class VocabEntry
         return runes;
     }
 
-    private static HashSet<int> GetRepeaterIndices(IList<Rune> rawRunes)
+    private static HashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes)
     {
         var repeaterIndices = new HashSet<int>();
-        for (int i = 0; i < rawRunes.Count; i++)
+        for (int i = 0; i < rawRunes.Length; i++)
         {
             if (rawRunes[i].Value == '々')
                 repeaterIndices.Add(i);

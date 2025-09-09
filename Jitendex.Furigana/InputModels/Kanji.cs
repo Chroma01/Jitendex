@@ -27,27 +27,27 @@ namespace Jitendex.Furigana.InputModels;
 public class Kanji
 {
     public Rune Character { get; }
-    public ImmutableList<string> Readings { get; }
-    public ImmutableList<string> NameReadings { get; }
-    private readonly ImmutableList<string> _readingsWithNameReadings;
+    public ImmutableArray<string> Readings { get; }
+    public ImmutableArray<string> NameReadings { get; }
+    private readonly ImmutableArray<string> _readingsWithNameReadings;
 
-    public Kanji(Rune character, IList<string> readings)
+    public Kanji(Rune character, IEnumerable<string> readings)
     {
         Character = character;
         Readings = [.. readings];
         NameReadings = [];
-        _readingsWithNameReadings = Readings;
+        _readingsWithNameReadings = [.. Readings];
     }
 
-    public Kanji(Rune character, IList<string> readings, IList<string> nameReadings)
+    public Kanji(Rune character, IEnumerable<string> readings, IEnumerable<string> nameReadings)
     {
         Character = character;
         Readings = [.. readings];
         NameReadings = [.. nameReadings];
-        _readingsWithNameReadings = readings.Union(nameReadings).ToImmutableList();
+        _readingsWithNameReadings = [.. readings.Union(nameReadings)];
     }
 
-    internal List<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
+    internal ImmutableArray<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
     {
         var output = new HashSet<string>();
         var readings = isUsedInName ? _readingsWithNameReadings : Readings;

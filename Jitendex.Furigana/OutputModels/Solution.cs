@@ -27,5 +27,5 @@ public class Solution
     public record Part(string BaseText, string? Furigana);
 
     public required VocabEntry Vocab { get; init; }
-    public required ImmutableList<Part> Parts { get; init; }
+    public required ImmutableArray<Part> Parts { get; init; }
 }

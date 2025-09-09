@@ -66,14 +66,14 @@ internal class KanjiReadingSolver : FuriganaSolver
     {
         var runes = v.KanjiFormRunes;
 
-        if (currentIndexKanji == runes.Count && currentIndexKana == v.ReadingText.Length)
+        if (currentIndexKanji == runes.Length && currentIndexKana == v.ReadingText.Length)
         {
             // We successfuly read the word and stopped at the last character in both kanji and kana readings.
             // Our current cut is valid. Return it.
             yield return new IndexedSolution(v, furiganaParts);
             yield break;
         }
-        else if (currentIndexKanji >= runes.Count || currentIndexKana >= v.ReadingText.Length)
+        else if (currentIndexKanji >= runes.Length || currentIndexKana >= v.ReadingText.Length)
         {
             // Broken case. Do not return anything.
             yield break;
@@ -132,9 +132,9 @@ internal class KanjiReadingSolver : FuriganaSolver
     )
     {
         var runes = v.KanjiFormRunes;
-        for (int i = runes.Count - 1; i >= currentIndexKanji; i--)
+        for (int i = runes.Length - 1; i >= currentIndexKanji; i--)
         {
-            var subRunes = runes.GetRange(currentIndexKanji, i - currentIndexKanji + 1);
+            var subRunes = runes[currentIndexKanji..(i + 1)];
             string lookup = string.Join(string.Empty, subRunes);
             var expression = _resourceSet.GetExpression(lookup);
 
@@ -153,7 +153,7 @@ internal class KanjiReadingSolver : FuriganaSolver
                 newFuriganaParts.Add(new IndexedFurigana(
                     value: reading,
                     startIndex: currentIndexKanji,
-                    endIndex: currentIndexKanji + subRunes.Count - 1));
+                    endIndex: currentIndexKanji + subRunes.Length - 1));
 
                 var results = TryReading(v: v,
                     currentIndexKanji: i + 1,
@@ -184,10 +184,10 @@ internal class KanjiReadingSolver : FuriganaSolver
         var runes = v.KanjiFormRunes;
 
         // Our character is a kanji. Try to consume kana strings that match that kanji.
-        int remainingKanjiLength = runes.Count - currentIndexKanji - 1;
+        int remainingKanjiLength = runes.Length - currentIndexKanji - 1;
         var kanjiReadings = kanji.GetPotentialReadings(
             isFirstChar: currentIndexKanji == 0,
-            isLastChar: currentIndexKanji == runes.Count - 1,
+            isLastChar: currentIndexKanji == runes.Length - 1,
             isUsedInName: v.IsName);
 
         // Iterate on the kana reading.

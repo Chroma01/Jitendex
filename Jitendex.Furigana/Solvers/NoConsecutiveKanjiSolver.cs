@@ -41,7 +41,7 @@ internal class NoConsecutiveKanjiSolver : FuriganaSolver
         string regLazy = "^";
         bool consecutiveMarker = false;
         var kanjiIndexes = new List<int>();
-        for (int i = 0; i < runes.Count; i++)
+        for (int i = 0; i < runes.Length; i++)
         {
             var c = runes[i];
 

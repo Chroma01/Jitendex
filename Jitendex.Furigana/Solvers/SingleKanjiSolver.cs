@@ -41,7 +41,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         // See if there are only obvious characters around.
         // Browse the kanji reading and eat characters until we get to
         // the kanji character.
-        for (int i = 0; i < kanjiFormRunes.Count; i++)
+        for (int i = 0; i < kanjiFormRunes.Length; i++)
         {
             var rune = kanjiFormRunes[i];
             if (rune.IsKanji())
@@ -65,7 +65,7 @@ internal class SingleKanjiSolver : FuriganaSolver
 
         // Now browse in reverse and eat characters until we get back to
         // the kanji character.
-        for (int i = kanjiFormRunes.Count - 1; i >= 0; i--)
+        for (int i = kanjiFormRunes.Length - 1; i >= 0; i--)
         {
             var rune = kanjiFormRunes[i];
 

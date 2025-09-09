@@ -31,7 +31,7 @@ internal class SingleCharacterSolver : FuriganaSolver
     public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         var runes = v.KanjiFormRunes;
-        if (runes.Count != 1)
+        if (runes.Length != 1)
         {
             yield break;
         }

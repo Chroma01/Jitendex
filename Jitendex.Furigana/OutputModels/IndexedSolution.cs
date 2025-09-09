@@ -28,7 +28,7 @@ namespace Jitendex.Furigana.OutputModels;
 internal class IndexedSolution
 {
     public VocabEntry Vocab { get; }
-    public ImmutableList<IndexedFurigana> Parts { get; }
+    public ImmutableArray<IndexedFurigana> Parts { get; }
 
     public IndexedSolution(VocabEntry vocab, params IndexedFurigana[] parts) : this(vocab, parts.ToList()) { }
 
@@ -57,7 +57,7 @@ internal class IndexedSolution
     {
         foreach (var (value, start, end) in EnumerateAllRanges())
         {
-            var baseRunes = Vocab.RawKanjiFormRunes.GetRange(start, end - start + 1);
+            var baseRunes = Vocab.RawKanjiFormRunes[start..(end + 1)];
             var baseText = string.Join(string.Empty, baseRunes);
             yield return new Solution.Part(baseText, value);
         }
@@ -65,7 +65,7 @@ internal class IndexedSolution
 
     private IEnumerable<(string? value, int start, int end)> EnumerateAllRanges()
     {
-        int runeCount = Vocab.KanjiFormRunes.Count;
+        int runeCount = Vocab.KanjiFormRunes.Length;
         int? emptyRangeStart = null;
         for (int i = 0; i < runeCount; i++)
         {

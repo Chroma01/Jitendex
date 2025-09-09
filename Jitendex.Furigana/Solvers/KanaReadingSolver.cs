@@ -60,7 +60,7 @@ internal class KanaReadingSolver : FuriganaSolver
         string kana = v.ReadingText;
         var furiganaParts = new List<IndexedFurigana>();
 
-        for (int i = 0; i < runes.Count; i++)
+        for (int i = 0; i < runes.Length; i++)
         {
             if (kana.Length == 0)
             {
@@ -72,9 +72,9 @@ internal class KanaReadingSolver : FuriganaSolver
             bool foundExpression = false;
 
             // Check for special expressions
-            for (int j = runes.Count - 1; j >= i; j--)
+            for (int j = runes.Length - 1; j >= i; j--)
             {
-                var subRunes = runes.GetRange(i, j - i + 1);
+                var subRunes = runes[i..(j + 1)];
                 string lookup = string.Join(string.Empty, subRunes);
                 var expression = _resourceSet.GetExpression(lookup);
 
@@ -87,7 +87,7 @@ internal class KanaReadingSolver : FuriganaSolver
                         continue;
 
                     // The reading matches. Eat the kana chain.
-                    var newPart = new IndexedFurigana(reading, i, i + subRunes.Count - 1);
+                    var newPart = new IndexedFurigana(reading, i, i + subRunes.Length - 1);
                     furiganaParts.Add(newPart);
 
                     kana = kana[reading.Length..];

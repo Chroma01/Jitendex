@@ -37,13 +37,13 @@ internal class LengthMatchSolver : FuriganaSolver
     public override IEnumerable<IndexedSolution> Solve(VocabEntry v)
     {
         var runes = v.KanjiFormRunes;
-        if (runes.Count != v.ReadingText.Length)
+        if (runes.Length != v.ReadingText.Length)
         {
             yield break;
         }
 
         var parts = new List<IndexedFurigana>();
-        for (int i = 0; i < runes.Count; i++)
+        for (int i = 0; i < runes.Length; i++)
         {
             if (runes[i].IsKanji())
             {

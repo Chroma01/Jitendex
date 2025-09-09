@@ -32,7 +32,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
     {
         var runes = v.KanjiFormRunes;
 
-        if (runes.Count != 2)
+        if (runes.Length != 2)
         {
             yield break;
         }

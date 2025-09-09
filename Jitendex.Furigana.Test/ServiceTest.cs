@@ -236,7 +236,7 @@ public class ServiceTest
 
     public static ResourceSet MakeResourceSet(Dictionary<string, List<string>> kanjiInfo)
     {
-        return MakeResourceSet(kanjiInfo, new());
+        return MakeResourceSet(kanjiInfo, []);
     }
 
     public static ResourceSet MakeResourceSet(Dictionary<string, List<string>> kanjiInfo, Dictionary<string, List<string>> specialExpressionInfo)
