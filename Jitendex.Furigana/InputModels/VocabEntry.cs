@@ -36,12 +36,12 @@ public class VocabEntry
         ReadingText = readingText;
         IsName = isName;
         RawKanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
-        KanjiFormRunes = CreateKanjiFormRunes(RawKanjiFormRunes);
+        KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
     }
 
     private static readonly ImmutableHashSet<int> _kanjiIterationCharacters = ['々', '〻'];
 
-    private static ImmutableArray<Rune> CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
+    private static Rune[] CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
     {
         var runes = new Rune[rawRunes.Length];
         var repeaterIndices = GetRepeaterIndices(rawRunes);
@@ -67,7 +67,7 @@ public class VocabEntry
                 runes[i] = rawRunes[i];
             }
         }
-        return [.. runes];
+        return runes;
     }
 
     private static HashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes)

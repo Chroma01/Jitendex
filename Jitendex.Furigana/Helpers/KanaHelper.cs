@@ -67,8 +67,7 @@ public static class KanaHelper
     };
 
     private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
-        Enumerable.Range(0x30A1, 86)
-        .Concat(Enumerable.Range(0x30FD, 2))
+        Enumerable.Range(0x30A1, 86).Concat(Enumerable.Range(0x30FD, 2))
         .Select(x => new KeyValuePair<char, char>((char)(x - 96), (char)x))
         .ToFrozenDictionary();
 
