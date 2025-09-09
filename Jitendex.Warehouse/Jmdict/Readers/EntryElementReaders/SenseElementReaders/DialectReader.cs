@@ -38,10 +38,18 @@ internal class DialectReader : IJmdictReader<Sense, Dialect>
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<DialectTag>(description);
+
+        if (sense.Dialects.Any(t => t.TagName == tag.Name))
+        {
+            sense.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, Dialect.XmlTagName);
+        }
+
         sense.Dialects.Add(new Dialect
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
+            Order = sense.Dialects.Count + 1,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,

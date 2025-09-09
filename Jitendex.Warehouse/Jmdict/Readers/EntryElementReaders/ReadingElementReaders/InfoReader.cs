@@ -38,10 +38,18 @@ internal class RInfoReader : IJmdictReader<Reading, ReadingInfo>
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<ReadingInfoTag>(description);
+
+        if (reading.Infos.Any(t => t.TagName == tag.Name))
+        {
+            reading.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, reading.EntryId, Reading.XmlTagName, reading.Order, tag.Name, ReadingInfo.XmlTagName);
+        }
+
         reading.Infos.Add(new ReadingInfo
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
+            Order = reading.Infos.Count + 1,
             TagName = tag.Name,
             Reading = reading,
             Tag = tag,

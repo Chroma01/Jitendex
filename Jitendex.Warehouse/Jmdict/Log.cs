@@ -29,4 +29,8 @@ internal static partial class Log
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
     public static partial void UnexpectedTextNode(ILogger logger, string tagName, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry {EntryId} <{ParentTagName}> #{Order} contains more than one <{TagName}> element with value `{Text}`")]
+    public static partial void DuplicateTag(ILogger logger, int entryId, string parentTagName, int order, string text, string tagName);
 }

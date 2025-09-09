@@ -38,10 +38,18 @@ internal class PartOfSpeechReader : IJmdictReader<Sense, PartOfSpeech>
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<PartOfSpeechTag>(description);
+
+        if (sense.Miscs.Any(t => t.TagName == tag.Name))
+        {
+            sense.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, PartOfSpeech.XmlTagName);
+        }
+
         sense.PartsOfSpeech.Add(new PartOfSpeech
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
+            Order = sense.PartsOfSpeech.Count + 1,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,

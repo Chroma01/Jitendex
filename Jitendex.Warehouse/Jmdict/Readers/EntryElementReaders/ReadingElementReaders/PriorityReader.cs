@@ -38,10 +38,18 @@ internal class RPriorityReader : IJmdictReader<Reading, ReadingPriority>
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
+
+        if (reading.Priorities.Any(t => t.TagName == tag.Name))
+        {
+            reading.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, reading.EntryId, Reading.XmlTagName, reading.Order, tag.Name, ReadingPriority.XmlTagName);
+        }
+
         reading.Priorities.Add(new ReadingPriority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
+            Order = reading.Priorities.Count + 1,
             TagName = tagName,
             Reading = reading,
             Tag = tag,

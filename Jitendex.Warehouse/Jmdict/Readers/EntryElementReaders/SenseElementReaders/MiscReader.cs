@@ -38,10 +38,18 @@ internal class MiscReader : IJmdictReader<Sense, Misc>
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<MiscTag>(description);
+
+        if (sense.Miscs.Any(t => t.TagName == tag.Name))
+        {
+            sense.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, Misc.XmlTagName);
+        }
+
         sense.Miscs.Add(new Misc
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
+            Order = sense.Miscs.Count + 1,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,

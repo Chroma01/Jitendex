@@ -21,11 +21,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
 
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(TagName))]
+[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]
 public class ReadingPriority
 {
     public required int EntryId { get; set; }
     public required int ReadingOrder { get; set; }
+    public required int Order { get; set; }
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]

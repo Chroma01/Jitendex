@@ -38,10 +38,18 @@ internal class KInfoReader : IJmdictReader<KanjiForm, KanjiFormInfo>
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<KanjiFormInfoTag>(description);
+
+        if (kanjiForm.Infos.Any(t => t.TagName == tag.Name))
+        {
+            kanjiForm.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, kanjiForm.EntryId, KanjiForm.XmlTagName, kanjiForm.Order, tag.Name, KanjiFormInfo.XmlTagName);
+        }
+
         kanjiForm.Infos.Add(new KanjiFormInfo
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
+            Order = kanjiForm.Infos.Count + 1,
             TagName = tag.Name,
             KanjiForm = kanjiForm,
             Tag = tag,

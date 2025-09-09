@@ -38,10 +38,18 @@ internal class FieldReader : IJmdictReader<Sense, Field>
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByDescription<FieldTag>(description);
+
+        if (sense.Fields.Any(t => t.TagName == tag.Name))
+        {
+            sense.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, Field.XmlTagName);
+        }
+
         sense.Fields.Add(new Field
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
+            Order = sense.Fields.Count + 1,
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,

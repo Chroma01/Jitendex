@@ -21,11 +21,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
 
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(TagName))]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
 public class KanjiFormPriority
 {
     public required int EntryId { get; set; }
     public required int KanjiFormOrder { get; set; }
+    public required int Order { get; set; }
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]

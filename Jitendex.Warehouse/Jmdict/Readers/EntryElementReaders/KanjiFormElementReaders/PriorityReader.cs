@@ -38,10 +38,18 @@ internal class KPriorityReader: IJmdictReader<KanjiForm, KanjiFormPriority>
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
+
+        if (kanjiForm.Infos.Any(t => t.TagName == tag.Name))
+        {
+            kanjiForm.Entry.IsCorrupt = true;
+            Log.DuplicateTag(_logger, kanjiForm.EntryId, KanjiForm.XmlTagName, kanjiForm.Order, tag.Name, KanjiFormPriority.XmlTagName);
+        }
+
         kanjiForm.Priorities.Add(new KanjiFormPriority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
+            Order = kanjiForm.Priorities.Count + 1,
             TagName = tagName,
             KanjiForm = kanjiForm,
             Tag = tag,

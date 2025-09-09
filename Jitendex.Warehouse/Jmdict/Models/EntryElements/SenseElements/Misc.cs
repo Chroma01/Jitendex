@@ -21,11 +21,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(TagName))]
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public class Misc
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
+    public required int Order { get; set; }
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
