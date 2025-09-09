@@ -24,7 +24,7 @@ namespace Jitendex.Furigana.InputModels;
 
 public class ResourceSet
 {
-    private readonly FrozenDictionary<int, Kanji> _kanjiDictionary;
+    private readonly FrozenDictionary<(int, bool), Kanji> _kanjiDictionary;
     private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
 
     public ResourceSet(IEnumerable<Kanji> kanji) : this(kanji, []) { }
@@ -32,7 +32,7 @@ public class ResourceSet
     public ResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanji
-            .Select(x => new KeyValuePair<int, Kanji>(x.Character.Value, x))
+            .Select(x => new KeyValuePair<(int, bool), Kanji>((x.Character.Value, x is NameKanji), x))
             .ToFrozenDictionary();
 
         _specialExpressions = specialExpressions
@@ -40,9 +40,9 @@ public class ResourceSet
             .ToFrozenDictionary();
     }
 
-    public Kanji? GetKanji(Rune character)
+    public Kanji? GetKanji(Rune character, bool isUsedInName)
     {
-        if (_kanjiDictionary.TryGetValue(character.Value, out Kanji? kanji))
+        if (_kanjiDictionary.TryGetValue((character.Value, isUsedInName), out Kanji? kanji))
             return kanji;
         else
             return null;

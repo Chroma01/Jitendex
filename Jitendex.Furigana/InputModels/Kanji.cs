@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 
@@ -28,31 +29,18 @@ public class Kanji
 {
     public Rune Character { get; }
     public ImmutableArray<string> Readings { get; }
-    public ImmutableArray<string> NameReadings { get; }
-    private readonly ImmutableArray<string> _readingsWithNameReadings;
 
     public Kanji(Rune character, IEnumerable<string> readings)
     {
         Character = character;
         Readings = [.. readings];
-        NameReadings = [];
-        _readingsWithNameReadings = [.. Readings];
     }
 
-    public Kanji(Rune character, IEnumerable<string> readings, IEnumerable<string> nameReadings)
-    {
-        Character = character;
-        Readings = [.. readings];
-        NameReadings = [.. nameReadings];
-        _readingsWithNameReadings = [.. readings.Union(nameReadings)];
-    }
-
-    internal ImmutableArray<string> GetPotentialReadings(bool isFirstChar, bool isLastChar, bool isUsedInName)
+    internal ImmutableArray<string> GetPotentialReadings(bool isFirstChar, bool isLastChar)
     {
         var output = new HashSet<string>();
-        var readings = isUsedInName ? _readingsWithNameReadings : Readings;
 
-        foreach (string reading in readings)
+        foreach (string reading in Readings)
         {
             // No suffix readings for the first char.
             if (isFirstChar && reading.StartsWith('-'))
@@ -93,7 +81,7 @@ public class Kanji
             }
             else
             {
-                // throw new Exception($"Reading `{reading}` for kanji `{kanji.Character}` should only have one dot separator");
+                Debug.WriteLine($"Reading `{reading}` for kanji `{Character}` has more than one dot separator");
             }
         }
 

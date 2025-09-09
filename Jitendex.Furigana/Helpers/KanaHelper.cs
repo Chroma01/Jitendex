@@ -38,9 +38,14 @@ public static class KanaHelper
     public static bool IsAllHiragana(this string text) => text.All(c => c.IsHiragana());
     public static bool IsAllKatakana(this string text) => text.All(c => c.IsKatakana());
 
-    public static string KatakanaToHiragana(this string text) => TransformText(text, _katakanaToHiragana);
-    public static string HiraganaToKatakana(this string text) => TransformText(text, _hiraganaToKatakana);
+    public static char KatakanaToHiragana(this char c) => Transform(c, _katakanaToHiragana);
+    public static char HiraganaToKatakana(this char c) => Transform(c, _hiraganaToKatakana);
 
+    public static string KatakanaToHiragana(this string text) => Transform(text, _katakanaToHiragana);
+    public static string HiraganaToKatakana(this string text) => Transform(text, _hiraganaToKatakana);
+
+    public static bool IsKanaEquivalent(this char c, char comparison) =>
+        c.KatakanaToHiragana() == comparison.KatakanaToHiragana();
     public static bool IsKanaEquivalent(this string text, string comparisonText) =>
         text.KatakanaToHiragana() == comparisonText.KatakanaToHiragana();
 
@@ -74,16 +79,20 @@ public static class KanaHelper
     private static readonly FrozenDictionary<char, char> _katakanaToHiragana =
         _hiraganaToKatakana.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-    private static string TransformText(string text, FrozenDictionary<char, char> transformer)
+    private static char Transform(char character, FrozenDictionary<char, char> transformer)
+    {
+        if (transformer.TryGetValue(character, out char transformed))
+            return transformed;
+        else
+            return character;
+    }
+
+    private static string Transform(string text, FrozenDictionary<char, char> transformer)
     {
         char[] transformedText = new char[text.Length];
         for (int i = 0; i < text.Length; i++)
         {
-            char original = text[i];
-            if (transformer.TryGetValue(original, out char transformed))
-                transformedText[i] = transformed;
-            else
-                transformedText[i] = original;
+            transformedText[i] = Transform(text[i], transformer);
         }
         return new string(transformedText);
     }

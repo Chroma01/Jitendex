@@ -94,7 +94,7 @@ internal class KanjiReadingSolver : FuriganaSolver
 
         // General case. Get the current character and see if it is a kanji.
         var rune = runes[currentIndexKanji];
-        Kanji? kanji = _resourceSet.GetKanji(rune);
+        Kanji? kanji = _resourceSet.GetKanji(rune, v.IsName);
 
         if (kanji is not null)
         {
@@ -187,8 +187,7 @@ internal class KanjiReadingSolver : FuriganaSolver
         int remainingKanjiLength = runes.Length - currentIndexKanji - 1;
         var kanjiReadings = kanji.GetPotentialReadings(
             isFirstChar: currentIndexKanji == 0,
-            isLastChar: currentIndexKanji == runes.Length - 1,
-            isUsedInName: v.IsName);
+            isLastChar: currentIndexKanji == runes.Length - 1);
 
         // Iterate on the kana reading.
         for (int i = currentIndexKana; i < v.ReadingText.Length && i < currentIndexKana + MaxKanaPerKanji; i++)
@@ -243,7 +242,7 @@ internal class KanjiReadingSolver : FuriganaSolver
     )
     {
         char kc = v.ReadingText[currentIndexKana];
-        if (c == kc || c.ToString().KatakanaToHiragana() == kc.ToString().KatakanaToHiragana())
+        if (c == kc || c.IsKanaEquivalent(kc))
         {
             // This kanji form substring matches the kana form substring.
             // We can iterate with the same cut (no added furigana) because we are reading kana.
