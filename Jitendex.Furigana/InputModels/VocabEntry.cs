@@ -36,12 +36,14 @@ public class VocabEntry
         ReadingText = readingText;
         IsName = isName;
         RawKanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
-        KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
+        KanjiFormRunes = CreateKanjiFormRunes(RawKanjiFormRunes);
     }
 
-    private static List<Rune> CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
+    private static readonly ImmutableHashSet<int> _kanjiIterationCharacters = ['々', '〻'];
+
+    private static ImmutableArray<Rune> CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
     {
-        var runes = new List<Rune>();
+        var runes = new Rune[rawRunes.Length];
         var repeaterIndices = GetRepeaterIndices(rawRunes);
 
         // Replace repeaters (々) and double repeaters (々々) with their respective kanji.
@@ -50,21 +52,22 @@ public class VocabEntry
             if (i > 1 && repeaterIndices.Contains(i) && repeaterIndices.Contains(i + 1))
             {
                 // Double repeater
-                runes.AddRange(runes[i - 2], runes[i - 1]);
+                runes[i] = runes[i - 2];
                 i++;
+                runes[i] = runes[i - 2];
             }
             else if (i > 0 && repeaterIndices.Contains(i))
             {
                 // Single repeater
-                runes.Add(runes[i - 1]);
+                runes[i] = runes[i - 1];
             }
             else
             {
                 // No repeater
-                runes.Add(rawRunes[i]);
+                runes[i] = rawRunes[i];
             }
         }
-        return runes;
+        return [.. runes];
     }
 
     private static HashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes)
@@ -72,7 +75,7 @@ public class VocabEntry
         var repeaterIndices = new HashSet<int>();
         for (int i = 0; i < rawRunes.Length; i++)
         {
-            if (rawRunes[i].Value == '々')
+            if (_kanjiIterationCharacters.Contains(rawRunes[i].Value))
                 repeaterIndices.Add(i);
         }
         return repeaterIndices;
