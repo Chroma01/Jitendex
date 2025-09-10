@@ -31,49 +31,42 @@ internal class ReadingIterationSolver
 
     public Solution? Solve(Entry entry)
     {
-        var partialSolutions = new List<PartialSolution>()
-            { new() { Parts = [new("", null)], IsInitial = true }};
+        var solution = IterateSolutions(entry);
 
-        for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
-        {
-            partialSolutions = IterateSolutions(entry, partialSolutions, ref sliceStart);
-            if (partialSolutions is null)
-                return null;
-        }
-
-        var solutions = partialSolutions
-            .Where(s => s.ReadingText() == entry.ReadingText);
-
-        if (solutions.Count() != 1)
-        {
-            // Failed to find a unique solution.
+        if (solution is null)
             return null;
-        }
 
         return new Solution
         {
             Entry = entry,
-            Parts = [.. solutions.First().GetNormalizedParts()]
+            Parts = [.. solution.GetNormalizedParts()]
         };
     }
 
-    private List<PartialSolution>? IterateSolutions(Entry entry, List<PartialSolution> solutions, ref int sliceStart)
+    private PartialSolution? IterateSolutions(Entry entry)
     {
-        var runes = entry.KanjiFormRunes;
+        var solutions = new List<PartialSolution>()
+            { new() { Parts = [new("", null)], IsInitial = true }};
 
-        for (int sliceEnd = runes.Length; sliceStart < sliceEnd; sliceEnd--)
+        for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            var potentialReadings = GetPotentialReadings(entry, sliceStart, sliceEnd);
-            var rawTextSlice = string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd]);
-            var newSolutions = SolutionsForSlice(entry, solutions, potentialReadings, rawTextSlice);
-            if (newSolutions.Count > 0)
+            var newSolutions = new List<PartialSolution>();
+            for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
-                sliceStart += rawTextSlice.Length - 1;
-                return newSolutions;
+                var potentialReadings = GetPotentialReadings(entry, sliceStart, sliceEnd);
+                var rawTextSlice = string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd]);
+                newSolutions = SolutionsForSlice(entry, solutions, potentialReadings, rawTextSlice);
+                if (newSolutions.Count > 0)
+                {
+                    sliceStart += rawTextSlice.Length - 1;
+                    solutions = newSolutions;
+                    break;
+                }
             }
+            if (newSolutions.Count == 0)
+                return null;
         }
-        // No valid partial solutions found.
-        return null;
+        return ValidSolution(entry, solutions);
     }
 
     private ImmutableArray<string> GetPotentialReadings(Entry entry, int sliceStart, int sliceEnd)
@@ -118,6 +111,22 @@ internal class ReadingIterationSolver
             }
         }
         return newSolutions;
+    }
+
+    private PartialSolution? ValidSolution(Entry entry, List<PartialSolution> solutions)
+    {
+        // It's necessary to check for full equality with the original reading here
+        // because the iteration algorithm only checks `StartsWith()`
+        var validSolutions = solutions
+            .Where(s => s.ReadingText() == entry.ReadingText);
+        if (validSolutions.Count() == 1)
+        {
+            return validSolutions.First();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private class PartialSolution
