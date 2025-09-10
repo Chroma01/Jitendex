@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Immutable;
+using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.InputModels;
 
@@ -28,5 +29,8 @@ namespace Jitendex.Furigana.InputModels;
 public class SpecialExpression(string expression, IEnumerable<string> readings)
 {
     public string Expression { get; } = expression;
-    public ImmutableArray<string> Readings { get; } = [.. readings];
+    public ImmutableArray<string> Readings { get; } = readings
+        .Select(static reading => reading.KatakanaToHiragana())
+        .Distinct()
+        .ToImmutableArray();
 }
