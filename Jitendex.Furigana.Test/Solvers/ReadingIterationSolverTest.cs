@@ -17,7 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.InputModels;
-using Jitendex.Furigana.OutputModels;
+using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test.Solvers;
 
@@ -43,25 +43,25 @@ public class ReadingIterationSolverTest
         var solver = new ReadingIterationSolver(resourceSet);
 
         var entry = new VocabEntry("発条仕掛け", "ぜんまいじかけ");
-        var solution = solver.Solve(entry);
+        var solution = solver.Solve(entry).FirstOrDefault();
         Assert.IsNotNull(solution);
         var expectedSolution = Parser.Solution("[発条|ぜんまい][仕|じ][掛|か]け", entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
 
         entry = new VocabEntry("発条仕掛け", "ばねじかけ");
-        solution = solver.Solve(entry);
+        solution = solver.Solve(entry).FirstOrDefault();
         Assert.IsNotNull(solution);
         expectedSolution = Parser.Solution("[発条|ばね][仕|じ][掛|か]け", entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
 
         entry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
-        solution = solver.Solve(entry);
+        solution = solver.Solve(entry).FirstOrDefault();
         Assert.IsNotNull(solution);
         expectedSolution = Parser.Solution("[発|はつ][条|じょう][仕|じ][掛|か]け", entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
 
         entry = new VocabEntry("発条仕掛け", "ああああけ");
-        solution = solver.Solve(entry);
+        solution = solver.Solve(entry).FirstOrDefault();
         Assert.IsNull(solution);
     }
 }

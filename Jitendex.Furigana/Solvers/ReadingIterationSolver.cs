@@ -20,7 +20,9 @@ using System.Collections.Immutable;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 
-internal class ReadingIterationSolver
+namespace Jitendex.Furigana.Solvers;
+
+internal class ReadingIterationSolver : FuriganaSolver
 {
     private readonly ResourceSet _resourceSet;
 
@@ -29,18 +31,18 @@ internal class ReadingIterationSolver
         _resourceSet = resourceSet;
     }
 
-    public Solution? Solve(Entry entry)
+    public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
         var solution = IterateSolutions(entry);
 
         if (solution is null)
-            return null;
+            yield break;
 
-        return new Solution
-        {
-            Entry = entry,
-            Parts = [.. solution.GetNormalizedParts()]
-        };
+        yield return new IndexedSolution
+        (
+            entry: entry,
+            parts: [.. solution.GetIndexedParts()]
+        );
     }
 
     private PartialSolution? IterateSolutions(Entry entry)
@@ -165,6 +167,22 @@ internal class ReadingIterationSolver
                 parts.Add(new Solution.Part(baseText, null));
             }
             return parts;
+        }
+
+        public List<IndexedFurigana> GetIndexedParts()
+        {
+            var indexedParts = new List<IndexedFurigana>();
+            int index = 0;
+            foreach (var part in Parts)
+            {
+                int length = part.BaseText.EnumerateRunes().Count();
+                if (part.Furigana is not null)
+                {
+                    indexedParts.Add(new IndexedFurigana(part.Furigana, index, index + length - 1));
+                }
+                index += length;
+            }
+            return indexedParts;
         }
     }
 }
