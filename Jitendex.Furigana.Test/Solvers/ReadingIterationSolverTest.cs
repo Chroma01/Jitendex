@@ -45,39 +45,20 @@ public class ReadingIterationSolverTest
         var entry = new VocabEntry("発条仕掛け", "ぜんまいじかけ");
         var solution = solver.Solve(entry);
         Assert.IsNotNull(solution);
-        var expectedParts = new List<Solution.Part>()
-        {
-            new("発条", "ぜんまい"),
-            new("仕", "じ"),
-            new("掛", "か"),
-            new("け", null),
-        };
-        CollectionAssert.AreEqual(expectedParts, solution.Parts);
+        var expectedSolution = Parser.Solution("[発条|ぜんまい][仕|じ][掛|か]け", entry);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
 
         entry = new VocabEntry("発条仕掛け", "ばねじかけ");
         solution = solver.Solve(entry);
         Assert.IsNotNull(solution);
-        expectedParts =
-        [
-            new("発条", "ばね"),
-            new("仕", "じ"),
-            new("掛", "か"),
-            new("け", null),
-        ];
-        CollectionAssert.AreEqual(expectedParts, solution.Parts);
+        expectedSolution = Parser.Solution("[発条|ばね][仕|じ][掛|か]け", entry);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
 
         entry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
         solution = solver.Solve(entry);
         Assert.IsNotNull(solution);
-        expectedParts =
-        [
-            new("発", "はつ"),
-            new("条", "じょう"),
-            new("仕", "じ"),
-            new("掛", "か"),
-            new("け", null),
-        ];
-        CollectionAssert.AreEqual(expectedParts, solution.Parts);
+        expectedSolution = Parser.Solution("[発|はつ][条|じょう][仕|じ][掛|か]け", entry);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
 
         entry = new VocabEntry("発条仕掛け", "ああああけ");
         solution = solver.Solve(entry);

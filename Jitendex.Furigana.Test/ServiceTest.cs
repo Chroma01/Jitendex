@@ -69,7 +69,7 @@ public class ServiceTest
         var nameSolution = service.Solve(name);
         Assert.IsNotNull(nameSolution);
 
-        var expectedSolution = FuriganaSolutionParser.Parse("0:さ;1:とう", name);
+        var expectedSolution = Parser.Index("0:さ;1:とう", name);
         CollectionAssert.AreEqual(expectedSolution.Parts, nameSolution.Parts);
     }
 
@@ -256,7 +256,7 @@ public class ServiceTest
         var solution = service.Solve(vocab);
         Assert.IsNotNull(solution);
 
-        var expectedSolution = FuriganaSolutionParser.Parse(expectedFurigana, vocab);
+        var expectedSolution = Parser.Index(expectedFurigana, vocab);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 

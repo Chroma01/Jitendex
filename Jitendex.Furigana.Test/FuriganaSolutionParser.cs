@@ -17,21 +17,47 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text.RegularExpressions;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 
 namespace Jitendex.Furigana.Test;
 
-public static class FuriganaSolutionParser
+public static partial class Parser
 {
     private const char MultiValueSeparator = ';';
     private const char AssociationSeparator = ':';
     private const char RangeSeparator = '-';
 
-    public static Solution Parse(string s, Entry v)
+    [GeneratedRegex(@"\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
+    private static partial Regex TextSolutionRegex();
+
+    public static Solution Solution(string text, Entry entry)
+    {
+        var parts = new List<Solution.Part>();
+        foreach (Match match in TextSolutionRegex().Matches(text))
+        {
+            var baseText = match.Groups[1].Value;
+            var furigana = match.Groups[2].Value;
+            var noFurigana = match.Groups[3].Value;
+
+            parts.Add(new(baseText, furigana));
+            if (!string.IsNullOrWhiteSpace(noFurigana))
+            {
+                parts.Add(new(noFurigana, null));
+            }
+        }
+        return new Solution
+        {
+            Entry = entry,
+            Parts = [.. parts]
+        };
+    }
+
+    public static Solution Index(string text, Entry entry)
     {
         var parts = new List<IndexedFurigana>();
-        var partSplit = s.Split(MultiValueSeparator);
+        var partSplit = text.Split(MultiValueSeparator);
 
         foreach (var partString in partSplit)
         {
@@ -66,6 +92,6 @@ public static class FuriganaSolutionParser
             parts.Add(new IndexedFurigana(furiganaValue, minIndex, maxIndex));
         }
 
-        return new IndexedSolution(v, parts).ToTextSolution();
+        return new IndexedSolution(entry, parts).ToTextSolution();
     }
 }
