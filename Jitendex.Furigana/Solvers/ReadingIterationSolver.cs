@@ -19,41 +19,46 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 
-internal class PermutationSolver
+internal class ReadingIterationSolver
 {
     private readonly ResourceSet _resourceSet;
 
-    public PermutationSolver(ResourceSet resourceSet)
+    public ReadingIterationSolver(ResourceSet resourceSet)
     {
         _resourceSet = resourceSet;
     }
 
     public Solution? Solve(Entry entry)
     {
-        var permutations = new List<Permutation>()
+        var partialSolutions = new List<PartialSolution>()
             { new() { Parts = [new("", null)], IsInitial = true }};
 
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            permutations = NewPermutations(entry, permutations, ref sliceStart);
-            if (permutations is null)
+            partialSolutions = IterateSolutions(entry, partialSolutions, ref sliceStart);
+            if (partialSolutions is null)
                 return null;
         }
-        if (permutations.Count != 1)
+
+        var solutions = partialSolutions
+            .Where(s => s.ReadingText() == entry.ReadingText);
+
+        if (solutions.Count() != 1)
         {
             // Failed to find a unique solution.
             return null;
         }
+
         return new Solution
         {
             Entry = entry,
-            Parts = [.. permutations.First().Parts]
+            Parts = [.. solutions.First().Parts]
         };
     }
 
-    private List<Permutation>? NewPermutations(Entry entry, List<Permutation> permutations, ref int sliceStart)
+    private List<PartialSolution>? IterateSolutions(Entry entry, List<PartialSolution> solutions, ref int sliceStart)
     {
-        var newPermutations = new List<Permutation>();
+        var newSolutions = new List<PartialSolution>();
         var runes = entry.KanjiFormRunes;
 
         bool isFirstRune = sliceStart == 0;
@@ -68,9 +73,9 @@ internal class PermutationSolver
                 _resourceSet.GetPotentialReadings(runesSlice[0], entry, isFirstRune, isLastRune) :
                 _resourceSet.GetPotentialReadings(textSlice);
 
-            foreach (var permutation in permutations)
+            foreach (var solution in solutions)
             {
-                var permutationReading = permutation.ReadingText();
+                var permutationReading = solution.ReadingText();
                 foreach (var potentialReading in potentialReadings)
                 {
                     if (potentialReading is null || entry.ReadingText.StartsWith(permutationReading + potentialReading))
@@ -80,27 +85,27 @@ internal class PermutationSolver
                             new(textSlice, null) :
                             new(textSlice, potentialReading);
 
-                        var newPremutation = new Permutation
+                        var newPremutation = new PartialSolution
                         {
-                            Parts = permutation.IsInitial ?
+                            Parts = solution.IsInitial ?
                                 [newPart] :
-                                [.. permutation.Parts.Concat([newPart])]
+                                [.. solution.Parts.Concat([newPart])]
                         };
-                        newPermutations.Add(newPremutation);
+                        newSolutions.Add(newPremutation);
                     }
                 }
             }
-            if (newPermutations.Count > 0)
+            if (newSolutions.Count > 0)
             {
                 sliceStart += textSlice.Length - 1;
-                return newPermutations;
+                return newSolutions;
             }
         }
         // Exhausted all valid permutation branches
         return null;
     }
 
-    private class Permutation
+    private class PartialSolution
     {
         public required List<Solution.Part> Parts;
         public bool IsInitial;

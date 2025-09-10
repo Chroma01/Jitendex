@@ -22,7 +22,7 @@ using Jitendex.Furigana.OutputModels;
 namespace Jitendex.Furigana.Test.Solvers;
 
 [TestClass]
-public class PermutationSolverTest
+public class ReadingIterationSolverTest
 {
     [TestMethod]
     public void Test発条仕掛け()
@@ -40,7 +40,7 @@ public class PermutationSolverTest
         {
             ["発条"] = ["ぜんまい", "ばね"],
         });
-        var solver = new PermutationSolver(resourceSet);
+        var solver = new ReadingIterationSolver(resourceSet);
 
         var entry = new VocabEntry("発条仕掛け", "ぜんまいじかけ");
         var solution = solver.Solve(entry);
