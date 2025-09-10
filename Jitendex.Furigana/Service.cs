@@ -35,7 +35,7 @@ public class Service
         _solvers =
         [
             new KanaReadingSolver(resourceSet),
-            new KanjiReadingSolver(resourceSet),
+            new ReadingIterationSolver(resourceSet),
             new LengthMatchSolver(),
             new NoConsecutiveKanjiSolver(),
             new RepeatedKanjiSolver(),

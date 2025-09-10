@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Immutable;
+using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 
@@ -92,35 +93,54 @@ internal class ReadingIterationSolver : FuriganaSolver
         var newSolutions = new List<PartialSolution>();
         foreach (var solution in solutions)
         {
-            var previousPartsReading = solution.ReadingText();
-            foreach (var newPartReading in potentialReadings)
+            var previousPartsReadingNormalized = solution.NormalizedReadingText();
+            foreach (var potentialReading in potentialReadings)
             {
-                if (newPartReading is null || entry.ReadingText.StartsWith(previousPartsReading + newPartReading))
+                var newPart = NewPart(entry, textSlice, previousPartsReadingNormalized, potentialReading);
+                if (newPart is null)
+                    continue;
+                var newSolution = new PartialSolution
                 {
-                    Solution.Part newPart =
-                        textSlice == newPartReading ?
-                        new(textSlice, null) :
-                        new(textSlice, newPartReading);
-
-                    var newSolution = new PartialSolution
-                    {
-                        Parts = solution.IsInitial ?
-                            [newPart] :
-                            [.. solution.Parts.Append(newPart)]
-                    };
-                    newSolutions.Add(newSolution);
-                }
+                    Parts = solution.IsInitial ?
+                        [newPart] :
+                        [.. solution.Parts.Append(newPart)]
+                };
+                newSolutions.Add(newSolution);
             }
         }
         return newSolutions;
     }
 
+    private Solution.Part? NewPart(Entry entry, string textSlice, string previousPartsReading, string? potentialReading)
+    {
+        if (potentialReading is null)
+        {
+            return new(textSlice, null);
+        }
+        else if (!entry.NormalizedReadingText.StartsWith(previousPartsReading + potentialReading))
+        {
+            return null;
+        }
+        else if (textSlice.IsKanaEquivalent(potentialReading))
+        {
+            return new(textSlice, null);
+        }
+        else
+        {
+            // Use the non-normalized reading for the furigana text.
+            int i = previousPartsReading.Length;
+            int j = i + potentialReading.Length;
+            var newPartReading = entry.ReadingText[i..j];
+            return new(textSlice, newPartReading);
+        }
+    }
+
     private PartialSolution? ValidSolution(Entry entry, List<PartialSolution> solutions)
     {
-        // It's necessary to check for full equality with the original reading here
+        // It's necessary to check for length equality with the original reading here
         // because the iteration algorithm only checks `StartsWith()`
         var validSolutions = solutions
-            .Where(s => s.ReadingText() == entry.ReadingText);
+            .Where(s => s.ReadingTextLength() == entry.ReadingText.Length);
         if (validSolutions.Count() == 1)
         {
             return validSolutions.First();
@@ -138,6 +158,15 @@ internal class ReadingIterationSolver : FuriganaSolver
 
         public string ReadingText() =>
             new(Parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
+
+        public int ReadingTextLength() => Parts.Aggregate
+        (
+            seed: 0,
+            func: static (sum, part) => sum + (part.Furigana?.Length ?? part.BaseText.Length)
+        );
+
+        public string NormalizedReadingText() =>
+            ReadingText().KatakanaToHiragana();
 
         /// <summary>
         /// Merge consecutive parts together if they have null furigana.

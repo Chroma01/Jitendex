@@ -69,9 +69,17 @@ public class ResourceSet
     {
         var kanji = GetKanji(character, entry);
         if (kanji is not null)
+        {
             return kanji.GetPotentialReadings(isFirstRune, isLastRune);
+        }
+        else if (character.IsKana())
+        {
+            return [character.ToString().KatakanaToHiragana()];
+        }
         else
+        {
             return [];
+        }
     }
 
     public ImmutableArray<string> GetPotentialReadings(string text)

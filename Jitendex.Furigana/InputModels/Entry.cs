@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using System.Text;
+using Jitendex.Furigana.Helpers;
 
 namespace Jitendex.Furigana.InputModels;
 
@@ -26,6 +27,7 @@ public abstract class Entry
 {
     public string KanjiFormText { get; }
     public string ReadingText { get; }
+    internal string NormalizedReadingText { get; }
     internal ImmutableArray<Rune> RawKanjiFormRunes { get; }
     internal ImmutableArray<Rune> KanjiFormRunes { get; }
 
@@ -33,6 +35,7 @@ public abstract class Entry
     {
         KanjiFormText = kanjiFormText;
         ReadingText = readingText;
+        NormalizedReadingText = readingText.KatakanaToHiragana();
         RawKanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
         KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
     }
