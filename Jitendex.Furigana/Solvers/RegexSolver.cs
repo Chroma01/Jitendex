@@ -25,7 +25,7 @@ using Jitendex.Furigana.OutputModels;
 
 namespace Jitendex.Furigana.Solvers;
 
-internal class NoConsecutiveKanjiSolver : FuriganaSolver
+internal class RegexSolver : FuriganaSolver
 {
     /// <summary>
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,

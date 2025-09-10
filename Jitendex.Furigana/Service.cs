@@ -37,7 +37,7 @@ public class Service
             new KanaReadingSolver(resourceSet),
             new ReadingIterationSolver(resourceSet),
             new LengthMatchSolver(),
-            new NoConsecutiveKanjiSolver(),
+            new RegexSolver(),
             new RepeatedKanjiSolver(),
             new SingleCharacterSolver(),
             new SingleKanjiSolver(),
