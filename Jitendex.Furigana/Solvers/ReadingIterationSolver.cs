@@ -52,7 +52,7 @@ internal class ReadingIterationSolver
         return new Solution
         {
             Entry = entry,
-            Parts = [.. solutions.First().Parts]
+            Parts = [.. solutions.First().GetNormalizedParts()]
         };
     }
 
@@ -75,23 +75,23 @@ internal class ReadingIterationSolver
 
             foreach (var solution in solutions)
             {
-                var permutationReading = solution.ReadingText();
-                foreach (var potentialReading in potentialReadings)
+                var previousPartsReading = solution.ReadingText();
+                foreach (var newPartReading in potentialReadings)
                 {
-                    if (potentialReading is null || entry.ReadingText.StartsWith(permutationReading + potentialReading))
+                    if (newPartReading is null || entry.ReadingText.StartsWith(previousPartsReading + newPartReading))
                     {
                         Solution.Part newPart =
-                            textSlice == potentialReading ?
+                            textSlice == newPartReading ?
                             new(textSlice, null) :
-                            new(textSlice, potentialReading);
+                            new(textSlice, newPartReading);
 
-                        var newPremutation = new PartialSolution
+                        var newSolution = new PartialSolution
                         {
                             Parts = solution.IsInitial ?
                                 [newPart] :
-                                [.. solution.Parts.Concat([newPart])]
+                                [.. solution.Parts.Append(newPart)]
                         };
-                        newSolutions.Add(newPremutation);
+                        newSolutions.Add(newSolution);
                     }
                 }
             }
@@ -109,9 +109,40 @@ internal class ReadingIterationSolver
     {
         public required List<Solution.Part> Parts;
         public bool IsInitial;
+
         public string KanjiFormText() =>
             new(Parts.SelectMany(static x => x.BaseText).ToArray());
         public string ReadingText() =>
             new(Parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
+
+        /// <summary>
+        /// Merge consecutive parts together if they have null furigana.
+        /// </summary>
+        public List<Solution.Part> GetNormalizedParts()
+        {
+            var parts = new List<Solution.Part>();
+            var mergedTexts = new List<string>();
+            foreach (var part in Parts)
+            {
+                if (part.Furigana is null)
+                {
+                    mergedTexts.Add(part.BaseText);
+                    continue;
+                }
+                if (mergedTexts.Count > 0)
+                {
+                    var baseText = string.Join(string.Empty, mergedTexts);
+                    parts.Add(new Solution.Part(baseText, null));
+                    mergedTexts = new List<string>();
+                }
+                parts.Add(part);
+            }
+            if (mergedTexts.Count > 0)
+            {
+                var baseText = string.Join(string.Empty, mergedTexts);
+                parts.Add(new Solution.Part(baseText, null));
+            }
+            return parts;
+        }
     }
 }
