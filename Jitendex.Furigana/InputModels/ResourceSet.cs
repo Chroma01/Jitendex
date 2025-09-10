@@ -40,31 +40,6 @@ public class ResourceSet
             .ToFrozenDictionary();
     }
 
-    public Kanji? GetKanji(Rune character, Entry entry)
-    {
-        if (entry is NameEntry && _kanjiDictionary.TryGetValue((character.Value, typeof(NameKanji)), out Kanji? nameKanji))
-        {
-            return nameKanji;
-        }
-        if (_kanjiDictionary.TryGetValue((character.Value, typeof(VocabKanji)), out Kanji? kanji))
-        {
-            return kanji;
-        }
-        if (character.IsKanji())
-        {
-            return new VocabKanji(character, []);
-        }
-        return null;
-    }
-
-    public SpecialExpression? GetExpression(string text)
-    {
-        if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
-            return expression;
-        else
-            return null;
-    }
-
     public ImmutableArray<string> GetPotentialReadings(Rune character, Entry entry, bool isFirstRune, bool isLastRune)
     {
         var kanji = GetKanji(character, entry);
@@ -88,8 +63,33 @@ public class ResourceSet
     {
         var specialExpression = GetExpression(text);
         if (specialExpression is not null)
+        {
             return specialExpression.Readings;
+        }
         else
+        {
             return [];
+        }
+    }
+
+    private Kanji? GetKanji(Rune character, Entry entry)
+    {
+        if (entry is NameEntry && _kanjiDictionary.TryGetValue((character.Value, typeof(NameKanji)), out Kanji? nameKanji))
+        {
+            return nameKanji;
+        }
+        if (_kanjiDictionary.TryGetValue((character.Value, typeof(VocabKanji)), out Kanji? kanji))
+        {
+            return kanji;
+        }
+        return null;
+    }
+
+    public SpecialExpression? GetExpression(string text)
+    {
+        if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
+            return expression;
+        else
+            return null;
     }
 }
