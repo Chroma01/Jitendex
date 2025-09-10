@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 
@@ -58,51 +59,65 @@ internal class ReadingIterationSolver
 
     private List<PartialSolution>? IterateSolutions(Entry entry, List<PartialSolution> solutions, ref int sliceStart)
     {
-        var newSolutions = new List<PartialSolution>();
         var runes = entry.KanjiFormRunes;
-
-        bool isFirstRune = sliceStart == 0;
-        bool isLastRune = sliceStart == runes.Length - 1;
 
         for (int sliceEnd = runes.Length; sliceStart < sliceEnd; sliceEnd--)
         {
-            var runesSlice = runes[sliceStart..sliceEnd];
-            var textSlice = string.Join(string.Empty, runesSlice);
-
-            var potentialReadings = runesSlice.Length == 1 ?
-                _resourceSet.GetPotentialReadings(runesSlice[0], entry, isFirstRune, isLastRune) :
-                _resourceSet.GetPotentialReadings(textSlice);
-
-            foreach (var solution in solutions)
-            {
-                var previousPartsReading = solution.ReadingText();
-                foreach (var newPartReading in potentialReadings)
-                {
-                    if (newPartReading is null || entry.ReadingText.StartsWith(previousPartsReading + newPartReading))
-                    {
-                        Solution.Part newPart =
-                            textSlice == newPartReading ?
-                            new(textSlice, null) :
-                            new(textSlice, newPartReading);
-
-                        var newSolution = new PartialSolution
-                        {
-                            Parts = solution.IsInitial ?
-                                [newPart] :
-                                [.. solution.Parts.Append(newPart)]
-                        };
-                        newSolutions.Add(newSolution);
-                    }
-                }
-            }
+            var potentialReadings = GetPotentialReadings(entry, sliceStart, sliceEnd);
+            var rawTextSlice = string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd]);
+            var newSolutions = SolutionsForSlice(entry, solutions, potentialReadings, rawTextSlice);
             if (newSolutions.Count > 0)
             {
-                sliceStart += textSlice.Length - 1;
+                sliceStart += rawTextSlice.Length - 1;
                 return newSolutions;
             }
         }
-        // Exhausted all valid permutation branches
+        // No valid partial solutions found.
         return null;
+    }
+
+    private ImmutableArray<string> GetPotentialReadings(Entry entry, int sliceStart, int sliceEnd)
+    {
+        var runesSlice = entry.KanjiFormRunes[sliceStart..sliceEnd];
+        if (runesSlice.Length == 1)
+        {
+            bool isFirstRune = sliceStart == 0;
+            bool isLastRune = sliceStart == entry.KanjiFormRunes.Length - 1;
+            return _resourceSet.GetPotentialReadings(runesSlice[0], entry, isFirstRune, isLastRune);
+        }
+        else
+        {
+            var textSlice = string.Join(string.Empty, runesSlice);
+            return _resourceSet.GetPotentialReadings(textSlice);
+        }
+    }
+
+    private List<PartialSolution> SolutionsForSlice(Entry entry, List<PartialSolution> solutions, ImmutableArray<string> potentialReadings, string textSlice)
+    {
+        var newSolutions = new List<PartialSolution>();
+        foreach (var solution in solutions)
+        {
+            var previousPartsReading = solution.ReadingText();
+            foreach (var newPartReading in potentialReadings)
+            {
+                if (newPartReading is null || entry.ReadingText.StartsWith(previousPartsReading + newPartReading))
+                {
+                    Solution.Part newPart =
+                        textSlice == newPartReading ?
+                        new(textSlice, null) :
+                        new(textSlice, newPartReading);
+
+                    var newSolution = new PartialSolution
+                    {
+                        Parts = solution.IsInitial ?
+                            [newPart] :
+                            [.. solution.Parts.Append(newPart)]
+                    };
+                    newSolutions.Add(newSolution);
+                }
+            }
+        }
+        return newSolutions;
     }
 
     private class PartialSolution
@@ -110,8 +125,6 @@ internal class ReadingIterationSolver
         public required List<Solution.Part> Parts;
         public bool IsInitial;
 
-        public string KanjiFormText() =>
-            new(Parts.SelectMany(static x => x.BaseText).ToArray());
         public string ReadingText() =>
             new(Parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
 
