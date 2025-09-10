@@ -26,7 +26,7 @@ namespace Jitendex.Furigana.Test.Models;
 public class TextSolutionTest
 {
     [TestMethod]
-    public void TestRubySolutionAkagaeruka()
+    public void Testアカガエル科()
     {
         var vocab = new VocabEntry("アカガエル科", "アカガエルか");
         var indexedSolution = new IndexedSolution
@@ -46,7 +46,7 @@ public class TextSolutionTest
     }
 
     [TestMethod]
-    public void TestRubySolutionOtonagai()
+    public void Test大人買い()
     {
         var vocab = new VocabEntry("大人買い", "おとながい");
         var indexedSolution = new IndexedSolution
@@ -69,7 +69,7 @@ public class TextSolutionTest
     }
 
     [TestMethod]
-    public void TestRubySolutionHakabakashii()
+    public void Test捗々しい()
     {
         var vocab = new VocabEntry("捗々しい", "はかばかしい");
         var indexedSolution = new IndexedSolution

@@ -71,7 +71,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaGanbaru()
+    public void TestFurigana頑張る()
     {
         var service = new Service(MakeResourceSet(new()
         {
@@ -82,7 +82,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaObocchan()
+    public void TestFurigana御坊っちゃん()
     {
         var service = new Service(MakeResourceSet(new()
         {
@@ -93,7 +93,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaAra()
+    public void TestFuriganaあら()
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
@@ -105,7 +105,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaIjirimawasu()
+    public void TestFurigana弄り回す()
     {
         var service = new Service(MakeResourceSet(new()
         {
@@ -116,7 +116,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaKassarau()
+    public void TestFurigana掻っ攫う()
     {
         var service = new Service(MakeResourceSet(new()
         {
@@ -127,7 +127,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaOneesan()
+    public void TestFurigana御姉さん()
     {
         var service = new Service(MakeResourceSet(new()
         {
@@ -138,7 +138,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void TestFuriganaHakabakashii()
+    public void TestFurigana捗捗しい()
     {
         // Rendaku is applied to the second instance of 捗.
         var service = new Service(MakeResourceSet(new()

@@ -24,44 +24,62 @@ namespace Jitendex.Furigana.Test.Solvers;
 [TestClass]
 public class ReadingIterationSolverTest
 {
-    [TestMethod]
-    public void Test発条仕掛け()
-    {
-        var resourceSet = ServiceTest.MakeResourceSet(
+    private static readonly ResourceSet _resourceSet = ServiceTest.MakeResourceSet(
         new()
         {
             ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
             ["条"] = ["ジョウ", "チョウ", "デキ", "えだ", "すじ"],
             ["仕"] = ["シ", "ジ", "つか.える"],
             ["掛"] = ["カイ", "ケイ", "か.ける", "-か.ける", "か.け", "-か.け", "-が.け", "か.かる", "-か.かる", "-が.かる", "か.かり", "-が.かり", "かかり", "-がかり"],
-            ["け"] = ["け"],
         },
         new()
         {
             ["発条"] = ["ぜんまい", "ばね"],
         });
-        var solver = new ReadingIterationSolver(resourceSet);
 
+    private static readonly ReadingIterationSolver _solver = new(_resourceSet);
+
+    [TestMethod]
+    public void Testぜんまい()
+    {
         var entry = new VocabEntry("発条仕掛け", "ぜんまいじかけ");
-        var solution = solver.Solve(entry).FirstOrDefault();
+        var solution = _solver.Solve(entry).FirstOrDefault();
         Assert.IsNotNull(solution);
-        var expectedSolution = Parser.Solution("[発条|ぜんまい][仕|じ][掛|か]け", entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
 
-        entry = new VocabEntry("発条仕掛け", "ばねじかけ");
-        solution = solver.Solve(entry).FirstOrDefault();
+        var text = "[発条|ぜんまい][仕|じ][掛|か]け";
+        var expectedSolution = Parser.Solution(text, entry);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+    }
+
+    [TestMethod]
+    public void Testばね()
+    {
+        var entry = new VocabEntry("発条仕掛け", "ばねじかけ");
+        var solution = _solver.Solve(entry).FirstOrDefault();
         Assert.IsNotNull(solution);
-        expectedSolution = Parser.Solution("[発条|ばね][仕|じ][掛|か]け", entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
 
-        entry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
-        solution = solver.Solve(entry).FirstOrDefault();
+        var text = "[発条|ばね][仕|じ][掛|か]け";
+        var expectedSolution = Parser.Solution(text, entry);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+    }
+
+    [TestMethod]
+    public void Testはつじょう()
+    {
+        var entry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
+        var solution = _solver.Solve(entry).FirstOrDefault();
         Assert.IsNotNull(solution);
-        expectedSolution = Parser.Solution("[発|はつ][条|じょう][仕|じ][掛|か]け", entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
 
-        entry = new VocabEntry("発条仕掛け", "ああああけ");
-        solution = solver.Solve(entry).FirstOrDefault();
+        var text = "[発|はつ][条|じょう][仕|じ][掛|か]け";
+        var expectedSolution = Parser.Solution(text, entry);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+    }
+
+    [TestMethod]
+    public void Testああ()
+    {
+        var entry = new VocabEntry("発条仕掛け", "ああああけ");
+        var solution = _solver.Solve(entry).FirstOrDefault();
         Assert.IsNull(solution);
     }
 }

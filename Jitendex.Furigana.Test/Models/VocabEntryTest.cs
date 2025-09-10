@@ -32,11 +32,27 @@ public class VocabEntryTest
     }
 
     [TestMethod]
+    public void TestSingleRepeaterRawRunes()
+    {
+        var v = new VocabEntry("時々", "ときどき");
+        var expectedRunes = "時々".EnumerateRunes().ToList();
+        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
+    }
+
+    [TestMethod]
     public void TestDoubleRepeater()
     {
         var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
         var expectedRunes = "一杯一杯".EnumerateRunes().ToList();
         CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
+    }
+
+    [TestMethod]
+    public void TestDoubleRepeaterRawRunes()
+    {
+        var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
+        var expectedRunes = "一杯々々".EnumerateRunes().ToList();
+        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
     }
 
     [TestMethod]
@@ -53,21 +69,5 @@ public class VocabEntryTest
         var v = new VocabEntry("事々物々", "じじぶつぶつ");
         var expectedRunes = "事事物物".EnumerateRunes().ToList();
         CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
-    }
-
-    [TestMethod]
-    public void TestSingleRepeaterRawRunes()
-    {
-        var v = new VocabEntry("時々", "ときどき");
-        var expectedRunes = "時々".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
-    }
-
-    [TestMethod]
-    public void TestDoubleRepeaterRawRunes()
-    {
-        var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
-        var expectedRunes = "一杯々々".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
     }
 }
