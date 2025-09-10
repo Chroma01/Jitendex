@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 
@@ -62,5 +63,23 @@ public class ResourceSet
             return expression;
         else
             return null;
+    }
+
+    public ImmutableArray<string> GetPotentialReadings(Rune character, Entry entry, bool isFirstRune, bool isLastRune)
+    {
+        var kanji = GetKanji(character, entry);
+        if (kanji is not null)
+            return kanji.GetPotentialReadings(isFirstRune, isLastRune);
+        else
+            return [];
+    }
+
+    public ImmutableArray<string> GetPotentialReadings(string text)
+    {
+        var specialExpression = GetExpression(text);
+        if (specialExpression is not null)
+            return specialExpression.Readings;
+        else
+            return [];
     }
 }
