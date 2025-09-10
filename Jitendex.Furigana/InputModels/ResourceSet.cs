@@ -74,7 +74,9 @@ public class ResourceSet
         }
         else if (character.IsKana())
         {
-            return [character.ToString().KatakanaToHiragana()];
+            // In normal circumstances, a kana's only reading is itself.
+            var characterAsHiragana = ((char)character.Value).KatakanaToHiragana();
+            return [characterAsHiragana.ToString()];
         }
         else
         {
