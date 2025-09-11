@@ -45,9 +45,9 @@ internal class ReadingIterationSolver : FuriganaSolver
                 newBuilders = IterateBuilders
                 (
                     entry: entry,
-                    builders: builders,
+                    oldBuilders: builders,
                     potentialReadings: GetPotentialReadings(entry, sliceStart, sliceEnd),
-                    textSlice: string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd])
+                    baseText: string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd])
                 );
                 if (newBuilders.Count > 0)
                 {
@@ -84,19 +84,19 @@ internal class ReadingIterationSolver : FuriganaSolver
         }
     }
 
-    private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> builders, ImmutableArray<string> potentialReadings, string textSlice)
+    private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> potentialReadings, string baseText)
     {
         var newBuilders = new List<SolutionBuilder>();
-        foreach (var builder in builders)
+        foreach (var oldBuilder in oldBuilders)
         {
-            var previousPartsReadingNormalized = builder.NormalizedReadingText();
-            foreach (var potentialReading in potentialReadings)
+            var oldReadings = oldBuilder.NormalizedReadingText();
+            foreach (var newReading in potentialReadings)
             {
-                if (TryGetNewPart(entry, textSlice, previousPartsReadingNormalized, potentialReading, out var newPart))
+                if (TryGetNewPart(entry, baseText, oldReadings, newReading, out var newPart))
                 {
                     newBuilders.Add
                     (
-                        new SolutionBuilder(builder.Parts.Append(newPart))
+                        new SolutionBuilder(oldBuilder.Parts.Append(newPart))
                     );
                 }
             }
@@ -104,30 +104,30 @@ internal class ReadingIterationSolver : FuriganaSolver
         return newBuilders;
     }
 
-    private static bool TryGetNewPart(Entry entry, string textSlice, string previousPartsReading, string? potentialReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
+    private static bool TryGetNewPart(Entry entry, string baseText, string oldReadings, string? baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
-        if (potentialReading is null)
+        if (baseReading is null)
         {
-            part = new(textSlice, null);
+            part = new(baseText, null);
             return true;
         }
-        else if (!entry.NormalizedReadingText.StartsWith(previousPartsReading + potentialReading))
+        else if (!entry.NormalizedReadingText.StartsWith(oldReadings + baseReading))
         {
             part = null;
             return false;
         }
-        else if (textSlice.IsKanaEquivalent(potentialReading))
+        else if (baseText.IsKanaEquivalent(baseReading))
         {
-            part = new(textSlice, null);
+            part = new(baseText, null);
             return true;
         }
         else
         {
-            // Use the non-normalized reading for the furigana text.
-            int i = previousPartsReading.Length;
-            int j = i + potentialReading.Length;
-            var newPartReading = entry.ReadingText[i..j];
-            part = new(textSlice, newPartReading);
+            // Use the raw, non-normalized reading for the furigana text.
+            int i = oldReadings.Length;
+            int j = i + baseReading.Length;
+            var furigana = entry.ReadingText[i..j];
+            part = new(baseText, furigana);
             return true;
         }
     }
