@@ -26,34 +26,72 @@ namespace Jitendex.Furigana.Solvers;
 internal class RepeatedKanjiSolver : FuriganaSolver
 {
     /// <summary>
-    /// Solves cases where the kanji reading consists in a repeated kanji.
+    /// Solves entries consisting of kanji forms with two repeated kanji and even-length readings.
     /// </summary>
+    /// <remarks>
+    /// <list type="bullet">
+    /// <item>ひび【日日】</item>
+    /// <item>たまたま【偶々】</item>
+    /// <item>ときどき【時時】</item>
+    /// </list>
+    /// </remarks>
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
+        if (TryGetBaseText(entry, out var baseText) && TryGetFurigana(entry, out var furigana))
+        {
+            var solutionBuilder = new SolutionBuilder
+            ([
+                new(baseText.Item1, furigana.Item1),
+                new(baseText.Item2, furigana.Item2),
+            ]);
+
+            var solution = solutionBuilder.ToIndexedSolution(entry);
+            if (solution is not null)
+            {
+                yield return solution;
+            }
+        }
+    }
+
+    private bool TryGetBaseText(Entry entry, out (string, string) baseText)
+    {
+        baseText = (string.Empty, string.Empty);
         var runes = entry.KanjiFormRunes;
 
         if (runes.Length != 2)
         {
-            yield break;
+            return false;
         }
+
+        var (firstRune, secondRune) = (runes[0], runes[1]);
+
+        if (firstRune != secondRune || firstRune.IsKana())
+        {
+            return false;
+        }
+
+        var rawRunes = entry.RawKanjiFormRunes;
+        baseText = (rawRunes[0].ToString(), rawRunes[1].ToString());
+
+        return true;
+    }
+
+    private bool TryGetFurigana(Entry entry, out (string, string) furigana)
+    {
         if (entry.ReadingText.Length % 2 != 0)
         {
-            yield break;
+            furigana = (string.Empty, string.Empty);
+            return false;
         }
 
-        var firstRune = runes[0];
-        var secondRune = runes[1];
+        int halfTextLength = entry.ReadingText.Length / 2;
 
-        if (firstRune == secondRune && !firstRune.IsKana())
-        {
-            // We have a case where the kanji string is composed of kanji repeated (e.g. 中々),
-            // and our kana string can be cut in two. Just do that.
-            yield return new IndexedSolution
-            (
-                entry,
-                new IndexedFurigana(entry.ReadingText[..(entry.ReadingText.Length / 2)], 0),
-                new IndexedFurigana(entry.ReadingText[(entry.ReadingText.Length / 2)..], 1)
-            );
-        }
+        furigana =
+        (
+            entry.ReadingText[..halfTextLength],
+            entry.ReadingText[halfTextLength..]
+        );
+
+        return true;
     }
 }
