@@ -38,38 +38,18 @@ internal class SolutionBuilder
     public string ReadingText() => new(_parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
     public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
 
-    public void Add(Solution.Part part)
-    {
-        _parts.Add(part);
-    }
-
+    public void Add(Solution.Part part) => _parts.Add(part);
     public ImmutableArray<Solution.Part> ToParts() => _parts.ToImmutableArray();
 
-    public Solution? ToSolution(Entry entry)
-    {
-        if (!IsValid(entry))
-        {
-            return null;
-        }
-        return new Solution
-        {
-            Entry = entry,
-            Parts = [.. GetNormalizedParts()]
-        };
-    }
+    public Solution? ToSolution(Entry entry) =>
+        IsValid(entry) ?
+        new Solution { Entry = entry, Parts = [.. NormalizedParts()] } :
+        null;
 
-    public IndexedSolution? ToIndexedSolution(Entry entry)
-    {
-        if (!IsValid(entry))
-        {
-            return null;
-        }
-        return new IndexedSolution
-        (
-            entry: entry,
-            parts: [.. GetIndexedParts()]
-        );
-    }
+    public IndexedSolution? ToIndexedSolution(Entry entry) =>
+        IsValid(entry) ?
+        new IndexedSolution(entry, [.. IndexedParts()]) :
+        null;
 
     private bool IsValid(Entry entry) =>
         entry.NormalizedReadingText == NormalizedReadingText() &&
@@ -78,9 +58,9 @@ internal class SolutionBuilder
     /// <summary>
     /// Merge consecutive parts together if they have null furigana.
     /// </summary>
-    private List<Solution.Part> GetNormalizedParts()
+    private List<Solution.Part> NormalizedParts()
     {
-        var parts = new List<Solution.Part>();
+        var normalizedParts = new List<Solution.Part>();
         var mergedTexts = new List<string>();
         foreach (var part in _parts)
         {
@@ -92,20 +72,20 @@ internal class SolutionBuilder
             if (mergedTexts.Count > 0)
             {
                 var baseText = string.Join(string.Empty, mergedTexts);
-                parts.Add(new Solution.Part(baseText, null));
+                normalizedParts.Add(new Solution.Part(baseText, null));
                 mergedTexts = new List<string>();
             }
-            parts.Add(part);
+            normalizedParts.Add(part);
         }
         if (mergedTexts.Count > 0)
         {
             var baseText = string.Join(string.Empty, mergedTexts);
-            parts.Add(new Solution.Part(baseText, null));
+            normalizedParts.Add(new Solution.Part(baseText, null));
         }
-        return parts;
+        return normalizedParts;
     }
 
-    private List<IndexedFurigana> GetIndexedParts()
+    private List<IndexedFurigana> IndexedParts()
     {
         var indexedParts = new List<IndexedFurigana>();
         int index = 0;

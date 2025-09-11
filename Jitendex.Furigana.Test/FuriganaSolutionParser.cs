@@ -20,6 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
+using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test;
 
@@ -29,29 +30,34 @@ public static partial class Parser
     private const char AssociationSeparator = ':';
     private const char RangeSeparator = '-';
 
-    [GeneratedRegex(@"\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
+    [GeneratedRegex(@"([^\[]*)\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
     private static partial Regex TextSolutionRegex();
 
     public static Solution Solution(string text, Entry entry)
     {
-        var parts = new List<Solution.Part>();
+        var solutionBuilder = new SolutionBuilder();
         foreach (Match match in TextSolutionRegex().Matches(text))
         {
-            var baseText = match.Groups[1].Value;
-            var furigana = match.Groups[2].Value;
-            var noFurigana = match.Groups[3].Value;
+            var noFurigana1 = match.Groups[1].Value;
+            var baseText = match.Groups[2].Value;
+            var furigana = match.Groups[3].Value;
+            var noFurigana2 = match.Groups[4].Value;
 
-            parts.Add(new(baseText, furigana));
-            if (!string.IsNullOrWhiteSpace(noFurigana))
-            {
-                parts.Add(new(noFurigana, null));
-            }
+            if (!string.IsNullOrWhiteSpace(noFurigana1))
+                solutionBuilder.Add(new(noFurigana1, null));
+
+            if (!string.IsNullOrWhiteSpace(baseText) && !string.IsNullOrWhiteSpace(furigana))
+                solutionBuilder.Add(new(baseText, furigana));
+
+            if (!string.IsNullOrWhiteSpace(noFurigana2))
+                solutionBuilder.Add(new(noFurigana2, null));
         }
-        return new Solution
+        var solution = solutionBuilder.ToSolution(entry);
+        if (solution is null)
         {
-            Entry = entry,
-            Parts = [.. parts]
-        };
+            throw new ArgumentException(nameof(text));
+        }
+        return solution;
     }
 
     public static Solution Index(string text, Entry entry)

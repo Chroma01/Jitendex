@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
@@ -32,74 +33,91 @@ internal class SingleKanjiSolver : FuriganaSolver
 
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        if (!EligibleForThisSolution(entry)) yield break;
+        var prefix = Prefix(entry);
+        if (prefix is null) yield break;
 
-        var kanjiFormRunes = entry.KanjiFormRunes;
-        int kanjiIndex = 0;
-        string kanaReading = entry.ReadingText;
+        var suffix = Suffix(entry, prefix);
+        if (suffix is null) yield break;
 
-        // See if there are only obvious characters around.
-        // Browse the kanji reading and eat characters until we get to
-        // the kanji character.
-        for (int i = 0; i < kanjiFormRunes.Length; i++)
+        var furigana = Furigana(entry, prefix, suffix);
+        if (furigana is null) yield break;
+
+        var baseText = entry.KanjiFormRunes[prefix.Length].ToString();
+
+        var solutionBuilder = new SolutionBuilder
+        ([
+            new Solution.Part(prefix, null),
+            new Solution.Part(baseText, furigana),
+            new Solution.Part(suffix, null),
+        ]);
+
+        var solution = solutionBuilder.ToIndexedSolution(entry);
+        if (solution is not null)
         {
-            var rune = kanjiFormRunes[i];
-            if (rune.IsKanji())
-            {
-                // We are on the kanji. Skip.
-                kanjiIndex = i;
-                break;
-            }
-            else if (kanaReading.First() == rune.Value)
-            {
-                // Remove the first character of the reading.
-                kanaReading = kanaReading[1..];
-            }
-            else
-            {
-                // There is something wrong. Readings don't add up.
-                // Can't solve.
-                yield break;
-            }
+            yield return solution;
         }
-
-        // Now browse in reverse and eat characters until we get back to
-        // the kanji character.
-        for (int i = kanjiFormRunes.Length - 1; i >= 0; i--)
-        {
-            var rune = kanjiFormRunes[i];
-
-            if (rune.IsKanji())
-            {
-                // We are on the kanji. Skip.
-                break;
-            }
-            else if (kanaReading.Last() == rune.Value)
-            {
-                // Eat the last character of the reading.
-                kanaReading = kanaReading[..^1];
-            }
-            else
-            {
-                // There is something wrong. Readings don't add up.
-                // Can't solve.
-                yield break;
-            }
-        }
-
-        // We are done. Our kanaReading contains only what's left when eating the kana
-        // before and after the kanji. It's the reading of our kanji.
-        yield return new IndexedSolution(entry, new IndexedFurigana(kanaReading, kanjiIndex));
     }
 
-    private static bool EligibleForThisSolution(Entry entry)
+    private string? Prefix(Entry entry)
     {
-        int kanjiCount = 0;
-        foreach (var rune in entry.KanjiFormRunes)
+        var prefixBuilder = new StringBuilder();
+        var runes = entry.KanjiFormRunes;
+        foreach (var rune in runes)
         {
-            if (rune.IsKanji() && ++kanjiCount > 1)
-                return false;
+            if (rune.IsKana())
+            {
+                prefixBuilder.Append(rune);
+            }
+            else
+            {
+                return prefixBuilder.ToString();
+            }
         }
-        return true;
+        // Either the runes are all kana or there were no runes.
+        return null;
+    }
+
+    private string? Suffix(Entry entry, string prefix)
+    {
+        var suffixBuilder = new StringBuilder();
+        var runes = entry.KanjiFormRunes[(prefix.Length + 1)..];
+        foreach (var rune in runes)
+        {
+            if (rune.IsKana())
+            {
+                suffixBuilder.Append(rune);
+            }
+            else
+            {
+                // Kanji form contains more than one kanji.
+                return null;
+            }
+        }
+        return suffixBuilder.ToString();
+    }
+
+    private string? Furigana(Entry entry, string prefix, string suffix)
+    {
+        var normalizedPrefix = prefix.KatakanaToHiragana();
+        if (!entry.NormalizedReadingText.StartsWith(normalizedPrefix))
+        {
+            return null;
+        }
+
+        var normalizedSuffix = suffix.KatakanaToHiragana();
+        if (!entry.NormalizedReadingText.EndsWith(normalizedSuffix))
+        {
+            return null;
+        }
+
+        int i = prefix.Length;
+        int j = entry.ReadingText.Length - suffix.Length;
+
+        if (i == j)
+        {
+            return null;
+        }
+
+        return entry.ReadingText[i..j];
     }
 }
