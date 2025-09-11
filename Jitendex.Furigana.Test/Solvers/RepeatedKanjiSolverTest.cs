@@ -29,32 +29,32 @@ public class RepeatedKanjiSolverTest
     [TestMethod]
     public void TestOneKanaPerKanji()
     {
-        TestSuccess("唖々", "ああ", "0:あ;1:あ");
-        TestSuccess("唖唖", "ああ", "0:あ;1:あ");
+        TestVocabSuccess("唖々", "ああ", "0:あ;1:あ");
+        TestVocabSuccess("唖唖", "ああ", "0:あ;1:あ");
     }
 
     [TestMethod]
     public void TestTwoKanaPerKanji()
     {
-        TestSuccess("抑抑", "そもそも", "0:そも;1:そも");
-        TestSuccess("抑々", "そもそも", "0:そも;1:そも");
-        TestSuccess("犇犇", "ひしひし", "0:ひし;1:ひし");
-        TestSuccess("犇々", "ひしひし", "0:ひし;1:ひし");
-        TestSuccess("愈愈", "いよいよ", "0:いよ;1:いよ");
-        TestSuccess("愈々", "いよいよ", "0:いよ;1:いよ");
-        TestSuccess("偶偶", "たまたま", "0:たま;1:たま");
-        TestSuccess("偶々", "たまたま", "0:たま;1:たま");
-        TestSuccess("益益", "ますます", "0:ます;1:ます");
-        TestSuccess("益々", "ますます", "0:ます;1:ます");
+        TestVocabSuccess("抑抑", "そもそも", "0:そも;1:そも");
+        TestVocabSuccess("抑々", "そもそも", "0:そも;1:そも");
+        TestVocabSuccess("犇犇", "ひしひし", "0:ひし;1:ひし");
+        TestVocabSuccess("犇々", "ひしひし", "0:ひし;1:ひし");
+        TestVocabSuccess("愈愈", "いよいよ", "0:いよ;1:いよ");
+        TestVocabSuccess("愈々", "いよいよ", "0:いよ;1:いよ");
+        TestVocabSuccess("偶偶", "たまたま", "0:たま;1:たま");
+        TestVocabSuccess("偶々", "たまたま", "0:たま;1:たま");
+        TestVocabSuccess("益益", "ますます", "0:ます;1:ます");
+        TestVocabSuccess("益々", "ますます", "0:ます;1:ます");
     }
 
     [TestMethod]
     public void TestRendaku()
     {
-        TestSuccess("日日", "ひび", "0:ひ;1:び");
-        TestSuccess("日々", "ひび", "0:ひ;1:び");
-        TestSuccess("時時", "ときどき", "0:とき;1:どき");
-        TestSuccess("時々", "ときどき", "0:とき;1:どき");
+        TestVocabSuccess("日日", "ひび", "0:ひ;1:び");
+        TestVocabSuccess("日々", "ひび", "0:ひ;1:び");
+        TestVocabSuccess("時時", "ときどき", "0:とき;1:どき");
+        TestVocabSuccess("時々", "ときどき", "0:とき;1:どき");
     }
 
     [TestMethod]
@@ -62,25 +62,25 @@ public class RepeatedKanjiSolverTest
     {
         // "𩺊" is represented by a UTF-16 "Surrogate Pair"
         // with string Length == 2.
-        TestSuccess("𩺊𩺊", "あらあら", "0:あら;1:あら");
-        TestSuccess("𩺊々", "あらあら", "0:あら;1:あら");
+        TestVocabSuccess("𩺊𩺊", "あらあら", "0:あら;1:あら");
+        TestVocabSuccess("𩺊々", "あらあら", "0:あら;1:あら");
     }
 
     [TestMethod]
     public void TestThreeKanaPerKanji()
     {
-        TestSuccess("州州", "しゅうしゅう", "0:しゅう;1:しゅう");
-        TestSuccess("州々", "しゅうしゅう", "0:しゅう;1:しゅう");
+        TestVocabSuccess("州州", "しゅうしゅう", "0:しゅう;1:しゅう");
+        TestVocabSuccess("州々", "しゅうしゅう", "0:しゅう;1:しゅう");
     }
 
     [TestMethod]
     public void TestNonKanji()
     {
-        TestSuccess("々々", "ときどき", "0:とき;1:どき");
-        TestSuccess("〇〇", "まるまる", "0:まる;1:まる");
+        TestVocabSuccess("々々", "ときどき", "0:とき;1:どき");
+        TestVocabSuccess("〇〇", "まるまる", "0:まる;1:まる");
     }
 
-    private static void TestSuccess(string kanjiForm, string reading, string expectedFurigana)
+    private static void TestVocabSuccess(string kanjiForm, string reading, string expectedFurigana)
     {
         var solver = new RepeatedKanjiSolver();
         var vocab = new VocabEntry(kanjiForm, reading);

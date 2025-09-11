@@ -22,7 +22,7 @@ using Jitendex.Furigana.Solvers;
 namespace Jitendex.Furigana.Test.Solvers;
 
 [TestClass]
-public class ReadingIterationSolverTest
+internal class ReadingIterationSolverTest : SolverTest
 {
     private static readonly ResourceSet _resourceSet = ServiceTest.MakeResourceSet(
         new()
@@ -42,37 +42,19 @@ public class ReadingIterationSolverTest
     [TestMethod]
     public void Testぜんまい()
     {
-        var entry = new VocabEntry("発条仕掛け", "ぜんまいじかけ");
-        var solution = _solver.Solve(entry).FirstOrDefault();
-        Assert.IsNotNull(solution);
-
-        var text = "[発条|ぜんまい][仕|じ][掛|か]け";
-        var expectedSolution = Parser.Solution(text, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+        TestVocabSuccess(_solver, "発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け");
     }
 
     [TestMethod]
     public void Testばね()
     {
-        var entry = new VocabEntry("発条仕掛け", "ばねじかけ");
-        var solution = _solver.Solve(entry).FirstOrDefault();
-        Assert.IsNotNull(solution);
-
-        var text = "[発条|ばね][仕|じ][掛|か]け";
-        var expectedSolution = Parser.Solution(text, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+        TestVocabSuccess(_solver, "発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け");
     }
 
     [TestMethod]
     public void Testはつじょう()
     {
-        var entry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
-        var solution = _solver.Solve(entry).FirstOrDefault();
-        Assert.IsNotNull(solution);
-
-        var text = "[発|はつ][条|じょう][仕|じ][掛|か]け";
-        var expectedSolution = Parser.Solution(text, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+        TestVocabSuccess(_solver, "発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け");
     }
 
     [TestMethod]

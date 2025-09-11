@@ -22,13 +22,13 @@ using Jitendex.Furigana.Solvers;
 namespace Jitendex.Furigana.Test.Solvers;
 
 [TestClass]
-public class KanaReadingSolverTest
+internal class KanaReadingSolverTest : SolverTest
 {
     [TestMethod]
     public void TestUnequalLength()
     {
         var solver = new KanaReadingSolver(new ResourceSet([], []));
-        TestSuccess(solver, "阿呆陀羅", "あほんだら", "[阿|あ][呆|ほん][陀|だ][羅|ら]");
+        TestVocabSuccess(solver, "阿呆陀羅", "あほんだら", "[阿|あ][呆|ほん][陀|だ][羅|ら]");
     }
 
     [TestMethod]
@@ -38,17 +38,6 @@ public class KanaReadingSolverTest
         (
             [], [new SpecialExpression("発条", ["ばね"])]
         ));
-        TestSuccess(solver, "発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け");
-    }
-
-    private static void TestSuccess(IFuriganaSolver solver, string kanjiFormText, string readingText, string expectedResultText)
-    {
-        var entry = new VocabEntry(kanjiFormText, readingText);
-        var solutions = solver.Solve(entry).ToList();
-        Assert.HasCount(1, solutions);
-
-        var solution = solutions.First();
-        var expectedSolution = Parser.Solution(expectedResultText, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+        TestVocabSuccess(solver, "発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け");
     }
 }
