@@ -61,10 +61,9 @@ public class ResourceSet
 
     public ImmutableArray<string> GetPotentialReadings(string text)
     {
-        var specialExpression = GetExpression(text);
-        if (specialExpression is not null)
+        if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
         {
-            return specialExpression.Readings;
+            return expression.Readings;
         }
         else
         {
@@ -83,13 +82,5 @@ public class ResourceSet
             return kanji;
         }
         return null;
-    }
-
-    public SpecialExpression? GetExpression(string text)
-    {
-        if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
-            return expression;
-        else
-            return null;
     }
 }

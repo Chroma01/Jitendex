@@ -99,13 +99,9 @@ internal class KanaReadingSolver : FuriganaSolver
         {
             var runesSlice = runes[sliceStart..sliceEnd];
             string lookup = string.Join(string.Empty, runesSlice);
-            var expression = _resourceSet.GetExpression(lookup);
+            var readings = _resourceSet.GetPotentialReadings(lookup);
 
-            if (expression is null)
-                continue;
-
-            // We found an expression.
-            foreach (var reading in expression.Readings)
+            foreach (var reading in readings)
             {
                 if (!kana.StartsWith(reading))
                     continue;
