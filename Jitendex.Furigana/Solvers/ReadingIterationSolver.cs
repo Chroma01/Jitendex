@@ -90,9 +90,9 @@ internal class ReadingIterationSolver : FuriganaSolver
         foreach (var oldBuilder in oldBuilders)
         {
             var oldReadings = oldBuilder.NormalizedReadingText();
-            foreach (var newReading in potentialReadings)
+            foreach (var baseReading in potentialReadings)
             {
-                if (TryGetNewPart(entry, baseText, oldReadings, newReading, out var newPart))
+                if (TryGetNewPart(entry, baseText, oldReadings, baseReading, out var newPart))
                 {
                     newBuilders.Add
                     (
