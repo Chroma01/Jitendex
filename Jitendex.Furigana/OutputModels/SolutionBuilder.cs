@@ -16,31 +16,70 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Jitendex.Furigana.Helpers;
+using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 
 namespace Jitendex.Furigana.Solvers;
 
 internal class SolutionBuilder
 {
-    public required List<Solution.Part> Parts;
-    public bool IsInitial;
+    public ImmutableArray<Solution.Part> Parts { get => _parts.ToImmutableArray(); }
+    private readonly List<Solution.Part> _parts;
 
-    public string ReadingText() =>
-        new(Parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
+    public SolutionBuilder(IEnumerable<Solution.Part> parts)
+    {
+        _parts = [.. parts.Where(x => !string.IsNullOrWhiteSpace(x.BaseText))];
+    }
 
-    public int ReadingTextLength() => Parts.Aggregate
-    (
-        seed: 0,
-        func: static (sum, part) => sum + (part.Furigana?.Length ?? part.BaseText.Length)
-    );
-
+    public string KanjiFormText() => new(_parts.SelectMany(static x => x.BaseText).ToArray());
+    public string ReadingText() => new(_parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
     public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
+
+    public void Add(Solution.Part part)
+    {
+        if (string.IsNullOrWhiteSpace(part.BaseText))
+        {
+            throw new ArgumentOutOfRangeException(nameof(part));
+        }
+        _parts.Add(part);
+    }
+
+    public Solution? ToSolution(Entry entry)
+    {
+        if (!IsValid(entry))
+        {
+            return null;
+        }
+        return new Solution
+        {
+            Entry = entry,
+            Parts = [.. GetNormalizedParts()]
+        };
+    }
+
+    public IndexedSolution? ToIndexedSolution(Entry entry)
+    {
+        if (!IsValid(entry))
+        {
+            return null;
+        }
+        return new IndexedSolution
+        (
+            entry: entry,
+            parts: [.. GetIndexedParts()]
+        );
+    }
+
+    private bool IsValid(Entry entry) =>
+        entry.NormalizedReadingText == NormalizedReadingText() &&
+        entry.KanjiFormText == KanjiFormText();
 
     /// <summary>
     /// Merge consecutive parts together if they have null furigana.
     /// </summary>
-    public List<Solution.Part> GetNormalizedParts()
+    private List<Solution.Part> GetNormalizedParts()
     {
         var parts = new List<Solution.Part>();
         var mergedTexts = new List<string>();
@@ -67,7 +106,7 @@ internal class SolutionBuilder
         return parts;
     }
 
-    public List<IndexedFurigana> GetIndexedParts()
+    private List<IndexedFurigana> GetIndexedParts()
     {
         var indexedParts = new List<IndexedFurigana>();
         int index = 0;
