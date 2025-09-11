@@ -61,8 +61,7 @@ internal class SingleKanjiSolver : FuriganaSolver
     private string? Prefix(Entry entry)
     {
         var prefixBuilder = new StringBuilder();
-        var runes = entry.KanjiFormRunes;
-        foreach (var rune in runes)
+        foreach (var rune in entry.KanjiFormRunes)
         {
             if (rune.IsKana())
             {
@@ -80,8 +79,7 @@ internal class SingleKanjiSolver : FuriganaSolver
     private string? Suffix(Entry entry, string prefix)
     {
         var suffixBuilder = new StringBuilder();
-        var runes = entry.KanjiFormRunes[(prefix.Length + 1)..];
-        foreach (var rune in runes)
+        foreach (var rune in entry.KanjiFormRunes[(prefix.Length + 1)..])
         {
             if (rune.IsKana())
             {
