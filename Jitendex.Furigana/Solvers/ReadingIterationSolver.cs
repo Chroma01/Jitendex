@@ -46,14 +46,14 @@ internal class ReadingIterationSolver : FuriganaSolver
         );
     }
 
-    private PartialSolution? IterateSolutions(Entry entry)
+    private SolutionBuilder? IterateSolutions(Entry entry)
     {
-        var solutions = new List<PartialSolution>()
+        var solutions = new List<SolutionBuilder>()
             { new() { Parts = [new("", null)], IsInitial = true }};
 
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            var newSolutions = new List<PartialSolution>();
+            var newSolutions = new List<SolutionBuilder>();
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
                 var potentialReadings = GetPotentialReadings(entry, sliceStart, sliceEnd);
@@ -88,9 +88,9 @@ internal class ReadingIterationSolver : FuriganaSolver
         }
     }
 
-    private List<PartialSolution> SolutionsForSlice(Entry entry, List<PartialSolution> solutions, ImmutableArray<string> potentialReadings, string textSlice)
+    private List<SolutionBuilder> SolutionsForSlice(Entry entry, List<SolutionBuilder> solutions, ImmutableArray<string> potentialReadings, string textSlice)
     {
-        var newSolutions = new List<PartialSolution>();
+        var newSolutions = new List<SolutionBuilder>();
         foreach (var solution in solutions)
         {
             var previousPartsReadingNormalized = solution.NormalizedReadingText();
@@ -99,7 +99,7 @@ internal class ReadingIterationSolver : FuriganaSolver
                 var newPart = NewPart(entry, textSlice, previousPartsReadingNormalized, potentialReading);
                 if (newPart is null)
                     continue;
-                var newSolution = new PartialSolution
+                var newSolution = new SolutionBuilder
                 {
                     Parts = solution.IsInitial ?
                         [newPart] :
@@ -135,7 +135,7 @@ internal class ReadingIterationSolver : FuriganaSolver
         }
     }
 
-    private PartialSolution? ValidSolution(Entry entry, List<PartialSolution> solutions)
+    private SolutionBuilder? ValidSolution(Entry entry, List<SolutionBuilder> solutions)
     {
         // It's necessary to check for length equality with the original reading here
         // because the iteration algorithm only checks `StartsWith()`
@@ -148,69 +148,6 @@ internal class ReadingIterationSolver : FuriganaSolver
         else
         {
             return null;
-        }
-    }
-
-    private class PartialSolution
-    {
-        public required List<Solution.Part> Parts;
-        public bool IsInitial;
-
-        public string ReadingText() =>
-            new(Parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
-
-        public int ReadingTextLength() => Parts.Aggregate
-        (
-            seed: 0,
-            func: static (sum, part) => sum + (part.Furigana?.Length ?? part.BaseText.Length)
-        );
-
-        public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
-
-        /// <summary>
-        /// Merge consecutive parts together if they have null furigana.
-        /// </summary>
-        public List<Solution.Part> GetNormalizedParts()
-        {
-            var parts = new List<Solution.Part>();
-            var mergedTexts = new List<string>();
-            foreach (var part in Parts)
-            {
-                if (part.Furigana is null)
-                {
-                    mergedTexts.Add(part.BaseText);
-                    continue;
-                }
-                if (mergedTexts.Count > 0)
-                {
-                    var baseText = string.Join(string.Empty, mergedTexts);
-                    parts.Add(new Solution.Part(baseText, null));
-                    mergedTexts = new List<string>();
-                }
-                parts.Add(part);
-            }
-            if (mergedTexts.Count > 0)
-            {
-                var baseText = string.Join(string.Empty, mergedTexts);
-                parts.Add(new Solution.Part(baseText, null));
-            }
-            return parts;
-        }
-
-        public List<IndexedFurigana> GetIndexedParts()
-        {
-            var indexedParts = new List<IndexedFurigana>();
-            int index = 0;
-            foreach (var part in Parts)
-            {
-                int length = part.BaseText.EnumerateRunes().Count();
-                if (part.Furigana is not null)
-                {
-                    indexedParts.Add(new IndexedFurigana(part.Furigana, index, index + length - 1));
-                }
-                index += length;
-            }
-            return indexedParts;
         }
     }
 }
