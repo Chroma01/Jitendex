@@ -38,29 +38,29 @@ internal class KanaReadingSolver : FuriganaSolver
     /// Attempts to solve furigana by reading the kana string and attributing kanji a reading based
     /// not on the readings of the kanji, but on the kana characters that come up.
     /// </summary>
+    /// <remarks>
+    /// Basically, we are reading the kanji reading character by character, eating the kana from
+    /// the kana reading and associating each kanji the piece of kana that comes next.
+    /// The thing is, we are taking advantage that kanji readings cannot start with certain
+    /// kana (ん and the small characters).
+    /// If we just stumbled upon a kanji and the next characters of the kana string are of these
+    /// impossible start kana, we can automatically associate them with the kanji.
+    /// Now this will work only for a number of vocab, but it does significantly improve the results.
+    /// It is especially good for 2-characters compounds that use unusual readings.
+    /// <para>Example: 阿呆陀羅 (あほんだら)</para>
+    /// <para>Read the あ for 阿;</para>
+    /// <para>Read the ほ for 呆;</para>
+    /// <para>Read the ん: it's an impossible start character, so it goes with 呆 as well;</para>
+    /// <para>Read the だ for 陀;</para>
+    /// <para>Read the ら for 羅.</para>
+    /// </remarks>
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        // Basically, we are reading the kanji reading character by character, eating the kana from
-        // the kana reading and associating each kanji the piece of kana that comes next.
-        // The thing is, we are taking advantage that kanji readings cannot start with certain
-        // kana (ん and the small characters).
-        // If we just stumbled upon a kanji and the next characters of the kana string are of these
-        // impossible start kana, we can automatically associate them with the kanji.
-        // Now this will work only for a number of vocab, but it does significantly improve the results.
-        // It is especially good for 2-characters compounds that use unusual readings.
-
-        /// Example: 阿呆陀羅 (あほんだら)
-        /// Read the あ for 阿;
-        /// Read the ほ for 呆;
-        /// Read the ん: it's an impossible start character, so it goes with 呆 as well;
-        /// Read the だ for 陀;
-        /// Read the ら for 羅.
-
         var runes = entry.KanjiFormRunes;
         string kana = entry.ReadingText;
         var furiganaParts = new List<IndexedFurigana>();
 
-        for (int i = 0; i < runes.Length; i++)
+        for (int sliceStart = 0; sliceStart < runes.Length; sliceStart++)
         {
             if (kana.Length == 0)
             {
@@ -69,67 +69,17 @@ internal class KanaReadingSolver : FuriganaSolver
                 yield break;
             }
 
-            bool foundExpression = false;
-
-            // Check for special expressions
-            for (int j = runes.Length - 1; j >= i; j--)
+            var specialPart = SpecialExpressionPart(entry, ref sliceStart, ref kana);
+            if (specialPart is not null)
             {
-                var subRunes = runes[i..(j + 1)];
-                string lookup = string.Join(string.Empty, subRunes);
-                var expression = _resourceSet.GetExpression(lookup);
-
-                if (expression is null) continue;
-
-                // We found an expression.
-                foreach (var reading in expression.Readings)
-                {
-                    if (!kana.StartsWith(reading))
-                        continue;
-
-                    // The reading matches. Eat the kana chain.
-                    var newPart = new IndexedFurigana(reading, i, i + subRunes.Length - 1);
-                    furiganaParts.Add(newPart);
-
-                    kana = kana[reading.Length..];
-                    i = j;
-                    foundExpression = true;
-                    break;
-                }
-
-                if (foundExpression) break;
+                furiganaParts.Add(specialPart);
+                continue;
             }
-            // End check for special expression
-            if (foundExpression) continue;
 
-            // Normal process: eat the first character of our kana string.
-            string eaten = kana.First().ToString();
-            kana = kana[1..];
-
-            var rune = runes[i];
-
-            if (rune.IsKanji())
+            var normalPart = NormalPart(entry, ref sliceStart, ref kana);
+            if (normalPart is not null)
             {
-                // On a kanji case, also eat consecutive "impossible start characters"
-                while (kana.Length > 0 && _impossibleCutStart.Contains(kana.First()))
-                {
-                    eaten += kana.First();
-                    kana = kana[1..];
-                }
-                furiganaParts.Add(new IndexedFurigana(eaten, i));
-            }
-            else if (!rune.IsKana())
-            {
-                // The character is neither a kanji or a kana.
-                // Cannot solve.
-                yield break;
-            }
-            else if (eaten != rune.ToString())
-            {
-                // The character browsed is a kana but is not the
-                // character that we just ate. We made a mistake
-                // in one of the kanji readings, meaning that we...
-                // Cannot solve.
-                yield break;
+                furiganaParts.Add(normalPart);
             }
         }
 
@@ -139,5 +89,70 @@ internal class KanaReadingSolver : FuriganaSolver
             // The case is solved.
             yield return new IndexedSolution(entry, furiganaParts);
         }
+    }
+
+    private IndexedFurigana? SpecialExpressionPart(Entry entry, ref int sliceStart, ref string kana)
+    {
+        var runes = entry.KanjiFormRunes;
+
+        for (int sliceEnd = runes.Length; sliceStart < sliceEnd; sliceEnd--)
+        {
+            var runesSlice = runes[sliceStart..sliceEnd];
+            string lookup = string.Join(string.Empty, runesSlice);
+            var expression = _resourceSet.GetExpression(lookup);
+
+            if (expression is null)
+                continue;
+
+            // We found an expression.
+            foreach (var reading in expression.Readings)
+            {
+                if (!kana.StartsWith(reading))
+                    continue;
+
+                // The reading matches. Eat the kana chain.
+                var newPart = new IndexedFurigana(reading, sliceStart, sliceStart + runesSlice.Length - 1);
+                kana = kana[reading.Length..];
+                sliceStart = sliceEnd - 1;
+                return newPart;
+            }
+        }
+        return null;
+    }
+
+    private IndexedFurigana? NormalPart(Entry entry, ref int sliceStart, ref string kana)
+    {
+        // Normal process: eat the first character of our kana string.
+        string eaten = kana.First().ToString();
+        kana = kana[1..];
+
+        var runes = entry.KanjiFormRunes;
+        var rune = runes[sliceStart];
+
+        if (rune.IsKanji())
+        {
+            // On a kanji case, also eat consecutive "impossible start characters"
+            while (kana.Length > 0 && _impossibleCutStart.Contains(kana.First()))
+            {
+                eaten += kana.First();
+                kana = kana[1..];
+            }
+            return new IndexedFurigana(eaten, sliceStart);
+        }
+        else if (!rune.IsKana())
+        {
+            // The character is neither a kanji or a kana.
+            // Cannot solve.
+            sliceStart = runes.Length;
+        }
+        else if (eaten != rune.ToString())
+        {
+            // The character browsed is a kana but is not the
+            // character that we just ate. We made a mistake
+            // in one of the kanji readings, meaning that we...
+            // Cannot solve.
+            sliceStart = runes.Length;
+        }
+        return null;
     }
 }

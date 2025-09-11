@@ -165,8 +165,7 @@ internal class ReadingIterationSolver : FuriganaSolver
             func: static (sum, part) => sum + (part.Furigana?.Length ?? part.BaseText.Length)
         );
 
-        public string NormalizedReadingText() =>
-            ReadingText().KatakanaToHiragana();
+        public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
 
         /// <summary>
         /// Merge consecutive parts together if they have null furigana.
