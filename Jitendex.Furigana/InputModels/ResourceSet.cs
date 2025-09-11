@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 
@@ -42,8 +43,7 @@ public class ResourceSet
 
     public ImmutableArray<string> GetPotentialReadings(Rune character, Entry entry, bool isFirstRune, bool isLastRune)
     {
-        var kanji = GetKanji(character, entry);
-        if (kanji is not null)
+        if (TryGetKanji(character, entry, out Kanji? kanji))
         {
             return kanji.GetPotentialReadings(isFirstRune, isLastRune);
         }
@@ -71,16 +71,19 @@ public class ResourceSet
         }
     }
 
-    private Kanji? GetKanji(Rune character, Entry entry)
+    private bool TryGetKanji(Rune character, Entry entry, [NotNullWhen(returnValue: true)] out Kanji? kanji)
     {
         if (entry is NameEntry && _kanjiDictionary.TryGetValue((character.Value, typeof(NameKanji)), out Kanji? nameKanji))
         {
-            return nameKanji;
+            kanji = nameKanji;
+            return true;
         }
-        if (_kanjiDictionary.TryGetValue((character.Value, typeof(VocabKanji)), out Kanji? kanji))
+        if (_kanjiDictionary.TryGetValue((character.Value, typeof(VocabKanji)), out Kanji? vocabKanji))
         {
-            return kanji;
+            kanji = vocabKanji;
+            return true;
         }
-        return null;
+        kanji = null;
+        return false;
     }
 }

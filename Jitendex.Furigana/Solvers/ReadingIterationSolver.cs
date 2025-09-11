@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
@@ -34,15 +35,6 @@ internal class ReadingIterationSolver : FuriganaSolver
 
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        foreach(var solution in IterateSolutions(entry))
-        {
-            if (solution is not null)
-                yield return solution;
-        }
-    }
-
-    private IEnumerable<IndexedSolution?> IterateSolutions(Entry entry)
-    {
         var builders = new List<SolutionBuilder>() { new() };
 
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
@@ -50,24 +42,29 @@ internal class ReadingIterationSolver : FuriganaSolver
             var newBuilders = new List<SolutionBuilder>();
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
-                var potentialReadings = GetPotentialReadings(entry, sliceStart, sliceEnd);
-                var rawTextSlice = string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd]);
-                newBuilders = SolutionsForSlice(entry, builders, potentialReadings, rawTextSlice);
+                newBuilders = IterateBuilders
+                (
+                    entry: entry,
+                    builders: builders,
+                    potentialReadings: GetPotentialReadings(entry, sliceStart, sliceEnd),
+                    textSlice: string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd])
+                );
                 if (newBuilders.Count > 0)
                 {
-                    sliceStart += rawTextSlice.Length - 1;
+                    sliceStart += sliceEnd - sliceStart - 1;
                     builders = newBuilders;
                     break;
                 }
             }
             if (newBuilders.Count == 0)
-            {
                 yield break;
-            }
         }
+
         foreach (var builder in builders)
         {
-            yield return builder.ToIndexedSolution(entry);
+            var solution = builder.ToIndexedSolution(entry);
+            if (solution is not null)
+                yield return solution;
         }
     }
 
@@ -87,7 +84,7 @@ internal class ReadingIterationSolver : FuriganaSolver
         }
     }
 
-    private static List<SolutionBuilder> SolutionsForSlice(Entry entry, List<SolutionBuilder> builders, ImmutableArray<string> potentialReadings, string textSlice)
+    private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> builders, ImmutableArray<string> potentialReadings, string textSlice)
     {
         var newBuilders = new List<SolutionBuilder>();
         foreach (var builder in builders)
@@ -95,31 +92,34 @@ internal class ReadingIterationSolver : FuriganaSolver
             var previousPartsReadingNormalized = builder.NormalizedReadingText();
             foreach (var potentialReading in potentialReadings)
             {
-                var newPart = NewPart(entry, textSlice, previousPartsReadingNormalized, potentialReading);
-                if (newPart is null)
-                    continue;
-
-                var newBuilder = new SolutionBuilder(builder.Parts);
-                newBuilder.Add(newPart);
-                newBuilders.Add(newBuilder);
+                if (TryGetNewPart(entry, textSlice, previousPartsReadingNormalized, potentialReading, out var newPart))
+                {
+                    newBuilders.Add
+                    (
+                        new SolutionBuilder(builder.Parts.Append(newPart))
+                    );
+                }
             }
         }
         return newBuilders;
     }
 
-    private static Solution.Part? NewPart(Entry entry, string textSlice, string previousPartsReading, string? potentialReading)
+    private static bool TryGetNewPart(Entry entry, string textSlice, string previousPartsReading, string? potentialReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
         if (potentialReading is null)
         {
-            return new(textSlice, null);
+            part = new(textSlice, null);
+            return true;
         }
         else if (!entry.NormalizedReadingText.StartsWith(previousPartsReading + potentialReading))
         {
-            return null;
+            part = null;
+            return false;
         }
         else if (textSlice.IsKanaEquivalent(potentialReading))
         {
-            return new(textSlice, null);
+            part = new(textSlice, null);
+            return true;
         }
         else
         {
@@ -127,7 +127,8 @@ internal class ReadingIterationSolver : FuriganaSolver
             int i = previousPartsReading.Length;
             int j = i + potentialReading.Length;
             var newPartReading = entry.ReadingText[i..j];
-            return new(textSlice, newPartReading);
+            part = new(textSlice, newPartReading);
+            return true;
         }
     }
 }
