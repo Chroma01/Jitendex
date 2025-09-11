@@ -39,7 +39,6 @@ public class Service
             new LengthMatchSolver(),
             new RegexSolver(),
             new RepeatedKanjiSolver(),
-            new SingleCharacterSolver(),
             new SingleKanjiSolver(),
         ];
         _solvers.Sort();
