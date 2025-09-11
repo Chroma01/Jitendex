@@ -57,14 +57,18 @@ internal class ReadingIterationSolver : FuriganaSolver
                 }
             }
             if (newBuilders.Count == 0)
+            {
                 yield break;
+            }
         }
 
         foreach (var builder in builders)
         {
             var solution = builder.ToIndexedSolution(entry);
             if (solution is not null)
+            {
                 yield return solution;
+            }
         }
     }
 
