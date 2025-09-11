@@ -23,6 +23,10 @@ using Jitendex.Furigana.OutputModels;
 
 namespace Jitendex.Furigana.Solvers;
 
+/// <summary>
+/// If implemented correctly, this is just a special case of the KanaReadingSolver.
+/// This class can be deleted once this implementations are fixed.
+/// </summary>
 internal class LengthMatchSolver : FuriganaSolver
 {
     public LengthMatchSolver()

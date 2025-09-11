@@ -43,7 +43,7 @@ internal class ReadingIterationSolver : FuriganaSolver
 
     private IEnumerable<IndexedSolution?> IterateSolutions(Entry entry)
     {
-        var builders = new List<SolutionBuilder>() { new([]) };
+        var builders = new List<SolutionBuilder>() { new() };
 
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {

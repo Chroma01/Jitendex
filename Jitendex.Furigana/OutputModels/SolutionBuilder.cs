@@ -28,6 +28,8 @@ internal class SolutionBuilder
     public ImmutableArray<Solution.Part> Parts { get => _parts.ToImmutableArray(); }
     private readonly List<Solution.Part> _parts;
 
+    public SolutionBuilder() : this([]) { }
+
     public SolutionBuilder(IEnumerable<Solution.Part> parts)
     {
         _parts = [.. parts.Where(x => !string.IsNullOrWhiteSpace(x.BaseText))];
