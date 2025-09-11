@@ -25,14 +25,13 @@ namespace Jitendex.Furigana.Solvers;
 
 internal class SolutionBuilder
 {
-    public ImmutableArray<Solution.Part> Parts { get => _parts.ToImmutableArray(); }
     private readonly List<Solution.Part> _parts;
 
     public SolutionBuilder() : this([]) { }
 
     public SolutionBuilder(IEnumerable<Solution.Part> parts)
     {
-        _parts = [.. parts.Where(x => !string.IsNullOrWhiteSpace(x.BaseText))];
+        _parts = [.. parts];
     }
 
     public string KanjiFormText() => new(_parts.SelectMany(static x => x.BaseText).ToArray());
@@ -41,12 +40,10 @@ internal class SolutionBuilder
 
     public void Add(Solution.Part part)
     {
-        if (string.IsNullOrWhiteSpace(part.BaseText))
-        {
-            throw new ArgumentOutOfRangeException(nameof(part));
-        }
         _parts.Add(part);
     }
+
+    public ImmutableArray<Solution.Part> ToParts() => _parts.ToImmutableArray();
 
     public Solution? ToSolution(Entry entry)
     {
@@ -85,7 +82,7 @@ internal class SolutionBuilder
     {
         var parts = new List<Solution.Part>();
         var mergedTexts = new List<string>();
-        foreach (var part in Parts)
+        foreach (var part in _parts)
         {
             if (part.Furigana is null)
             {
@@ -112,7 +109,7 @@ internal class SolutionBuilder
     {
         var indexedParts = new List<IndexedFurigana>();
         int index = 0;
-        foreach (var part in Parts)
+        foreach (var part in _parts)
         {
             int length = part.BaseText.EnumerateRunes().Count();
             if (part.Furigana is not null)
