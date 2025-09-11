@@ -25,28 +25,30 @@ namespace Jitendex.Furigana.Test.Solvers;
 public class KanaReadingSolverTest
 {
     [TestMethod]
-    public void Test阿呆陀羅()
+    public void TestUnequalLength()
     {
-        var entry = new VocabEntry("阿呆陀羅", "あほんだら");
         var solver = new KanaReadingSolver(new ResourceSet([], []));
-        var solution = solver.Solve(entry).FirstOrDefault();
-        Assert.IsNotNull(solution);
-
-        var text = "[阿|あ][呆|ほん][陀|だ][羅|ら]";
-        var expectedSolution = Parser.Solution(text, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+        TestSuccess(solver, "阿呆陀羅", "あほんだら", "[阿|あ][呆|ほん][陀|だ][羅|ら]");
     }
 
     [TestMethod]
-    public void Test発条仕掛け()
+    public void TestSpecialExpression()
     {
-        var entry = new VocabEntry("発条仕掛け", "ばねじかけ");
-        var solver = new KanaReadingSolver(new ResourceSet([], [new SpecialExpression("発条", ["ばね"])]));
-        var solution = solver.Solve(entry).FirstOrDefault();
-        Assert.IsNotNull(solution);
+        var solver = new KanaReadingSolver(new ResourceSet
+        (
+            [], [new SpecialExpression("発条", ["ばね"])]
+        ));
+        TestSuccess(solver, "発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け");
+    }
 
-        var text = "[発条|ばね][仕|じ][掛|か]け";
-        var expectedSolution = Parser.Solution(text, entry);
+    private static void TestSuccess(IFuriganaSolver solver, string kanjiFormText, string readingText, string expectedResultText)
+    {
+        var entry = new VocabEntry(kanjiFormText, readingText);
+        var solutions = solver.Solve(entry).ToList();
+        Assert.HasCount(1, solutions);
+
+        var solution = solutions.First();
+        var expectedSolution = Parser.Solution(expectedResultText, entry);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
     }
 }
