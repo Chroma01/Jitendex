@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test.Solvers;
@@ -67,11 +66,7 @@ internal class RepeatedKanjiSolverTest : SolverTest
             ("〇〇", "まるまる", "[〇|まる][〇|まる]"),
         };
 
-        foreach (var (kanjiFormText, readingText, expectedResultText) in data)
-        {
-            var entry = new VocabEntry(kanjiFormText, readingText);
-            TestSolution(_solver, entry, expectedResultText);
-        }
+        TestSolutions(_solver, data);
     }
 
     [TestMethod]
@@ -104,10 +99,6 @@ internal class RepeatedKanjiSolverTest : SolverTest
             ("捗々しい", "はかばかしい"),
         };
 
-        foreach (var (kanjiFormText, readingText) in data)
-        {
-            var entry = new VocabEntry(kanjiFormText, readingText);
-            TestNullSolution(_solver, entry);
-        }
+        TestNullSolutions(_solver, data);
     }
 }

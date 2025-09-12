@@ -33,9 +33,27 @@ internal class SolverTest
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
     }
 
+    protected static void TestSolutions(IFuriganaSolver solver, IEnumerable<(string, string, string)> data)
+    {
+        foreach (var (kanjiFormText, readingText, expectedResultText) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestSolution(solver, entry, expectedResultText);
+        }
+    }
+
     protected static void TestNullSolution(IFuriganaSolver solver, Entry entry)
     {
         var solution = solver.Solve(entry).FirstOrDefault();
         Assert.IsNull(solution);
+    }
+
+    protected static void TestNullSolutions(IFuriganaSolver solver, IEnumerable<(string, string)> data)
+    {
+        foreach (var (kanjiFormText, readingText) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestNullSolution(solver, entry);
+        }
     }
 }

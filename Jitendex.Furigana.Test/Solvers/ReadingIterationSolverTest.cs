@@ -24,7 +24,10 @@ namespace Jitendex.Furigana.Test.Solvers;
 [TestClass]
 internal class ReadingIterationSolverTest : SolverTest
 {
-    private static readonly ResourceSet _resourceSet = ServiceTest.MakeResourceSet(
+    [TestMethod]
+    public void SingleCorrectSolution()
+    {
+        var solver = new ReadingIterationSolver(ServiceTest.MakeResourceSet(
         new()
         {
             ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
@@ -35,32 +38,23 @@ internal class ReadingIterationSolverTest : SolverTest
         new()
         {
             ["発条"] = ["ぜんまい", "ばね"],
-        });
+        }));
 
-    private static readonly ReadingIterationSolver _solver = new(_resourceSet);
+        var data = new List<(string, string, string)>()
+        {
+            // 発条 uses a special reading
+            ("発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け"),
+            ("発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け"),
 
-    [TestMethod]
-    public void Testぜんまい()
-    {
-        TestSolution(_solver,  new VocabEntry("発条仕掛け", "ぜんまいじかけ"), "[発条|ぜんまい][仕|じ][掛|か]け");
-    }
+            // 発条 uses normal readings
+            ("発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け"),
+        };
 
-    [TestMethod]
-    public void Testばね()
-    {
-        TestSolution(_solver,  new VocabEntry("発条仕掛け", "ばねじかけ"), "[発条|ばね][仕|じ][掛|か]け");
-    }
+        TestSolutions(solver, data);
 
-    [TestMethod]
-    public void Testはつじょう()
-    {
-        TestSolution(_solver,  new VocabEntry("発条仕掛け", "はつじょうじかけ"), "[発|はつ][条|じょう][仕|じ][掛|か]け");
-    }
-
-    [TestMethod]
-    public void Testああ()
-    {
-        TestNullSolution(_solver,  new VocabEntry("発条仕掛け", "ああああけ"));
+        // Test invalid data for laughs
+        var unsolvableEntry = new VocabEntry("発条仕掛け", "ああああけ");
+        TestNullSolution(solver, unsolvableEntry);
     }
 
     /// <summary>
