@@ -28,7 +28,7 @@ internal class KanaReadingSolverTest : SolverTest
     public void TestUnequalLength()
     {
         var solver = new KanaReadingSolver(new ResourceSet([], []));
-        TestVocabSuccess(solver, "阿呆陀羅", "あほんだら", "[阿|あ][呆|ほん][陀|だ][羅|ら]");
+        TestSolution(solver,  new VocabEntry("阿呆陀羅", "あほんだら"), "[阿|あ][呆|ほん][陀|だ][羅|ら]");
     }
 
     [TestMethod]
@@ -38,6 +38,6 @@ internal class KanaReadingSolverTest : SolverTest
         (
             [], [new SpecialExpression("発条", ["ばね"])]
         ));
-        TestVocabSuccess(solver, "発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け");
+        TestSolution(solver, new VocabEntry("発条仕掛け", "ばねじかけ"), "[発条|ばね][仕|じ][掛|か]け");
     }
 }

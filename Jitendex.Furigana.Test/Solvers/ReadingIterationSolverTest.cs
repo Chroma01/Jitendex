@@ -42,24 +42,43 @@ internal class ReadingIterationSolverTest : SolverTest
     [TestMethod]
     public void Testぜんまい()
     {
-        TestVocabSuccess(_solver, "発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け");
+        TestSolution(_solver,  new VocabEntry("発条仕掛け", "ぜんまいじかけ"), "[発条|ぜんまい][仕|じ][掛|か]け");
     }
 
     [TestMethod]
     public void Testばね()
     {
-        TestVocabSuccess(_solver, "発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け");
+        TestSolution(_solver,  new VocabEntry("発条仕掛け", "ばねじかけ"), "[発条|ばね][仕|じ][掛|か]け");
     }
 
     [TestMethod]
     public void Testはつじょう()
     {
-        TestVocabSuccess(_solver, "発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け");
+        TestSolution(_solver,  new VocabEntry("発条仕掛け", "はつじょうじかけ"), "[発|はつ][条|じょう][仕|じ][掛|か]け");
     }
 
     [TestMethod]
     public void Testああ()
     {
-        TestVocabFailure(_solver, "発条仕掛け", "ああああけ");
+        TestNullSolution(_solver,  new VocabEntry("発条仕掛け", "ああああけ"));
+    }
+
+    /// <summary>
+    /// Tests a situation in which there is no unique correct solution in principle.
+    /// </summary>
+    /// <remarks>
+    /// [好|すき][嫌|きら] and [好|す][嫌|ききら] are both valid solutions according to the parameters of the problem.
+    /// </remarks>
+    [TestMethod]
+    public void TestUnsolvable()
+    {
+        var entry = new VocabEntry("好嫌", "すききら");
+        var solver = new ReadingIterationSolver(ServiceTest.MakeResourceSet(new()
+        {
+            ["好"] = ["すき", "す"],
+            ["嫌"] = ["きら", "ききら"],
+        }));
+        var solutions = solver.Solve(entry).ToList();
+        Assert.HasCount(2, solutions);
     }
 }

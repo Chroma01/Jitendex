@@ -23,31 +23,7 @@ namespace Jitendex.Furigana.Test.Solvers;
 
 internal class SolverTest
 {
-    protected static void TestVocabSuccess(IFuriganaSolver solver, string kanjiFormText, string readingText, string expectedResultText)
-    {
-        var entry = new VocabEntry(kanjiFormText, readingText);
-        TestSuccess(solver, entry, expectedResultText);
-    }
-
-    protected static void TestNameSuccess(IFuriganaSolver solver, string kanjiFormText, string readingText, string expectedResultText)
-    {
-        var entry = new NameEntry(kanjiFormText, readingText);
-        TestSuccess(solver, entry, expectedResultText);
-    }
-
-    protected static void TestVocabFailure(IFuriganaSolver solver, string kanjiFormText, string readingText)
-    {
-        var entry = new VocabEntry(kanjiFormText, readingText);
-        TestFailure(solver, entry);
-    }
-
-    protected static void TestNameFailure(IFuriganaSolver solver, string kanjiFormText, string readingText)
-    {
-        var entry = new VocabEntry(kanjiFormText, readingText);
-        TestFailure(solver, entry);
-    }
-
-    private static void TestSuccess(IFuriganaSolver solver, Entry entry, string expectedResultText)
+    protected static void TestSolution(IFuriganaSolver solver, Entry entry, string expectedResultText)
     {
         var solutions = solver.Solve(entry).ToList();
         Assert.HasCount(1, solutions);
@@ -57,7 +33,7 @@ internal class SolverTest
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
     }
 
-    private static void TestFailure(IFuriganaSolver solver, Entry entry)
+    protected static void TestNullSolution(IFuriganaSolver solver, Entry entry)
     {
         var solution = solver.Solve(entry).FirstOrDefault();
         Assert.IsNull(solution);

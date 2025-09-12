@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test.Solvers;
@@ -28,43 +29,43 @@ internal class SingleKanjiSolverTest : SolverTest
     [TestMethod]
     public void TestSingleKanji()
     {
-        TestVocabSuccess(_solver, "腹", "はら", "[腹|はら]");
+        TestSolution(_solver, new VocabEntry("腹", "はら"), "[腹|はら]");
     }
 
     [TestMethod]
     public void TestSingleNonKanji()
     {
-        TestVocabSuccess(_solver, "◯", "おおきなまる", "[◯|おおきなまる]");
+        TestSolution(_solver, new VocabEntry("◯", "おおきなまる"), "[◯|おおきなまる]");
     }
 
     [TestMethod]
     public void TestSuffixedKanji()
     {
-        TestVocabSuccess(_solver, "難しい", "むずかしい", "[難|むずか]しい");
+        TestSolution(_solver, new VocabEntry("難しい", "むずかしい"), "[難|むずか]しい");
     }
 
     [TestMethod]
     public void TestPrefixedKanji()
     {
-        TestVocabSuccess(_solver, "ばね秤", "ばねばかり", "ばね[秤|ばかり]");
+        TestSolution(_solver, new VocabEntry("ばね秤", "ばねばかり"), "ばね[秤|ばかり]");
     }
 
     [TestMethod]
     public void TestPrefixedAndSuffixedKanjiWithOneFuriganaCharacter()
     {
-        TestVocabSuccess(_solver, "ぜんまい仕かけ", "ぜんまいじかけ", "ぜんまい[仕|じ]かけ");
+        TestSolution(_solver, new VocabEntry("ぜんまい仕かけ", "ぜんまいじかけ"), "ぜんまい[仕|じ]かけ");
     }
 
     [TestMethod]
     public void TestPrefixedAndSuffixedKanjiWithTwoFuriganaCharacters()
     {
-        TestVocabSuccess(_solver, "ありがたい事に", "ありがたいことに", "ありがたい[事|こと]に");
+        TestSolution(_solver, new VocabEntry("ありがたい事に", "ありがたいことに"), "ありがたい[事|こと]に");
     }
 
     [TestMethod]
     public void TestNormalization()
     {
-        TestVocabSuccess(_solver, "アリガタイ事ニ", "ありがたいことに", "アリガタイ[事|こと]ニ");
+        TestSolution(_solver, new VocabEntry("アリガタイ事ニ", "ありがたいことに"), "アリガタイ[事|こと]ニ");
     }
 
     [TestMethod]
@@ -72,7 +73,7 @@ internal class SingleKanjiSolverTest : SolverTest
     {
         var kanji = "𩺊";
         Assert.AreEqual(2, kanji.Length);
-        TestVocabSuccess(_solver, kanji, "あら", $"[{kanji}|あら]");
+        TestSolution(_solver, new VocabEntry(kanji, "あら"), $"[{kanji}|あら]");
     }
 
     [TestMethod]
@@ -80,7 +81,7 @@ internal class SingleKanjiSolverTest : SolverTest
     {
         var kanji = "𠮟";
         Assert.AreEqual(2, kanji.Length);
-        TestVocabSuccess(_solver, $"{kanji}かり", "しかり", $"[{kanji}|し]かり");
+        TestSolution(_solver, new VocabEntry($"{kanji}かり", "しかり"), $"[{kanji}|し]かり");
     }
 
     [TestMethod]
@@ -88,6 +89,6 @@ internal class SingleKanjiSolverTest : SolverTest
     {
         var kanji = "𠮟";
         Assert.AreEqual(2, kanji.Length);
-        TestVocabSuccess(_solver, $"れいせい{kanji}た", "れいせいしった", $"れいせい[{kanji}|しっ]た");
+        TestSolution(_solver, new VocabEntry($"れいせい{kanji}た", "れいせいしった"), $"れいせい[{kanji}|しっ]た");
     }
 }
