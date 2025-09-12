@@ -60,8 +60,6 @@ internal class ReadingIterationSolverTest : SolverTest
     [TestMethod]
     public void Testああ()
     {
-        var entry = new VocabEntry("発条仕掛け", "ああああけ");
-        var solution = _solver.Solve(entry).FirstOrDefault();
-        Assert.IsNull(solution);
+        TestVocabFailure(_solver, "発条仕掛け", "ああああけ");
     }
 }
