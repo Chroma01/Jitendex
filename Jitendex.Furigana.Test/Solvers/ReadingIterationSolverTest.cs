@@ -35,14 +35,12 @@ internal class ReadingIterationSolverTest : SolverTest
             ("発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け"),
             ("発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け"),
 
+            // 発条 uses regular, kanji dictionary readings
+            ("発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け"),
+
             // Repeat the above tests with non-normalized readings
             ("発条仕掛け", "ゼンマイじかけ", "[発条|ゼンマイ][仕|じ][掛|か]け"),
             ("発条仕掛け", "バねジカけ", "[発条|バね][仕|ジ][掛|カ]け"),
-
-            // 発条 uses normal readings
-            ("発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け"),
-
-            // Again with non-normalized readings
             ("発条仕掛け", "ハつじョうじカケ", "[発|ハつ][条|じョう][仕|じ][掛|カ]け"),
         };
 
