@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test.Solvers;
@@ -27,68 +26,60 @@ internal class SingleKanjiSolverTest : SolverTest
     private static readonly SingleKanjiSolver _solver = new();
 
     [TestMethod]
-    public void TestSingleKanji()
+    public void SingleCorrectSolution()
     {
-        TestSolution(_solver, new VocabEntry("腹", "はら"), "[腹|はら]");
-    }
+        var data = new List<(string, string, string)>()
+        {
+            // Single kanji
+            ("腹", "はら", "[腹|はら]"),
 
-    [TestMethod]
-    public void TestSingleNonKanji()
-    {
-        TestSolution(_solver, new VocabEntry("◯", "おおきなまる"), "[◯|おおきなまる]");
-    }
+            // Single non-kanji
+            ("◯", "おおきなまる", "[◯|おおきなまる]"),
 
-    [TestMethod]
-    public void TestSuffixedKanji()
-    {
-        TestSolution(_solver, new VocabEntry("難しい", "むずかしい"), "[難|むずか]しい");
-    }
+            // Suffixed kanji
+            ("難しい", "むずかしい", "[難|むずか]しい"),
 
-    [TestMethod]
-    public void TestPrefixedKanji()
-    {
-        TestSolution(_solver, new VocabEntry("ばね秤", "ばねばかり"), "ばね[秤|ばかり]");
-    }
+            // Prefixed kanji
+            ("ばね秤", "ばねばかり", "ばね[秤|ばかり]"),
 
-    [TestMethod]
-    public void TestPrefixedAndSuffixedKanjiWithOneFuriganaCharacter()
-    {
-        TestSolution(_solver, new VocabEntry("ぜんまい仕かけ", "ぜんまいじかけ"), "ぜんまい[仕|じ]かけ");
-    }
+            // Prefixed and suffixed kanji with one furigana character
+            ("ぜんまい仕かけ", "ぜんまいじかけ", "ぜんまい[仕|じ]かけ"),
 
-    [TestMethod]
-    public void TestPrefixedAndSuffixedKanjiWithTwoFuriganaCharacters()
-    {
-        TestSolution(_solver, new VocabEntry("ありがたい事に", "ありがたいことに"), "ありがたい[事|こと]に");
-    }
+            // Prefixed and suffixed kanji with two furigana characters
+            ("ありがたい事に", "ありがたいことに", "ありがたい[事|こと]に"),
 
-    [TestMethod]
-    public void TestNormalization()
-    {
-        TestSolution(_solver, new VocabEntry("アリガタイ事ニ", "ありがたいことに"), "アリガタイ[事|こと]ニ");
+            // Non-normalized text (all have the same reading)
+            ("アリガタイ事ニ", "ありがたいことに", "アリガタイ[事|こと]ニ"),
+            ("ありがたい事ニ", "ありがたいことに", "ありがたい[事|こと]ニ"),
+            ("アリガタイ事に", "ありがたいことに", "アリガタイ[事|こと]に"),
+            ("アリガタイ事ニ", "ありがたいことに", "アリガタイ[事|こと]ニ"),
+            ("アりガたイ事ニ", "ありがたいことに", "アりガたイ[事|こと]ニ"),
+
+            // Furigana written in katakana
+            ("ありがたい事に", "ありがたいコトに", "ありがたい[事|コト]に"),
+        };
+
+        TestSolutions(_solver, data);
     }
 
     [TestMethod]
     public void TestUtf16SurrogatePair()
     {
-        var kanji = "𩺊";
-        Assert.AreEqual(2, kanji.Length);
-        TestSolution(_solver, new VocabEntry(kanji, "あら"), $"[{kanji}|あら]");
-    }
+        var data = new Dictionary<string, (string, string, string)>()
+        {
+            ["𩺊"] = ("𩺊", "あら", "[𩺊|あら]"),
+            ["𠮟"] = ("𠮟かり", "しかり", "[𠮟|し]かり"),
+            ["𤸎"] = ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]")
+        };
 
-    [TestMethod]
-    public void TestSuffixedUtf16SurrogatePair()
-    {
-        var kanji = "𠮟";
-        Assert.AreEqual(2, kanji.Length);
-        TestSolution(_solver, new VocabEntry($"{kanji}かり", "しかり"), $"[{kanji}|し]かり");
-    }
-
-    [TestMethod]
-    public void TestPrefixedAndSuffixedUtf16SurrogatePair()
-    {
-        var kanji = "𠮟";
-        Assert.AreEqual(2, kanji.Length);
-        TestSolution(_solver, new VocabEntry($"れいせい{kanji}た", "れいせいしった"), $"れいせい[{kanji}|しっ]た");
+        foreach(var item in data)
+        {
+            var kanji = item.Key;
+            Assert.AreEqual(2, kanji.Length);
+            Assert.Contains(kanji, item.Value.Item1);
+            Assert.Contains(kanji, item.Value.Item3);
+        }
+        
+        TestSolutions(_solver, data.Values);
     }
 }
