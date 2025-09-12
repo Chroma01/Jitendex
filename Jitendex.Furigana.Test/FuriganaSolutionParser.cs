@@ -43,14 +43,9 @@ public static partial class Parser
             var furigana = match.Groups[3].Value;
             var noFurigana2 = match.Groups[4].Value;
 
-            if (!string.IsNullOrWhiteSpace(noFurigana1))
-                solutionBuilder.Add(new(noFurigana1, null));
-
-            if (!string.IsNullOrWhiteSpace(baseText) && !string.IsNullOrWhiteSpace(furigana))
-                solutionBuilder.Add(new(baseText, furigana));
-
-            if (!string.IsNullOrWhiteSpace(noFurigana2))
-                solutionBuilder.Add(new(noFurigana2, null));
+            solutionBuilder.Add(new(noFurigana1, null));
+            solutionBuilder.Add(new(baseText, furigana));
+            solutionBuilder.Add(new(noFurigana2, null));
         }
         var solution = solutionBuilder.ToSolution(entry);
         if (solution is null)

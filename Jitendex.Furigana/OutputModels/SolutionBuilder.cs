@@ -43,7 +43,7 @@ internal class SolutionBuilder
 
     public Solution? ToSolution(Entry entry) =>
         IsValid(entry) ?
-        new Solution { Entry = entry, Parts = [.. NormalizedParts()] } :
+        new Solution { Entry = entry, Parts = NormalizedParts() } :
         null;
 
     public IndexedSolution? ToIndexedSolution(Entry entry) =>
@@ -51,16 +51,35 @@ internal class SolutionBuilder
         new IndexedSolution(entry, [.. IndexedParts()]) :
         null;
 
+    /// <summary>
+    /// Determine if the parts contained within this builder are valid for the given entry.
+    /// </summary>
+    /// <remarks>
+    /// Solutions may be valid even if they do not contain furigana for every non-kana rune
+    /// in the entry's "Kanji Form Text" data. This is by design to allow for solutions to
+    /// entries containing punctuation.
+    /// <list type="bullet">
+    /// <item>ブルータス、お[前|まえ]もか</item>
+    /// <item>アンドロイドは[電|でん][気|き][羊|ひつじ]の[夢|ゆめ]を[見|み]るか？</item>
+    /// </list>
+    /// However, any part that contains a kanji rune must contain furigana.
+    /// </remarks>
     private bool IsValid(Entry entry) =>
         entry.NormalizedReadingText == NormalizedReadingText() &&
-        entry.KanjiFormText == KanjiFormText();
+        entry.KanjiFormText == KanjiFormText() &&
+        _parts.Where(static part => part
+                .BaseText
+                .EnumerateRunes()
+                .Any(KanjiHelper.IsKanji))
+            .All(static part => !string.IsNullOrWhiteSpace(part.Furigana));
 
     /// <summary>
     /// Merge consecutive parts together if they have null furigana.
+    /// Ignore merged parts with both empty text and null furigana.
     /// </summary>
-    private List<Solution.Part> NormalizedParts()
+    private ImmutableArray<Solution.Part> NormalizedParts()
     {
-        var normalizedParts = new List<Solution.Part>();
+        var parts = new List<Solution.Part>();
         var mergedTexts = new List<string>();
         foreach (var part in _parts)
         {
@@ -72,17 +91,20 @@ internal class SolutionBuilder
             if (mergedTexts.Count > 0)
             {
                 var baseText = string.Join(string.Empty, mergedTexts);
-                normalizedParts.Add(new Solution.Part(baseText, null));
+                parts.Add(new Solution.Part(baseText, null));
                 mergedTexts = new List<string>();
             }
-            normalizedParts.Add(part);
+            parts.Add(part);
         }
         if (mergedTexts.Count > 0)
         {
             var baseText = string.Join(string.Empty, mergedTexts);
-            normalizedParts.Add(new Solution.Part(baseText, null));
+            parts.Add(new Solution.Part(baseText, null));
         }
-        return normalizedParts;
+        return parts.Where(static part =>
+                part.BaseText != string.Empty ||
+                part.Furigana is not null)
+            .ToImmutableArray();
     }
 
     private List<IndexedFurigana> IndexedParts()
