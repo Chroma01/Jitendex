@@ -106,14 +106,9 @@ internal class ReadingIterationSolver : FuriganaSolver
         return newBuilders;
     }
 
-    private static bool TryGetNewPart(Entry entry, string baseText, string oldReadings, string? baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
+    private static bool TryGetNewPart(Entry entry, string baseText, string oldReadings, string baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
-        if (baseReading is null)
-        {
-            part = new(baseText, null);
-            return true;
-        }
-        else if (!entry.NormalizedReadingText.StartsWith(oldReadings + baseReading))
+        if (!entry.NormalizedReadingText.StartsWith(oldReadings + baseReading))
         {
             part = null;
             return false;
