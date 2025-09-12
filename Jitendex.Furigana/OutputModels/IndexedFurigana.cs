@@ -30,15 +30,17 @@ internal class IndexedFurigana : IComparable<IndexedFurigana>, ICloneable
 
     public IndexedFurigana(string value, int startIndex, int endIndex)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentOutOfRangeException(nameof(value),
-                "Furigana character string cannot be empty or whitespace");
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
         if (startIndex < 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(startIndex),
                 "Starting position must be non-negative");
+        }
         if (endIndex < startIndex)
+        {
             throw new ArgumentOutOfRangeException(nameof(endIndex),
                 "End position must be greater than or equal to the start position");
+        }
 
         Value = value;
         StartIndex = startIndex;

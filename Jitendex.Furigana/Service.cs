@@ -36,7 +36,6 @@ public class Service
         [
             new KanaReadingSolver(resourceSet),
             new ReadingIterationSolver(resourceSet),
-            new LengthMatchSolver(),
             new RegexSolver(),
             new RepeatedKanjiSolver(),
             new SingleKanjiSolver(),
@@ -46,17 +45,6 @@ public class Service
     }
 
     public Solution? Solve(Entry entry)
-    {
-        // TODO: These checks should be done when constructing the entry?
-        if (string.IsNullOrWhiteSpace(entry.KanjiFormText) || string.IsNullOrWhiteSpace(entry.ReadingText))
-        {
-            // Cannot solve when we do not have a kanji form or reading.
-            return null;
-        }
-        return Process(entry);
-    }
-
-    private Solution? Process(Entry entry)
     {
         var solutionSet = new HashSet<IndexedSolution>();
         int priority = _solvers.First().Priority;

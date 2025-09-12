@@ -33,6 +33,9 @@ public abstract class Entry
 
     public Entry(string kanjiFormText, string readingText)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(kanjiFormText);
+        ArgumentException.ThrowIfNullOrWhiteSpace(readingText);
+
         KanjiFormText = kanjiFormText;
         ReadingText = readingText;
         NormalizedReadingText = readingText.KatakanaToHiragana();
