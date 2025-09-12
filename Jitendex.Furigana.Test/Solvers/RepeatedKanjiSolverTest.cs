@@ -26,113 +26,88 @@ internal class RepeatedKanjiSolverTest : SolverTest
 {
     private static readonly RepeatedKanjiSolver _solver = new();
 
-    #region Tests expected to return a single correct solution
-
     [TestMethod]
-    public void TestOneKanaPerKanji()
+    public void SingleCorrectSolution()
     {
-        TestSolution("唖々", "ああ", "0:あ;1:あ");
-        TestSolution("唖唖", "ああ", "0:あ;1:あ");
-    }
+        var data = new List<(string, string, string)>()
+        {
+            // One kana per kanji
+            ("唖々", "ああ", "[唖|あ][々|あ]"),
+            ("唖唖", "ああ", "[唖|あ][唖|あ]"),
 
-    [TestMethod]
-    public void TestTwoKanaPerKanji()
-    {
-        TestSolution("抑抑", "そもそも", "0:そも;1:そも");
-        TestSolution("抑々", "そもそも", "0:そも;1:そも");
-        TestSolution("犇犇", "ひしひし", "0:ひし;1:ひし");
-        TestSolution("犇々", "ひしひし", "0:ひし;1:ひし");
-        TestSolution("愈愈", "いよいよ", "0:いよ;1:いよ");
-        TestSolution("愈々", "いよいよ", "0:いよ;1:いよ");
-        TestSolution("偶偶", "たまたま", "0:たま;1:たま");
-        TestSolution("偶々", "たまたま", "0:たま;1:たま");
-        TestSolution("益益", "ますます", "0:ます;1:ます");
-        TestSolution("益々", "ますます", "0:ます;1:ます");
-    }
+            // Two kana per kanji
+            ("抑抑", "そもそも", "[抑|そも][抑|そも]"),
+            ("抑々", "そもそも", "[抑|そも][々|そも]"),
+            ("犇犇", "ひしひし", "[犇|ひし][犇|ひし]"),
+            ("犇々", "ひしひし", "[犇|ひし][々|ひし]"),
+            ("愈愈", "いよいよ", "[愈|いよ][愈|いよ]"),
+            ("愈々", "いよいよ", "[愈|いよ][々|いよ]"),
+            ("偶偶", "たまたま", "[偶|たま][偶|たま]"),
+            ("偶々", "たまたま", "[偶|たま][々|たま]"),
+            ("益益", "ますます", "[益|ます][益|ます]"),
+            ("益々", "ますます", "[益|ます][々|ます]"),
 
-    [TestMethod]
-    public void TestRendaku()
-    {
-        TestSolution("日日", "ひび", "0:ひ;1:び");
-        TestSolution("日々", "ひび", "0:ひ;1:び");
-        TestSolution("時時", "ときどき", "0:とき;1:どき");
-        TestSolution("時々", "ときどき", "0:とき;1:どき");
-    }
+            // With rendaku
+            ("日日", "ひび", "[日|ひ][日|び]"),
+            ("日々", "ひび", "[日|ひ][々|び]"),
+            ("時時", "ときどき", "[時|とき][時|どき]"),
+            ("時々", "ときどき", "[時|とき][々|どき]"),
 
-    [TestMethod]
-    public void TestUtf16SurrogatePair()
-    {
-        // "𩺊" is represented by a UTF-16 "Surrogate Pair"
-        // with string Length == 2.
-        TestSolution("𩺊𩺊", "あらあら", "0:あら;1:あら");
-        TestSolution("𩺊々", "あらあら", "0:あら;1:あら");
-    }
+            // "𩺊" is represented by a UTF-16 "Surrogate Pair"
+            // with string Length == 2.
+            ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
+            ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
 
-    [TestMethod]
-    public void TestThreeKanaPerKanji()
-    {
-        TestSolution("州州", "しゅうしゅう", "0:しゅう;1:しゅう");
-        TestSolution("州々", "しゅうしゅう", "0:しゅう;1:しゅう");
-    }
+            // Three kana per kanji
+            ("州州", "しゅうしゅう", "[州|しゅう][州|しゅう]"),
+            ("州々", "しゅうしゅう", "[州|しゅう][々|しゅう]"),
 
-    [TestMethod]
-    public void TestNonKanji()
-    {
-        TestSolution("々々", "ときどき", "0:とき;1:どき");
-        TestSolution("〇〇", "まるまる", "0:まる;1:まる");
-    }
+            // Non-kanji
+            ("々々", "ときどき", "[々|とき][々|どき]"),
+            ("〇〇", "まるまる", "[〇|まる][〇|まる]"),
+        };
 
-    private static void TestSolution(string kanjiForm, string reading, string expectedFurigana)
-    {
-        var solver = new RepeatedKanjiSolver();
-        var vocab = new VocabEntry(kanjiForm, reading);
-        var solutions = solver.Solve(vocab).ToList();
-        Assert.HasCount(1, solutions);
-
-        var solution = solutions.First().ToTextSolution();
-        var expectedSolution = Parser.Index(expectedFurigana, vocab);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
-    }
-
-    #endregion
-
-    #region Tests expected to return no solutions
-
-    [TestMethod]
-    public void TestKana()
-    {
-        TestNullSolution(_solver, new VocabEntry("あ", "あ"));
-        TestNullSolution(_solver, new VocabEntry("あゝ", "ああ"));
-        TestNullSolution(_solver, new VocabEntry("ああ", "ああ"));
+        foreach (var (kanjiFormText, readingText, expectedResultText) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestSolution(_solver, entry, expectedResultText);
+        }
     }
 
     [TestMethod]
-    public void TestNonRepeatKanji()
+    public void NullSolution()
     {
-        TestNullSolution(_solver, new VocabEntry("可能", "かのう"));
-        TestNullSolution(_solver, new VocabEntry("津波", "つなみ"));
-        TestNullSolution(_solver, new VocabEntry("問題", "もんだい"));
-        TestNullSolution(_solver, new VocabEntry("質問", "しつもん"));
-    }
+        var data = new List<(string, string)>()
+        {
+            // Kana
+            ("あ", "あ"),
+            ("あゝ", "ああ"),
+            ("ああ", "ああ"),
 
-    [TestMethod]
-    public void TestOddLengthKana()
-    {
-        TestNullSolution(_solver, new VocabEntry("主主", "しゅしゅう"));
-        TestNullSolution(_solver, new VocabEntry("主主", "ししゅ"));
-    }
+            // No kanji repeats
+            ("可能", "かのう"),
+            ("津波", "つなみ"),
+            ("問題", "もんだい"),
+            ("質問", "しつもん"),
 
-    [TestMethod]
-    public void TestWrongLengthKanji()
-    {
-        TestNullSolution(_solver, new VocabEntry("々", "とき"));
-        TestNullSolution(_solver, new VocabEntry("〇", "まる"));
-        TestNullSolution(_solver, new VocabEntry("抑", "そも"));
-        TestNullSolution(_solver, new VocabEntry("捗捗し", "はかばかし"));
-        TestNullSolution(_solver, new VocabEntry("捗々し", "はかばかし"));
-        TestNullSolution(_solver, new VocabEntry("捗捗しい", "はかばかしい"));
-        TestNullSolution(_solver, new VocabEntry("捗々しい", "はかばかしい"));
-    }
+            // Odd reading length
+            ("主主", "しゅしゅう"),
+            ("主主", "ししゅ"),
 
-    #endregion
+            // Wrong kanji form length
+            ("々", "とき"),
+            ("〇", "まる"),
+            ("抑", "そも"),
+            ("捗捗し", "はかばかし"),
+            ("捗々し", "はかばかし"),
+            ("捗捗しい", "はかばかしい"),
+            ("捗々しい", "はかばかしい"),
+        };
+
+        foreach (var (kanjiFormText, readingText) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestNullSolution(_solver, entry);
+        }
+    }
 }
