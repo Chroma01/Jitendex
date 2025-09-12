@@ -74,16 +74,15 @@ public abstract class Entry
         return runes;
     }
 
-    private static HashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes)
-    {
-        var repeaterIndices = new HashSet<int>();
-        for (int i = 0; i < rawRunes.Length; i++)
-        {
-            if (_kanjiIterationCharacters.Contains(rawRunes[i].Value))
-                repeaterIndices.Add(i);
-        }
-        return repeaterIndices;
-    }
+    private static ImmutableHashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes) => rawRunes
+        .Select(static (rune, index) =>
+            (
+                isRepeater: _kanjiIterationCharacters.Contains(rune.Value),
+                index: index
+            ))
+        .Where(static x => x.isRepeater)
+        .Select(static x => x.index)
+        .ToImmutableHashSet();
 
     public override abstract bool Equals(object? obj);
 
