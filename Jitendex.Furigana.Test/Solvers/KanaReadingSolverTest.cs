@@ -32,12 +32,23 @@ internal class KanaReadingSolverTest : SolverTest
         var data = new List<(string, string, string)>()
         {
             ("木の葉", "このは", "[木|こ]の[葉|は]"),
+            ("こ之は", "このは", "こ[之|の]は"),
             ("余所見", "よそみ", "[余|よ][所|そ][見|み]"),
+
+            // Don't capture the impossible start characters (っ, ん, etc.) if not followed by a kanji
+            ("真っさお", "まっさお", "[真|ま]っさお"),
+            ("を呼んで", "をよんで", "を[呼|よ]んで"),
+            ("田ん圃", "たんぼ", "[田|た]ん[圃|ぼ]"),
+
+            // With non-normalized kanji forms
+            ("木ノ葉", "このは", "[木|こ]ノ[葉|は]"),
+            ("真ッさオ", "まっさお", "[真|ま]ッさオ"),
+            ("田ン圃", "たんぼ", "[田|た]ン[圃|ぼ]"),
 
             // With non-normalized readings
             ("木の葉", "コのは", "[木|コ]の[葉|は]"),
-            // ("木ノ葉", "このは", "[木|こ]ノ[葉|は]"),
             ("余所見", "ヨそミ", "[余|ヨ][所|そ][見|ミ]"),
+            ("真っサお", "マっさお", "[真|マ]っサお"),
         };
 
         foreach (var (kanjiFormText, readingText, _) in data)
@@ -66,6 +77,7 @@ internal class KanaReadingSolverTest : SolverTest
             // っ
             ("仏者", "ぶっしゃ", "[仏|ぶっ][者|しゃ]"),
             ("ご法度", "ごはっと", "ご[法|はっ][度|と]"),
+            ("真さお", "まっさお", "[真|まっ]さお"),
 
             // ょ
             ("如意", "にょい", "[如|にょ][意|い]"),
@@ -86,10 +98,11 @@ internal class KanaReadingSolverTest : SolverTest
             ("嗹", "れん", "[嗹|れん]"),
             ("如何", "いかん", "[如|い][何|かん]"),
             ("阿呆陀羅", "あほんだら", "[阿|あ][呆|ほん][陀|だ][羅|ら]"),
+            ("危機に瀕する", "ききにひんする", "[危|き][機|き]に[瀕|ひん]する"),
 
             // With non-normalized readings
-            // ("阿呆陀羅", "アほンだラ", "[阿|ア][呆|ほン][陀|だ][羅|ラ]"),
-            // ("嗹", "レン", "[嗹|レン]"),
+            ("阿呆陀羅", "アほンだラ", "[阿|ア][呆|ほン][陀|だ][羅|ラ]"),
+            ("嗹", "レン", "[嗹|レン]"),
         };
 
         foreach (var (kanjiFormText, readingText, _) in data)
@@ -134,6 +147,10 @@ internal class KanaReadingSolverTest : SolverTest
             // This one almost looks solvable, but note that there are two
             // potential solutions: [乱|らん][脈|みゃく] and [乱|らんみゃ][脈|く].
             ("乱脈", "らんみゃく"),
+
+            // Solvable by RegexSolver, but not this solver.
+            ("真っ青", "まっさお"),
+            ("桜ん坊", "さくらんぼ"),
 
             // Solvable by RepeatedKanjiSolver, but not this solver.
             ("抑抑", "そもそも"),

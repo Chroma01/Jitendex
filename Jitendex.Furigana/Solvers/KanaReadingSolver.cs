@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using System.Text;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
 using Jitendex.Furigana.Helpers;
@@ -56,99 +57,109 @@ internal class KanaReadingSolver : FuriganaSolver
     /// </remarks>
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
-        var runes = entry.KanjiFormRunes;
-        string kana = entry.ReadingText;
-        var furiganaParts = new List<IndexedFurigana>();
+        var builder = new SolutionBuilder();
 
-        for (int sliceStart = 0; sliceStart < runes.Length; sliceStart++)
+        for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            if (kana.Length == 0)
-            {
-                // We still have characters to browse in our kanji reading, but
-                // there are no more kana to consume. Cannot solve.
-                yield break;
-            }
-
-            var specialPart = SpecialExpressionPart(entry, ref sliceStart, ref kana);
+            var specialPart = SpecialExpressionPart(entry, builder, ref sliceStart);
             if (specialPart is not null)
             {
-                furiganaParts.Add(specialPart);
+                builder.Add(specialPart);
                 continue;
             }
 
-            var normalPart = NormalPart(entry, ref sliceStart, ref kana);
+            var normalPart = NormalPart(entry, builder, sliceStart);
             if (normalPart is not null)
             {
-                furiganaParts.Add(normalPart);
+                builder.Add(normalPart);
+            }
+            else
+            {
+                yield break;
             }
         }
 
-        if (kana.Length == 0)
+        var solution = builder.ToIndexedSolution(entry);
+        if (solution is not null)
         {
-            // We consumed the whole kana string.
-            // The case is solved.
-            yield return new IndexedSolution(entry, furiganaParts);
+            yield return solution;
         }
     }
 
-    private IndexedFurigana? SpecialExpressionPart(Entry entry, ref int sliceStart, ref string kana)
+    private Solution.Part? SpecialExpressionPart(Entry entry, SolutionBuilder builder, ref int sliceStart)
     {
         var runes = entry.KanjiFormRunes;
+        var oldReadings = builder.NormalizedReadingText();
 
         for (int sliceEnd = runes.Length; sliceStart < sliceEnd; sliceEnd--)
         {
             var runesSlice = runes[sliceStart..sliceEnd];
-            string lookup = string.Join(string.Empty, runesSlice);
-            var readings = _resourceSet.GetPotentialReadings(lookup);
+            string baseText = string.Join(string.Empty, runesSlice);
+            var potentialReadings = _resourceSet.GetPotentialReadings(baseText);
 
-            foreach (var reading in readings)
+            foreach (var baseReading in potentialReadings)
             {
-                if (!kana.StartsWith(reading))
-                    continue;
+                if (entry.NormalizedReadingText.StartsWith(oldReadings + baseReading))
+                {
+                    int i = oldReadings.Length;
+                    int j = i + baseReading.Length;
+                    var furigana = entry.ReadingText[i..j];
+                    var part = new Solution.Part(baseText, furigana);
 
-                // The reading matches. Eat the kana chain.
-                var newPart = new IndexedFurigana(reading, sliceStart, sliceStart + runesSlice.Length - 1);
-                kana = kana[reading.Length..];
-                sliceStart = sliceEnd - 1;
-                return newPart;
+                    sliceStart += sliceEnd - sliceStart - 1;
+                    return part;
+                }
             }
         }
         return null;
     }
 
-    private IndexedFurigana? NormalPart(Entry entry, ref int sliceStart, ref string kana)
+    private Solution.Part? NormalPart(Entry entry, SolutionBuilder builder, int sliceStart)
     {
-        // Normal process: eat the first character of our kana string.
-        string eaten = kana.First().ToString();
-        kana = kana[1..];
+        var oldReadings = builder.NormalizedReadingText();
+        var remainingReadings = entry.ReadingText[oldReadings.Length..];
 
-        var runes = entry.KanjiFormRunes;
-        var rune = runes[sliceStart];
-
-        if (rune.IsKanji())
+        if (remainingReadings.Length == 0)
         {
-            // On a kanji case, also eat consecutive "impossible start characters"
-            while (kana.Length > 0 && _impossibleCutStart.Contains(kana.First()))
+            return null;
+        }
+
+        var readingChar = remainingReadings[0].ToString();
+        var remainingRunes = entry.KanjiFormRunes[sliceStart..];
+        var rune = remainingRunes[0];
+        var runeString = rune.ToString();
+
+        if (rune.IsKana())
+        {
+            if (readingChar.IsKanaEquivalent(runeString))
             {
-                eaten += kana.First();
-                kana = kana[1..];
+                return new Solution.Part(runeString, null);
             }
-            return new IndexedFurigana(eaten, sliceStart);
+            else
+            {
+                return null;
+            }
         }
-        else if (!rune.IsKana())
+
+        var newReadingBuilder = new StringBuilder(readingChar);
+
+        char? nextRune = remainingRunes.Count() > 1 && remainingRunes[1].IsKana() ? (char)remainingRunes[1].Value : null;
+        foreach (var nextReadingChar in remainingReadings[1..])
         {
-            // The character is neither a kanji or a kana.
-            // Cannot solve.
-            sliceStart = runes.Length;
+            if (nextRune.HasValue && ((char)nextRune).IsKanaEquivalent(nextReadingChar))
+            {
+                break;
+            }
+            if (_impossibleCutStart.Contains(nextReadingChar.KatakanaToHiragana()))
+            {
+                newReadingBuilder.Append(nextReadingChar);
+            }
+            else
+            {
+                break;
+            }
         }
-        else if (eaten != rune.ToString())
-        {
-            // The character browsed is a kana but is not the
-            // character that we just ate. We made a mistake
-            // in one of the kanji readings, meaning that we...
-            // Cannot solve.
-            sliceStart = runes.Length;
-        }
-        return null;
+
+        return new Solution.Part(runeString, newReadingBuilder.ToString());
     }
 }
