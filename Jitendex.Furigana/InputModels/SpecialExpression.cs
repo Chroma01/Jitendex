@@ -23,9 +23,18 @@ using Jitendex.Furigana.Helpers;
 namespace Jitendex.Furigana.InputModels;
 
 /// <summary>
-/// Represents a special reading expression.
-/// For example, 大人 - おとな can't be cut as おと.な or お.とな.
+/// Represents a compound expression and its potential readings.
 /// </summary>
+/// <remarks>
+/// <para>
+/// For example, おとな【大人】 can't be cut as [大|お][人|とな] or [大|おと][人|な].
+/// It is treated as a single unit: [大人|おとな].
+/// </para>
+/// <para>
+/// A given expression may have multiple potential readings. For example,
+/// 発条 could either be [発条|ばね] or [発条|ぜんまい].
+/// </para>
+/// </remarks>
 public class SpecialExpression(string expression, IEnumerable<string> readings)
 {
     public string Expression { get; } = expression;
