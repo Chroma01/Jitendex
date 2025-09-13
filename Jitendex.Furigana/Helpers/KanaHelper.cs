@@ -34,9 +34,9 @@ public static class KanaHelper
     public static bool IsHiragana(this char c) => IsHiragana((int)c);
     public static bool IsKatakana(this char c) => IsKatakana((int)c);
 
-    public static bool IsAllKana(this string text) => text.All(static c => c.IsKana());
-    public static bool IsAllHiragana(this string text) => text.All(static c => c.IsHiragana());
-    public static bool IsAllKatakana(this string text) => text.All(static c => c.IsKatakana());
+    public static bool IsAllKana(this string text) => text.All(IsKana);
+    public static bool IsAllHiragana(this string text) => text.All(IsHiragana);
+    public static bool IsAllKatakana(this string text) => text.All(IsKatakana);
 
     public static char KatakanaToHiragana(this char c) => Transform(c, _katakanaToHiragana);
     public static char HiraganaToKatakana(this char c) => Transform(c, _hiraganaToKatakana);
