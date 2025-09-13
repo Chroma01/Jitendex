@@ -41,8 +41,8 @@ internal class RepeatedKanjiSolver : FuriganaSolver
         {
             var solutionBuilder = new SolutionBuilder
             ([
-                new(baseText.Item1, furigana.Item1),
-                new(baseText.Item2, furigana.Item2),
+                new(baseText.First, furigana.First),
+                new(baseText.Second, furigana.Second),
             ]);
 
             var solution = solutionBuilder.ToIndexedSolution(entry);
@@ -53,7 +53,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
         }
     }
 
-    private bool TryGetBaseText(Entry entry, out (string, string) baseText)
+    private bool TryGetBaseText(Entry entry, out (string First, string Second) baseText)
     {
         baseText = (string.Empty, string.Empty);
         var runes = entry.KanjiFormRunes;
@@ -71,12 +71,17 @@ internal class RepeatedKanjiSolver : FuriganaSolver
         }
 
         var rawRunes = entry.RawKanjiFormRunes;
-        baseText = (rawRunes[0].ToString(), rawRunes[1].ToString());
+
+        baseText =
+        (
+            rawRunes[0].ToString(),
+            rawRunes[1].ToString()
+        );
 
         return true;
     }
 
-    private bool TryGetFurigana(Entry entry, out (string, string) furigana)
+    private bool TryGetFurigana(Entry entry, out (string First, string Second) furigana)
     {
         if (entry.ReadingText.Length % 2 != 0)
         {

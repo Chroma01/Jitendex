@@ -89,6 +89,7 @@ internal class IterationSolver : FuriganaSolver
             return _resourceSet.GetPotentialReadings(textSlice);
         }
     }
+
     private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> cachedReadings, string baseText)
     {
         var newBuilders = new List<SolutionBuilder>();
