@@ -22,6 +22,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Jitendex.Furigana.Helpers;
+using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.InputModels;
 
@@ -41,7 +42,19 @@ public class ResourceSet
             .ToFrozenDictionary();
     }
 
-    public ImmutableArray<string> GetPotentialReadings(Rune character, Entry entry, bool isFirstRune, bool isLastRune)
+    internal ImmutableArray<string> GetPotentialReadings(IterationSlice iterationSlice)
+    {
+        if (iterationSlice.KanjiFormRunes.Length == 1)
+        {
+            return GetPotentialReadings(iterationSlice.KanjiFormRunes[0], iterationSlice.Entry, iterationSlice.ContainsFirstRune, iterationSlice.ContainsFinalRune);
+        }
+        else
+        {
+            return GetPotentialReadings(iterationSlice.KanjiFormText);
+        }
+    }
+
+    private ImmutableArray<string> GetPotentialReadings(Rune character, Entry entry, bool isFirstRune, bool isLastRune)
     {
         if (TryGetKanji(character, entry, out Kanji? kanji))
         {
@@ -59,7 +72,7 @@ public class ResourceSet
         }
     }
 
-    public ImmutableArray<string> GetPotentialReadings(string text)
+    private ImmutableArray<string> GetPotentialReadings(string text)
     {
         if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
         {

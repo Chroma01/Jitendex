@@ -38,19 +38,13 @@ internal class IterationSolver : FuriganaSolver
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
     {
         var builders = new List<SolutionBuilder>() { new() };
-
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
             var newBuilders = new List<SolutionBuilder>();
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
-                newBuilders = IterateBuilders
-                (
-                    entry: entry,
-                    oldBuilders: builders,
-                    cachedReadings: GetCachedReadings(entry, sliceStart, sliceEnd),
-                    baseText: string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd])
-                );
+                var iterationSlice = new IterationSlice(entry, sliceStart, sliceEnd);
+                newBuilders = IterateBuilders(builders, iterationSlice);
                 if (newBuilders.Count > 0)
                 {
                     sliceStart += sliceEnd - sliceStart - 1;
@@ -63,7 +57,6 @@ internal class IterationSolver : FuriganaSolver
                 yield break;
             }
         }
-
         foreach (var builder in builders)
         {
             var solution = builder.ToIndexedSolution(entry);
@@ -73,26 +66,15 @@ internal class IterationSolver : FuriganaSolver
             }
         }
     }
-    private ImmutableArray<string> GetCachedReadings(Entry entry, int sliceStart, int sliceEnd)
-    {
-        var runesSlice = entry.KanjiFormRunes[sliceStart..sliceEnd];
-        if (runesSlice.Length == 1)
-        {
-            bool isFirstRune = sliceStart == 0;
-            bool isLastRune = sliceStart == entry.KanjiFormRunes.Length - 1;
-            return _resourceSet.GetPotentialReadings(runesSlice[0], entry, isFirstRune, isLastRune);
-        }
-        else
-        {
-            var textSlice = string.Join(string.Empty, runesSlice);
-            return _resourceSet.GetPotentialReadings(textSlice);
-        }
-    }
 
-    private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> cachedReadings, string baseText)
+    private List<SolutionBuilder> IterateBuilders(List<SolutionBuilder> oldBuilders, IterationSlice iterationSlice)
     {
         var newBuilders = new List<SolutionBuilder>();
-        var baseReadingsMaker = new BaseReadingsMaker(entry, baseText, cachedReadings);
+
+        var baseText = iterationSlice.RawKanjiFormText;
+        var cachedReadings = _resourceSet.GetPotentialReadings(iterationSlice);
+        var baseReadingsMaker = new BaseReadingsMaker(iterationSlice.Entry, baseText, cachedReadings);
+
         foreach (var oldBuilder in oldBuilders)
         {
             var baseReadings = baseReadingsMaker.GetBaseReadings(oldBuilder);
@@ -101,7 +83,7 @@ internal class IterationSolver : FuriganaSolver
 
             foreach (var baseReading in baseReadings)
             {
-                if (TryGetNewPart(entry, baseText, oldReadingText, baseReading, out var newPart))
+                if (TryGetNewPart(iterationSlice.Entry, baseText, oldReadingText, baseReading, out var newPart))
                 {
                     newBuilders.Add(new(oldParts.Add(newPart)));
                 }
@@ -131,6 +113,27 @@ internal class IterationSolver : FuriganaSolver
             part = new(baseText, furigana);
             return true;
         }
+    }
+}
+
+internal class IterationSlice
+{
+    public Entry Entry { get; }
+    public ImmutableArray<Rune> KanjiFormRunes { get; }
+    public ImmutableArray<Rune> RawKanjiFormRunes { get; }
+    public string KanjiFormText { get; }
+    public string RawKanjiFormText { get; }
+    public bool ContainsFirstRune { get; }
+    public bool ContainsFinalRune { get; }
+    public IterationSlice(Entry entry, int sliceStart, int sliceEnd)
+    {
+        Entry = entry;
+        KanjiFormRunes = entry.KanjiFormRunes[sliceStart..sliceEnd];
+        RawKanjiFormRunes = entry.RawKanjiFormRunes[sliceStart..sliceEnd];
+        KanjiFormText = string.Join(string.Empty, KanjiFormRunes);
+        RawKanjiFormText = string.Join(string.Empty, RawKanjiFormRunes);
+        ContainsFirstRune = sliceStart == 0;
+        ContainsFinalRune = sliceEnd == entry.KanjiFormRunes.Length;
     }
 }
 
