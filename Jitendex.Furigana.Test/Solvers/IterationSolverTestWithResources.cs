@@ -49,7 +49,7 @@ internal class IterationSolverTestWithResources : SolverTest
             // 発条 uses regular, kanji dictionary readings
             ("発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け"),
 
-            // Bogus data for laughs
+            // This is bogus data but it will solve because it's the correct length.
             ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
 
             // Repeat the above tests with non-normalized readings
@@ -77,13 +77,12 @@ internal class IterationSolverTestWithResources : SolverTest
             ("発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け"),
 
             // This is bogus data but it will solve because it's the correct length.
-            // With this resource set, the ReadingIteration solver won't solve this.
             ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
         };
 
         TestSolutions(solver, data);
 
-        // Unsolvable without kanji reading reasource data.
+        // Unsolvable without kanji reading resource data.
         var unsolvableEntry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
         TestNullSolution(solver, unsolvableEntry);
     }
