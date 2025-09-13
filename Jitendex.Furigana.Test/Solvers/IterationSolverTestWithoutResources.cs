@@ -24,11 +24,11 @@ namespace Jitendex.Furigana.Test.Solvers;
 [TestClass]
 internal class IterationSolverTestWithoutResources : SolverTest
 {
+    private static readonly IterationSolver _solver = new(new ResourceSet([], []));
+
     [TestMethod]
     public void EqualLengthSolutions()
     {
-        var solver = new IterationSolver(new ResourceSet([], []));
-
         var data = new List<(string, string, string)>()
         {
             ("木の葉", "このは", "[木|こ]の[葉|は]"),
@@ -56,7 +56,7 @@ internal class IterationSolverTestWithoutResources : SolverTest
             Assert.AreEqual(kanjiFormText.Length, readingText.Length);
         }
 
-        TestSolutions(solver, data);
+        TestSolutions(_solver, data);
     }
 
     /// <summary>
@@ -70,8 +70,6 @@ internal class IterationSolverTestWithoutResources : SolverTest
     [TestMethod]
     public void UnequalLengthSolutions()
     {
-        var solver = new IterationSolver(new ResourceSet([], []));
-
         var data = new List<(string, string, string)>()
         {
             // っ
@@ -115,40 +113,12 @@ internal class IterationSolverTestWithoutResources : SolverTest
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
 
-        TestSolutions(solver, data);
-    }
-
-    [TestMethod]
-    public void SpecialExpression()
-    {
-        var solver = new IterationSolver(ServiceTest.MakeResourceSet
-        (
-            [], new() { ["発条"] = ["ぜんまい", "ばね"] }
-        ));
-
-        var data = new List<(string, string, string)>()
-        {
-            // 発条 uses a special reading
-            ("発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け"),
-            ("発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け"),
-
-            // This is bogus data but it will solve because it's the correct length.
-            // With this resource set, the ReadingIteration solver won't solve this.
-            ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
-        };
-
-        TestSolutions(solver, data);
-
-        // Unsolvable here, but ReadingIteration solver can solve this.
-        var unsolvableEntry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
-        TestNullSolution(solver, unsolvableEntry);
+        TestSolutions(_solver, data);
     }
 
     [TestMethod]
     public void NullSolution()
     {
-        var solver = new IterationSolver(new ResourceSet([], []));
-
         var data = new List<(string, string)>()
         {
             // This one almost looks solvable, but note that there are two
@@ -166,6 +136,6 @@ internal class IterationSolverTestWithoutResources : SolverTest
             ("難しい", "むずかしい"),
         };
 
-        TestNullSolutions(solver, data);
+        TestNullSolutions(_solver, data);
     }
 }

@@ -23,19 +23,6 @@ namespace Jitendex.Furigana.Test.Solvers;
 
 internal class SolverTest
 {
-    protected static readonly ResourceSet _resourceSet発条仕掛け = ServiceTest.MakeResourceSet(
-        new()
-        {
-            ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
-            ["条"] = ["ジョウ", "チョウ", "デキ", "えだ", "すじ"],
-            ["仕"] = ["シ", "ジ", "つか.える"],
-            ["掛"] = ["カイ", "ケイ", "か.ける", "-か.ける", "か.け", "-か.け", "-が.け", "か.かる", "-か.かる", "-が.かる", "か.かり", "-が.かり", "かかり", "-がかり"],
-        },
-        new()
-        {
-            ["発条"] = ["ぜんまい", "ばね"],
-        });
-
     protected static void TestSolution(IFuriganaSolver solver, Entry entry, string expectedResultText)
     {
         var solutions = solver.Solve(entry).ToList();

@@ -27,7 +27,18 @@ internal class IterationSolverTestWithResources : SolverTest
     [TestMethod]
     public void SingleCorrectSolution()
     {
-        var solver = new IterationSolver(_resourceSet発条仕掛け);
+        var solver = new IterationSolver(ServiceTest.MakeResourceSet(
+            new()
+            {
+                ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
+                ["条"] = ["ジョウ", "チョウ", "デキ", "えだ", "すじ"],
+                ["仕"] = ["シ", "ジ", "つか.える"],
+                ["掛"] = ["カイ", "ケイ", "か.ける", "-か.ける", "か.け", "-か.け", "-が.け", "か.かる", "-か.かる", "-が.かる", "か.かり", "-が.かり", "かかり", "-がかり"],
+            },
+            new()
+            {
+                ["発条"] = ["ぜんまい", "ばね"],
+            }));
 
         var data = new List<(string, string, string)>()
         {
@@ -49,6 +60,32 @@ internal class IterationSolverTestWithResources : SolverTest
         };
 
         TestSolutions(solver, data);
+    }
+
+    [TestMethod]
+    public void OnlySpecialExpressionData()
+    {
+        var solver = new IterationSolver(ServiceTest.MakeResourceSet
+        (
+            [], new() { ["発条"] = ["ぜんまい", "ばね"] }
+        ));
+
+        var data = new List<(string, string, string)>()
+        {
+            // 発条 uses a special reading
+            ("発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け"),
+            ("発条仕掛け", "ばねじかけ", "[発条|ばね][仕|じ][掛|か]け"),
+
+            // This is bogus data but it will solve because it's the correct length.
+            // With this resource set, the ReadingIteration solver won't solve this.
+            ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
+        };
+
+        TestSolutions(solver, data);
+
+        // Unsolvable without kanji reading reasource data.
+        var unsolvableEntry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
+        TestNullSolution(solver, unsolvableEntry);
     }
 
     /// <summary>
