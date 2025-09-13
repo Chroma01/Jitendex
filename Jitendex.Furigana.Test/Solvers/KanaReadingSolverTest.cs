@@ -27,7 +27,7 @@ internal class KanaReadingSolverTest : SolverTest
     [TestMethod]
     public void EqualLengthSolutions()
     {
-        var solver = new KanaReadingSolver(new ResourceSet([], []));
+        var solver = new ReadingIterationSolver(new ResourceSet([], []));
 
         var data = new List<(string, string, string)>()
         {
@@ -70,14 +70,13 @@ internal class KanaReadingSolverTest : SolverTest
     [TestMethod]
     public void UnequalLengthSolutions()
     {
-        var solver = new KanaReadingSolver(new ResourceSet([], []));
+        var solver = new ReadingIterationSolver(new ResourceSet([], []));
 
         var data = new List<(string, string, string)>()
         {
             // っ
             ("仏者", "ぶっしゃ", "[仏|ぶっ][者|しゃ]"),
             ("ご法度", "ごはっと", "ご[法|はっ][度|と]"),
-            ("真さお", "まっさお", "[真|まっ]さお"),
 
             // ょ
             ("如意", "にょい", "[如|にょ][意|い]"),
@@ -98,6 +97,12 @@ internal class KanaReadingSolverTest : SolverTest
             ("嗹", "れん", "[嗹|れん]"),
             ("如何", "いかん", "[如|い][何|かん]"),
             ("阿呆陀羅", "あほんだら", "[阿|あ][呆|ほん][陀|だ][羅|ら]"),
+
+            // With two consecutive impossible-start characters
+            ("勅勘", "ちょっかん", "[勅|ちょっ][勘|かん]"),
+
+            // With kana following the kanji
+            ("真さお", "まっさお", "[真|まっ]さお"),
             ("危機に瀕する", "ききにひんする", "[危|き][機|き]に[瀕|ひん]する"),
 
             // With non-normalized readings
@@ -113,11 +118,13 @@ internal class KanaReadingSolverTest : SolverTest
         TestSolutions(solver, data);
     }
 
-
     [TestMethod]
     public void SpecialExpression()
     {
-        var solver = new KanaReadingSolver(_resourceSet発条仕掛け);
+        var solver = new ReadingIterationSolver(ServiceTest.MakeResourceSet
+        (
+            [], new() { ["発条"] = ["ぜんまい", "ばね"] }
+        ));
 
         var data = new List<(string, string, string)>()
         {
@@ -140,7 +147,7 @@ internal class KanaReadingSolverTest : SolverTest
     [TestMethod]
     public void NullSolution()
     {
-        var solver = new KanaReadingSolver(new ResourceSet([], []));
+        var solver = new ReadingIterationSolver(new ResourceSet([], []));
 
         var data = new List<(string, string)>()
         {

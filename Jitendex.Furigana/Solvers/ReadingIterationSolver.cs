@@ -16,8 +16,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
@@ -27,6 +29,7 @@ namespace Jitendex.Furigana.Solvers;
 internal class ReadingIterationSolver : FuriganaSolver
 {
     private readonly ResourceSet _resourceSet;
+    private static readonly FrozenSet<char> _impossibleKanjiReadingStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
 
     public ReadingIterationSolver(ResourceSet resourceSet)
     {
@@ -95,7 +98,8 @@ internal class ReadingIterationSolver : FuriganaSolver
         {
             var oldParts = oldBuilder.ToParts();
             var oldReadings = oldBuilder.NormalizedReadingText();
-            foreach (var baseReading in potentialReadings)
+            var baseReadings = BaseReadings(entry, oldBuilder, potentialReadings, baseText);
+            foreach (var baseReading in baseReadings)
             {
                 if (TryGetNewPart(entry, baseText, oldReadings, baseReading, out var newPart))
                 {
@@ -127,5 +131,77 @@ internal class ReadingIterationSolver : FuriganaSolver
             part = new(baseText, furigana);
             return true;
         }
+    }
+
+    private static ImmutableArray<string> BaseReadings(Entry entry, SolutionBuilder builder, ImmutableArray<string> potentialReadings, string baseText)
+    {
+        var baseTextRunes = baseText.EnumerateRunes();
+        if (baseTextRunes.Count() != 1 || !baseTextRunes.First().IsKanji())
+        {
+            return potentialReadings;
+        }
+
+        var remainingKanjiFormRunes = RemainingKanjiFormRunes(entry, builder);
+        var remainingReadingText = RemainingReadingText(entry, builder);
+        if (remainingKanjiFormRunes.Length == 0 || string.IsNullOrEmpty(remainingReadingText))
+        {
+            return potentialReadings;
+        }
+        
+        var defaultReading = DefaultReading(remainingKanjiFormRunes, remainingReadingText);
+        if (potentialReadings.Contains(defaultReading))
+        {
+            return potentialReadings;
+        }
+        else
+        {
+            return potentialReadings.Add(defaultReading);
+        }
+    }
+
+    private static ImmutableArray<Rune> RemainingKanjiFormRunes(Entry entry, SolutionBuilder builder)
+    {
+        var builderKanjiFormText = builder.KanjiFormText();
+        if (!entry.KanjiFormText.StartsWith(builderKanjiFormText))
+        {
+            return [];
+        }
+        return entry.KanjiFormRunes[builderKanjiFormText.EnumerateRunes().Count()..];
+    }
+
+    private static string? RemainingReadingText(Entry entry, SolutionBuilder builder)
+    {
+        var builderReadingText = builder.NormalizedReadingText();
+        if (!entry.NormalizedReadingText.StartsWith(builderReadingText))
+        {
+            return null;
+        }
+        return entry.NormalizedReadingText[builderReadingText.Length..];
+    }
+
+    private static string DefaultReading(ImmutableArray<Rune> remainingKanjiFormRunes, string remainingReadingText)
+    {
+        var defaultReadingBuilder = new StringBuilder(remainingReadingText[..1]);
+        Rune nextRune = remainingKanjiFormRunes.Length > 1 ? remainingKanjiFormRunes[1] : new();
+
+        if (remainingReadingText.Length > 1)
+        {
+            foreach (var readingCharacter in remainingReadingText[1..])
+            {
+                if (nextRune.IsKana() && readingCharacter.IsKanaEquivalent((char)nextRune.Value))
+                {
+                    break;
+                }
+                else if (_impossibleKanjiReadingStart.Contains(readingCharacter))
+                {
+                    defaultReadingBuilder.Append(readingCharacter);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        return defaultReadingBuilder.ToString();
     }
 }

@@ -82,9 +82,13 @@ public static class KanaHelper
     private static char Transform(char character, FrozenDictionary<char, char> transformer)
     {
         if (transformer.TryGetValue(character, out char transformed))
+        {
             return transformed;
+        }
         else
+        {
             return character;
+        }
     }
 
     private static string Transform(string text, FrozenDictionary<char, char> transformer)

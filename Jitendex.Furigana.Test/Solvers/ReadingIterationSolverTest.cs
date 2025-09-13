@@ -38,17 +38,17 @@ internal class ReadingIterationSolverTest : SolverTest
             // 発条 uses regular, kanji dictionary readings
             ("発条仕掛け", "はつじょうじかけ", "[発|はつ][条|じょう][仕|じ][掛|か]け"),
 
+            // Bogus data for laughs
+            ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
+
             // Repeat the above tests with non-normalized readings
             ("発条仕掛け", "ゼンマイじかけ", "[発条|ゼンマイ][仕|じ][掛|か]け"),
             ("発条仕掛け", "バねジカけ", "[発条|バね][仕|ジ][掛|カ]け"),
             ("発条仕掛け", "ハつじョうじカケ", "[発|ハつ][条|じョう][仕|じ][掛|カ]け"),
+            ("発条仕掛け", "あアあアけ", "[発|あ][条|ア][仕|あ][掛|ア]け"),
         };
 
         TestSolutions(solver, data);
-
-        // Test invalid data for laughs
-        var unsolvableEntry = new VocabEntry("発条仕掛け", "ああああけ");
-        TestNullSolution(solver, unsolvableEntry);
     }
 
     /// <summary>

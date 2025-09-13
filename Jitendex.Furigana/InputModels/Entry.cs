@@ -36,6 +36,13 @@ public abstract class Entry
         ArgumentException.ThrowIfNullOrWhiteSpace(kanjiFormText);
         ArgumentException.ThrowIfNullOrWhiteSpace(readingText);
 
+        if (readingText.Any(char.IsSurrogate))
+        {
+            throw new ArgumentException(
+                "Reading text must not contain characters with surrogate code units.",
+                nameof(readingText));
+        }
+
         KanjiFormText = kanjiFormText;
         ReadingText = readingText;
         NormalizedReadingText = readingText.KatakanaToHiragana();
@@ -76,12 +83,12 @@ public abstract class Entry
 
     private static ImmutableHashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes) => rawRunes
         .Select(static (rune, index) =>
-            (
-                isRepeater: _kanjiIterationCharacters.Contains(rune.Value),
-                index: index
-            ))
-        .Where(static x => x.isRepeater)
-        .Select(static x => x.index)
+        (
+            IsRepeater: _kanjiIterationCharacters.Contains(rune.Value),
+            Index: index
+        ))
+        .Where(static x => x.IsRepeater)
+        .Select(static x => x.Index)
         .ToImmutableHashSet();
 
     public override abstract bool Equals(object? obj);
