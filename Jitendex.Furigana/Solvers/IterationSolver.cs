@@ -26,12 +26,12 @@ using Jitendex.Furigana.OutputModels;
 
 namespace Jitendex.Furigana.Solvers;
 
-internal class ReadingIterationSolver : FuriganaSolver
+internal class IterationSolver : FuriganaSolver
 {
     private readonly ResourceSet _resourceSet;
     private static readonly FrozenSet<char> _impossibleKanjiReadingStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
 
-    public ReadingIterationSolver(ResourceSet resourceSet)
+    public IterationSolver(ResourceSet resourceSet)
     {
         _resourceSet = resourceSet;
     }
@@ -49,7 +49,7 @@ internal class ReadingIterationSolver : FuriganaSolver
                 (
                     entry: entry,
                     oldBuilders: builders,
-                    potentialReadings: GetPotentialReadings(entry, sliceStart, sliceEnd),
+                    cachedReadings: GetCachedReadings(entry, sliceStart, sliceEnd),
                     baseText: string.Join(string.Empty, entry.RawKanjiFormRunes[sliceStart..sliceEnd])
                 );
                 if (newBuilders.Count > 0)
@@ -74,8 +74,7 @@ internal class ReadingIterationSolver : FuriganaSolver
             }
         }
     }
-
-    private ImmutableArray<string> GetPotentialReadings(Entry entry, int sliceStart, int sliceEnd)
+    private ImmutableArray<string> GetCachedReadings(Entry entry, int sliceStart, int sliceEnd)
     {
         var runesSlice = entry.KanjiFormRunes[sliceStart..sliceEnd];
         if (runesSlice.Length == 1)
@@ -90,15 +89,14 @@ internal class ReadingIterationSolver : FuriganaSolver
             return _resourceSet.GetPotentialReadings(textSlice);
         }
     }
-
-    private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> potentialReadings, string baseText)
+    private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> cachedReadings, string baseText)
     {
         var newBuilders = new List<SolutionBuilder>();
         foreach (var oldBuilder in oldBuilders)
         {
             var oldParts = oldBuilder.ToParts();
             var oldReadings = oldBuilder.NormalizedReadingText();
-            var baseReadings = BaseReadings(entry, oldBuilder, potentialReadings, baseText);
+            var baseReadings = BaseReadings(entry, oldBuilder, cachedReadings, baseText);
             foreach (var baseReading in baseReadings)
             {
                 if (TryGetNewPart(entry, baseText, oldReadings, baseReading, out var newPart))
@@ -133,29 +131,29 @@ internal class ReadingIterationSolver : FuriganaSolver
         }
     }
 
-    private static ImmutableArray<string> BaseReadings(Entry entry, SolutionBuilder builder, ImmutableArray<string> potentialReadings, string baseText)
+    private static ImmutableArray<string> BaseReadings(Entry entry, SolutionBuilder builder, ImmutableArray<string> cachedReadings, string baseText)
     {
         var baseTextRunes = baseText.EnumerateRunes();
         if (baseTextRunes.Count() != 1 || !baseTextRunes.First().IsKanji())
         {
-            return potentialReadings;
+            return cachedReadings;
         }
 
         var remainingKanjiFormRunes = RemainingKanjiFormRunes(entry, builder);
         var remainingReadingText = RemainingReadingText(entry, builder);
         if (remainingKanjiFormRunes.Length == 0 || string.IsNullOrEmpty(remainingReadingText))
         {
-            return potentialReadings;
+            return cachedReadings;
         }
-        
+
         var defaultReading = DefaultReading(remainingKanjiFormRunes, remainingReadingText);
-        if (potentialReadings.Contains(defaultReading))
+        if (cachedReadings.Contains(defaultReading))
         {
-            return potentialReadings;
+            return cachedReadings;
         }
         else
         {
-            return potentialReadings.Add(defaultReading);
+            return cachedReadings.Add(defaultReading);
         }
     }
 
@@ -183,7 +181,6 @@ internal class ReadingIterationSolver : FuriganaSolver
     {
         var defaultReadingBuilder = new StringBuilder(remainingReadingText[..1]);
         Rune nextRune = remainingKanjiFormRunes.Length > 1 ? remainingKanjiFormRunes[1] : new();
-
         if (remainingReadingText.Length > 1)
         {
             foreach (var readingCharacter in remainingReadingText[1..])

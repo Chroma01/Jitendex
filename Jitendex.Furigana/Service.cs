@@ -34,8 +34,7 @@ public class Service
     {
         _solvers =
         [
-            new KanaReadingSolver(resourceSet),
-            new ReadingIterationSolver(resourceSet),
+            new IterationSolver(resourceSet),
             new RegexSolver(),
             new RepeatedKanjiSolver(),
             new SingleKanjiSolver(),

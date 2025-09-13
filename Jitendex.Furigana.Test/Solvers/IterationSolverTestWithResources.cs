@@ -22,12 +22,12 @@ using Jitendex.Furigana.Solvers;
 namespace Jitendex.Furigana.Test.Solvers;
 
 [TestClass]
-internal class ReadingIterationSolverTest : SolverTest
+internal class IterationSolverTestWithResources : SolverTest
 {
     [TestMethod]
     public void SingleCorrectSolution()
     {
-        var solver = new ReadingIterationSolver(_resourceSet発条仕掛け);
+        var solver = new IterationSolver(_resourceSet発条仕掛け);
 
         var data = new List<(string, string, string)>()
         {
@@ -61,7 +61,7 @@ internal class ReadingIterationSolverTest : SolverTest
     public void TestUnsolvable()
     {
         var entry = new VocabEntry("好嫌", "すききら");
-        var solver = new ReadingIterationSolver(ServiceTest.MakeResourceSet(new()
+        var solver = new IterationSolver(ServiceTest.MakeResourceSet(new()
         {
             ["好"] = ["すき", "す"],
             ["嫌"] = ["きら", "ききら"],

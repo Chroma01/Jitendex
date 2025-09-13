@@ -22,12 +22,12 @@ using Jitendex.Furigana.Solvers;
 namespace Jitendex.Furigana.Test.Solvers;
 
 [TestClass]
-internal class KanaReadingSolverTest : SolverTest
+internal class IterationSolverTestWithoutResources : SolverTest
 {
     [TestMethod]
     public void EqualLengthSolutions()
     {
-        var solver = new ReadingIterationSolver(new ResourceSet([], []));
+        var solver = new IterationSolver(new ResourceSet([], []));
 
         var data = new List<(string, string, string)>()
         {
@@ -70,7 +70,7 @@ internal class KanaReadingSolverTest : SolverTest
     [TestMethod]
     public void UnequalLengthSolutions()
     {
-        var solver = new ReadingIterationSolver(new ResourceSet([], []));
+        var solver = new IterationSolver(new ResourceSet([], []));
 
         var data = new List<(string, string, string)>()
         {
@@ -121,7 +121,7 @@ internal class KanaReadingSolverTest : SolverTest
     [TestMethod]
     public void SpecialExpression()
     {
-        var solver = new ReadingIterationSolver(ServiceTest.MakeResourceSet
+        var solver = new IterationSolver(ServiceTest.MakeResourceSet
         (
             [], new() { ["発条"] = ["ぜんまい", "ばね"] }
         ));
@@ -147,7 +147,7 @@ internal class KanaReadingSolverTest : SolverTest
     [TestMethod]
     public void NullSolution()
     {
-        var solver = new ReadingIterationSolver(new ResourceSet([], []));
+        var solver = new IterationSolver(new ResourceSet([], []));
 
         var data = new List<(string, string)>()
         {
