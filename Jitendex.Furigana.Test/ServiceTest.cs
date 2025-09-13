@@ -58,10 +58,12 @@ public class ServiceTest
             specialExpressions: []
         ));
 
+        // Cannot solve it as a Vocab Entry.
         var vocab = new VocabEntry("佐藤", "さとう");
         var vocabSolution = service.Solve(vocab);
         Assert.IsNull(vocabSolution);
 
+        // Can solve it as a Name Entry.
         var name = new NameEntry("佐藤", "さとう");
         var nameSolution = service.Solve(name);
         Assert.IsNotNull(nameSolution);
@@ -97,10 +99,7 @@ public class ServiceTest
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
-        var service = new Service(MakeResourceSet(new()
-        {
-            ["𩺊"] = []
-        }));
+        var service = new Service(MakeResourceSet([]));
         TestFurigana("𩺊", "あら", "0:あら", service);
     }
 

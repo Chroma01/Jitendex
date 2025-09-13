@@ -65,21 +65,21 @@ internal class SingleKanjiSolverTest : SolverTest
     [TestMethod]
     public void TestUtf16SurrogatePair()
     {
-        var data = new Dictionary<string, (string, string, string)>()
+        var data = new Dictionary<string, (string KanjiFormText, string ReadingText, string ExpectedResultText)>()
         {
             ["𩺊"] = ("𩺊", "あら", "[𩺊|あら]"),
             ["𠮟"] = ("𠮟かり", "しかり", "[𠮟|し]かり"),
             ["𤸎"] = ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]")
         };
 
-        foreach(var item in data)
+        foreach (var item in data)
         {
             var kanji = item.Key;
             Assert.AreEqual(2, kanji.Length);
-            Assert.Contains(kanji, item.Value.Item1);
-            Assert.Contains(kanji, item.Value.Item3);
+            Assert.Contains(kanji, item.Value.KanjiFormText);
+            Assert.Contains(kanji, item.Value.ExpectedResultText);
         }
-        
+
         TestSolutions(_solver, data.Values);
     }
 }

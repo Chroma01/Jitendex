@@ -42,7 +42,7 @@ internal class RegexSolver : FuriganaSolver
         for (int i = 0; i < runes.Length; i++)
         {
             var c = runes[i];
-            if (!c.IsKanji())
+            if (c.IsKana())
             {
                 // Add the characters to the string. No capture group for kana.
                 greedyPattern.Append(c);
