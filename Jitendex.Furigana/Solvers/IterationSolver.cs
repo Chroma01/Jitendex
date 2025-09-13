@@ -93,11 +93,16 @@ internal class IterationSolver : FuriganaSolver
     private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> cachedReadings, string baseText)
     {
         var newBuilders = new List<SolutionBuilder>();
+        bool addDefaultReading = AddDefaultReading(baseText);
         foreach (var oldBuilder in oldBuilders)
         {
+            var defaultReading = addDefaultReading ? DefaultReading(entry, oldBuilder) : null;
+            var baseReadings = defaultReading is null || cachedReadings.Contains(defaultReading) ?
+                cachedReadings : cachedReadings.Add(defaultReading);
+
             var oldParts = oldBuilder.ToParts();
             var oldReadings = oldBuilder.NormalizedReadingText();
-            var baseReadings = BaseReadings(entry, oldBuilder, cachedReadings, baseText);
+
             foreach (var baseReading in baseReadings)
             {
                 if (TryGetNewPart(entry, baseText, oldReadings, baseReading, out var newPart))
@@ -132,54 +137,21 @@ internal class IterationSolver : FuriganaSolver
         }
     }
 
-    private static ImmutableArray<string> BaseReadings(Entry entry, SolutionBuilder builder, ImmutableArray<string> cachedReadings, string baseText)
+    private static bool AddDefaultReading(string baseText)
     {
         var baseTextRunes = baseText.EnumerateRunes();
-        if (baseTextRunes.Count() != 1 || !baseTextRunes.First().IsKanji())
-        {
-            return cachedReadings;
-        }
+        return baseTextRunes.Count() == 1 && baseTextRunes.First().IsKanji();
+    }
 
+    private static string? DefaultReading(Entry entry, SolutionBuilder builder)
+    {
         var remainingKanjiFormRunes = RemainingKanjiFormRunes(entry, builder);
         var remainingReadingText = RemainingReadingText(entry, builder);
         if (remainingKanjiFormRunes.Length == 0 || string.IsNullOrEmpty(remainingReadingText))
         {
-            return cachedReadings;
-        }
-
-        var defaultReading = DefaultReading(remainingKanjiFormRunes, remainingReadingText);
-        if (cachedReadings.Contains(defaultReading))
-        {
-            return cachedReadings;
-        }
-        else
-        {
-            return cachedReadings.Add(defaultReading);
-        }
-    }
-
-    private static ImmutableArray<Rune> RemainingKanjiFormRunes(Entry entry, SolutionBuilder builder)
-    {
-        var builderKanjiFormText = builder.KanjiFormText();
-        if (!entry.KanjiFormText.StartsWith(builderKanjiFormText))
-        {
-            return [];
-        }
-        return entry.KanjiFormRunes[builderKanjiFormText.EnumerateRunes().Count()..];
-    }
-
-    private static string? RemainingReadingText(Entry entry, SolutionBuilder builder)
-    {
-        var builderReadingText = builder.NormalizedReadingText();
-        if (!entry.NormalizedReadingText.StartsWith(builderReadingText))
-        {
             return null;
         }
-        return entry.NormalizedReadingText[builderReadingText.Length..];
-    }
 
-    private static string DefaultReading(ImmutableArray<Rune> remainingKanjiFormRunes, string remainingReadingText)
-    {
         var defaultReadingBuilder = new StringBuilder(remainingReadingText[..1]);
         Rune nextRune = remainingKanjiFormRunes.Length > 1 ? remainingKanjiFormRunes[1] : new();
         if (remainingReadingText.Length > 1)
@@ -201,5 +173,25 @@ internal class IterationSolver : FuriganaSolver
             }
         }
         return defaultReadingBuilder.ToString();
+    }
+
+    private static ImmutableArray<Rune> RemainingKanjiFormRunes(Entry entry, SolutionBuilder builder)
+    {
+        var builderKanjiFormText = builder.KanjiFormText();
+        if (!entry.KanjiFormText.StartsWith(builderKanjiFormText))
+        {
+            return [];
+        }
+        return entry.KanjiFormRunes[builderKanjiFormText.EnumerateRunes().Count()..];
+    }
+
+    private static string? RemainingReadingText(Entry entry, SolutionBuilder builder)
+    {
+        var builderReadingText = builder.NormalizedReadingText();
+        if (!entry.NormalizedReadingText.StartsWith(builderReadingText))
+        {
+            return null;
+        }
+        return entry.NormalizedReadingText[builderReadingText.Length..];
     }
 }

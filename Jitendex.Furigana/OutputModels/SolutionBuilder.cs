@@ -19,9 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
-using Jitendex.Furigana.OutputModels;
 
-namespace Jitendex.Furigana.Solvers;
+namespace Jitendex.Furigana.OutputModels;
 
 internal class SolutionBuilder
 {
@@ -39,7 +38,7 @@ internal class SolutionBuilder
     public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
 
     public void Add(Solution.Part part) => _parts.Add(part);
-    public ImmutableArray<Solution.Part> ToParts() => _parts.ToImmutableArray();
+    public ImmutableArray<Solution.Part> ToParts() => [.. _parts];
 
     public Solution? ToSolution(Entry entry) =>
         IsValid(entry) ?
@@ -92,7 +91,7 @@ internal class SolutionBuilder
             {
                 var baseText = string.Join(string.Empty, mergedTexts);
                 parts.Add(new Solution.Part(baseText, null));
-                mergedTexts = new List<string>();
+                mergedTexts = [];
             }
             parts.Add(part);
         }
