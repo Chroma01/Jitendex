@@ -29,7 +29,6 @@ namespace Jitendex.Furigana.Solvers;
 internal class IterationSolver : FuriganaSolver
 {
     private readonly ResourceSet _resourceSet;
-    private static readonly FrozenSet<char> _impossibleKanjiReadingStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
 
     public IterationSolver(ResourceSet resourceSet)
     {
@@ -93,30 +92,27 @@ internal class IterationSolver : FuriganaSolver
     private static List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, ImmutableArray<string> cachedReadings, string baseText)
     {
         var newBuilders = new List<SolutionBuilder>();
-        bool addDefaultReading = AddDefaultReading(baseText);
+        var baseReadingsMaker = new BaseReadingsMaker(entry, baseText, cachedReadings);
         foreach (var oldBuilder in oldBuilders)
         {
-            var defaultReading = addDefaultReading ? DefaultReading(entry, oldBuilder) : null;
-            var baseReadings = defaultReading is null || cachedReadings.Contains(defaultReading) ?
-                cachedReadings : cachedReadings.Add(defaultReading);
-
+            var baseReadings = baseReadingsMaker.GetBaseReadings(oldBuilder);
+            var oldReadingText = oldBuilder.NormalizedReadingText();
             var oldParts = oldBuilder.ToParts();
-            var oldReadings = oldBuilder.NormalizedReadingText();
 
             foreach (var baseReading in baseReadings)
             {
-                if (TryGetNewPart(entry, baseText, oldReadings, baseReading, out var newPart))
+                if (TryGetNewPart(entry, baseText, oldReadingText, baseReading, out var newPart))
                 {
-                    newBuilders.Add(new(oldParts.Append(newPart)));
+                    newBuilders.Add(new(oldParts.Add(newPart)));
                 }
             }
         }
         return newBuilders;
     }
 
-    private static bool TryGetNewPart(Entry entry, string baseText, string oldReadings, string baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
+    private static bool TryGetNewPart(Entry entry, string baseText, string oldReadingText, string baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
-        if (!entry.NormalizedReadingText.StartsWith(oldReadings + baseReading))
+        if (!entry.NormalizedReadingText.StartsWith(oldReadingText + baseReading))
         {
             part = null;
             return false;
@@ -129,29 +125,80 @@ internal class IterationSolver : FuriganaSolver
         else
         {
             // Use the raw, non-normalized reading for the furigana text.
-            int i = oldReadings.Length;
+            int i = oldReadingText.Length;
             int j = i + baseReading.Length;
             var furigana = entry.ReadingText[i..j];
             part = new(baseText, furigana);
             return true;
         }
     }
+}
 
-    private static bool AddDefaultReading(string baseText)
+internal class BaseReadingsMaker
+{
+    private readonly Entry _entry;
+    private readonly ImmutableArray<string> _cachedReadings;
+    private readonly bool _addDefaultReading;
+    private static readonly FrozenSet<char> _impossibleKanjiReadingStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
+
+    public BaseReadingsMaker(Entry entry, string baseText, ImmutableArray<string> cachedReadings)
     {
+        _entry = entry;
+        _cachedReadings = cachedReadings;
+
         var baseTextRunes = baseText.EnumerateRunes();
-        return baseTextRunes.Count() == 1 && baseTextRunes.First().IsKanji();
+        _addDefaultReading = baseTextRunes.Count() == 1 && baseTextRunes.First().IsKanji();
     }
 
-    private static string? DefaultReading(Entry entry, SolutionBuilder builder)
+    public ImmutableArray<string> GetBaseReadings(SolutionBuilder builder)
     {
-        var remainingKanjiFormRunes = RemainingKanjiFormRunes(entry, builder);
-        var remainingReadingText = RemainingReadingText(entry, builder);
+        if (!_addDefaultReading)
+        {
+            return _cachedReadings;
+        }
+
+        var remainingKanjiFormRunes = RemainingKanjiFormRunes(builder);
+        var remainingReadingText = RemainingReadingText(builder);
+
         if (remainingKanjiFormRunes.Length == 0 || string.IsNullOrEmpty(remainingReadingText))
+        {
+            return _cachedReadings;
+        }
+
+        var defaultReading = DefaultReading(remainingKanjiFormRunes, remainingReadingText);
+
+        if (_cachedReadings.Contains(defaultReading))
+        {
+            return _cachedReadings;
+        }
+        else
+        {
+            return _cachedReadings.Add(defaultReading);
+        }
+    }
+
+    private ImmutableArray<Rune> RemainingKanjiFormRunes(SolutionBuilder builder)
+    {
+        var builderKanjiFormText = builder.KanjiFormText();
+        if (!_entry.KanjiFormText.StartsWith(builderKanjiFormText))
+        {
+            return [];
+        }
+        return _entry.KanjiFormRunes[builderKanjiFormText.EnumerateRunes().Count()..];
+    }
+
+    private string? RemainingReadingText(SolutionBuilder builder)
+    {
+        var builderReadingText = builder.NormalizedReadingText();
+        if (!_entry.NormalizedReadingText.StartsWith(builderReadingText))
         {
             return null;
         }
+        return _entry.NormalizedReadingText[builderReadingText.Length..];
+    }
 
+    private static string DefaultReading(ImmutableArray<Rune> remainingKanjiFormRunes, string remainingReadingText)
+    {
         var defaultReadingBuilder = new StringBuilder(remainingReadingText[..1]);
         Rune nextRune = remainingKanjiFormRunes.Length > 1 ? remainingKanjiFormRunes[1] : new();
         if (remainingReadingText.Length > 1)
@@ -173,25 +220,5 @@ internal class IterationSolver : FuriganaSolver
             }
         }
         return defaultReadingBuilder.ToString();
-    }
-
-    private static ImmutableArray<Rune> RemainingKanjiFormRunes(Entry entry, SolutionBuilder builder)
-    {
-        var builderKanjiFormText = builder.KanjiFormText();
-        if (!entry.KanjiFormText.StartsWith(builderKanjiFormText))
-        {
-            return [];
-        }
-        return entry.KanjiFormRunes[builderKanjiFormText.EnumerateRunes().Count()..];
-    }
-
-    private static string? RemainingReadingText(Entry entry, SolutionBuilder builder)
-    {
-        var builderReadingText = builder.NormalizedReadingText();
-        if (!entry.NormalizedReadingText.StartsWith(builderReadingText))
-        {
-            return null;
-        }
-        return entry.NormalizedReadingText[builderReadingText.Length..];
     }
 }
