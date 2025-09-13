@@ -26,12 +26,12 @@ using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.InputModels;
 
-public class ResourceSet
+public class ReadingCache
 {
     private readonly FrozenDictionary<(int, Type), Kanji> _kanjiDictionary;
     private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
 
-    public ResourceSet(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
+    public ReadingCache(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
         _kanjiDictionary = kanji
             .Select(x => new KeyValuePair<(int, Type), Kanji>((x.Character.Value, x.GetType()), x))

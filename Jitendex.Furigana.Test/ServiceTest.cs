@@ -28,7 +28,7 @@ public class ServiceTest
     [TestMethod]
     public void TestFuriganaIkkagetsu()
     {
-        var service = new Service(MakeResourceSet(
+        var service = new Service(MakeReadingCache(
         new()
         {
             ["一"] = ["イチ", "イツ", "ひと-", "ひと.つ"],
@@ -48,7 +48,7 @@ public class ServiceTest
     [TestMethod]
     public void TestNameKanji()
     {
-        var service = new Service(new ResourceSet(
+        var service = new Service(new ReadingCache(
             kanji: [
                 new VocabKanji(new Rune('佐'), ["あ"]),
                 new VocabKanji(new Rune('藤'), ["あ"]),
@@ -75,7 +75,7 @@ public class ServiceTest
     [TestMethod]
     public void TestFurigana頑張る()
     {
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeReadingCache(new()
         {
             ["頑"] = ["ガン", "かたく.な"],
             ["張"] = ["チョウ", "は.る", "-は.り", "-ば.り"],
@@ -86,7 +86,7 @@ public class ServiceTest
     [TestMethod]
     public void TestFurigana御坊っちゃん()
     {
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeReadingCache(new()
         {
             ["御"] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
             ["坊"] = ["ボウ", "ボッ"],
@@ -99,14 +99,14 @@ public class ServiceTest
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
-        var service = new Service(MakeResourceSet([]));
+        var service = new Service(MakeReadingCache([]));
         TestFurigana("𩺊", "あら", "0:あら", service);
     }
 
     [TestMethod]
     public void TestFurigana弄り回す()
     {
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeReadingCache(new()
         {
             ["弄"] = ["ロウ", "ル", "いじく.る", "ろう.する", "いじ.る", "ひねく.る", "たわむ.れる", "もてあそ.ぶ"],
             ["回"] = ["カイ", "エ", "まわ.る", "-まわ.る", "-まわ.り", "まわ.す", "-まわ.す", "まわ.し-", "-まわ.し", "もとお.る", "か.える"],
@@ -117,7 +117,7 @@ public class ServiceTest
     [TestMethod]
     public void TestFurigana掻っ攫う()
     {
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeReadingCache(new()
         {
             ["掻"] = ["ソウ", "か.く"],
             ["攫"] = ["カク", "さら.う", "つか.む"],
@@ -128,7 +128,7 @@ public class ServiceTest
     [TestMethod]
     public void TestFurigana御姉さん()
     {
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeReadingCache(new()
         {
             ["御"] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
             ["姉"] = ["シ", "あね", "はは", "ねえ"],
@@ -140,7 +140,7 @@ public class ServiceTest
     public void TestFurigana捗捗しい()
     {
         // Rendaku is applied to the second instance of 捗.
-        var service = new Service(MakeResourceSet(new()
+        var service = new Service(MakeReadingCache(new()
         {
             ["捗"] = ["チョク", "ホ", "はかど.る", "はか"],
         }));
@@ -153,7 +153,7 @@ public class ServiceTest
     {
         // These kanji readings are all in kanjidic2 except for
         // 兄・にい, 姉・ねえ, and 母・かあ.
-        var service = new Service(MakeResourceSet(
+        var service = new Service(MakeReadingCache(
         new()
         {
             ["御"] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
@@ -259,14 +259,14 @@ public class ServiceTest
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    public static ResourceSet MakeResourceSet(Dictionary<string, List<string>> kanjiInfo)
+    public static ReadingCache MakeReadingCache(Dictionary<string, List<string>> kanjiInfo)
     {
-        return MakeResourceSet(kanjiInfo, []);
+        return MakeReadingCache(kanjiInfo, []);
     }
 
-    public static ResourceSet MakeResourceSet(Dictionary<string, List<string>> kanjiInfo, Dictionary<string, List<string>> specialExpressionInfo)
+    public static ReadingCache MakeReadingCache(Dictionary<string, List<string>> kanjiInfo, Dictionary<string, List<string>> specialExpressionInfo)
     {
-        return new ResourceSet
+        return new ReadingCache
         (
             kanji: kanjiInfo.Select(x => new VocabKanji(x.Key.EnumerateRunes().First(), x.Value)),
             specialExpressions: specialExpressionInfo.Select(x => new SpecialExpression(x.Key, x.Value))

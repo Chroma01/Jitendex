@@ -24,7 +24,7 @@ namespace Jitendex.Furigana.Test.Solvers;
 [TestClass]
 internal class IterationSolverTestWithoutResources : SolverTest
 {
-    private static readonly IterationSolver _solver = new(new ResourceSet([], []));
+    private static readonly IterationSolver _solver = new(new ReadingCache([], []));
 
     [TestMethod]
     public void EqualLengthSolutions()

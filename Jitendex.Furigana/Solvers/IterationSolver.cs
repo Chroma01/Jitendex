@@ -28,9 +28,9 @@ namespace Jitendex.Furigana.Solvers;
 
 internal class IterationSolver : FuriganaSolver
 {
-    private readonly ResourceSet _resourceSet;
+    private readonly ReadingCache _resourceSet;
 
-    public IterationSolver(ResourceSet resourceSet)
+    public IterationSolver(ReadingCache resourceSet)
     {
         _resourceSet = resourceSet;
     }
@@ -71,9 +71,8 @@ internal class IterationSolver : FuriganaSolver
     {
         var newBuilders = new List<SolutionBuilder>();
 
-        var baseText = iterationSlice.RawKanjiFormText;
         var cachedReadings = _resourceSet.GetPotentialReadings(iterationSlice);
-        var baseReadingsMaker = new BaseReadingsMaker(iterationSlice.Entry, baseText, cachedReadings);
+        var baseReadingsMaker = new BaseReadingsMaker(iterationSlice, cachedReadings);
 
         foreach (var oldBuilder in oldBuilders)
         {
@@ -83,18 +82,19 @@ internal class IterationSolver : FuriganaSolver
 
             foreach (var baseReading in baseReadings)
             {
-                if (TryGetNewPart(iterationSlice.Entry, baseText, oldReadingText, baseReading, out var newPart))
+                if (TryGetNewPart(iterationSlice, oldReadingText, baseReading, out var newPart))
                 {
-                    newBuilders.Add(new(oldParts.Add(newPart)));
+                    newBuilders.Add(new(oldParts.Add(newPart))); // Note: `oldParts` is immutable.
                 }
             }
         }
         return newBuilders;
     }
 
-    private static bool TryGetNewPart(Entry entry, string baseText, string oldReadingText, string baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
+    private static bool TryGetNewPart(IterationSlice iterationSlice, string oldReadingText, string baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
-        if (!entry.NormalizedReadingText.StartsWith(oldReadingText + baseReading))
+        var baseText = iterationSlice.RawKanjiFormText;
+        if (!iterationSlice.Entry.NormalizedReadingText.StartsWith(oldReadingText + baseReading))
         {
             part = null;
             return false;
@@ -109,7 +109,7 @@ internal class IterationSolver : FuriganaSolver
             // Use the raw, non-normalized reading for the furigana text.
             int i = oldReadingText.Length;
             int j = i + baseReading.Length;
-            var furigana = entry.ReadingText[i..j];
+            var furigana = iterationSlice.Entry.ReadingText[i..j];
             part = new(baseText, furigana);
             return true;
         }
@@ -144,13 +144,13 @@ internal class BaseReadingsMaker
     private readonly bool _addDefaultReading;
     private static readonly FrozenSet<char> _impossibleKanjiReadingStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
 
-    public BaseReadingsMaker(Entry entry, string baseText, ImmutableArray<string> cachedReadings)
+    public BaseReadingsMaker(IterationSlice iterationSlice, ImmutableArray<string> cachedReadings)
     {
-        _entry = entry;
+        _entry = iterationSlice.Entry;
         _cachedReadings = cachedReadings;
 
-        var baseTextRunes = baseText.EnumerateRunes();
-        _addDefaultReading = baseTextRunes.Count() == 1 && baseTextRunes.First().IsKanji();
+        var baseTextRunes = iterationSlice.RawKanjiFormRunes;
+        _addDefaultReading = baseTextRunes.Length == 1 && baseTextRunes.First().IsKanji();
     }
 
     public ImmutableArray<string> GetBaseReadings(SolutionBuilder builder)

@@ -27,7 +27,7 @@ internal class IterationSolverTestWithResources : SolverTest
     [TestMethod]
     public void SingleCorrectSolution()
     {
-        var solver = new IterationSolver(ServiceTest.MakeResourceSet(
+        var solver = new IterationSolver(ServiceTest.MakeReadingCache(
             new()
             {
                 ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
@@ -65,7 +65,7 @@ internal class IterationSolverTestWithResources : SolverTest
     [TestMethod]
     public void OnlySpecialExpressionData()
     {
-        var solver = new IterationSolver(ServiceTest.MakeResourceSet
+        var solver = new IterationSolver(ServiceTest.MakeReadingCache
         (
             [], new() { ["発条"] = ["ぜんまい", "ばね"] }
         ));
@@ -97,7 +97,7 @@ internal class IterationSolverTestWithResources : SolverTest
     public void TestUnsolvable()
     {
         var entry = new VocabEntry("好嫌", "すききら");
-        var solver = new IterationSolver(ServiceTest.MakeResourceSet(new()
+        var solver = new IterationSolver(ServiceTest.MakeReadingCache(new()
         {
             ["好"] = ["すき", "す"],
             ["嫌"] = ["きら", "ききら"],

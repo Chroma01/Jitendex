@@ -30,11 +30,11 @@ public class Service
 {
     private readonly List<IFuriganaSolver> _solvers;
 
-    public Service(ResourceSet resourceSet)
+    public Service(ReadingCache readingCache)
     {
         _solvers =
         [
-            new IterationSolver(resourceSet),
+            new IterationSolver(readingCache),
             new RegexSolver(),
             new RepeatedKanjiSolver(),
             new SingleKanjiSolver(),
