@@ -95,13 +95,13 @@ internal class IterationSolver : FuriganaSolver
 
     private static bool TryGetNewPart(IterationSlice iterationSlice, string priorReadings, string potentialReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
-        var sliceText = iterationSlice.RawKanjiFormText;
         if (!iterationSlice.Entry.NormalizedReadingText.StartsWith(priorReadings + potentialReading))
         {
             part = null;
             return false;
         }
-        else if (sliceText.IsKanaEquivalent(potentialReading))
+        var sliceText = iterationSlice.RawKanjiFormText;
+        if (sliceText.IsKanaEquivalent(potentialReading))
         {
             part = new(sliceText, null);
             return true;
