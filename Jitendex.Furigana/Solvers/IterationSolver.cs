@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
@@ -93,11 +92,11 @@ internal class IterationSolver : FuriganaSolver
         return newBuilders;
     }
 
-    private static bool TryGetNewPart(IterationSlice iterationSlice, string priorReadings, string potentialReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
+    private static bool TryGetNewPart(IterationSlice iterationSlice, string priorReadings, string potentialReading, out Solution.Part part)
     {
         if (!iterationSlice.Entry.NormalizedReadingText.StartsWith(priorReadings + potentialReading))
         {
-            part = null;
+            part = new(string.Empty, null);
             return false;
         }
         var sliceText = iterationSlice.RawKanjiFormText;

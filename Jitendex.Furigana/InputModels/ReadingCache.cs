@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Solvers;
@@ -90,7 +89,7 @@ public class ReadingCache
         }
     }
 
-    private bool TryGetKanji(Rune character, Entry entry, [NotNullWhen(returnValue: true)] out Kanji? kanji)
+    private bool TryGetKanji(Rune character, Entry entry, out Kanji kanji)
     {
         if (entry is NameEntry && _kanjiDictionary.TryGetValue((character.Value, typeof(NameKanji)), out Kanji? nameKanji))
         {
@@ -102,7 +101,7 @@ public class ReadingCache
             kanji = vocabKanji;
             return true;
         }
-        kanji = null;
+        kanji = null!;
         return false;
     }
 }
