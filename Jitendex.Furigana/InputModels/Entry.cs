@@ -94,4 +94,9 @@ public abstract class Entry
     public override abstract bool Equals(object? obj);
 
     public override abstract int GetHashCode();
+
+    public override string ToString()
+    {
+        return $"{ReadingText}【{KanjiFormText}】";
+    }
 }

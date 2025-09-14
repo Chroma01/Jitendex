@@ -26,7 +26,7 @@ internal class SolverTest
     protected static void TestSolution(IFuriganaSolver solver, Entry entry, string expectedResultText)
     {
         var solutions = solver.Solve(entry).ToList();
-        Assert.HasCount(1, solutions);
+        Assert.HasCount(1, solutions, $"\n\n{entry} {solver.GetType()}\n");
 
         var solution = solutions.First();
         var expectedSolution = Parser.Solution(expectedResultText, entry);
@@ -42,10 +42,10 @@ internal class SolverTest
         }
     }
 
-    protected static void TestNullSolution(IFuriganaSolver solver, Entry entry)
+    protected static void TestSolutionsCount(int expectedSolutionCount, IFuriganaSolver solver, Entry entry)
     {
-        var solution = solver.Solve(entry).FirstOrDefault();
-        Assert.IsNull(solution);
+        var solutions = solver.Solve(entry);
+        Assert.AreEqual(expectedSolutionCount, solutions.Count(), $"\n\n{entry} {solver.GetType()}\n");
     }
 
     protected static void TestNullSolutions(IFuriganaSolver solver, IEnumerable<(string, string)> data)
@@ -53,7 +53,16 @@ internal class SolverTest
         foreach (var (kanjiFormText, readingText) in data)
         {
             var entry = new VocabEntry(kanjiFormText, readingText);
-            TestNullSolution(solver, entry);
+            TestSolutionsCount(0, solver, entry);
+        }
+    }
+
+    protected static void TestNullSolutions(IFuriganaSolver solver, IEnumerable<(string, string, int)> data)
+    {
+        foreach (var (kanjiFormText, readingText, expectedSolutionCount) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestSolutionsCount(expectedSolutionCount, solver, entry);
         }
     }
 }

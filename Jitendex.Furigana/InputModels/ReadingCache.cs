@@ -78,7 +78,7 @@ public class ReadingCache
 
     private ImmutableArray<string> GetPotentialSpecialExpressionReadings(IterationSlice iterationSlice)
     {
-        var text = iterationSlice.KanjiFormText;
+        var text = iterationSlice.KanjiFormText();
         if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
         {
             return expression.Readings;

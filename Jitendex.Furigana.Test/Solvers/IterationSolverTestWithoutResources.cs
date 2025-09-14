@@ -68,7 +68,7 @@ internal class IterationSolverTestWithoutResources : SolverTest
     /// we are able to solve these problems without any prior knowledge of usual kanji readings.
     /// </remarks>
     [TestMethod]
-    public void UnequalLengthSolutions()
+    public void TestImpossibleKanjiReadingStarts()
     {
         var data = new List<(string, string, string)>()
         {
@@ -117,23 +117,41 @@ internal class IterationSolverTestWithoutResources : SolverTest
     }
 
     [TestMethod]
-    public void NullSolution()
+    public void TestKanaBorderedKanji()
     {
-        var data = new List<(string, string)>()
+        var data = new List<(string, string, string)>()
         {
-            // This one almost looks solvable, but note that there are two
-            // potential solutions: [乱|らん][脈|みゃく] and [乱|らんみゃ][脈|く].
-            ("乱脈", "らんみゃく"),
+            ("真っ青", "まっさお", "[真|ま]っ[青|さお]"),
+            ("桜ん坊", "さくらんぼ", "[桜|さくら]ん[坊|ぼ]"),
+            ("桜ん坊", "さくらんぼう", "[桜|さくら]ん[坊|ぼう]"),
+            ("持ち運ぶ", "もちはこぶ", "[持|も]ち[運|はこ]ぶ"),
+            ("難しい", "むずかしい", "[難|むずか]しい"),
+        };
 
-            // Solvable by RegexSolver, but not this solver.
-            ("真っ青", "まっさお"),
-            ("桜ん坊", "さくらんぼ"),
+        foreach (var (kanjiFormText, readingText, _) in data)
+        {
+            Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
+        }
+
+        TestSolutions(_solver, data);
+    }
+
+    [TestMethod]
+    public void TestImpossibleProblems()
+    {
+        var data = new List<(string, string, int)>()
+        {
+            // Two possible solutions: [乱|らん][脈|みゃく] and [乱|らんみゃ][脈|く].
+            ("乱脈", "らんみゃく", 0),
+         
+            // Two possible solutions: [好|す]き[嫌|きら]い and [好|すき]き[嫌|ら]い
+            ("好き嫌い", "すききらい", 0),
 
             // Solvable by RepeatedKanjiSolver, but not this solver.
-            ("抑抑", "そもそも"),
+            // Three possible solutions.
+            ("抑抑", "そもそも", 0),
 
-            // Solvable by SingleKanjiSolver, but not this solver.
-            ("難しい", "むずかしい"),
+            ("好き運ぶ嫌い", "すきはこぶきらい", 0),
         };
 
         TestNullSolutions(_solver, data);

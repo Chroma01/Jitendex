@@ -84,7 +84,7 @@ internal class IterationSolverTestWithResources : SolverTest
 
         // Unsolvable without kanji reading resource data.
         var unsolvableEntry = new VocabEntry("発条仕掛け", "はつじょうじかけ");
-        TestNullSolution(solver, unsolvableEntry);
+        TestSolutionsCount(0, solver, unsolvableEntry);
     }
 
     /// <summary>
