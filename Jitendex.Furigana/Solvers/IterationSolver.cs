@@ -28,11 +28,11 @@ namespace Jitendex.Furigana.Solvers;
 
 internal class IterationSolver : FuriganaSolver
 {
-    private readonly ReadingCache _resourceSet;
+    private readonly ReadingCache _readingCache;
 
-    public IterationSolver(ReadingCache resourceSet)
+    public IterationSolver(ReadingCache readingCache)
     {
-        _resourceSet = resourceSet;
+        _readingCache = readingCache;
     }
 
     public override IEnumerable<IndexedSolution> Solve(Entry entry)
@@ -70,47 +70,49 @@ internal class IterationSolver : FuriganaSolver
     private List<SolutionBuilder> IterateBuilders(List<SolutionBuilder> oldBuilders, IterationSlice iterationSlice)
     {
         var newBuilders = new List<SolutionBuilder>();
-
-        var cachedReadings = _resourceSet.GetPotentialReadings(iterationSlice);
-        var baseReadingsMaker = new BaseReadingsMaker(iterationSlice, cachedReadings);
+        var iterationSliceReadings = new IterationSliceReadings(iterationSlice, _readingCache);
 
         foreach (var oldBuilder in oldBuilders)
         {
-            var baseReadings = baseReadingsMaker.GetBaseReadings(oldBuilder);
-            var oldReadingText = oldBuilder.NormalizedReadingText();
+            var priorReadings = oldBuilder.NormalizedReadingText();
+            int readingIndex = priorReadings.Length;
+            var potentialReadings = iterationSliceReadings.GetPotentialReadings(readingIndex);
             var oldParts = oldBuilder.ToParts();
 
-            foreach (var baseReading in baseReadings)
+            foreach (var potentialReading in potentialReadings)
             {
-                if (TryGetNewPart(iterationSlice, oldReadingText, baseReading, out var newPart))
+                if (TryGetNewPart(iterationSlice, priorReadings, potentialReading, out var newPart))
                 {
-                    newBuilders.Add(new(oldParts.Add(newPart))); // Note: `oldParts` is immutable.
+                    newBuilders.Add
+                    (
+                        new SolutionBuilder(oldParts.Add(newPart))
+                    );
                 }
             }
         }
         return newBuilders;
     }
 
-    private static bool TryGetNewPart(IterationSlice iterationSlice, string oldReadingText, string baseReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
+    private static bool TryGetNewPart(IterationSlice iterationSlice, string priorReadings, string potentialReading, [NotNullWhen(returnValue: true)] out Solution.Part? part)
     {
-        var baseText = iterationSlice.RawKanjiFormText;
-        if (!iterationSlice.Entry.NormalizedReadingText.StartsWith(oldReadingText + baseReading))
+        var sliceText = iterationSlice.RawKanjiFormText;
+        if (!iterationSlice.Entry.NormalizedReadingText.StartsWith(priorReadings + potentialReading))
         {
             part = null;
             return false;
         }
-        else if (baseText.IsKanaEquivalent(baseReading))
+        else if (sliceText.IsKanaEquivalent(potentialReading))
         {
-            part = new(baseText, null);
+            part = new(sliceText, null);
             return true;
         }
         else
         {
             // Use the raw, non-normalized reading for the furigana text.
-            int i = oldReadingText.Length;
-            int j = i + baseReading.Length;
-            var furigana = iterationSlice.Entry.ReadingText[i..j];
-            part = new(baseText, furigana);
+            int i = priorReadings.Length;
+            int j = i + potentialReading.Length;
+            var sliceReading = iterationSlice.Entry.ReadingText[i..j];
+            part = new(sliceText, sliceReading);
             return true;
         }
     }
@@ -119,56 +121,74 @@ internal class IterationSolver : FuriganaSolver
 internal class IterationSlice
 {
     public Entry Entry { get; }
-    public ImmutableArray<Rune> KanjiFormRunes { get; }
-    public ImmutableArray<Rune> RawKanjiFormRunes { get; }
+
+    private readonly int _sliceStart;
+    private readonly int _sliceEnd;
+
+    public ImmutableArray<Rune> PriorKanjiFormRunes { get => Entry.KanjiFormRunes[.._sliceStart]; }
+    public ImmutableArray<Rune> KanjiFormRunes { get => Entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public ImmutableArray<Rune> RemainingKanjiFormRunes { get => Entry.KanjiFormRunes[_sliceEnd..]; }
+
+    public ImmutableArray<Rune> PriorRawKanjiFormRunes { get => Entry.RawKanjiFormRunes[.._sliceStart]; }
+    public ImmutableArray<Rune> RawKanjiFormRunes { get => Entry.RawKanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public ImmutableArray<Rune> RemainingRawKanjiFormRunes { get => Entry.RawKanjiFormRunes[_sliceEnd..]; }
+
+    public bool ContainsFirstRune { get => _sliceStart == 0; }
+    public bool ContainsFinalRune { get => _sliceEnd == Entry.KanjiFormRunes.Length; }
+
     public string KanjiFormText { get; }
     public string RawKanjiFormText { get; }
-    public bool ContainsFirstRune { get; }
-    public bool ContainsFinalRune { get; }
+
     public IterationSlice(Entry entry, int sliceStart, int sliceEnd)
     {
         Entry = entry;
-        KanjiFormRunes = entry.KanjiFormRunes[sliceStart..sliceEnd];
-        RawKanjiFormRunes = entry.RawKanjiFormRunes[sliceStart..sliceEnd];
+        _sliceStart = sliceStart;
+        _sliceEnd = sliceEnd;
+
         KanjiFormText = string.Join(string.Empty, KanjiFormRunes);
         RawKanjiFormText = string.Join(string.Empty, RawKanjiFormRunes);
-        ContainsFirstRune = sliceStart == 0;
-        ContainsFinalRune = sliceEnd == entry.KanjiFormRunes.Length;
     }
 }
 
-internal class BaseReadingsMaker
+internal class IterationSliceReadings
 {
-    private readonly Entry _entry;
+    private readonly IterationSlice _iterationSlice;
     private readonly ImmutableArray<string> _cachedReadings;
-    private readonly bool _addDefaultReading;
+    private readonly bool _sliceIsSingleKanji;
     private static readonly FrozenSet<char> _impossibleKanjiReadingStart = ['っ', 'ょ', 'ゃ', 'ゅ', 'ん'];
 
-    public BaseReadingsMaker(IterationSlice iterationSlice, ImmutableArray<string> cachedReadings)
+    public IterationSliceReadings(IterationSlice iterationSlice, ReadingCache readingCache)
     {
-        _entry = iterationSlice.Entry;
-        _cachedReadings = cachedReadings;
+        _iterationSlice = iterationSlice;
+        _cachedReadings = readingCache.GetPotentialReadings(iterationSlice);
 
-        var baseTextRunes = iterationSlice.RawKanjiFormRunes;
-        _addDefaultReading = baseTextRunes.Length == 1 && baseTextRunes.First().IsKanji();
+        _sliceIsSingleKanji =
+            iterationSlice.KanjiFormRunes.Length == 1 &&
+            iterationSlice.KanjiFormRunes[0].IsKanji();
     }
 
-    public ImmutableArray<string> GetBaseReadings(SolutionBuilder builder)
+    public ImmutableArray<string> GetPotentialReadings(int readingIndex)
     {
-        if (!_addDefaultReading)
+        if (_sliceIsSingleKanji)
+        {
+            return CachedReadingsWithDefaultReading(readingIndex);
+        }
+        else
+        {
+            return _cachedReadings;
+        }
+    }
+
+    private ImmutableArray<string> CachedReadingsWithDefaultReading(int readingIndex)
+    {
+        var remainingReadingText = _iterationSlice.Entry.NormalizedReadingText[readingIndex..];
+
+        if (remainingReadingText == string.Empty)
         {
             return _cachedReadings;
         }
 
-        var remainingKanjiFormRunes = RemainingKanjiFormRunes(builder);
-        var remainingReadingText = RemainingReadingText(builder);
-
-        if (remainingKanjiFormRunes.Length == 0 || string.IsNullOrEmpty(remainingReadingText))
-        {
-            return _cachedReadings;
-        }
-
-        var defaultReading = DefaultReading(remainingKanjiFormRunes, remainingReadingText);
+        var defaultReading = DefaultReading(remainingReadingText);
 
         if (_cachedReadings.Contains(defaultReading))
         {
@@ -180,30 +200,10 @@ internal class BaseReadingsMaker
         }
     }
 
-    private ImmutableArray<Rune> RemainingKanjiFormRunes(SolutionBuilder builder)
-    {
-        var builderKanjiFormText = builder.KanjiFormText();
-        if (!_entry.KanjiFormText.StartsWith(builderKanjiFormText))
-        {
-            return [];
-        }
-        return _entry.KanjiFormRunes[builderKanjiFormText.EnumerateRunes().Count()..];
-    }
-
-    private string? RemainingReadingText(SolutionBuilder builder)
-    {
-        var builderReadingText = builder.NormalizedReadingText();
-        if (!_entry.NormalizedReadingText.StartsWith(builderReadingText))
-        {
-            return null;
-        }
-        return _entry.NormalizedReadingText[builderReadingText.Length..];
-    }
-
-    private static string DefaultReading(ImmutableArray<Rune> remainingKanjiFormRunes, string remainingReadingText)
+    private string DefaultReading(string remainingReadingText)
     {
         var defaultReadingBuilder = new StringBuilder(remainingReadingText[..1]);
-        Rune nextRune = remainingKanjiFormRunes.Length > 1 ? remainingKanjiFormRunes[1] : new();
+        var nextRune = NextRune();
         if (remainingReadingText.Length > 1)
         {
             foreach (var readingCharacter in remainingReadingText[1..])
@@ -223,5 +223,18 @@ internal class BaseReadingsMaker
             }
         }
         return defaultReadingBuilder.ToString();
+    }
+
+    private Rune NextRune()
+    {
+        var remainingKanjiFormRunes = _iterationSlice.RemainingKanjiFormRunes;
+        if (remainingKanjiFormRunes.Length > 0)
+        {
+            return remainingKanjiFormRunes[0];
+        }
+        else
+        {
+            return new();
+        }
     }
 }
