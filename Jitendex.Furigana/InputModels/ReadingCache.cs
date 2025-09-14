@@ -46,16 +46,21 @@ public class ReadingCache
     {
         if (iterationSlice.KanjiFormRunes.Length == 1)
         {
-            return GetPotentialReadings(iterationSlice.KanjiFormRunes[0], iterationSlice.Entry, iterationSlice.ContainsFirstRune, iterationSlice.ContainsFinalRune);
+            return GetPotentialCharacterReadings(iterationSlice);
         }
         else
         {
-            return GetPotentialReadings(iterationSlice.KanjiFormText);
+            return GetPotentialSpecialExpressionReadings(iterationSlice);
         }
     }
 
-    private ImmutableArray<string> GetPotentialReadings(Rune character, Entry entry, bool isFirstRune, bool isLastRune)
+    private ImmutableArray<string> GetPotentialCharacterReadings(IterationSlice iterationSlice)
     {
+        var character = iterationSlice.KanjiFormRunes[0];
+        var entry = iterationSlice.Entry;
+        var isFirstRune = iterationSlice.ContainsFirstRune;
+        var isLastRune = iterationSlice.ContainsFinalRune;
+
         if (TryGetKanji(character, entry, out Kanji? kanji))
         {
             return kanji.GetPotentialReadings(isFirstRune, isLastRune);
@@ -72,8 +77,9 @@ public class ReadingCache
         }
     }
 
-    private ImmutableArray<string> GetPotentialReadings(string text)
+    private ImmutableArray<string> GetPotentialSpecialExpressionReadings(IterationSlice iterationSlice)
     {
+        var text = iterationSlice.KanjiFormText;
         if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
         {
             return expression.Readings;
