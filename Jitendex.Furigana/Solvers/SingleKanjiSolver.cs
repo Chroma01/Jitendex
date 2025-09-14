@@ -58,7 +58,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         }
     }
 
-    private string? Prefix(Entry entry)
+    private static string? Prefix(Entry entry)
     {
         var prefixBuilder = new StringBuilder();
         foreach (var rune in entry.KanjiFormRunes)
@@ -76,7 +76,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         return null;
     }
 
-    private string? Suffix(Entry entry, string prefix)
+    private static string? Suffix(Entry entry, string prefix)
     {
         var suffixBuilder = new StringBuilder();
         foreach (var rune in entry.KanjiFormRunes[(prefix.Length + 1)..])
@@ -94,7 +94,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         return suffixBuilder.ToString();
     }
 
-    private string? Furigana(Entry entry, string prefix, string suffix)
+    private static string? Furigana(Entry entry, string prefix, string suffix)
     {
         var normalizedPrefix = prefix.KatakanaToHiragana();
         if (!entry.NormalizedReadingText.StartsWith(normalizedPrefix))

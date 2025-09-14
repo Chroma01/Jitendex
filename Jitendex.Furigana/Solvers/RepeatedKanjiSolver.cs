@@ -53,7 +53,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
         }
     }
 
-    private bool TryGetBaseText(Entry entry, out (string First, string Second) baseText)
+    private static bool TryGetBaseText(Entry entry, out (string First, string Second) baseText)
     {
         baseText = (string.Empty, string.Empty);
         var runes = entry.KanjiFormRunes;
@@ -81,7 +81,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
         return true;
     }
 
-    private bool TryGetFurigana(Entry entry, out (string First, string Second) furigana)
+    private static bool TryGetFurigana(Entry entry, out (string First, string Second) furigana)
     {
         if (entry.ReadingText.Length % 2 != 0)
         {
