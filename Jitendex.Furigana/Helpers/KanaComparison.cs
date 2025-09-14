@@ -22,8 +22,6 @@ namespace Jitendex.Furigana.Helpers;
 
 public static class KanaComparison
 {
-    #region Public
-
     public static bool IsKana(this Rune c) => IsKana(c.Value);
     public static bool IsHiragana(this Rune c) => IsHiragana(c.Value);
     public static bool IsKatakana(this Rune c) => IsKatakana(c.Value);
@@ -41,27 +39,18 @@ public static class KanaComparison
     public static bool IsKanaEquivalent(this string text, string comparisonText) =>
         text.KatakanaToHiragana() == comparisonText.KatakanaToHiragana();
 
-    #endregion
-
-    #region Private
-
     private static bool IsKana(int c) => IsHiragana(c) || IsKatakana(c);
 
     private static bool IsHiragana(int c) => c switch
     {
-        < 0x3041 => false,
-        < 0x3097 => true,
-        < 0x3099 => false,
-        < 0x30A0 => true,
-               _ => false
+        (>= 0x3041) and (<= 0x3096) => true,
+        (>= 0x3099) and (<= 0x309F) => true,
+                                  _ => false
     };
 
     private static bool IsKatakana(int c) => c switch
     {
-        < 0x30A0 => false,
-        < 0x3100 => true,
-               _ => false
+        (>= 0x30A0) and (<= 0x30FF) => true,
+                                  _ => false
     };
-
-    #endregion
 }

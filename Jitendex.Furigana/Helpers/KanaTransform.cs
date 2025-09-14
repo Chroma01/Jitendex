@@ -16,53 +16,37 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
-
 namespace Jitendex.Furigana.Helpers;
 
 public static class KanaTransform
 {
-    #region Public
+    public static char KatakanaToHiragana(this char c) => (char)KatakanaToHiragana((int)c);
+    public static char HiraganaToKatakana(this char c) => (char)HiraganaToKatakana((int)c);
 
-    public static char KatakanaToHiragana(this char c) => Transform(c, _katakanaToHiragana);
-    public static char HiraganaToKatakana(this char c) => Transform(c, _hiraganaToKatakana);
+    public static string KatakanaToHiragana(this string text) => Transform(text, KatakanaToHiragana);
+    public static string HiraganaToKatakana(this string text) => Transform(text, HiraganaToKatakana);
 
-    public static string KatakanaToHiragana(this string text) => Transform(text, _katakanaToHiragana);
-    public static string HiraganaToKatakana(this string text) => Transform(text, _hiraganaToKatakana);
-
-    #endregion
-
-    #region Private
-
-    private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
-        Enumerable.Range(0x30A1, 86).Concat(Enumerable.Range(0x30FD, 2))
-        .Select(x => new KeyValuePair<char, char>((char)(x - 96), (char)x))
-        .ToFrozenDictionary();
-
-    private static readonly FrozenDictionary<char, char> _katakanaToHiragana =
-        _hiraganaToKatakana.ToFrozenDictionary(x => x.Value, x => x.Key);
-
-    private static char Transform(char character, FrozenDictionary<char, char> transformer)
+    private static int HiraganaToKatakana(int x) => x switch
     {
-        if (transformer.TryGetValue(character, out char transformed))
-        {
-            return transformed;
-        }
-        else
-        {
-            return character;
-        }
-    }
+        (>= 0x3041) and (<= 0x3096) => x + 96,  // ぁ through ゖ
+            0x309D   or     0x309E  => x + 96,  // ゝ and ゞ
+                                  _ => x
+    };
 
-    private static string Transform(string text, FrozenDictionary<char, char> transformer)
+    private static int KatakanaToHiragana(int x) => x switch
+    {
+        (>= 0x30A1) and (<= 0x30F6) => x - 96,  // ァ through ヶ
+            0x30FD   or     0x30FE  => x - 96,  // ヽ and ヾ
+                                  _ => x
+    };
+
+    private static string Transform(string text, Func<int, int> transformer)
     {
         char[] transformedText = new char[text.Length];
         for (int i = 0; i < text.Length; i++)
         {
-            transformedText[i] = Transform(text[i], transformer);
+            transformedText[i] = (char)transformer(text[i]);
         }
         return new string(transformedText);
     }
-
-    #endregion
 }
