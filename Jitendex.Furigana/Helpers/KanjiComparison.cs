@@ -20,7 +20,7 @@ using System.Text;
 
 namespace Jitendex.Furigana.Helpers;
 
-public static class KanjiHelper
+public static class KanjiComparison
 {
     public static bool IsKanji(this Rune c) => c.Value switch
     {

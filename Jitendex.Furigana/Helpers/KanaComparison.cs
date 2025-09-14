@@ -1,5 +1,4 @@
 ﻿/*
-Copyright (c) 2015 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -17,12 +16,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
 using System.Text;
 
 namespace Jitendex.Furigana.Helpers;
 
-public static class KanaHelper
+public static class KanaComparison
 {
     #region Public
 
@@ -37,12 +35,6 @@ public static class KanaHelper
     public static bool IsAllKana(this string text) => text.All(IsKana);
     public static bool IsAllHiragana(this string text) => text.All(IsHiragana);
     public static bool IsAllKatakana(this string text) => text.All(IsKatakana);
-
-    public static char KatakanaToHiragana(this char c) => Transform(c, _katakanaToHiragana);
-    public static char HiraganaToKatakana(this char c) => Transform(c, _hiraganaToKatakana);
-
-    public static string KatakanaToHiragana(this string text) => Transform(text, _katakanaToHiragana);
-    public static string HiraganaToKatakana(this string text) => Transform(text, _hiraganaToKatakana);
 
     public static bool IsKanaEquivalent(this char c, char comparison) =>
         c.KatakanaToHiragana() == comparison.KatakanaToHiragana();
@@ -70,36 +62,6 @@ public static class KanaHelper
         < 0x3100 => true,
                _ => false
     };
-
-    private static readonly FrozenDictionary<char, char> _hiraganaToKatakana =
-        Enumerable.Range(0x30A1, 86).Concat(Enumerable.Range(0x30FD, 2))
-        .Select(x => new KeyValuePair<char, char>((char)(x - 96), (char)x))
-        .ToFrozenDictionary();
-
-    private static readonly FrozenDictionary<char, char> _katakanaToHiragana =
-        _hiraganaToKatakana.ToFrozenDictionary(x => x.Value, x => x.Key);
-
-    private static char Transform(char character, FrozenDictionary<char, char> transformer)
-    {
-        if (transformer.TryGetValue(character, out char transformed))
-        {
-            return transformed;
-        }
-        else
-        {
-            return character;
-        }
-    }
-
-    private static string Transform(string text, FrozenDictionary<char, char> transformer)
-    {
-        char[] transformedText = new char[text.Length];
-        for (int i = 0; i < text.Length; i++)
-        {
-            transformedText[i] = Transform(text[i], transformer);
-        }
-        return new string(transformedText);
-    }
 
     #endregion
 }

@@ -69,7 +69,7 @@ internal class SolutionBuilder
         _parts.Where(static part => part
                 .BaseText
                 .EnumerateRunes()
-                .Any(KanjiHelper.IsKanji))
+                .Any(KanjiComparison.IsKanji))
             .All(static part => !string.IsNullOrWhiteSpace(part.Furigana));
 
     /// <summary>
