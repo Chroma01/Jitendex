@@ -60,7 +60,7 @@ public class ReadingCache
         var isFirstRune = iterationSlice.ContainsFirstRune;
         var isLastRune = iterationSlice.ContainsFinalRune;
 
-        if (TryGetKanji(character, entry, out Kanji? kanji))
+        if (TryGetKanji(character, entry, out Kanji kanji))
         {
             return kanji.GetPotentialReadings(isFirstRune, isLastRune);
         }

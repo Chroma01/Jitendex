@@ -211,6 +211,11 @@ internal class IterationSliceReadings
                 {
                     break;
                 }
+                else if (!nextRune.IsKana() && !nextRune.IsKanji() && nextRune.Value != 0)
+                {
+                    // Next rune must be punctuation or a foreign writing system. All bets are off.
+                    break;
+                }
                 else if (_impossibleKanjiReadingStart.Contains(readingCharacter))
                 {
                     defaultReadingBuilder.Append(readingCharacter);
@@ -233,7 +238,7 @@ internal class IterationSliceReadings
         }
         else
         {
-            return new();
+            return new Rune(0);
         }
     }
 }
