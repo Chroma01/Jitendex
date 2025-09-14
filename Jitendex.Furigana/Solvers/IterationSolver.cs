@@ -34,7 +34,7 @@ internal class IterationSolver : FuriganaSolver
         _readingCache = readingCache;
     }
 
-    public override IEnumerable<IndexedSolution> Solve(Entry entry)
+    public override IEnumerable<Solution> Solve(Entry entry)
     {
         var builders = new List<SolutionBuilder>() { new() };
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
@@ -58,7 +58,7 @@ internal class IterationSolver : FuriganaSolver
         }
         foreach (var builder in builders)
         {
-            var solution = builder.ToIndexedSolution(entry);
+            var solution = builder.ToSolution(entry);
             if (solution is not null)
             {
                 yield return solution;

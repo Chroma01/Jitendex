@@ -31,7 +31,7 @@ internal class SingleKanjiSolver : FuriganaSolver
         Priority = 1;  // Priority up because it's quick and guarantees the only correct solution when appliable.
     }
 
-    public override IEnumerable<IndexedSolution> Solve(Entry entry)
+    public override IEnumerable<Solution> Solve(Entry entry)
     {
         var prefix = Prefix(entry);
         if (prefix is null) yield break;
@@ -51,7 +51,7 @@ internal class SingleKanjiSolver : FuriganaSolver
             new Solution.Part(suffix, null),
         ]);
 
-        var solution = solutionBuilder.ToIndexedSolution(entry);
+        var solution = solutionBuilder.ToSolution(entry);
         if (solution is not null)
         {
             yield return solution;

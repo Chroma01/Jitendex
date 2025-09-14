@@ -35,7 +35,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
     /// <item>ときどき【時時】</item>
     /// </list>
     /// </remarks>
-    public override IEnumerable<IndexedSolution> Solve(Entry entry)
+    public override IEnumerable<Solution> Solve(Entry entry)
     {
         if (TryGetBaseText(entry, out var baseText) && TryGetFurigana(entry, out var furigana))
         {
@@ -45,7 +45,7 @@ internal class RepeatedKanjiSolver : FuriganaSolver
                 new(baseText.Second, furigana.Second),
             ]);
 
-            var solution = solutionBuilder.ToIndexedSolution(entry);
+            var solution = solutionBuilder.ToSolution(entry);
             if (solution is not null)
             {
                 yield return solution;

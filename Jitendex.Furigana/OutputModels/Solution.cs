@@ -28,4 +28,15 @@ public class Solution
 
     public required Entry Entry { get; init; }
     public required ImmutableArray<Part> Parts { get; init; }
+
+    public override bool Equals(object? obj) =>
+        obj is Solution other &&
+        Entry.Equals(other.Entry) &&
+        Parts.SequenceEqual(other.Parts);
+
+    public override int GetHashCode() => Parts.Aggregate
+    (
+        seed: Entry.GetHashCode(),
+        func: (hashcode, part) => HashCode.Combine(hashcode, part.GetHashCode())
+    );
 }

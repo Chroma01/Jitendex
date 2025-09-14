@@ -25,14 +25,14 @@ namespace Jitendex.Furigana.Solvers;
 internal interface IFuriganaSolver : IComparable<IFuriganaSolver>
 {
     int Priority { get; set; }
-    IEnumerable<IndexedSolution> Solve(Entry entry);
+    IEnumerable<Solution> Solve(Entry entry);
 }
 
 internal abstract class FuriganaSolver : IFuriganaSolver
 {
     public int Priority { get; set; }
 
-    public abstract IEnumerable<IndexedSolution> Solve(Entry entry);
+    public abstract IEnumerable<Solution> Solve(Entry entry);
 
     public int CompareTo(IFuriganaSolver? other)
     {

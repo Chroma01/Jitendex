@@ -27,66 +27,70 @@ namespace Jitendex.Furigana.Solvers;
 
 internal class RegexSolver : FuriganaSolver
 {
+    private readonly Service _service;
+
+    public RegexSolver(ReadingCache readingCache)
+    {
+        _service = new Service
+        ([
+            new IterationSolver(readingCache),
+            new RepeatedKanjiSolver(),
+            new SingleKanjiSolver(),
+        ]);
+    }
+
     /// <summary>
     /// Attempts to solve furigana in cases where there are no consecutive kanji in the kanji string,
     /// using regular expressions.
     /// </summary>
-    public override IEnumerable<IndexedSolution> Solve(Entry entry)
+    public override IEnumerable<Solution> Solve(Entry entry)
     {
-        var runes = entry.KanjiFormRunes;
-        var greedyPattern = new StringBuilder("^");
-        var lazyPattern = new StringBuilder("^");
-        var kanjiIndexes = new List<int>();
-        bool consecutiveMarker = false;
-
-        for (int i = 0; i < runes.Length; i++)
+        if (!entry.KanjiFormRunes.Any(KanaComparison.IsKana))
         {
-            var c = runes[i];
-            if (c.IsKana())
+            yield break;
+        }
+
+        var greedyMatch = Match(entry, "(.+)");
+        var lazyMatch = Match(entry, "(.+?)");
+
+        if (!greedyMatch.Success || !lazyMatch.Success)
+        {
+            yield break;
+        }
+
+        var greedySolution = SolveMatchGroups(entry, greedyMatch);
+        var lazySolution = SolveMatchGroups(entry, lazyMatch);
+
+        // If solutions are not equivalent, then we don't know which is correct.
+        if (greedySolution is not null && lazySolution is not null && greedySolution.Equals(lazySolution))
+        {
+            yield return greedySolution;
+        }
+    }
+
+    private Solution? SolveMatchGroups(Entry entry, Match match)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static Match Match(Entry entry, string groupPattern)
+    {
+        var pattern = new StringBuilder("^");
+        var normalizedKanjiFormText = entry.KanjiFormText.KatakanaToHiragana();
+        foreach (var character in normalizedKanjiFormText)
+        {
+            if (character.IsKana())
             {
-                // Add the characters to the string. No capture group for kana.
-                greedyPattern.Append(c);
-                lazyPattern.Append(c);
-                consecutiveMarker = false;
-            }
-            else if (consecutiveMarker)
-            {
-                // Consecutive kanji. The vocab entry is not eligible for this solution.
-                yield break;
+                pattern.Append(character);
             }
             else
             {
-                // Add the characters inside a capture group for kanji.
-                greedyPattern.Append("(.+)");
-                lazyPattern.Append("(.+?)");
-                consecutiveMarker = true;
-                kanjiIndexes.Add(i);
+                pattern.Append(groupPattern);
             }
         }
-        greedyPattern.Append('$');
-        lazyPattern.Append('$');
-
-        // E.g., for 持ち運ぶ (もちはこぶ) the regexes would be
-        // greedy: ^(.+)ち(.+)ぶ$
-        // lazy: ^(.+?)ち(.+?)ぶ$
-
-        var regexGreedy = new Regex(greedyPattern.ToString());
-        var regexLazy = new Regex(lazyPattern.ToString());
-
-        var matchGreedy = regexGreedy.Match(entry.ReadingText);
-        var matchLazy = regexLazy.Match(entry.ReadingText);
-
-        if (matchGreedy.Success && matchLazy.Success)
-        {
-            var greedySolution = MakeSolutionFromMatch(entry, matchGreedy, kanjiIndexes);
-            var lazySolution = MakeSolutionFromMatch(entry, matchLazy, kanjiIndexes);
-
-            // If solutions are not equivalent, then we don't know which is correct.
-            if (greedySolution is not null && lazySolution is not null && greedySolution.Equals(lazySolution))
-            {
-                yield return greedySolution;
-            }
-        }
+        pattern.Append('$');
+        var regex = new Regex(pattern.ToString());
+        return regex.Match(entry.NormalizedReadingText);
     }
 
     /// <summary>

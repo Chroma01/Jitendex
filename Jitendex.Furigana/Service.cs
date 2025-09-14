@@ -35,7 +35,7 @@ public class Service
         _solvers =
         [
             new IterationSolver(readingCache),
-            new RegexSolver(),
+            // new RegexSolver(readingCache),
             new RepeatedKanjiSolver(),
             new SingleKanjiSolver(),
         ];
@@ -43,9 +43,16 @@ public class Service
         _solvers.Reverse();
     }
 
+    internal Service(IEnumerable<IFuriganaSolver> solvers)
+    {
+        _solvers = [.. solvers];
+        _solvers.Sort();
+        _solvers.Reverse();
+    }
+
     public Solution? Solve(Entry entry)
     {
-        var solutionSet = new HashSet<IndexedSolution>();
+        var solutionSet = new HashSet<Solution>();
         int priority = _solvers.First().Priority;
 
         foreach (var solver in _solvers)
@@ -63,11 +70,13 @@ public class Service
             }
             // Add all solutions if they are correct and unique.
             foreach (var solution in solver.Solve(entry))
+            {
                 solutionSet.Add(solution);
+            }
         }
 
         if (solutionSet.Count == 1)
-            return solutionSet.First().ToTextSolution();
+            return solutionSet.First();
         else
             return null;
     }

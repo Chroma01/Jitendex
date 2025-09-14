@@ -30,7 +30,7 @@ internal class SolverTest
 
         var solution = solutions.First();
         var expectedSolution = Parser.Solution(expectedResultText, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.ToTextSolution().Parts);
+        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
     protected static void TestSolutions(IFuriganaSolver solver, IEnumerable<(string, string, string)> data)
