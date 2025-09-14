@@ -56,13 +56,4 @@ internal class SolverTest
             TestSolutionsCount(0, solver, entry);
         }
     }
-
-    protected static void TestNullSolutions(IFuriganaSolver solver, IEnumerable<(string, string, int)> data)
-    {
-        foreach (var (kanjiFormText, readingText, expectedSolutionCount) in data)
-        {
-            var entry = new VocabEntry(kanjiFormText, readingText);
-            TestSolutionsCount(expectedSolutionCount, solver, entry);
-        }
-    }
 }

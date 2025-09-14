@@ -139,19 +139,20 @@ internal class IterationSolverTestWithoutResources : SolverTest
     [TestMethod]
     public void TestImpossibleProblems()
     {
-        var data = new List<(string, string, int)>()
+        var data = new List<(string, string)>()
         {
             // Two possible solutions: [乱|らん][脈|みゃく] and [乱|らんみゃ][脈|く].
-            ("乱脈", "らんみゃく", 0),
-         
+            ("乱脈", "らんみゃく"),
+
             // Two possible solutions: [好|す]き[嫌|きら]い and [好|すき]き[嫌|ら]い
-            ("好き嫌い", "すききらい", 0),
+            ("好き嫌い", "すききらい"),
 
             // Solvable by RepeatedKanjiSolver, but not this solver.
             // Three possible solutions.
-            ("抑抑", "そもそも", 0),
+            ("抑抑", "そもそも"),
 
-            ("好き運ぶ嫌い", "すきはこぶきらい", 0),
+            // Should be able to solve this
+            ("好き運ぶ嫌い", "すきはこぶきらい"),
         };
 
         TestNullSolutions(_solver, data);
