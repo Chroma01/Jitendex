@@ -20,7 +20,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
-using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.Solvers.Iteration;
 
 namespace Jitendex.Furigana.InputModels;
@@ -62,12 +61,6 @@ public class ReadingCache
         if (TryGetKanji(character, entry, out Kanji kanji))
         {
             return kanji.GetPotentialReadings(isFirstRune, isLastRune);
-        }
-        else if (character.IsKana())
-        {
-            // In normal circumstances, a kana's only reading is itself.
-            var characterAsHiragana = ((char)character.Value).KatakanaToHiragana();
-            return [characterAsHiragana.ToString()];
         }
         else
         {

@@ -16,12 +16,17 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
+
 namespace Jitendex.Furigana.Helpers;
 
 public static class KanaTransform
 {
     public static char KatakanaToHiragana(this char c) => (char)KatakanaToHiragana((int)c);
     public static char HiraganaToKatakana(this char c) => (char)HiraganaToKatakana((int)c);
+
+    public static Rune KatakanaToHiragana(this Rune c) => new(KatakanaToHiragana(c.Value));
+    public static Rune HiraganaToKatakana(this Rune c) => new(HiraganaToKatakana(c.Value));
 
     public static string KatakanaToHiragana(this string text) => Transform(text, KatakanaToHiragana);
     public static string HiraganaToKatakana(this string text) => Transform(text, HiraganaToKatakana);

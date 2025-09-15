@@ -76,7 +76,15 @@ internal class SliceReadingCache
         if (_iterationSlice.KanjiFormRunes.Length == 1)
         {
             var reading = DefaultSingleCharacterReading(readingState);
-            if (reading is not null && !_cachedReadings.Contains(reading))
+            if (reading is null || _cachedReadings.Contains(reading))
+            {
+                return [];
+            }
+            else if (baseText.IsKanaEquivalent(reading))
+            {
+                return [new(baseText, null)];
+            }
+            else
             {
                 var furigana = readingState.RemainingReadingText[..reading.Length];
                 return [new(baseText, furigana)];
@@ -99,7 +107,11 @@ internal class SliceReadingCache
         var previousRune = _iterationSlice.PreviousKanjiFormRune();
         var nextRune = _iterationSlice.NextKanjiFormRune();
 
-        if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
+        if (currentRune.IsKana())
+        {
+            return currentRune.KatakanaToHiragana().ToString();
+        }
+        else if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
             return readingState.RegexReading(_iterationSlice.RemainingKanjiFormTextNormalized());
         }

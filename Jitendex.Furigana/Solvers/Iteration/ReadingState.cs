@@ -43,11 +43,11 @@ internal class ReadingState
     }
 
     public string? MinimumReading() =>
-        RemainingReadingTextNormalized == string.Empty ? null : RemainingReadingTextNormalized[..1];
+        RemainingReadingText == string.Empty ? null : RemainingReadingTextNormalized[..1];
 
     public string? RegularKanjiReading()
     {
-        if (RemainingReadingTextNormalized == string.Empty)
+        if (RemainingReadingText == string.Empty)
         {
             return null;
         }
