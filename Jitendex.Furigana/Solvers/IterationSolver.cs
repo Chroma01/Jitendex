@@ -69,12 +69,12 @@ internal class IterationSolver : FuriganaSolver
     private List<SolutionBuilder> IterateBuilders(List<SolutionBuilder> oldBuilders, IterationSlice iterationSlice)
     {
         var newBuilders = new List<SolutionBuilder>();
-        var iterationSliceReadings = new IterationSliceReadings(iterationSlice, _readingCache);
+        var sliceReadingCache = new SliceReadingCache(iterationSlice, _readingCache);
 
         foreach (var oldBuilder in oldBuilders)
         {
             var readingState = new ReadingState(iterationSlice, oldBuilder);
-            var potentialReadings = iterationSliceReadings.GetPotentialReadings(readingState);
+            var potentialReadings = sliceReadingCache.GetPotentialReadings(readingState);
             var oldParts = oldBuilder.ToParts();
 
             foreach (var potentialReading in potentialReadings)
@@ -149,28 +149,18 @@ internal class IterationSlice
     }
 }
 
-internal class IterationSliceReadings
+internal class SliceReadingCache
 {
     private readonly ImmutableArray<string> _cachedReadings;
-    private readonly bool _sliceIsSingleKanji;
 
-    public IterationSliceReadings(IterationSlice iterationSlice, ReadingCache readingCache)
+    public SliceReadingCache(IterationSlice iterationSlice, ReadingCache readingCache)
     {
         _cachedReadings = readingCache.GetPotentialReadings(iterationSlice);
-
-        _sliceIsSingleKanji =
-            iterationSlice.KanjiFormRunes.Length == 1 &&
-            iterationSlice.KanjiFormRunes[0].IsKanji();
     }
 
     public ImmutableArray<string> GetPotentialReadings(ReadingState readingState)
     {
-        if (!_sliceIsSingleKanji)
-        {
-            return _cachedReadings;
-        }
-
-        var defaultReading = readingState.DefaultSingleKanjiReading();
+        var defaultReading = readingState.DefaultSliceReading();
 
         if (defaultReading is null || _cachedReadings.Contains(defaultReading))
         {
@@ -187,6 +177,7 @@ internal class ReadingState
 {
     private readonly IterationSlice _iterationSlice;
     private readonly SolutionBuilder _solutionBuilder;
+    private readonly string _normalizedRemainingKanjiFormText;
 
     public string PriorReadingText { get; }
     public string RemainingReadingText { get; }
@@ -195,14 +186,22 @@ internal class ReadingState
     {
         _iterationSlice = iterationSlice;
         _solutionBuilder = solutionBuilder;
+        _normalizedRemainingKanjiFormText = _iterationSlice.RemainingKanjiFormText().KatakanaToHiragana();
 
         PriorReadingText = _solutionBuilder.NormalizedReadingText();
         RemainingReadingText = _iterationSlice.Entry
             .NormalizedReadingText[PriorReadingText.Length..];
     }
 
-    public string? DefaultSingleKanjiReading()
+    public string? DefaultSliceReading()
     {
+        bool sliceIsSingleKanji = _iterationSlice.KanjiFormRunes.Length == 1 && _iterationSlice.KanjiFormRunes[0].IsKanji();
+        if (!sliceIsSingleKanji)
+        {
+            // Default readings not yet supported for slices greater than length 1
+            return null;
+        }
+
         var previousRune = _iterationSlice.PreviousKanjiFormRune();
         var nextRune = _iterationSlice.NextKanjiFormRune();
 
@@ -275,8 +274,7 @@ internal class ReadingState
     private Match Match(string groupPattern)
     {
         var pattern = new StringBuilder($"^{groupPattern}");
-        var remainingKanjiFormText = _iterationSlice.RemainingKanjiFormText().KatakanaToHiragana();
-        foreach (var character in remainingKanjiFormText)
+        foreach (var character in _normalizedRemainingKanjiFormText)
         {
             if (character.IsKana())
             {
