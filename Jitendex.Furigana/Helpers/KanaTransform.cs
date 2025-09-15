@@ -33,15 +33,15 @@ public static class KanaTransform
 
     private static int HiraganaToKatakana(int x) => x switch
     {
-        (>= 0x3041) and (<= 0x3096) => x + 96,  // ぁ through ゖ
-            0x309D   or     0x309E  => x + 96,  // ゝ and ゞ
+        (>= 0x3041) and (<= 0x3096) => x + 0x60,  // ぁ through ゖ
+            0x309D   or     0x309E  => x + 0x60,  // ゝ and ゞ
                                   _ => x
     };
 
     private static int KatakanaToHiragana(int x) => x switch
     {
-        (>= 0x30A1) and (<= 0x30F6) => x - 96,  // ァ through ヶ
-            0x30FD   or     0x30FE  => x - 96,  // ヽ and ヾ
+        (>= 0x30A1) and (<= 0x30F6) => x - 0x60,  // ァ through ヶ
+            0x30FD   or     0x30FE  => x - 0x60,  // ヽ and ヾ
                                   _ => x
     };
 
