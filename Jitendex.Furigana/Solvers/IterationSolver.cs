@@ -43,7 +43,7 @@ internal class IterationSolver : FuriganaSolver
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
                 var iterationSlice = new IterationSlice(entry, sliceStart, sliceEnd);
-                newBuilders = IterateBuilders(builders, iterationSlice);
+                newBuilders = IterateBuilders(entry, builders, iterationSlice);
                 if (newBuilders.Count > 0)
                 {
                     sliceStart += sliceEnd - sliceStart - 1;
@@ -66,14 +66,21 @@ internal class IterationSolver : FuriganaSolver
         }
     }
 
-    private List<SolutionBuilder> IterateBuilders(List<SolutionBuilder> oldBuilders, IterationSlice iterationSlice)
+    private List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, IterationSlice iterationSlice)
     {
         var newBuilders = new List<SolutionBuilder>();
-        var sliceReadingCache = new SliceReadingCache(iterationSlice, _readingCache);
+        var sliceReadingCache = new SliceReadingCache(entry, iterationSlice, _readingCache);
 
         foreach (var oldBuilder in oldBuilders)
         {
-            var readingState = new ReadingState(iterationSlice, oldBuilder);
+            var priorReadingText = oldBuilder.NormalizedReadingText();
+            var readingState = new ReadingState
+            {
+                ReadingText = entry.ReadingText,
+                PriorReadingTextNormalized = priorReadingText,
+                RemainingReadingTextNormalized = entry.NormalizedReadingText[priorReadingText.Length..],
+            };
+
             var potentialReadings = sliceReadingCache.GetPotentialReadings(readingState);
             var oldParts = oldBuilder.ToParts();
 
@@ -93,8 +100,7 @@ internal class IterationSolver : FuriganaSolver
 
     private static bool TryGetNewPart(IterationSlice iterationSlice, ReadingState readingState, string potentialReading, out Solution.Part part)
     {
-        var priorReadingText = readingState.PriorReadingText;
-        if (!iterationSlice.Entry.NormalizedReadingText.StartsWith(priorReadingText + potentialReading))
+        if (!readingState.RemainingReadingTextNormalized.StartsWith(potentialReading))
         {
             part = null!;
             return false;
@@ -109,9 +115,9 @@ internal class IterationSolver : FuriganaSolver
         else
         {
             // Use the raw, non-normalized reading for the furigana text.
-            int i = priorReadingText.Length;
+            int i = readingState.PriorReadingTextNormalized.Length;
             int j = i + potentialReading.Length;
-            var sliceReading = iterationSlice.Entry.ReadingText[i..j];
+            var sliceReading = readingState.ReadingText[i..j];
             part = new(sliceText, sliceReading);
             return true;
         }
@@ -120,22 +126,21 @@ internal class IterationSolver : FuriganaSolver
 
 internal class IterationSlice
 {
-    public Entry Entry { get; }
-
+    private readonly Entry _entry;
     private readonly int _sliceStart;
     private readonly int _sliceEnd;
 
-    public ImmutableArray<Rune> PriorKanjiFormRunes { get => Entry.KanjiFormRunes[.._sliceStart]; }
-    public ImmutableArray<Rune> KanjiFormRunes { get => Entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
-    public ImmutableArray<Rune> RemainingKanjiFormRunes { get => Entry.KanjiFormRunes[_sliceEnd..]; }
+    public ImmutableArray<Rune> PriorKanjiFormRunes { get => _entry.KanjiFormRunes[.._sliceStart]; }
+    public ImmutableArray<Rune> KanjiFormRunes { get => _entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public ImmutableArray<Rune> RemainingKanjiFormRunes { get => _entry.KanjiFormRunes[_sliceEnd..]; }
 
     public Rune PreviousKanjiFormRune() => PriorKanjiFormRunes.LastOrDefault();
     public Rune NextKanjiFormRune() => RemainingKanjiFormRunes.FirstOrDefault();
 
-    public ImmutableArray<Rune> RawKanjiFormRunes { get => Entry.RawKanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public ImmutableArray<Rune> RawKanjiFormRunes { get => _entry.RawKanjiFormRunes[_sliceStart.._sliceEnd]; }
 
     public bool ContainsFirstRune { get => _sliceStart == 0; }
-    public bool ContainsFinalRune { get => _sliceEnd == Entry.KanjiFormRunes.Length; }
+    public bool ContainsFinalRune { get => _sliceEnd == _entry.KanjiFormRunes.Length; }
 
     public string KanjiFormText() => string.Join(string.Empty, KanjiFormRunes);
     public string RawKanjiFormText() => string.Join(string.Empty, RawKanjiFormRunes);
@@ -143,7 +148,7 @@ internal class IterationSlice
 
     public IterationSlice(Entry entry, int sliceStart, int sliceEnd)
     {
-        Entry = entry;
+        _entry = entry;
         _sliceStart = sliceStart;
         _sliceEnd = sliceEnd;
     }
@@ -151,16 +156,18 @@ internal class IterationSlice
 
 internal class SliceReadingCache
 {
+    private readonly IterationSlice _iterationSlice;
     private readonly ImmutableArray<string> _cachedReadings;
 
-    public SliceReadingCache(IterationSlice iterationSlice, ReadingCache readingCache)
+    public SliceReadingCache(Entry entry, IterationSlice iterationSlice, ReadingCache readingCache)
     {
-        _cachedReadings = readingCache.GetPotentialReadings(iterationSlice);
+        _iterationSlice = iterationSlice;
+        _cachedReadings = readingCache.GetPotentialReadings(entry, iterationSlice);
     }
 
     public ImmutableArray<string> GetPotentialReadings(ReadingState readingState)
     {
-        var defaultReading = readingState.DefaultSliceReading();
+        var defaultReading = DefaultSliceReading(readingState);
 
         if (defaultReading is null || _cachedReadings.Contains(defaultReading))
         {
@@ -171,29 +178,8 @@ internal class SliceReadingCache
             return _cachedReadings.Add(defaultReading);
         }
     }
-}
 
-internal class ReadingState
-{
-    private readonly IterationSlice _iterationSlice;
-    private readonly SolutionBuilder _solutionBuilder;
-    private readonly string _normalizedRemainingKanjiFormText;
-
-    public string PriorReadingText { get; }
-    public string RemainingReadingText { get; }
-
-    public ReadingState(IterationSlice iterationSlice, SolutionBuilder solutionBuilder)
-    {
-        _iterationSlice = iterationSlice;
-        _solutionBuilder = solutionBuilder;
-        _normalizedRemainingKanjiFormText = _iterationSlice.RemainingKanjiFormText().KatakanaToHiragana();
-
-        PriorReadingText = _solutionBuilder.NormalizedReadingText();
-        RemainingReadingText = _iterationSlice.Entry
-            .NormalizedReadingText[PriorReadingText.Length..];
-    }
-
-    public string? DefaultSliceReading()
+    private string? DefaultSliceReading(ReadingState readingState)
     {
         bool sliceIsSingleKanji = _iterationSlice.KanjiFormRunes.Length == 1 && _iterationSlice.KanjiFormRunes[0].IsKanji();
         if (!sliceIsSingleKanji)
@@ -207,30 +193,41 @@ internal class ReadingState
 
         if ((previousRune.IsKana() || previousRune == default) && (nextRune.IsKana() || nextRune == default))
         {
-            return RegexKanjiReading();
+            var normalizedRemainingKanjiFormText = _iterationSlice
+                .RemainingKanjiFormText().KatakanaToHiragana();
+
+            return readingState.RegexKanjiReading(normalizedRemainingKanjiFormText);
         }
         else if (nextRune.IsKanji() || nextRune == default)
         {
-            return NormalKanjiReading();
+            return readingState.NormalKanjiReading();
         }
         else
         {
             // Next rune must be punctuation or from a foreign writing system.
-            return MinimumReading();
+            return readingState.MinimumReading();
         }
     }
+}
 
-    private string? MinimumReading() =>
-        RemainingReadingText == string.Empty ? null : RemainingReadingText[..1];
+internal class ReadingState
+{
+    public required string ReadingText { get; init; }
+    public string ReadingTextNormalized { get => PriorReadingTextNormalized + RemainingReadingTextNormalized; }
+    public required string PriorReadingTextNormalized { get; init; }
+    public required string RemainingReadingTextNormalized { get; init; }
 
-    private string? NormalKanjiReading()
+    public string? MinimumReading() =>
+        RemainingReadingTextNormalized == string.Empty ? null : RemainingReadingTextNormalized[..1];
+
+    public string? NormalKanjiReading()
     {
-        if (RemainingReadingText == string.Empty)
+        if (RemainingReadingTextNormalized == string.Empty)
         {
             return null;
         }
-        var reading = new StringBuilder(RemainingReadingText[..1]);
-        foreach (var character in RemainingReadingText[1..])
+        var reading = new StringBuilder(RemainingReadingTextNormalized[..1]);
+        foreach (var character in RemainingReadingTextNormalized[1..])
         {
             if (IsImpossibleKanjiReadingStart(character))
             {
@@ -246,13 +243,14 @@ internal class ReadingState
 
     private static bool IsImpossibleKanjiReadingStart(char c) => c switch
     {
-        'っ' or 'ょ' or 'ゃ' or 'ゅ' or 'ん' => true, _ => false
+        'っ' or 'ょ' or 'ゃ' or 'ゅ' or 'ん' => true,
+        _ => false
     };
 
-    private string? RegexKanjiReading()
+    public string? RegexKanjiReading(string normalizedRemainingKanjiFormText)
     {
-        var greedyMatch = Match("(.+)");
-        var lazyMatch = Match("(.+?)");
+        var greedyMatch = Match("(.+)", normalizedRemainingKanjiFormText);
+        var lazyMatch = Match("(.+?)", normalizedRemainingKanjiFormText);
 
         if (!greedyMatch.Success || !lazyMatch.Success)
         {
@@ -271,10 +269,10 @@ internal class ReadingState
         }
     }
 
-    private Match Match(string groupPattern)
+    private Match Match(string groupPattern, string normalizedRemainingKanjiFormText)
     {
         var pattern = new StringBuilder($"^{groupPattern}");
-        foreach (var character in _normalizedRemainingKanjiFormText)
+        foreach (var character in normalizedRemainingKanjiFormText)
         {
             if (character.IsKana())
             {
@@ -287,6 +285,6 @@ internal class ReadingState
         }
         pattern.Append('$');
         var regex = new Regex(pattern.ToString());
-        return regex.Match(RemainingReadingText);
+        return regex.Match(RemainingReadingTextNormalized);
     }
 }

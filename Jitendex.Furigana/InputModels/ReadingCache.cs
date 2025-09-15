@@ -41,11 +41,11 @@ public class ReadingCache
             .ToFrozenDictionary();
     }
 
-    internal ImmutableArray<string> GetPotentialReadings(IterationSlice iterationSlice)
+    internal ImmutableArray<string> GetPotentialReadings(Entry entry, IterationSlice iterationSlice)
     {
         if (iterationSlice.KanjiFormRunes.Length == 1)
         {
-            return GetPotentialCharacterReadings(iterationSlice);
+            return GetPotentialCharacterReadings(entry, iterationSlice);
         }
         else
         {
@@ -53,10 +53,9 @@ public class ReadingCache
         }
     }
 
-    private ImmutableArray<string> GetPotentialCharacterReadings(IterationSlice iterationSlice)
+    private ImmutableArray<string> GetPotentialCharacterReadings(Entry entry, IterationSlice iterationSlice)
     {
         var character = iterationSlice.KanjiFormRunes[0];
-        var entry = iterationSlice.Entry;
         var isFirstRune = iterationSlice.ContainsFirstRune;
         var isLastRune = iterationSlice.ContainsFinalRune;
 
