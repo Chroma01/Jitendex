@@ -31,7 +31,7 @@ internal class SliceReadingCache
     public SliceReadingCache(Entry entry, IterationSlice iterationSlice, ReadingCache readingCache)
     {
         _iterationSlice = iterationSlice;
-        _cachedReadings = readingCache.GetPotentialReadings(entry, iterationSlice);
+        _cachedReadings = readingCache.GetReadings(entry, iterationSlice);
     }
 
     public IEnumerable<List<Solution.Part>> EnumerateParts(ReadingState readingState)

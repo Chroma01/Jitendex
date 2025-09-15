@@ -39,7 +39,7 @@ public abstract class Kanji
             .ToImmutableArray();
     }
 
-    internal ImmutableArray<string> GetPotentialReadings(bool isFirstChar, bool isLastChar)
+    internal ImmutableArray<string> GetReadings(bool isFirstChar, bool isLastChar)
     {
         var readingSet = new HashSet<string>();
 

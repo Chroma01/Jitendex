@@ -40,19 +40,19 @@ public class ReadingCache
             .ToFrozenDictionary();
     }
 
-    internal ImmutableArray<string> GetPotentialReadings(Entry entry, IterationSlice iterationSlice)
+    internal ImmutableArray<string> GetReadings(Entry entry, IterationSlice iterationSlice)
     {
         if (iterationSlice.KanjiFormRunes.Length == 1)
         {
-            return GetPotentialCharacterReadings(entry, iterationSlice);
+            return GetCharacterReadings(entry, iterationSlice);
         }
         else
         {
-            return GetPotentialSpecialExpressionReadings(iterationSlice);
+            return GetSpecialExpressionReadings(iterationSlice);
         }
     }
 
-    private ImmutableArray<string> GetPotentialCharacterReadings(Entry entry, IterationSlice iterationSlice)
+    private ImmutableArray<string> GetCharacterReadings(Entry entry, IterationSlice iterationSlice)
     {
         var character = iterationSlice.KanjiFormRunes[0];
         var isFirstRune = iterationSlice.ContainsFirstRune;
@@ -60,7 +60,7 @@ public class ReadingCache
 
         if (TryGetKanji(character, entry, out Kanji kanji))
         {
-            return kanji.GetPotentialReadings(isFirstRune, isLastRune);
+            return kanji.GetReadings(isFirstRune, isLastRune);
         }
         else
         {
@@ -68,7 +68,7 @@ public class ReadingCache
         }
     }
 
-    private ImmutableArray<string> GetPotentialSpecialExpressionReadings(IterationSlice iterationSlice)
+    private ImmutableArray<string> GetSpecialExpressionReadings(IterationSlice iterationSlice)
     {
         var text = iterationSlice.KanjiFormText();
         if (_specialExpressions.TryGetValue(text, out SpecialExpression? expression))
