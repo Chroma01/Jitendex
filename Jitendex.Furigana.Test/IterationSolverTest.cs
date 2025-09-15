@@ -27,6 +27,22 @@ public class IterationSolverTest
     private static readonly IterationSolver _resourcelessSolver = new([], []);
 
     [TestMethod]
+    public void TestAllKana()
+    {
+        var data = new List<(string, string, string)>()
+        {
+            ("あ", "あ", "あ"),
+            ("ア", "あ", "ア"),
+            ("あいうえお", "あいうえお", "あいうえお"),
+            ("アイウエオ", "あいうえお", "アイウエオ"),
+            ("あいうえお", "アイウエオ", "あいうえお"),
+            ("あイうエお", "あいうえお", "あイうエお"),
+        };
+
+        TestSolutions(_resourcelessSolver, data);
+    }
+
+    [TestMethod]
     public void SingleNonKana()
     {
         var data = new List<(string, string, string)>()

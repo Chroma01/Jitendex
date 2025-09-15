@@ -20,6 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Solver;
+using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Test;
 
@@ -31,12 +32,23 @@ public static partial class TextSolution
     public static Solution Parse(string text, Entry entry)
     {
         var solutionBuilder = new SolutionBuilder();
+
+        if (text.IsAllKana())
+        {
+            solutionBuilder.Add(new(text, null));
+            return solutionBuilder.ToSolution(entry) ?? throw new Exception();
+        }
+
         foreach (Match match in TextSolutionRegex().Matches(text))
         {
             var noFurigana1 = match.Groups[1].Value;
             var baseText = match.Groups[2].Value;
             var furigana = match.Groups[3].Value;
             var noFurigana2 = match.Groups[4].Value;
+
+            Assert.IsTrue(furigana.IsAllKana());
+            Assert.IsTrue(noFurigana1.IsAllKana());
+            Assert.IsTrue(noFurigana2.IsAllKana());
 
             solutionBuilder.Add(new(noFurigana1, null));
             solutionBuilder.Add(new(baseText, furigana));
