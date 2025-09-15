@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.InputModels;
 
-namespace Jitendex.Furigana.Test.Models;
+namespace Jitendex.Furigana.Test;
 
 [TestClass]
 public class VocabEntryTest

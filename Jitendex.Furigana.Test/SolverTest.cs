@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.Solvers;
 
-namespace Jitendex.Furigana.Test.Solvers;
+namespace Jitendex.Furigana.Test;
 
 public class SolverTest
 {
