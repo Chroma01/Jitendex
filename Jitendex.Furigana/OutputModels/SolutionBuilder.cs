@@ -36,6 +36,7 @@ internal class SolutionBuilder
     public string KanjiFormText() => new(_parts.SelectMany(static x => x.BaseText).ToArray());
     public string ReadingText() => new(_parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
     public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
+    public int ReadingTextLength() => ReadingText().Length;
 
     public void Add(Solution.Part part) => _parts.Add(part);
     public ImmutableArray<Solution.Part> ToParts() => [.. _parts];
