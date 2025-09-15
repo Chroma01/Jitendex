@@ -18,9 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Immutable;
-using Jitendex.Furigana.InputModels;
 
-namespace Jitendex.Furigana.OutputModels;
+namespace Jitendex.Furigana.Models;
 
 public class Solution
 {

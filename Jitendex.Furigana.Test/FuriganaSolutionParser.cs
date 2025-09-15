@@ -18,8 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Text.RegularExpressions;
-using Jitendex.Furigana.InputModels;
-using Jitendex.Furigana.OutputModels;
+using Jitendex.Furigana.Models;
+using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test;
 

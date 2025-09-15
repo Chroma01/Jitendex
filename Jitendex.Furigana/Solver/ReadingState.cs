@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Text;
 using System.Text.RegularExpressions;
-using Jitendex.Furigana.InputModels;
+using Jitendex.Furigana.Models;
 using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.Solvers.Iteration;
+namespace Jitendex.Furigana.Solver;
 
 internal class ReadingState
 {

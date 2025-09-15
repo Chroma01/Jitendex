@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.Text;
 using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.InputModels;
+namespace Jitendex.Furigana.Models;
 
 public abstract class Kanji
 {

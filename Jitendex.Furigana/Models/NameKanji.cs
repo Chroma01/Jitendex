@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -16,17 +16,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.InputModels;
+using System.Text;
 
-public class VocabEntry : Entry
+namespace Jitendex.Furigana.Models;
+
+public class NameKanji : Kanji
 {
-    public VocabEntry(string kanjiFormText, string readingText) : base(kanjiFormText, readingText) { }
-
-    public override bool Equals(object? obj) =>
-        obj is VocabEntry entry &&
-        KanjiFormText == entry.KanjiFormText &&
-        ReadingText == entry.ReadingText;
-
-    public override int GetHashCode() =>
-        HashCode.Combine(typeof(VocabEntry), KanjiFormText, ReadingText);
+    public NameKanji(Rune character, IEnumerable<string> readings) : base(character, readings)
+    {
+    }
 }

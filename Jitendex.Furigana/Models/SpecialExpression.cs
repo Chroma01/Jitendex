@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.InputModels;
+namespace Jitendex.Furigana.Models;
 
 /// <summary>
 /// Represents a compound expression and its potential readings.
