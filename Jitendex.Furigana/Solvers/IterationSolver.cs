@@ -81,9 +81,9 @@ internal class IterationSolver : FuriganaSolver
                 RemainingReadingTextNormalized = entry.NormalizedReadingText[priorReadingText.Length..],
             };
 
-            var potentialReadings = sliceReadingCache.GetPotentialReadings(readingState);
             var oldParts = oldBuilder.ToParts();
 
+            var potentialReadings = sliceReadingCache.GetPotentialReadings(readingState);
             foreach (var potentialReading in potentialReadings)
             {
                 if (TryGetNewPart(iterationSlice, readingState, potentialReading, out var newPart))
@@ -181,10 +181,21 @@ internal class SliceReadingCache
 
     private string? DefaultSliceReading(ReadingState readingState)
     {
-        bool sliceIsSingleKanji = _iterationSlice.KanjiFormRunes.Length == 1 && _iterationSlice.KanjiFormRunes[0].IsKanji();
-        if (!sliceIsSingleKanji)
+        if (_iterationSlice.KanjiFormRunes.Length == 1)
         {
-            // Default readings not yet supported for slices greater than length 1
+            return DefaultSingleKanjiReading(readingState);
+        }
+        else
+        {
+            // Length > 1 not yet supported
+            return null;
+        }
+    }
+
+    private string? DefaultSingleKanjiReading(ReadingState readingState)
+    {
+        if (!_iterationSlice.KanjiFormRunes[0].IsKanji())
+        {
             return null;
         }
 
@@ -193,10 +204,11 @@ internal class SliceReadingCache
 
         if ((previousRune.IsKana() || previousRune == default) && (nextRune.IsKana() || nextRune == default))
         {
-            var normalizedRemainingKanjiFormText = _iterationSlice
-                .RemainingKanjiFormText().KatakanaToHiragana();
+            var remainingKanjiFormTextNormalized = _iterationSlice
+                .RemainingKanjiFormText()
+                .KatakanaToHiragana();
 
-            return readingState.RegexKanjiReading(normalizedRemainingKanjiFormText);
+            return readingState.RegexKanjiReading(remainingKanjiFormTextNormalized);
         }
         else if (nextRune.IsKanji() || nextRune == default)
         {
@@ -247,10 +259,10 @@ internal class ReadingState
         _ => false
     };
 
-    public string? RegexKanjiReading(string normalizedRemainingKanjiFormText)
+    public string? RegexKanjiReading(string remainingKanjiFormTextNormalized)
     {
-        var greedyMatch = Match("(.+)", normalizedRemainingKanjiFormText);
-        var lazyMatch = Match("(.+?)", normalizedRemainingKanjiFormText);
+        var greedyMatch = Match("(.+)", remainingKanjiFormTextNormalized);
+        var lazyMatch = Match("(.+?)", remainingKanjiFormTextNormalized);
 
         if (!greedyMatch.Success || !lazyMatch.Success)
         {
@@ -269,10 +281,10 @@ internal class ReadingState
         }
     }
 
-    private Match Match(string groupPattern, string normalizedRemainingKanjiFormText)
+    private Match Match(string groupPattern, string remainingKanjiFormTextNormalized)
     {
         var pattern = new StringBuilder($"^{groupPattern}");
-        foreach (var character in normalizedRemainingKanjiFormText)
+        foreach (var character in remainingKanjiFormTextNormalized)
         {
             if (character.IsKana())
             {
