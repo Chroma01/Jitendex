@@ -40,15 +40,12 @@ internal class SolutionBuilder
     public void Add(Solution.Part part) => _parts.Add(part);
     public ImmutableArray<Solution.Part> ToParts() => [.. _parts];
 
-    public Solution? ToSolution(Entry entry) =>
-        IsValid(entry) ?
-        new Solution { Entry = entry, Parts = NormalizedParts() } :
-        null;
-
-    public IndexedSolution? ToIndexedSolution(Entry entry) =>
-        IsValid(entry) ?
-        new IndexedSolution(entry, [.. IndexedParts()]) :
-        null;
+    public Solution? ToSolution(Entry entry) => !IsValid(entry) ? null :
+        new Solution
+        {
+            Entry = entry,
+            Parts = NormalizedParts(),
+        };
 
     /// <summary>
     /// Determine if the parts contained within this builder are valid for the given entry.
@@ -104,21 +101,5 @@ internal class SolutionBuilder
                 part.BaseText != string.Empty ||
                 part.Furigana is not null)
             .ToImmutableArray();
-    }
-
-    private List<IndexedFurigana> IndexedParts()
-    {
-        var indexedParts = new List<IndexedFurigana>();
-        int index = 0;
-        foreach (var part in _parts)
-        {
-            int length = part.BaseText.EnumerateRunes().Count();
-            if (part.Furigana is not null)
-            {
-                indexedParts.Add(new IndexedFurigana(part.Furigana, index, index + length - 1));
-            }
-            index += length;
-        }
-        return indexedParts;
     }
 }

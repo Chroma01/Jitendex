@@ -92,24 +92,4 @@ internal class RegexSolver : FuriganaSolver
         var regex = new Regex(pattern.ToString());
         return regex.Match(entry.NormalizedReadingText);
     }
-
-    /// <summary>
-    /// Creates a furigana solution from a regex match computed in the DoSolve method.
-    /// </summary>
-    private static IndexedSolution? MakeSolutionFromMatch(Entry entry, Match match, List<int> kanjiIndexes)
-    {
-        if (match.Groups.Count != kanjiIndexes.Count + 1)
-        {
-            return null;
-        }
-
-        var parts = new List<IndexedFurigana>();
-        for (int i = 1; i < match.Groups.Count; i++)
-        {
-            var group = match.Groups[i];
-            parts.Add(new IndexedFurigana(group.Value, kanjiIndexes[i - 1]));
-        }
-
-        return new IndexedSolution(entry, parts);
-    }
 }

@@ -20,16 +20,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.OutputModels;
-using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test;
 
 public static partial class Parser
 {
-    private const char MultiValueSeparator = ';';
-    private const char AssociationSeparator = ':';
-    private const char RangeSeparator = '-';
-
     [GeneratedRegex(@"([^\[]*)\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
     private static partial Regex TextSolutionRegex();
 
@@ -47,52 +42,9 @@ public static partial class Parser
             solutionBuilder.Add(new(baseText, furigana));
             solutionBuilder.Add(new(noFurigana2, null));
         }
-        var solution = solutionBuilder.ToSolution(entry);
-        if (solution is null)
-        {
-            throw new ArgumentException(nameof(text));
-        }
+        var solution = solutionBuilder.ToSolution(entry) ?? 
+            throw new ArgumentException("Malformatted solution text", nameof(text));
+
         return solution;
-    }
-
-    public static Solution Index(string text, Entry entry)
-    {
-        var parts = new List<IndexedFurigana>();
-        var partSplit = text.Split(MultiValueSeparator);
-
-        foreach (var partString in partSplit)
-        {
-            var fieldSeparator = partString.Split(AssociationSeparator);
-
-            if (fieldSeparator.Length != 2)
-            {
-                throw new Exception($"partstring `{partString}` should contain one and only one separator `{AssociationSeparator}`");
-            }
-
-            var indexesString = fieldSeparator[0];
-            var furiganaValue = fieldSeparator[1];
-
-            int minIndex, maxIndex;
-
-            var indexSplit = indexesString.Split(RangeSeparator);
-            if (indexSplit.Length == 2)
-            {
-                minIndex = int.Parse(indexSplit[0]);
-                maxIndex = int.Parse(indexSplit[1]);
-            }
-            else if (indexSplit.Length == 1)
-            {
-                minIndex = int.Parse(indexSplit[0]);
-                maxIndex = minIndex;
-            }
-            else
-            {
-                throw new Exception($"Malformed input `{indexesString}`");
-            }
-
-            parts.Add(new IndexedFurigana(furiganaValue, minIndex, maxIndex));
-        }
-
-        return new IndexedSolution(entry, parts).ToTextSolution();
     }
 }
