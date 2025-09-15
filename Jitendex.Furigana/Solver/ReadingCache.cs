@@ -24,7 +24,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-public class ReadingCache
+internal class ReadingCache
 {
     private readonly FrozenDictionary<(int, Type), Kanji> _kanjiDictionary;
     private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
