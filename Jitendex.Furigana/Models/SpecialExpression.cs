@@ -39,7 +39,7 @@ public class SpecialExpression(string expression, IEnumerable<string> readings)
 {
     public string Expression { get; } = expression;
     public ImmutableArray<string> Readings { get; } = readings
-        .Select(static reading => reading.KatakanaToHiragana())
+        .Select(KanaTransform.KatakanaToHiragana)
         .Distinct()
         .ToImmutableArray();
 }

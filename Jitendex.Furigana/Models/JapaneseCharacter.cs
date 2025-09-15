@@ -24,19 +24,13 @@ using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Models;
 
-public abstract class JapaneseCharacter
+public abstract class JapaneseCharacter(Rune rune, IEnumerable<string> readings)
 {
-    public Rune Rune { get; }
-    public ImmutableArray<string> Readings { get; }
-
-    public JapaneseCharacter(Rune rune, IEnumerable<string> readings)
-    {
-        Rune = rune;
-        Readings = readings
-            .Select(KanaTransform.KatakanaToHiragana)
-            .Distinct()
-            .ToImmutableArray();
-    }
+    public Rune Rune { get; } = rune;
+    public ImmutableArray<string> Readings { get; } = readings
+        .Select(KanaTransform.KatakanaToHiragana)
+        .Distinct()
+        .ToImmutableArray();
 
     internal ImmutableArray<string> GetReadings(bool isFirstChar, bool isLastChar)
     {
