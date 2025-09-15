@@ -50,7 +50,11 @@ public abstract class Entry
         KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
     }
 
-    private static readonly ImmutableHashSet<int> _kanjiIterationCharacters = ['々', '〻'];
+    private static bool IsKanjiIterationCharacter(int c) => c switch
+    {
+        '々' or '〻' => true,
+        _ => false
+    };
 
     private static Rune[] CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
     {
@@ -84,7 +88,7 @@ public abstract class Entry
     private static ImmutableHashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes) => rawRunes
         .Select(static (rune, index) =>
         (
-            IsRepeater: _kanjiIterationCharacters.Contains(rune.Value),
+            IsRepeater: IsKanjiIterationCharacter(rune.Value),
             Index: index
         ))
         .Where(static x => x.IsRepeater)
