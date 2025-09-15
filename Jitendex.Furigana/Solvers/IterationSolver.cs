@@ -73,6 +73,7 @@ internal class IterationSolver : FuriganaSolver
 
         foreach (var oldBuilder in oldBuilders)
         {
+            var oldParts = oldBuilder.ToParts();
             var priorReadingText = oldBuilder.NormalizedReadingText();
             var readingState = new ReadingState
             {
@@ -80,47 +81,15 @@ internal class IterationSolver : FuriganaSolver
                 PriorReadingTextNormalized = priorReadingText,
                 RemainingReadingTextNormalized = entry.NormalizedReadingText[priorReadingText.Length..],
             };
-
-            var oldParts = oldBuilder.ToParts();
-
-            var potentialReadings = sliceReadingCache.GetPotentialReadings(readingState);
-            foreach (var potentialReading in potentialReadings)
+            foreach (var newParts in sliceReadingCache.EnumerateParts(readingState))
             {
-                if (TryGetNewPart(iterationSlice, readingState, potentialReading, out var newPart))
-                {
-                    newBuilders.Add
-                    (
-                        new SolutionBuilder(oldParts.Add(newPart))
-                    );
-                }
+                newBuilders.Add
+                (
+                    new SolutionBuilder(oldParts.AddRange(newParts))
+                );
             }
         }
         return newBuilders;
-    }
-
-    private static bool TryGetNewPart(IterationSlice iterationSlice, ReadingState readingState, string potentialReading, out Solution.Part part)
-    {
-        if (!readingState.RemainingReadingTextNormalized.StartsWith(potentialReading))
-        {
-            part = null!;
-            return false;
-        }
-
-        var sliceText = iterationSlice.RawKanjiFormText();
-        if (sliceText.IsKanaEquivalent(potentialReading))
-        {
-            part = new(sliceText, null);
-            return true;
-        }
-        else
-        {
-            // Use the raw, non-normalized reading for the furigana text.
-            int i = readingState.PriorReadingTextNormalized.Length;
-            int j = i + potentialReading.Length;
-            var sliceReading = readingState.ReadingText[i..j];
-            part = new(sliceText, sliceReading);
-            return true;
-        }
     }
 }
 
@@ -165,36 +134,69 @@ internal class SliceReadingCache
         _cachedReadings = readingCache.GetPotentialReadings(entry, iterationSlice);
     }
 
-    public ImmutableArray<string> GetPotentialReadings(ReadingState readingState)
+    public IEnumerable<List<Solution.Part>> EnumerateParts(ReadingState readingState)
     {
-        var defaultReading = DefaultSliceReading(readingState);
+        var baseText = _iterationSlice.RawKanjiFormText();
 
-        if (defaultReading is null || _cachedReadings.Contains(defaultReading))
+        foreach (var parts in EnumerateCachedParts(readingState, baseText))
         {
-            return _cachedReadings;
+            yield return parts;
         }
-        else
+
+        var defaultParts = DefaultParts(readingState, baseText);
+
+        if (defaultParts.Count > 0)
         {
-            return _cachedReadings.Add(defaultReading);
+            yield return defaultParts;
         }
     }
 
-    private string? DefaultSliceReading(ReadingState readingState)
+    private IEnumerable<List<Solution.Part>> EnumerateCachedParts(ReadingState readingState, string baseText)
+    {
+        foreach (var reading in _cachedReadings)
+        {
+            if (!readingState.RemainingReadingTextNormalized.StartsWith(reading))
+            {
+                continue;
+            }
+            if (baseText.IsKanaEquivalent(reading))
+            {
+                yield return [new(baseText, null)];
+            }
+            else
+            {
+                var furigana = readingState.RemainingReadingText[..reading.Length];
+                yield return [new(baseText, furigana)];
+            }
+        }
+    }
+
+    private List<Solution.Part> DefaultParts(ReadingState readingState, string baseText)
     {
         if (_iterationSlice.KanjiFormRunes.Length == 1)
         {
-            return DefaultSingleKanjiReading(readingState);
+            var reading = DefaultSingleKanjiReading(readingState);
+            if (reading is null || _cachedReadings.Contains(reading))
+            {
+                return [];
+            }
+            else
+            {
+                var furigana = readingState.RemainingReadingText[..reading.Length];
+                return [new(baseText, furigana)];
+            }
         }
         else
         {
             // Length > 1 not yet supported
-            return null;
+            return [];
         }
     }
 
     private string? DefaultSingleKanjiReading(ReadingState readingState)
     {
-        if (!_iterationSlice.KanjiFormRunes[0].IsKanji())
+        var currentRune = _iterationSlice.KanjiFormRunes[0];
+        if (!currentRune.IsKanji())
         {
             return null;
         }
@@ -225,6 +227,9 @@ internal class SliceReadingCache
 internal class ReadingState
 {
     public required string ReadingText { get; init; }
+    public string PriorReadingText { get => ReadingText[..PriorReadingTextNormalized.Length]; }
+    public string RemainingReadingText { get => ReadingText[PriorReadingTextNormalized.Length..]; }
+
     public string ReadingTextNormalized { get => PriorReadingTextNormalized + RemainingReadingTextNormalized; }
     public required string PriorReadingTextNormalized { get; init; }
     public required string RemainingReadingTextNormalized { get; init; }
