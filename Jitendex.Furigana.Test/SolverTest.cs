@@ -23,7 +23,7 @@ namespace Jitendex.Furigana.Test;
 
 public class SolverTest
 {
-    private static readonly IterationSolver _solver = new(new ReadingCache([], []));
+    private static readonly IterationSolver _resourcelessSolver = new([], []);
 
     [TestMethod]
     public void SingleNonKana()
@@ -62,7 +62,7 @@ public class SolverTest
             ("ありがたい事に", "ありがたいコトに", "ありがたい[事|コト]に"),
         };
 
-        TestSolutions(_solver, data);
+        TestSolutions(_resourcelessSolver, data);
     }
 
     [TestMethod]
@@ -83,7 +83,7 @@ public class SolverTest
             Assert.Contains(kanji, item.Value.ExpectedResultText);
         }
 
-        TestSolutions(_solver, data.Values);
+        TestSolutions(_resourcelessSolver, data.Values);
     }
 
     [TestMethod]
@@ -135,7 +135,7 @@ public class SolverTest
             ("捗々しい時時", "はかばかしいときどき", "[捗|はか][々|ばか]しい[時|とき][時|どき]"),
         };
 
-        TestSolutions(_solver, data);
+        TestSolutions(_resourcelessSolver, data);
     }
 
     [TestMethod]
@@ -168,7 +168,7 @@ public class SolverTest
             Assert.AreEqual(kanjiFormText.Length, readingText.Length);
         }
 
-        TestSolutions(_solver, data);
+        TestSolutions(_resourcelessSolver, data);
     }
 
     /// <summary>
@@ -223,7 +223,7 @@ public class SolverTest
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
 
-        TestSolutions(_solver, data);
+        TestSolutions(_resourcelessSolver, data);
     }
 
     [TestMethod]
@@ -244,16 +244,17 @@ public class SolverTest
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
 
-        TestSolutions(_solver, data);
+        TestSolutions(_resourcelessSolver, data);
     }
 
     [TestMethod]
     public void RequiredSpecialExpressions()
     {
-        var solver = new IterationSolver(ServiceTest.MakeReadingCache
-        (
-            [], new() { ["発条"] = ["ぜんまい", "ばね"] }
-        ));
+        var specialExpressions = ServiceTest.SpecialExpressions(new()
+        {
+            ["発条"] = ["ぜんまい", "ばね"],
+        });
+        var solver = new IterationSolver([], specialExpressions);
 
         var data = new List<(string, string, string)>()
         {
@@ -275,18 +276,18 @@ public class SolverTest
     [TestMethod]
     public void RequiredKanjiReadingsAndSpecialExpressions()
     {
-        var solver = new IterationSolver(ServiceTest.MakeReadingCache(
-            new()
-            {
-                ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
-                ["条"] = ["ジョウ", "チョウ", "デキ", "えだ", "すじ"],
-                ["仕"] = ["シ", "ジ", "つか.える"],
-                ["掛"] = ["カイ", "ケイ", "か.ける", "-か.ける", "か.け", "-か.け", "-が.け", "か.かる", "-か.かる", "-が.かる", "か.かり", "-が.かり", "かかり", "-がかり"],
-            },
-            new()
-            {
-                ["発条"] = ["ぜんまい", "ばね"],
-            }));
+        var kanji = ServiceTest.VocabKanji(new()
+        {
+            ["発"] = ["ハツ", "ホツ", "た.つ", "あば.く", "おこ.る", "つか.わす", "はな.つ"],
+            ["条"] = ["ジョウ", "チョウ", "デキ", "えだ", "すじ"],
+            ["仕"] = ["シ", "ジ", "つか.える"],
+            ["掛"] = ["カイ", "ケイ", "か.ける", "-か.ける", "か.け", "-か.け", "-が.け", "か.かる", "-か.かる", "-が.かる", "か.かり", "-が.かり", "かかり", "-がかり"],
+        });
+        var specialExpressions = ServiceTest.SpecialExpressions(new()
+        {
+            ["発条"] = ["ぜんまい", "ばね"],
+        });
+        var solver = new IterationSolver(kanji, specialExpressions);
 
         var data = new List<(string, string, string)>()
         {
@@ -334,7 +335,7 @@ public class SolverTest
             ("好き嫌い", "すききらい"),
         };
 
-        TestNullSolutions(_solver, data);
+        TestNullSolutions(_resourcelessSolver, data);
     }
 
     /// <summary>
@@ -346,12 +347,14 @@ public class SolverTest
     [TestMethod]
     public void AmbiguousReadingCache()
     {
-        var entry = new VocabEntry("好嫌", "すききら");
-        var solver = new IterationSolver(ServiceTest.MakeReadingCache(new()
+        var kanji = ServiceTest.VocabKanji(new()
         {
             ["好"] = ["すき", "す"],
             ["嫌"] = ["きら", "ききら"],
-        }));
+        });
+        var solver = new IterationSolver(kanji, []);
+
+        var entry = new VocabEntry("好嫌", "すききら");
         var solutions = solver.Solve(entry).ToList();
         Assert.HasCount(2, solutions);
     }

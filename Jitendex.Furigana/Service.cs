@@ -25,9 +25,9 @@ public class Service
 {
     private readonly IterationSolver _solver;
 
-    public Service(ReadingCache readingCache)
+    public Service(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
-        _solver = new(readingCache);
+        _solver = new(kanji, specialExpressions);
     }
 
     public Solution? Solve(Entry entry)

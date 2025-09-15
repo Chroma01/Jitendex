@@ -24,9 +24,9 @@ internal class IterationSolver
 {
     private readonly ReadingCache _readingCache;
 
-    public IterationSolver(ReadingCache readingCache)
+    public IterationSolver(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
     {
-        _readingCache = readingCache;
+        _readingCache = new ReadingCache(kanji, specialExpressions);
     }
 
     public IEnumerable<Solution> Solve(Entry entry)

@@ -17,9 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test;
 
@@ -29,15 +27,16 @@ public class ServiceTest
     [TestMethod]
     public void TestFuriganaIkkagetsu()
     {
-        var service = new Service(MakeReadingCache(
-        new()
+        var kanji = VocabKanji(new()
         {
             ["一"] = ["イチ", "イツ", "ひと-", "ひと.つ"],
             ["ヶ"] = ["ヶ", "か", "が"],
             ["ヵ"] = ["ヵ", "か", "が"],
             ["ケ"] = ["ケ", "か", "が"],
             ["月"] = ["ゲツ", "ガツ", "つき"],
-        }));
+        });
+
+        var service = new Service(kanji, []);
         TestFurigana("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]", service);
         TestFurigana("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]", service);
         TestFurigana("一ケ月", "いっかげつ", "[一|いっ][ケ|か][月|げつ]", service);
@@ -49,15 +48,17 @@ public class ServiceTest
     [TestMethod]
     public void TestNameKanji()
     {
-        var service = new Service(new ReadingCache(
-            kanji: [
-                new VocabKanji(new Rune('佐'), ["あ"]),
-                new VocabKanji(new Rune('藤'), ["あ"]),
-                new NameKanji(new Rune('佐'), ["あ", "さ"]),
-                new NameKanji(new Rune('藤'), ["あ", "とう"]),
-            ],
-            specialExpressions: []
-        ));
+        var vocabKanji = VocabKanji(new()
+        {
+            ["佐"] = ["あ"],
+            ["藤"] = ["あ"],
+        });
+        var nameKanji = NameKanji(new()
+        {
+            ["佐"] = ["あ", "さ"],
+            ["藤"] = ["あ", "とう"],
+        });
+        var service = new Service(vocabKanji.Concat(nameKanji), []);
 
         // Cannot solve it as a Vocab Entry.
         var vocab = new VocabEntry("佐藤", "さとう");
@@ -76,22 +77,24 @@ public class ServiceTest
     [TestMethod]
     public void TestFurigana頑張る()
     {
-        var service = new Service(MakeReadingCache(new()
+        var kanji = VocabKanji(new()
         {
             ["頑"] = ["ガン", "かたく.な"],
             ["張"] = ["チョウ", "は.る", "-は.り", "-ば.り"],
-        }));
+        });
+        var service = new Service(kanji, []);
         TestFurigana("頑張る", "がんばる", "[頑|がん][張|ば]る", service);
     }
 
     [TestMethod]
     public void TestFurigana御坊っちゃん()
     {
-        var service = new Service(MakeReadingCache(new()
+        var kanji = VocabKanji(new()
         {
             ["御"] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
             ["坊"] = ["ボウ", "ボッ"],
-        }));
+        });
+        var service = new Service(kanji, []);
         TestFurigana("御坊っちゃん", "おぼっちゃん", "[御|お][坊|ぼ]っちゃん", service);
     }
 
@@ -100,51 +103,54 @@ public class ServiceTest
     {
         // This kanji is represented by a UTF-16 "Surrogate Pair."
         // The string has Length == 2.
-        var service = new Service(MakeReadingCache([]));
+        var service = new Service([], []);
         TestFurigana("𩺊", "あら", "[𩺊|あら]", service);
     }
 
     [TestMethod]
     public void TestFurigana弄り回す()
     {
-        var service = new Service(MakeReadingCache(new()
+        var kanji = VocabKanji(new()
         {
             ["弄"] = ["ロウ", "ル", "いじく.る", "ろう.する", "いじ.る", "ひねく.る", "たわむ.れる", "もてあそ.ぶ"],
             ["回"] = ["カイ", "エ", "まわ.る", "-まわ.る", "-まわ.り", "まわ.す", "-まわ.す", "まわ.し-", "-まわ.し", "もとお.る", "か.える"],
-        }));
+        });
+        var service = new Service(kanji, []);
         TestFurigana("弄り回す", "いじりまわす", "[弄|いじ]り[回|まわ]す", service);
     }
 
     [TestMethod]
     public void TestFurigana掻っ攫う()
     {
-        var service = new Service(MakeReadingCache(new()
+        var kanji = VocabKanji(new()
         {
             ["掻"] = ["ソウ", "か.く"],
             ["攫"] = ["カク", "さら.う", "つか.む"],
-        }));
+        });
+        var service = new Service(kanji, []);
         TestFurigana("掻っ攫う", "かっさらう", "[掻|か]っ[攫|さら]う", service);
     }
 
     [TestMethod]
     public void TestFurigana御姉さん()
     {
-        var service = new Service(MakeReadingCache(new()
+        var kanji = VocabKanji(new()
         {
             ["御"] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
             ["姉"] = ["シ", "あね", "はは", "ねえ"],
-        }));
+        });
+        var service = new Service(kanji, []);
         TestFurigana("御姉さん", "おねえさん", "[御|お][姉|ねえ]さん", service);
     }
 
     [TestMethod]
     public void TestFurigana捗捗しい()
     {
-        // Rendaku is applied to the second instance of 捗.
-        var service = new Service(MakeReadingCache(new()
+        var kanji = VocabKanji(new()
         {
             ["捗"] = ["チョク", "ホ", "はかど.る", "はか"],
-        }));
+        });
+        var service = new Service(kanji, []);
         TestFurigana("捗捗しい", "はかばかしい", "[捗|はか][捗|ばか]しい", service);
         TestFurigana("捗々しい", "はかばかしい", "[捗|はか][々|ばか]しい", service);
     }
@@ -154,8 +160,7 @@ public class ServiceTest
     {
         // These kanji readings are all in kanjidic2 except for
         // 兄・にい, 姉・ねえ, and 母・かあ.
-        var service = new Service(MakeReadingCache(
-        new()
+        var kanji = VocabKanji(new()
         {
             ["御"] = ["ギョ", "ゴ", "おん-", "お-", "み-"],
             ["兄"] = ["ケイ", "キョウ", "あに", "にい"],
@@ -202,8 +207,8 @@ public class ServiceTest
             ["協"] = ["キョウ"],
             ["会"] = ["カイ", "エ", "あ.う", "あ.わせる", "あつ.まる"],
             ["人"] = ["ジン", "ニン", "ひと", "-り", "-と"],
-        },
-        new()
+        });
+        var specialExpressions = SpecialExpressions(new()
         {
             ["芝生"] = ["しばふ"],
             ["草履"] = ["ぞうり"],
@@ -212,7 +217,8 @@ public class ServiceTest
             ["竹刀"] = ["しない"],
             ["風邪"] = ["かぜ"],
             ["大人"] = ["おとな"],
-        }));
+        });
+        var service = new Service(kanji, specialExpressions);
         var testData = new[]
         {
             ("御兄さん", "おにいさん", "[御|お][兄|にい]さん"),
@@ -260,17 +266,24 @@ public class ServiceTest
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    public static ReadingCache MakeReadingCache(Dictionary<string, List<string>> kanjiInfo)
-    {
-        return MakeReadingCache(kanjiInfo, []);
-    }
-
-    public static ReadingCache MakeReadingCache(Dictionary<string, List<string>> kanjiInfo, Dictionary<string, List<string>> specialExpressionInfo)
-    {
-        return new ReadingCache
+    public static IEnumerable<Kanji> VocabKanji(Dictionary<string, List<string>> data) => data
+        .Select(static item => new VocabKanji
         (
-            kanji: kanjiInfo.Select(x => new VocabKanji(x.Key.EnumerateRunes().First(), x.Value)),
-            specialExpressions: specialExpressionInfo.Select(x => new SpecialExpression(x.Key, x.Value))
-        );
-    }
+            item.Key.EnumerateRunes().First(),
+            item.Value
+        ));
+
+    public static IEnumerable<Kanji> NameKanji(Dictionary<string, List<string>> data) => data
+        .Select(static item => new NameKanji
+        (
+            item.Key.EnumerateRunes().First(),
+            item.Value
+        ));
+
+    public static IEnumerable<SpecialExpression> SpecialExpressions(Dictionary<string, List<string>> data) => data
+        .Select(static item => new SpecialExpression
+        (
+            item.Key,
+            item.Value
+        ));
 }

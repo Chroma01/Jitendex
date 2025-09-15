@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Text;
 using Jitendex.Furigana.TextExtensions;
 
@@ -83,7 +82,7 @@ public abstract class Kanji
             }
             else
             {
-                Debug.WriteLine($"Reading `{reading}` for kanji `{Character}` has more than one dot separator");
+                Console.WriteLine($"Reading `{reading}` for kanji `{Character}` has more than one dot separator");
             }
         }
 
