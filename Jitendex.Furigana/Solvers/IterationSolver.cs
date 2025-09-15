@@ -73,7 +73,6 @@ internal class IterationSolver : FuriganaSolver
 
         foreach (var oldBuilder in oldBuilders)
         {
-            var oldParts = oldBuilder.ToParts();
             var priorReadingText = oldBuilder.NormalizedReadingText();
             var readingState = new ReadingState
             {
@@ -81,6 +80,8 @@ internal class IterationSolver : FuriganaSolver
                 PriorReadingTextNormalized = priorReadingText,
                 RemainingReadingTextNormalized = entry.NormalizedReadingText[priorReadingText.Length..],
             };
+
+            var oldParts = oldBuilder.ToParts();
             foreach (var newParts in sliceReadingCache.EnumerateParts(readingState))
             {
                 newBuilders.Add
@@ -159,7 +160,7 @@ internal class SliceReadingCache
             {
                 continue;
             }
-            if (baseText.IsKanaEquivalent(reading))
+            else if (baseText.IsKanaEquivalent(reading))
             {
                 yield return [new(baseText, null)];
             }
@@ -186,11 +187,15 @@ internal class SliceReadingCache
                 return [new(baseText, furigana)];
             }
         }
-        else
+        else if (_iterationSlice.KanjiFormRunes.Length == 2)
         {
-            // Length > 1 not yet supported
-            return [];
+            var parts = DefaultDoubleCharacterParts(readingState);
+            if (parts.Count > 0)
+            {
+                return parts;
+            }
         }
+        return [];
     }
 
     private string? DefaultSingleKanjiReading(ReadingState readingState)
@@ -204,15 +209,11 @@ internal class SliceReadingCache
         var previousRune = _iterationSlice.PreviousKanjiFormRune();
         var nextRune = _iterationSlice.NextKanjiFormRune();
 
-        if ((previousRune.IsKana() || previousRune == default) && (nextRune.IsKana() || nextRune == default))
+        if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
-            var remainingKanjiFormTextNormalized = _iterationSlice
-                .RemainingKanjiFormText()
-                .KatakanaToHiragana();
-
-            return readingState.RegexKanjiReading(remainingKanjiFormTextNormalized);
+            return readingState.RegexKanjiReading(RemainingKanjiFormTextNormalized());
         }
-        else if (nextRune.IsKanji() || nextRune == default)
+        else if (nextRune.IsKanjiOrDefault())
         {
             return readingState.RegularKanjiReading();
         }
@@ -222,6 +223,42 @@ internal class SliceReadingCache
             return readingState.MinimumReading();
         }
     }
+
+    private List<Solution.Part> DefaultDoubleCharacterParts(ReadingState readingState)
+    {
+        var currentRune1 = _iterationSlice.KanjiFormRunes[0];
+        var currentRune2 = _iterationSlice.KanjiFormRunes[1];
+
+        if (currentRune1.IsKana() || currentRune1 != currentRune2)
+        {
+            return [];
+        }
+
+        var previousRune = _iterationSlice.PreviousKanjiFormRune();
+        var nextRune = _iterationSlice.NextKanjiFormRune();
+
+        if (!previousRune.IsKanaOrDefault() || !nextRune.IsKanaOrDefault())
+        {
+            return [];
+        }
+
+        var reading = readingState.RegexKanjiReading(RemainingKanjiFormTextNormalized());
+
+        if (reading is null || reading.Length % 2 != 0)
+        {
+            return [];
+        }
+
+        int halfLength = reading.Length / 2;
+
+        return [
+            new(_iterationSlice.RawKanjiFormRunes[0].ToString(), reading[..halfLength]),
+            new(_iterationSlice.RawKanjiFormRunes[1].ToString(), reading[halfLength..])
+        ];
+    }
+
+    private string RemainingKanjiFormTextNormalized() =>
+        _iterationSlice.RemainingKanjiFormText().KatakanaToHiragana();
 }
 
 internal class ReadingState

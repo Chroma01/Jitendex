@@ -138,6 +138,24 @@ internal class IterationSolverTestWithoutResources : SolverTest
     }
 
     [TestMethod]
+    public void TestRepeatedCharacters()
+    {
+        var data = new List<(string, string, string)>()
+        {
+            ("抑抑", "そもそも", "[抑|そも][抑|そも]"),
+            ("抑々", "そもそも", "[抑|そも][々|そも]"),
+            ("捗捗しい", "はかばかしい", "[捗|はか][捗|ばか]しい"),
+            ("捗々しい", "はかばかしい", "[捗|はか][々|ばか]しい"),
+            ("かなしい時時", "かなしいときどき", "かなしい[時|とき][時|どき]"),
+            ("かなしい時々", "かなしいときどき", "かなしい[時|とき][々|どき]"),
+            ("捗捗しい時々", "はかばかしいときどき", "[捗|はか][捗|ばか]しい[時|とき][々|どき]"),
+            ("捗々しい時時", "はかばかしいときどき", "[捗|はか][々|ばか]しい[時|とき][時|どき]"),
+        };
+
+        TestSolutions(_solver, data);
+    }
+
+    [TestMethod]
     public void TestImpossibleProblems()
     {
         var data = new List<(string, string)>()
@@ -147,10 +165,6 @@ internal class IterationSolverTestWithoutResources : SolverTest
 
             // Two possible solutions: [好|す]き[嫌|きら]い and [好|すき]き[嫌|ら]い
             ("好き嫌い", "すききらい"),
-
-            // Solvable by RepeatedKanjiSolver, but not this solver.
-            // Three possible solutions.
-            ("抑抑", "そもそも"),
         };
 
         TestNullSolutions(_solver, data);

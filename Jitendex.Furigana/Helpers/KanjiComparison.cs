@@ -40,4 +40,6 @@ public static class KanjiComparison
         (>= 0x2F800) and (<= 0x2FA1F) => true,  // CJK Compatibility Ideographs Supplement
                                     _ => false
     };
+
+    public static bool IsKanjiOrDefault(this Rune c) => c.IsKanji() || c == default;
 }
