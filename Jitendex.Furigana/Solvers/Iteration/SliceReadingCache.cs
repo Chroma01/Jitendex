@@ -75,12 +75,8 @@ internal class SliceReadingCache
     {
         if (_iterationSlice.KanjiFormRunes.Length == 1)
         {
-            var reading = DefaultSingleKanjiReading(readingState);
-            if (reading is null || _cachedReadings.Contains(reading))
-            {
-                return [];
-            }
-            else
+            var reading = DefaultSingleCharacterReading(readingState);
+            if (reading is not null && !_cachedReadings.Contains(reading))
             {
                 var furigana = readingState.RemainingReadingText[..reading.Length];
                 return [new(baseText, furigana)];
@@ -97,20 +93,19 @@ internal class SliceReadingCache
         return [];
     }
 
-    private string? DefaultSingleKanjiReading(ReadingState readingState)
+    private string? DefaultSingleCharacterReading(ReadingState readingState)
     {
         var currentRune = _iterationSlice.KanjiFormRunes[0];
-        if (!currentRune.IsKanji())
-        {
-            return null;
-        }
-
         var previousRune = _iterationSlice.PreviousKanjiFormRune();
         var nextRune = _iterationSlice.NextKanjiFormRune();
 
         if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
-            return readingState.RegexKanjiReading(RemainingKanjiFormTextNormalized());
+            return readingState.RegexReading(RemainingKanjiFormTextNormalized());
+        }
+        else if (!currentRune.IsKanji())
+        {
+            return null;
         }
         else if (nextRune.IsKanjiOrDefault())
         {
@@ -141,7 +136,7 @@ internal class SliceReadingCache
             return [];
         }
 
-        var reading = readingState.RegexKanjiReading(RemainingKanjiFormTextNormalized());
+        var reading = readingState.RegexReading(RemainingKanjiFormTextNormalized());
 
         if (reading is null || reading.Length % 2 != 0)
         {

@@ -36,6 +36,12 @@ public abstract class Entry
         ArgumentException.ThrowIfNullOrWhiteSpace(kanjiFormText);
         ArgumentException.ThrowIfNullOrWhiteSpace(readingText);
 
+        if (kanjiFormText.All(KanaComparison.IsKana))
+        {
+            throw new ArgumentException(
+                "Kanji form text must contain at least one non-kana character to solve",
+                nameof(kanjiFormText));
+        }
         if (readingText.Any(char.IsSurrogate))
         {
             throw new ArgumentException(

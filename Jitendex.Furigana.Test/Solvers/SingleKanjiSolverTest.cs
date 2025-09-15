@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Furigana.InputModels;
 using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana.Test.Solvers;
@@ -23,7 +24,7 @@ namespace Jitendex.Furigana.Test.Solvers;
 [TestClass]
 internal class SingleKanjiSolverTest : SolverTest
 {
-    private static readonly SingleKanjiSolver _solver = new();
+    private static readonly IterationSolver _solver = new(new ReadingCache([], []));
 
     [TestMethod]
     public void SingleCorrectSolution()
