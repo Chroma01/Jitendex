@@ -54,7 +54,7 @@ internal class SliceReadingCache
     {
         foreach (var reading in _cachedReadings)
         {
-            if (!readingState.RemainingReadingTextNormalized.StartsWith(reading))
+            if (!readingState.RemainingTextNormalized.StartsWith(reading))
             {
                 continue;
             }
@@ -64,7 +64,7 @@ internal class SliceReadingCache
             }
             else
             {
-                var furigana = readingState.RemainingReadingText[..reading.Length];
+                var furigana = readingState.RemainingText[..reading.Length];
                 yield return [new(baseText, furigana)];
             }
         }
@@ -85,7 +85,7 @@ internal class SliceReadingCache
             }
             else
             {
-                var furigana = readingState.RemainingReadingText[..reading.Length];
+                var furigana = readingState.RemainingText[..reading.Length];
                 return [new(baseText, furigana)];
             }
         }

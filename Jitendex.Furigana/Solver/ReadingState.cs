@@ -28,13 +28,13 @@ internal class ReadingState
     private readonly Entry _entry;
     private readonly int _readingIndex;
 
-    public string ReadingText { get => _entry.ReadingText; }
-    public string PriorReadingText { get => ReadingText[.._readingIndex]; }
-    public string RemainingReadingText { get => ReadingText[_readingIndex..]; }
+    public string FullText { get => _entry.ReadingText; }
+    public string PriorText { get => FullText[.._readingIndex]; }
+    public string RemainingText { get => FullText[_readingIndex..]; }
 
-    public string ReadingTextNormalized { get => _entry.NormalizedReadingText; }
-    public string PriorReadingTextNormalized { get => ReadingTextNormalized[.._readingIndex]; }
-    public string RemainingReadingTextNormalized { get => ReadingTextNormalized[_readingIndex..]; }
+    public string FullTextNormalized { get => _entry.NormalizedReadingText; }
+    public string PriorTextNormalized { get => FullTextNormalized[.._readingIndex]; }
+    public string RemainingTextNormalized { get => FullTextNormalized[_readingIndex..]; }
 
     public ReadingState(Entry entry, int readingIndex)
     {
@@ -43,16 +43,16 @@ internal class ReadingState
     }
 
     public string? MinimumReading() =>
-        RemainingReadingText == string.Empty ? null : RemainingReadingTextNormalized[..1];
+        RemainingText == string.Empty ? null : RemainingTextNormalized[..1];
 
     public string? RegularKanjiReading()
     {
-        if (RemainingReadingText == string.Empty)
+        if (RemainingText == string.Empty)
         {
             return null;
         }
-        var reading = new StringBuilder(RemainingReadingTextNormalized[..1]);
-        foreach (var character in RemainingReadingTextNormalized[1..])
+        var reading = new StringBuilder(RemainingTextNormalized[..1]);
+        foreach (var character in RemainingTextNormalized[1..])
         {
             if (IsImpossibleKanjiReadingStart(character))
             {
@@ -112,6 +112,6 @@ internal class ReadingState
         }
         pattern.Append('$');
         var regex = new Regex(pattern.ToString());
-        return regex.Match(RemainingReadingTextNormalized);
+        return regex.Match(RemainingTextNormalized);
     }
 }
