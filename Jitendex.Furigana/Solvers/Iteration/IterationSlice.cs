@@ -18,8 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using System.Text;
-using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
+using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solvers.Iteration;
 

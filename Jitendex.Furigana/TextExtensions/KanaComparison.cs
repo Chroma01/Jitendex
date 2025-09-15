@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Text;
 
-namespace Jitendex.Furigana.Helpers;
+namespace Jitendex.Furigana.TextExtensions;
 
 public static class KanaComparison
 {
