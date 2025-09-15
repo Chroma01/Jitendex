@@ -24,14 +24,14 @@ using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Models;
 
-public abstract class Kanji
+public abstract class JapaneseCharacter
 {
-    public Rune Character { get; }
+    public Rune Rune { get; }
     public ImmutableArray<string> Readings { get; }
 
-    public Kanji(Rune character, IEnumerable<string> readings)
+    public JapaneseCharacter(Rune rune, IEnumerable<string> readings)
     {
-        Character = character;
+        Rune = rune;
         Readings = readings
             .Select(KanaTransform.KatakanaToHiragana)
             .Distinct()
@@ -82,7 +82,7 @@ public abstract class Kanji
             }
             else
             {
-                Console.WriteLine($"Reading `{reading}` for kanji `{Character}` has more than one dot separator");
+                Console.WriteLine($"Reading `{reading}` for character `{Rune}` has more than one dot separator");
             }
         }
 

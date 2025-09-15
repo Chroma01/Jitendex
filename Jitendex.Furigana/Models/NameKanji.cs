@@ -20,9 +20,9 @@ using System.Text;
 
 namespace Jitendex.Furigana.Models;
 
-public class NameKanji : Kanji
+public class NameKanji : JapaneseCharacter
 {
-    public NameKanji(Rune character, IEnumerable<string> readings) : base(character, readings)
+    public NameKanji(Rune value, IEnumerable<string> readings) : base(value, readings)
     {
     }
 }

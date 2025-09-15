@@ -266,14 +266,14 @@ public class ServiceTest
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    public static IEnumerable<Kanji> VocabKanji(Dictionary<string, List<string>> data) => data
+    public static IEnumerable<JapaneseCharacter> VocabKanji(Dictionary<string, List<string>> data) => data
         .Select(static item => new VocabKanji
         (
             item.Key.EnumerateRunes().First(),
             item.Value
         ));
 
-    public static IEnumerable<Kanji> NameKanji(Dictionary<string, List<string>> data) => data
+    public static IEnumerable<JapaneseCharacter> NameKanji(Dictionary<string, List<string>> data) => data
         .Select(static item => new NameKanji
         (
             item.Key.EnumerateRunes().First(),

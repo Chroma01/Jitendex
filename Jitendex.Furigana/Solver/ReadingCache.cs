@@ -26,13 +26,13 @@ namespace Jitendex.Furigana.Solver;
 
 internal class ReadingCache
 {
-    private readonly FrozenDictionary<(int, Type), Kanji> _kanjiDictionary;
+    private readonly FrozenDictionary<(int, Type), JapaneseCharacter> _japaneseCharacters;
     private readonly FrozenDictionary<string, SpecialExpression> _specialExpressions;
 
-    public ReadingCache(IEnumerable<Kanji> kanji, IEnumerable<SpecialExpression> specialExpressions)
+    public ReadingCache(IEnumerable<JapaneseCharacter> japaneseCharacters, IEnumerable<SpecialExpression> specialExpressions)
     {
-        _kanjiDictionary = kanji
-            .Select(x => new KeyValuePair<(int, Type), Kanji>((x.Character.Value, x.GetType()), x))
+        _japaneseCharacters = japaneseCharacters
+            .Select(x => new KeyValuePair<(int, Type), JapaneseCharacter>((x.Rune.Value, x.GetType()), x))
             .ToFrozenDictionary();
 
         _specialExpressions = specialExpressions
@@ -54,13 +54,13 @@ internal class ReadingCache
 
     private ImmutableArray<string> GetCharacterReadings(Entry entry, KanjiFormSlice kanjiFormSlice)
     {
-        var character = kanjiFormSlice.Runes[0];
+        var rune = kanjiFormSlice.Runes[0];
         var isFirstRune = kanjiFormSlice.ContainsFirstRune;
         var isLastRune = kanjiFormSlice.ContainsFinalRune;
 
-        if (TryGetKanji(character, entry, out Kanji kanji))
+        if (TryGetCharacter(rune, entry, out JapaneseCharacter japaneseCharacter))
         {
-            return kanji.GetReadings(isFirstRune, isLastRune);
+            return japaneseCharacter.GetReadings(isFirstRune, isLastRune);
         }
         else
         {
@@ -81,19 +81,19 @@ internal class ReadingCache
         }
     }
 
-    private bool TryGetKanji(Rune character, Entry entry, out Kanji kanji)
+    private bool TryGetCharacter(Rune rune, Entry entry, out JapaneseCharacter japaneseCharacter)
     {
-        if (entry is NameEntry && _kanjiDictionary.TryGetValue((character.Value, typeof(NameKanji)), out Kanji? nameKanji))
+        if (entry is NameEntry && _japaneseCharacters.TryGetValue((rune.Value, typeof(NameKanji)), out JapaneseCharacter? nameKanji))
         {
-            kanji = nameKanji;
+            japaneseCharacter = nameKanji;
             return true;
         }
-        if (_kanjiDictionary.TryGetValue((character.Value, typeof(VocabKanji)), out Kanji? vocabKanji))
+        if (_japaneseCharacters.TryGetValue((rune.Value, typeof(VocabKanji)), out JapaneseCharacter? vocabKanji))
         {
-            kanji = vocabKanji;
+            japaneseCharacter = vocabKanji;
             return true;
         }
-        kanji = null!;
+        japaneseCharacter = null!;
         return false;
     }
 }
