@@ -71,14 +71,9 @@ internal class IterationSolver : FuriganaSolver
         foreach (var oldBuilder in oldBuilders)
         {
             var priorReadingText = oldBuilder.NormalizedReadingText();
-            var readingState = new ReadingState
-            {
-                ReadingText = entry.ReadingText,
-                PriorReadingTextNormalized = priorReadingText,
-                RemainingReadingTextNormalized = entry.NormalizedReadingText[priorReadingText.Length..],
-            };
-
+            var readingState = new ReadingState(entry, priorReadingText.Length);
             var oldParts = oldBuilder.ToParts();
+
             foreach (var newParts in sliceReadingCache.EnumerateParts(readingState))
             {
                 newBuilders.Add

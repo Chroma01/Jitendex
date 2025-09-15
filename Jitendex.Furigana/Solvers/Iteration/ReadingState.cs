@@ -19,18 +19,28 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.Helpers;
+using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.Solvers.Iteration;
 
 internal class ReadingState
 {
-    public required string ReadingText { get; init; }
-    public string PriorReadingText { get => ReadingText[..PriorReadingTextNormalized.Length]; }
-    public string RemainingReadingText { get => ReadingText[PriorReadingTextNormalized.Length..]; }
+    private readonly Entry _entry;
+    private readonly int _readingIndex;
 
-    public string ReadingTextNormalized { get => PriorReadingTextNormalized + RemainingReadingTextNormalized; }
-    public required string PriorReadingTextNormalized { get; init; }
-    public required string RemainingReadingTextNormalized { get; init; }
+    public string ReadingText { get => _entry.ReadingText; }
+    public string PriorReadingText { get => ReadingText[.._readingIndex]; }
+    public string RemainingReadingText { get => ReadingText[_readingIndex..]; }
+
+    public string ReadingTextNormalized { get => _entry.NormalizedReadingText; }
+    public string PriorReadingTextNormalized { get => ReadingTextNormalized[.._readingIndex]; }
+    public string RemainingReadingTextNormalized { get => ReadingTextNormalized[_readingIndex..]; }
+
+    public ReadingState(Entry entry, int readingIndex)
+    {
+        _entry = entry;
+        _readingIndex = readingIndex;
+    }
 
     public string? MinimumReading() =>
         RemainingReadingTextNormalized == string.Empty ? null : RemainingReadingTextNormalized[..1];
