@@ -23,7 +23,7 @@ namespace Jitendex.Furigana.Test.Solvers;
 
 internal class SolverTest
 {
-    protected static void TestSolution(IFuriganaSolver solver, Entry entry, string expectedResultText)
+    protected static void TestSolution(IterationSolver solver, Entry entry, string expectedResultText)
     {
         var solutions = solver.Solve(entry).ToList();
         Assert.HasCount(1, solutions, $"\n\n{entry} {solver.GetType()}\n");
@@ -33,7 +33,7 @@ internal class SolverTest
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    protected static void TestSolutions(IFuriganaSolver solver, IEnumerable<(string, string, string)> data)
+    protected static void TestSolutions(IterationSolver solver, IEnumerable<(string, string, string)> data)
     {
         foreach (var (kanjiFormText, readingText, expectedResultText) in data)
         {
@@ -42,13 +42,13 @@ internal class SolverTest
         }
     }
 
-    protected static void TestSolutionsCount(int expectedSolutionCount, IFuriganaSolver solver, Entry entry)
+    protected static void TestSolutionsCount(int expectedSolutionCount, IterationSolver solver, Entry entry)
     {
         var solutions = solver.Solve(entry);
         Assert.AreEqual(expectedSolutionCount, solutions.Count(), $"\n\n{entry} {solver.GetType()}\n");
     }
 
-    protected static void TestNullSolutions(IFuriganaSolver solver, IEnumerable<(string, string)> data)
+    protected static void TestNullSolutions(IterationSolver solver, IEnumerable<(string, string)> data)
     {
         foreach (var (kanjiFormText, readingText) in data)
         {

@@ -22,7 +22,7 @@ using Jitendex.Furigana.Solvers.Iteration;
 
 namespace Jitendex.Furigana.Solvers;
 
-internal class IterationSolver : FuriganaSolver
+internal class IterationSolver
 {
     private readonly ReadingCache _readingCache;
 
@@ -31,7 +31,7 @@ internal class IterationSolver : FuriganaSolver
         _readingCache = readingCache;
     }
 
-    public override IEnumerable<Solution> Solve(Entry entry)
+    public IEnumerable<Solution> Solve(Entry entry)
     {
         var solutions = new List<SolutionBuilder>() { new() };
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)

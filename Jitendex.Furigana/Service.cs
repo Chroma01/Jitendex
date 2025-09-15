@@ -1,5 +1,4 @@
 ﻿/*
-Copyright (c) 2015, 2017 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -23,61 +22,26 @@ using Jitendex.Furigana.Solvers;
 
 namespace Jitendex.Furigana;
 
-/// <summary>
-/// Works with kanji and dictionary entries to attach each entry a furigana string.
-/// </summary>
 public class Service
 {
-    private readonly List<IFuriganaSolver> _solvers;
+    private readonly IterationSolver _solver;
 
     public Service(ReadingCache readingCache)
     {
-        _solvers =
-        [
-            new IterationSolver(readingCache),
-            // new RegexSolver(readingCache),
-            new RepeatedKanjiSolver(),
-            new SingleKanjiSolver(),
-        ];
-        _solvers.Sort();
-        _solvers.Reverse();
-    }
-
-    internal Service(IEnumerable<IFuriganaSolver> solvers)
-    {
-        _solvers = [.. solvers];
-        _solvers.Sort();
-        _solvers.Reverse();
+        _solver = new(readingCache);
     }
 
     public Solution? Solve(Entry entry)
     {
-        var solutionSet = new HashSet<Solution>();
-        int priority = _solvers.First().Priority;
+        var solutions = _solver.Solve(entry).ToList();
 
-        foreach (var solver in _solvers)
+        if (solutions.Count == 1)
         {
-            if (solver.Priority < priority)
-            {
-                if (solutionSet.Count > 0)
-                {
-                    // Priority goes down and we already have solutions.
-                    // Stop solving.
-                    break;
-                }
-                // No solutions yet. Continue with the next level of priority.
-                priority = solver.Priority;
-            }
-            // Add all solutions if they are correct and unique.
-            foreach (var solution in solver.Solve(entry))
-            {
-                solutionSet.Add(solution);
-            }
+            return solutions.First();
         }
-
-        if (solutionSet.Count == 1)
-            return solutionSet.First();
         else
+        {
             return null;
+        }
     }
 }
