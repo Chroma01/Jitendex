@@ -20,9 +20,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
-using Jitendex.Furigana.Solver;
+using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Solver;
 
 public class ReadingCache
 {
