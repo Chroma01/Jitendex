@@ -33,29 +33,29 @@ internal class IterationSolver : FuriganaSolver
 
     public override IEnumerable<Solution> Solve(Entry entry)
     {
-        var builders = new List<SolutionBuilder>() { new() };
+        var solutions = new List<SolutionBuilder>() { new() };
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            var newBuilders = new List<SolutionBuilder>();
+            var newSolutions = new List<SolutionBuilder>();
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
                 var iterationSlice = new IterationSlice(entry, sliceStart, sliceEnd);
-                newBuilders = IterateBuilders(entry, builders, iterationSlice);
-                if (newBuilders.Count > 0)
+                newSolutions = IterateSolutions(entry, solutions, iterationSlice);
+                if (newSolutions.Count > 0)
                 {
                     sliceStart += sliceEnd - sliceStart - 1;
-                    builders = newBuilders;
+                    solutions = newSolutions;
                     break;
                 }
             }
-            if (newBuilders.Count == 0)
+            if (newSolutions.Count == 0)
             {
                 yield break;
             }
         }
-        foreach (var builder in builders)
+        foreach (var solutionBuilder in solutions)
         {
-            var solution = builder.ToSolution(entry);
+            var solution = solutionBuilder.ToSolution(entry);
             if (solution is not null)
             {
                 yield return solution;
@@ -63,24 +63,24 @@ internal class IterationSolver : FuriganaSolver
         }
     }
 
-    private List<SolutionBuilder> IterateBuilders(Entry entry, List<SolutionBuilder> oldBuilders, IterationSlice iterationSlice)
+    private List<SolutionBuilder> IterateSolutions(Entry entry, List<SolutionBuilder> partialSolutions, IterationSlice iterationSlice)
     {
-        var newBuilders = new List<SolutionBuilder>();
+        var solutions = new List<SolutionBuilder>();
         var sliceReadingCache = new SliceReadingCache(entry, iterationSlice, _readingCache);
 
-        foreach (var oldBuilder in oldBuilders)
+        foreach (var partialSolution in partialSolutions)
         {
-            var readingState = new ReadingState(entry, oldBuilder.ReadingTextLength());
-            var oldParts = oldBuilder.ToParts();
+            var readingState = new ReadingState(entry, partialSolution.ReadingTextLength());
+            var previousSolutionParts = partialSolution.ToParts();
 
-            foreach (var newParts in sliceReadingCache.EnumerateParts(readingState))
+            foreach (var nextSolutionParts in sliceReadingCache.EnumerateParts(readingState))
             {
-                newBuilders.Add
+                solutions.Add
                 (
-                    new SolutionBuilder(oldParts.AddRange(newParts))
+                    new SolutionBuilder(previousSolutionParts.AddRange(nextSolutionParts))
                 );
             }
         }
-        return newBuilders;
+        return solutions;
     }
 }

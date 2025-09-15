@@ -41,7 +41,7 @@ public abstract class Kanji
 
     internal ImmutableArray<string> GetPotentialReadings(bool isFirstChar, bool isLastChar)
     {
-        var output = new HashSet<string>();
+        var readingSet = new HashSet<string>();
 
         foreach (var reading in Readings)
         {
@@ -58,27 +58,27 @@ public abstract class Kanji
             var dotSplit = r.Split('.');
             if (dotSplit.Length == 1)
             {
-                output.Add(r);
+                readingSet.Add(r);
             }
             else if (dotSplit.Length == 2)
             {
                 var stemChars = dotSplit[0];
                 var suffixChars = dotSplit[1];
 
-                output.Add(stemChars);
+                readingSet.Add(stemChars);
 
                 var sum = new StringBuilder(stemChars);
                 foreach (var suffixChar in suffixChars)
                 {
                     sum.Append(suffixChar);
-                    output.Add(sum.ToString());
+                    readingSet.Add(sum.ToString());
                 }
 
                 var verbEnding = suffixChars.Last();
                 if (GodanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
                 {
                     var newReading = stemChars + suffixChars[..^1] + newEnding;
-                    output.Add(newReading);
+                    readingSet.Add(newReading);
                 }
             }
             else
@@ -90,29 +90,29 @@ public abstract class Kanji
         // Rendaku
         if (!isFirstChar)
         {
-            foreach (var reading in GetAllRendaku([.. output]))
+            foreach (var reading in GetAllRendaku([.. readingSet]))
             {
-                output.Add(reading);
+                readingSet.Add(reading);
             }
         }
 
         // Add final small tsu rendaku
         if (!isLastChar)
         {
-            foreach (var reading in GetSmallTsuRendaku([.. output]))
+            foreach (var reading in GetSmallTsuRendaku([.. readingSet]))
             {
-                output.Add(reading);
+                readingSet.Add(reading);
             }
         }
 
-        return [.. output];
+        return [.. readingSet];
     }
 
     private static IEnumerable<string> GetSmallTsuRendaku(IEnumerable<string> readings)
     {
         foreach (var reading in readings)
         {
-            if (SmallTsuRendakus.Contains(reading.Last()))
+            if (IsConvertibleToSmallTsu(reading.Last()))
             {
                 yield return reading[..^1] + "っ";
             }
@@ -133,7 +133,11 @@ public abstract class Kanji
         }
     }
 
-    private static readonly FrozenSet<char> SmallTsuRendakus = ['つ', 'く', 'き', 'ち'];
+    private static bool IsConvertibleToSmallTsu(char c) => c switch
+    {
+        'つ' or 'く' or 'き' or 'ち' => true,
+        _ => false
+    };
 
     private static readonly FrozenDictionary<char, char[]> HiraganaToDiacriticForms = new Dictionary<char, char[]>
     {
