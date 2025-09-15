@@ -33,10 +33,10 @@ internal class IterationSlice
     public ImmutableArray<Rune> KanjiFormRunes { get => _entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
     public ImmutableArray<Rune> RemainingKanjiFormRunes { get => _entry.KanjiFormRunes[_sliceEnd..]; }
 
+    public ImmutableArray<Rune> RawKanjiFormRunes { get => _entry.RawKanjiFormRunes[_sliceStart.._sliceEnd]; }
+
     public Rune PreviousKanjiFormRune() => PriorKanjiFormRunes.LastOrDefault();
     public Rune NextKanjiFormRune() => RemainingKanjiFormRunes.FirstOrDefault();
-
-    public ImmutableArray<Rune> RawKanjiFormRunes { get => _entry.RawKanjiFormRunes[_sliceStart.._sliceEnd]; }
 
     public bool ContainsFirstRune { get => _sliceStart == 0; }
     public bool ContainsFinalRune { get => _sliceEnd == _entry.KanjiFormRunes.Length; }
