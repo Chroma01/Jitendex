@@ -21,7 +21,8 @@ using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test;
 
-public class SolverTest
+[TestClass]
+public class IterationSolverTest
 {
     private static readonly IterationSolver _resourcelessSolver = new([], []);
 
