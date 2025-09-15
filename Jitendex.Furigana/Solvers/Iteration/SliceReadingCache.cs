@@ -101,7 +101,7 @@ internal class SliceReadingCache
 
         if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
-            return readingState.RegexReading(RemainingKanjiFormTextNormalized());
+            return readingState.RegexReading(_iterationSlice.RemainingKanjiFormTextNormalized());
         }
         else if (!currentRune.IsKanji())
         {
@@ -136,7 +136,7 @@ internal class SliceReadingCache
             return [];
         }
 
-        var reading = readingState.RegexReading(RemainingKanjiFormTextNormalized());
+        var reading = readingState.RegexReading(_iterationSlice.RemainingKanjiFormTextNormalized());
 
         if (reading is null || reading.Length % 2 != 0)
         {
@@ -150,7 +150,4 @@ internal class SliceReadingCache
             new(_iterationSlice.RawKanjiFormRunes[1].ToString(), reading[halfLength..])
         ];
     }
-
-    private string RemainingKanjiFormTextNormalized() =>
-        _iterationSlice.RemainingKanjiFormText().KatakanaToHiragana();
 }

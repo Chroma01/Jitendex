@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using System.Text;
+using Jitendex.Furigana.Helpers;
 using Jitendex.Furigana.InputModels;
 
 namespace Jitendex.Furigana.Solvers.Iteration;
@@ -43,6 +44,7 @@ internal class IterationSlice
     public string KanjiFormText() => string.Join(string.Empty, KanjiFormRunes);
     public string RawKanjiFormText() => string.Join(string.Empty, RawKanjiFormRunes);
     public string RemainingKanjiFormText() => string.Join(string.Empty, RemainingKanjiFormRunes);
+    public string RemainingKanjiFormTextNormalized() => RemainingKanjiFormText().KatakanaToHiragana();
 
     public IterationSlice(Entry entry, int sliceStart, int sliceEnd)
     {
