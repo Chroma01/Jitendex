@@ -21,7 +21,7 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Helpers;
-using Jitendex.Furigana.Solvers;
+using Jitendex.Furigana.Solvers.Iteration;
 
 namespace Jitendex.Furigana.InputModels;
 
