@@ -29,7 +29,7 @@ public class IterationSolverTest
     [TestMethod]
     public void TestAllKana()
     {
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("あ", "あ", "あ"),
             ("ア", "あ", "ア"),
@@ -45,7 +45,7 @@ public class IterationSolverTest
     [TestMethod]
     public void SingleNonKana()
     {
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             // Single kanji
             ("腹", "はら", "[腹|はら]"),
@@ -83,30 +83,36 @@ public class IterationSolverTest
     }
 
     [TestMethod]
-    public void SingleNonKanaWithUtf16SurrogatePair()
+    public void TextWithSurrogatePair()
     {
-        var data = new Dictionary<string, (string KanjiFormText, string ReadingText, string ExpectedResultText)>()
+        var data = new[]
         {
-            ["𩺊"] = ("𩺊", "あら", "[𩺊|あら]"),
-            ["𠮟"] = ("𠮟かり", "しかり", "[𠮟|し]かり"),
-            ["𤸎"] = ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]")
+            ("𩺊", "あら", "[𩺊|あら]"),
+
+            // 1 furigana character
+            ("𠮟かり", "しかり", "[𠮟|し]かり"),
+
+            // 2 furigana characters
+            ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]"),
+
+            // Repeated
+            ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
+            ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
         };
 
-        foreach (var item in data)
+        foreach (var (kanjiFormText, readingText, expectedResultText) in data)
         {
-            var kanji = item.Key;
-            Assert.AreEqual(2, kanji.Length);
-            Assert.Contains(kanji, item.Value.KanjiFormText);
-            Assert.Contains(kanji, item.Value.ExpectedResultText);
+            Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
+            Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
         }
 
-        TestSolutions(_resourcelessSolver, data.Values);
+        TestSolutions(_resourcelessSolver, data);
     }
 
     [TestMethod]
     public void RepeatedKanji()
     {
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             // One kana per kanji
             ("唖々", "ああ", "[唖|あ][々|あ]"),
@@ -134,11 +140,6 @@ public class IterationSolverTest
             ("時時", "ときどき", "[時|とき][時|どき]"),
             ("時々", "ときどき", "[時|とき][々|どき]"),
 
-            // "𩺊" is represented by a UTF-16 "Surrogate Pair"
-            // with string Length == 2.
-            ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
-            ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
-
             // Non-kanji
             ("々々", "ときどき", "[々|とき][々|どき]"),
             ("〇〇", "まるまる", "[〇|まる][〇|まる]"),
@@ -158,7 +159,7 @@ public class IterationSolverTest
     [TestMethod]
     public void EqualLengthTexts()
     {
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("木の葉", "このは", "[木|こ]の[葉|は]"),
             ("こ之は", "このは", "こ[之|の]は"),
@@ -201,7 +202,7 @@ public class IterationSolverTest
     [TestMethod]
     public void TestImpossibleKanjiReadingStarts()
     {
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             // っ
             ("仏者", "ぶっしゃ", "[仏|ぶっ][者|しゃ]"),
@@ -250,7 +251,7 @@ public class IterationSolverTest
     [TestMethod]
     public void TestKanaBorderedKanji()
     {
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("真っ青", "まっさお", "[真|ま]っ[青|さお]"),
             ("桜ん坊", "さくらんぼ", "[桜|さくら]ん[坊|ぼ]"),
@@ -289,7 +290,7 @@ public class IterationSolverTest
             ["会"] = ["カイ", "エ", "あ.う", "あ.わせる", "あつ.まる"],
         });
 
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("御姉さん", "おねえさん", "[御|お][姉|ねえ]さん"),
             ("御母さん", "おかあさん", "[御|お][母|かあ]さん"),
@@ -319,7 +320,7 @@ public class IterationSolverTest
 
         var solver = new IterationSolver(kanji, []);
 
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
             ("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]"),
@@ -377,7 +378,7 @@ public class IterationSolverTest
         });
         var solver = new IterationSolver([], specialExpressions);
 
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("芝生", "しばふ", "[芝生|しばふ]"),
             ("草履", "ぞうり", "[草履|ぞうり]"),
@@ -432,7 +433,7 @@ public class IterationSolverTest
         });
         var solver = new IterationSolver(kanji, specialExpressions);
 
-        var data = new List<(string, string, string)>()
+        var data = new[]
         {
             ("大和魂", "やまとだましい", "[大和|やまと][魂|だましい]"),
             ("風邪薬", "かぜぐすり", "[風邪|かぜ][薬|ぐすり]"),
@@ -466,7 +467,7 @@ public class IterationSolverTest
     [TestMethod]
     public void UnsolvableWithoutReadingCache()
     {
-        var data = new List<(string, string)>()
+        var data = new[]
         {
             ("御姉さん", "おねえさん"),
 
