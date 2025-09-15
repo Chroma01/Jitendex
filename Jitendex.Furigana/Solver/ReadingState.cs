@@ -72,8 +72,10 @@ internal class ReadingState
         _ => false
     };
 
-    public string? RegexReading(string remainingKanjiFormTextNormalized)
+    public string? RegexReading(KanjiFormSlice kanjiFormSlice)
     {
+        var remainingKanjiFormTextNormalized = kanjiFormSlice.RemainingTextNormalized();
+
         var greedyMatch = Match("(.+)", remainingKanjiFormTextNormalized);
         var lazyMatch = Match("(.+?)", remainingKanjiFormTextNormalized);
 

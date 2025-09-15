@@ -24,18 +24,18 @@ namespace Jitendex.Furigana.Solver;
 
 internal class SliceReadingCache
 {
-    private readonly IterationSlice _iterationSlice;
+    private readonly KanjiFormSlice _kanjiFormSlice;
     private readonly ImmutableArray<string> _cachedReadings;
 
-    public SliceReadingCache(Entry entry, IterationSlice iterationSlice, ReadingCache readingCache)
+    public SliceReadingCache(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingCache readingCache)
     {
-        _iterationSlice = iterationSlice;
-        _cachedReadings = readingCache.GetReadings(entry, iterationSlice);
+        _kanjiFormSlice = kanjiFormSlice;
+        _cachedReadings = readingCache.GetReadings(entry, kanjiFormSlice);
     }
 
     public IEnumerable<List<Solution.Part>> EnumerateParts(ReadingState readingState)
     {
-        var baseText = _iterationSlice.RawKanjiFormText();
+        var baseText = _kanjiFormSlice.RawText();
 
         foreach (var parts in EnumerateCachedParts(readingState, baseText))
         {
@@ -72,7 +72,7 @@ internal class SliceReadingCache
 
     private List<Solution.Part> DefaultParts(ReadingState readingState, string baseText)
     {
-        if (_iterationSlice.KanjiFormRunes.Length == 1)
+        if (_kanjiFormSlice.Runes.Length == 1)
         {
             var reading = DefaultSingleCharacterReading(readingState);
             if (reading is null || _cachedReadings.Contains(reading))
@@ -89,7 +89,7 @@ internal class SliceReadingCache
                 return [new(baseText, furigana)];
             }
         }
-        else if (_iterationSlice.KanjiFormRunes.Length == 2)
+        else if (_kanjiFormSlice.Runes.Length == 2)
         {
             var parts = DefaultDoubleCharacterParts(readingState);
             if (parts.Count > 0)
@@ -102,9 +102,9 @@ internal class SliceReadingCache
 
     private string? DefaultSingleCharacterReading(ReadingState readingState)
     {
-        var currentRune = _iterationSlice.KanjiFormRunes[0];
-        var previousRune = _iterationSlice.PreviousKanjiFormRune();
-        var nextRune = _iterationSlice.NextKanjiFormRune();
+        var currentRune = _kanjiFormSlice.Runes[0];
+        var previousRune = _kanjiFormSlice.PreviousRune();
+        var nextRune = _kanjiFormSlice.NextRune();
 
         if (currentRune.IsKana())
         {
@@ -112,7 +112,7 @@ internal class SliceReadingCache
         }
         else if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
-            return readingState.RegexReading(_iterationSlice.RemainingKanjiFormTextNormalized());
+            return readingState.RegexReading(_kanjiFormSlice);
         }
         else if (!currentRune.IsKanji())
         {
@@ -131,23 +131,23 @@ internal class SliceReadingCache
 
     private List<Solution.Part> DefaultDoubleCharacterParts(ReadingState readingState)
     {
-        var currentRune1 = _iterationSlice.KanjiFormRunes[0];
-        var currentRune2 = _iterationSlice.KanjiFormRunes[1];
+        var currentRune1 = _kanjiFormSlice.Runes[0];
+        var currentRune2 = _kanjiFormSlice.Runes[1];
 
         if (currentRune1.IsKana() || currentRune1 != currentRune2)
         {
             return [];
         }
 
-        var previousRune = _iterationSlice.PreviousKanjiFormRune();
-        var nextRune = _iterationSlice.NextKanjiFormRune();
+        var previousRune = _kanjiFormSlice.PreviousRune();
+        var nextRune = _kanjiFormSlice.NextRune();
 
         if (!previousRune.IsKanaOrDefault() || !nextRune.IsKanaOrDefault())
         {
             return [];
         }
 
-        var reading = readingState.RegexReading(_iterationSlice.RemainingKanjiFormTextNormalized());
+        var reading = readingState.RegexReading(_kanjiFormSlice);
 
         if (reading is null || reading.Length % 2 != 0)
         {
@@ -157,8 +157,8 @@ internal class SliceReadingCache
         int halfLength = reading.Length / 2;
 
         return [
-            new(_iterationSlice.RawKanjiFormRunes[0].ToString(), reading[..halfLength]),
-            new(_iterationSlice.RawKanjiFormRunes[1].ToString(), reading[halfLength..])
+            new(_kanjiFormSlice.RawRunes[0].ToString(), reading[..halfLength]),
+            new(_kanjiFormSlice.RawRunes[1].ToString(), reading[halfLength..])
         ];
     }
 }
