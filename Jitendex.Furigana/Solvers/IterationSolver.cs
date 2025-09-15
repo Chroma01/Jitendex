@@ -200,7 +200,7 @@ internal class SliceReadingCache
         }
         else if (nextRune.IsKanji() || nextRune == default)
         {
-            return readingState.NormalKanjiReading();
+            return readingState.RegularKanjiReading();
         }
         else
         {
@@ -220,7 +220,7 @@ internal class ReadingState
     public string? MinimumReading() =>
         RemainingReadingTextNormalized == string.Empty ? null : RemainingReadingTextNormalized[..1];
 
-    public string? NormalKanjiReading()
+    public string? RegularKanjiReading()
     {
         if (RemainingReadingTextNormalized == string.Empty)
         {
