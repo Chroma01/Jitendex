@@ -33,14 +33,17 @@ public abstract class Kanji
     public Kanji(Rune character, IEnumerable<string> readings)
     {
         Character = character;
-        Readings = [.. readings];
+        Readings = readings
+            .Select(KanaTransform.KatakanaToHiragana)
+            .Distinct()
+            .ToImmutableArray();
     }
 
     internal ImmutableArray<string> GetPotentialReadings(bool isFirstChar, bool isLastChar)
     {
         var output = new HashSet<string>();
 
-        foreach (string reading in Readings)
+        foreach (var reading in Readings)
         {
             // No suffix readings for the first char.
             if (isFirstChar && reading.StartsWith('-'))
@@ -50,8 +53,7 @@ public abstract class Kanji
             if (isLastChar && reading.EndsWith('-'))
                 continue;
 
-            // Ensure all readings are in hiragana
-            string r = reading.Replace("-", string.Empty).KatakanaToHiragana();
+            var r = reading.Replace("-", string.Empty);
 
             var dotSplit = r.Split('.');
             if (dotSplit.Length == 1)
@@ -89,14 +91,18 @@ public abstract class Kanji
         if (!isFirstChar)
         {
             foreach (var reading in GetAllRendaku([.. output]))
+            {
                 output.Add(reading);
+            }
         }
 
         // Add final small tsu rendaku
         if (!isLastChar)
         {
             foreach (var reading in GetSmallTsuRendaku([.. output]))
+            {
                 output.Add(reading);
+            }
         }
 
         return [.. output];
