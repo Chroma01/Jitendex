@@ -362,7 +362,7 @@ public class SolverTest
         Assert.HasCount(1, solutions);
 
         var solution = solutions.First();
-        var expectedSolution = Parser.Solution(expectedResultText, entry);
+        var expectedSolution = TextSolution.Parse(expectedResultText, entry);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 

@@ -23,12 +23,12 @@ using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test;
 
-public static partial class Parser
+public static partial class TextSolution
 {
     [GeneratedRegex(@"([^\[]*)\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
     private static partial Regex TextSolutionRegex();
 
-    public static Solution Solution(string text, Entry entry)
+    public static Solution Parse(string text, Entry entry)
     {
         var solutionBuilder = new SolutionBuilder();
         foreach (Match match in TextSolutionRegex().Matches(text))

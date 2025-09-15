@@ -68,7 +68,7 @@ public class ServiceTest
         var nameSolution = service.Solve(name);
         Assert.IsNotNull(nameSolution);
 
-        var expectedSolution = Parser.Solution("[佐|さ][藤|とう]", name);
+        var expectedSolution = TextSolution.Parse("[佐|さ][藤|とう]", name);
         CollectionAssert.AreEqual(expectedSolution.Parts, nameSolution.Parts);
     }
 
@@ -255,7 +255,7 @@ public class ServiceTest
         var solution = service.Solve(vocab);
         Assert.IsNotNull(solution);
 
-        var expectedSolution = Parser.Solution(expectedFurigana, vocab);
+        var expectedSolution = TextSolution.Parse(expectedFurigana, vocab);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
