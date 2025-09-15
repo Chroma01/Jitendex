@@ -21,31 +21,8 @@ using Jitendex.Furigana.Helpers;
 namespace Jitendex.Furigana.Test;
 
 [TestClass]
-public class KanaHelperTest
+public class KanaComparisonTest
 {
-    private static readonly string hiraTest = "Abc5゠ぁゖずほヷヸヹヺ・ーゝゞヿ";
-    private static readonly string kataTest = "Abc5゠ァヶズホヷヸヹヺ・ーヽヾヿ";
-
-    [TestMethod]
-    public void TestKataToHira()
-    {
-        Assert.AreEqual
-        (
-            hiraTest,
-            kataTest.KatakanaToHiragana()
-        );
-    }
-
-    [TestMethod]
-    public void TestHiraToKata()
-    {
-        Assert.AreEqual
-        (
-            hiraTest.HiraganaToKatakana(),
-            kataTest
-        );
-    }
-
     [TestMethod]
     public void TestIsAllHiragana()
     {
