@@ -126,6 +126,7 @@ internal class IterationSolverTestWithoutResources : SolverTest
             ("桜ん坊", "さくらんぼう", "[桜|さくら]ん[坊|ぼう]"),
             ("持ち運ぶ", "もちはこぶ", "[持|も]ち[運|はこ]ぶ"),
             ("難しい", "むずかしい", "[難|むずか]しい"),
+            ("好き運ぶ嫌い", "すきはこぶきらい", "[好|す]き[運|はこ]ぶ[嫌|きら]い"),
         };
 
         foreach (var (kanjiFormText, readingText, _) in data)
@@ -150,9 +151,6 @@ internal class IterationSolverTestWithoutResources : SolverTest
             // Solvable by RepeatedKanjiSolver, but not this solver.
             // Three possible solutions.
             ("抑抑", "そもそも"),
-
-            // Should be able to solve this
-            ("好き運ぶ嫌い", "すきはこぶきらい"),
         };
 
         TestNullSolutions(_solver, data);
