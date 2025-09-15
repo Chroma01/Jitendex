@@ -24,50 +24,40 @@ namespace Jitendex.Furigana.Test.Models;
 public class VocabEntryTest
 {
     [TestMethod]
-    public void TestSingleRepeater()
+    public void TestRepetitionReplacement()
     {
-        var v = new VocabEntry("時々", "ときどき");
-        var expectedRunes = "時時".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
-    }
+        var data = new List<(string, string, string)>()
+        {
+            // Using 々
+            ("時々", "ときどき", "時時"),
+            ("古々々米", "こここまい", "古古古米"),
+            ("事々物々", "じじぶつぶつ", "事事物物"),
+            ("一杯々々", "いっぱいいっぱい", "一杯一杯"),
 
-    [TestMethod]
-    public void TestSingleRepeaterRawRunes()
-    {
-        var v = new VocabEntry("時々", "ときどき");
-        var expectedRunes = "時々".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
-    }
+            // Using 〻
+            ("時〻", "ときどき", "時時"),
+            ("古〻〻米", "こここまい", "古古古米"),
+            ("事〻物〻", "じじぶつぶつ", "事事物物"),
+            ("一杯〻〻", "いっぱいいっぱい", "一杯一杯"),
 
-    [TestMethod]
-    public void TestDoubleRepeater()
-    {
-        var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
-        var expectedRunes = "一杯一杯".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
-    }
+            // Using a mix of both
+            ("古々〻米", "こここまい", "古古古米"),
+            ("古〻々米", "こここまい", "古古古米"),
+            ("事々物〻", "じじぶつぶつ", "事事物物"),
+            ("事〻物々", "じじぶつぶつ", "事事物物"),
+            ("一杯々〻", "いっぱいいっぱい", "一杯一杯"),
+            ("一杯〻々", "いっぱいいっぱい", "一杯一杯"),
+        };
 
-    [TestMethod]
-    public void TestDoubleRepeaterRawRunes()
-    {
-        var v = new VocabEntry("一杯々々", "いっぱいいっぱい");
-        var expectedRunes = "一杯々々".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.RawKanjiFormRunes);
-    }
+        foreach (var (kanjiFormText, readingText, expectedText) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
 
-    [TestMethod]
-    public void TestDoubleRepeaterSameKanji()
-    {
-        var v = new VocabEntry("古々々米", "こここまい");
-        var expectedRunes = "古古古米".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
-    }
+            var expectedKanjiFormRunes = expectedText.EnumerateRunes().ToList();
+            CollectionAssert.AreEqual(expectedKanjiFormRunes, entry.KanjiFormRunes);
 
-    [TestMethod]
-    public void TestTwoSingleRepeaters()
-    {
-        var v = new VocabEntry("事々物々", "じじぶつぶつ");
-        var expectedRunes = "事事物物".EnumerateRunes().ToList();
-        CollectionAssert.AreEqual(expectedRunes, v.KanjiFormRunes);
+            var expectedRawKanjiFormRunes = kanjiFormText.EnumerateRunes().ToList();
+            CollectionAssert.AreEqual(expectedRawKanjiFormRunes, entry.RawKanjiFormRunes);
+        }
     }
 }
