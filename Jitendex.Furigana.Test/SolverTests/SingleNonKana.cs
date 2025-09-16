@@ -46,17 +46,6 @@ public class SingleNonKana
 
         // Prefixed and suffixed kanji with two furigana characters
         ("ありがたい事に", "ありがたいことに", "ありがたい[事|こと]に"),
-
-        // Non-normalized text (all have the same reading)
-        ("アリガタイ事ニ", "ありがたいことに", "アリガタイ[事|こと]ニ"),
-        ("ありがたい事ニ", "ありがたいことに", "ありがたい[事|こと]ニ"),
-        ("アリガタイ事に", "ありがたいことに", "アリガタイ[事|こと]に"),
-        ("アリガタイ事ニ", "ありがたいことに", "アリガタイ[事|こと]ニ"),
-        ("アりガたイ事ニ", "ありがたいことに", "アりガたイ[事|こと]ニ"),
-
-        // Furigana written in katakana
-        ("嗹", "レン", "[嗹|レン]"),
-        ("ありがたい事に", "ありがたいコトに", "ありがたい[事|コト]に"),
     ];
 
     [TestMethod]

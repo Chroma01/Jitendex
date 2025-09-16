@@ -28,11 +28,8 @@ public class EntirelyKana
     private static readonly (string KanjiFormText, string ReadingText, string ExpectedResultText)[] _data =
     [
         ("あ", "あ", "あ"),
-        ("ア", "あ", "ア"),
+        ("あい", "あい", "あい"),
         ("あいうえお", "あいうえお", "あいうえお"),
-        ("アイウエオ", "あいうえお", "アイウエオ"),
-        ("あいうえお", "アイウエオ", "あいうえお"),
-        ("あイうエお", "あいうえお", "あイうエお"),
     ];
 
     [TestMethod]

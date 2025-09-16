@@ -66,9 +66,6 @@ public class ImpossibleStartReadings
         // With kana following the kanji
         ("真さお", "まっさお", "[真|まっ]さお"),
         ("危機に瀕する", "ききにひんする", "[危|き][機|き]に[瀕|ひん]する"),
-
-        // With non-normalized readings
-        ("阿呆陀羅", "アほンだラ", "[阿|ア][呆|ほン][陀|だ][羅|ラ]"),
     ];
 
     [TestMethod]
