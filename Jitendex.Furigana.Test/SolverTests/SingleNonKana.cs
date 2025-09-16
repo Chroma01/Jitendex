@@ -31,21 +31,9 @@ public class SingleNonKana
         ("腹", "はら", "[腹|はら]"),
         ("嗹", "れん", "[嗹|れん]"),
 
-        // Single non-kanji
+        // Single non-kanji non-kana
         ("◯", "おおきなまる", "[◯|おおきなまる]"),
         ("々", "とき", "[々|とき]"),
-
-        // Suffixed kanji
-        ("難しい", "むずかしい", "[難|むずか]しい"),
-
-        // Prefixed kanji
-        ("ばね秤", "ばねばかり", "ばね[秤|ばかり]"),
-
-        // Prefixed and suffixed kanji with one furigana character
-        ("ぜんまい仕かけ", "ぜんまいじかけ", "ぜんまい[仕|じ]かけ"),
-
-        // Prefixed and suffixed kanji with two furigana characters
-        ("ありがたい事に", "ありがたいことに", "ありがたい[事|こと]に"),
     ];
 
     [TestMethod]

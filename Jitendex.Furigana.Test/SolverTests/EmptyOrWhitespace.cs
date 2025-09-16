@@ -28,32 +28,42 @@ public class EmptyOrWhitespace
     private const string Empty = "";
     private const string OneSpace = " ";
     private const string TwoSpaces = "  ";
+    private const string ThreeSpaces = "   ";
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly (string, string, string)[] _solvableData =
     [
         (Empty, Empty, Empty),
 
         (OneSpace, OneSpace, OneSpace),
         (OneSpace, TwoSpaces, $"[{OneSpace}|{TwoSpaces}]"),
+        (OneSpace, ThreeSpaces, $"[{OneSpace}|{ThreeSpaces}]"),
 
         (TwoSpaces, TwoSpaces, TwoSpaces),
+
+        (ThreeSpaces, ThreeSpaces, ThreeSpaces),
     ];
 
     private static readonly (string, string, int)[] _unsolvableData =
     [
         (Empty, OneSpace, 0),
         (Empty, TwoSpaces, 0),
+        (Empty, ThreeSpaces, 0),
 
         (OneSpace, Empty, 0),
 
         (TwoSpaces, Empty, 0),
         (TwoSpaces, OneSpace, 0),
+        (TwoSpaces, ThreeSpaces, 0),
+
+        (ThreeSpaces, Empty, 0),
+        (ThreeSpaces, OneSpace, 0),
+        (ThreeSpaces, TwoSpaces, 0),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_solver, _data);
+        SolverTestMethods.TestSolvable(_solver, _solvableData);
     }
 
     [TestMethod]
