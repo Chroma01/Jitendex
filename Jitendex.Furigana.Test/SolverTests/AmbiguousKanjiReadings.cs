@@ -38,14 +38,14 @@ public class AmbiguousKanjiReadings
 
     private static readonly IterationSolver _solver = new(_kanji, []);
 
-    private static readonly (string, string)[] _data = new[]
+    private static readonly (string, string, int)[] _data = new[]
     {
-        ("好き嫌い", "すききらい"),
+        ("好き嫌い", "すききらい", 2),
     };
 
     [TestMethod]
     public void Test()
     {
-        SolverTestMethods.TestUnsolvable(2, _solver, _data);
+        SolverTestMethods.TestUnsolvable(_solver, _data);
     }
 }

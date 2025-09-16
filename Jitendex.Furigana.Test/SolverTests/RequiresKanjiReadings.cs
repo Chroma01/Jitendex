@@ -73,8 +73,8 @@ public class RequiresKanjiReadings
         ("夫夫", "ふうふ", "[夫|ふう][夫|ふ]"),
     };
 
-    private static readonly (string, string)[] _dataWithNoSolutions = _data
-        .Select(static x => (x.Item1, x.Item2))
+    private static readonly (string, string, int)[] _dataWithNoSolutions = _data
+        .Select(static x => (x.Item1, x.Item2, 0))
         .ToArray();
 
     [TestMethod]
@@ -86,6 +86,6 @@ public class RequiresKanjiReadings
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(0, _resourcelessSolver, _dataWithNoSolutions);
+        SolverTestMethods.TestUnsolvable(_resourcelessSolver, _dataWithNoSolutions);
     }
 }

@@ -50,9 +50,9 @@ public class RequiresSpecialExpressionReadings
         ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
     };
 
-    private static readonly (string, string)[] _unsolvableData = new[]
+    private static readonly (string, string, int)[] _unsolvableData = new[]
     {
-        ("発条仕掛け", "はつじょうじかけ"),
+        ("発条仕掛け", "はつじょうじかけ", 0),
     };
 
     [TestMethod]
@@ -64,6 +64,6 @@ public class RequiresSpecialExpressionReadings
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(0, _solver, _unsolvableData);
+        SolverTestMethods.TestUnsolvable(_solver, _unsolvableData);
     }
 }
