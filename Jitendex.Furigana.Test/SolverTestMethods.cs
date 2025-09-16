@@ -44,7 +44,7 @@ internal static class SolverTestMethods
     private static void TestSingleSolvable(IterationSolver solver, Entry entry, string expectedResultText)
     {
         var solutions = solver.Solve(entry).ToList();
-        Assert.HasCount(1, solutions);
+        Assert.HasCount(1, solutions, $"\n\n{entry.GetType()}: {entry}\n");
 
         var solution = solutions.First();
         var expectedSolution = TextSolution.Parse(expectedResultText, entry);
@@ -54,6 +54,6 @@ internal static class SolverTestMethods
     private static void TestSingleUnsolvable(IterationSolver solver, Entry entry, int expectedSolutionCount)
     {
         var solutions = solver.Solve(entry);
-        Assert.AreEqual(expectedSolutionCount, solutions.Count());
+        Assert.AreEqual(expectedSolutionCount, solutions.Count(), $"\n\n{entry.GetType()}: {entry}\n");
     }
 }

@@ -91,7 +91,7 @@ internal class SliceReadingCache
         }
         else if (_kanjiFormSlice.Runes.Length == 2)
         {
-            var parts = DefaultDoubleCharacterParts(readingState);
+            var parts = DefaultRepeatedKanjiParts(readingState);
             if (parts.Count > 0)
             {
                 return parts;
@@ -103,38 +103,44 @@ internal class SliceReadingCache
     private string? DefaultSingleCharacterReading(ReadingState readingState)
     {
         var currentRune = _kanjiFormSlice.Runes[0];
-        var previousRune = _kanjiFormSlice.PreviousRune();
-        var nextRune = _kanjiFormSlice.NextRune();
-
         if (currentRune.IsKana())
         {
             return currentRune.KatakanaToHiragana().ToString();
         }
-        else if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
+
+        var previousRune = _kanjiFormSlice.PreviousRune();
+        var nextRune = _kanjiFormSlice.NextRune();
+        if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
             return readingState.RegexReading(_kanjiFormSlice);
         }
-        else if (!currentRune.IsKanji())
-        {
-            return null;
-        }
-        else if (nextRune.IsKanjiOrDefault())
+
+        bool currentRuneIsKanji = currentRune.IsKanji();
+        if (currentRuneIsKanji && nextRune.IsKanjiOrDefault())
         {
             return readingState.RegularKanjiReading();
         }
-        else
+
+        var minimumReading = readingState.MinimumReading();
+        if (currentRuneIsKanji)
         {
-            // Next rune must be punctuation or from a foreign writing system.
-            return readingState.MinimumReading();
+            return minimumReading;
         }
+
+        if (currentRune.ToString() == minimumReading)
+        {
+            return minimumReading;
+        }
+
+        return null;
     }
 
-    private List<Solution.Part> DefaultDoubleCharacterParts(ReadingState readingState)
+    private List<Solution.Part> DefaultRepeatedKanjiParts(ReadingState readingState)
     {
         var currentRune1 = _kanjiFormSlice.Runes[0];
         var currentRune2 = _kanjiFormSlice.Runes[1];
 
-        if (currentRune1.IsKana() || currentRune1 != currentRune2)
+        if (!currentRune1.IsKanji() || currentRune1 != currentRune2)
         {
             return [];
         }

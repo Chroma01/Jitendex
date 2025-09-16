@@ -53,10 +53,6 @@ public class RepeatedKanji
         ("時時", "ときどき", "[時|とき][時|どき]"),
         ("時々", "ときどき", "[時|とき][々|どき]"),
 
-        // Non-kanji
-        ("々々", "ときどき", "[々|とき][々|どき]"),
-        ("〇〇", "まるまる", "[〇|まる][〇|まる]"),
-
         // With bordering kana
         ("捗捗しい", "はかばかしい", "[捗|はか][捗|ばか]しい"),
         ("捗々しい", "はかばかしい", "[捗|はか][々|ばか]しい"),
@@ -65,10 +61,24 @@ public class RepeatedKanji
         ("捗捗しい時々", "はかばかしいときどき", "[捗|はか][捗|ばか]しい[時|とき][々|どき]"),
         ("捗々しい時時", "はかばかしいときどき", "[捗|はか][々|ばか]しい[時|とき][時|どき]"),
     };
+    private static readonly (string, string, int)[] _unsolvableData =
+    [
+        // Non-kanji
+        ("々々", "ときどき", 0),
+        ("〇〇", "まるまる", 0),
+        ("ＡＡ", "アー", 0),
+        ("ＸＸ", "ダブル・エックス", 0),
+    ];
 
     [TestMethod]
     public void Test()
     {
         SolverTestMethods.TestSolvable(_solver, _data);
+    }
+
+    [TestMethod]
+    public void TestUnsolvable()
+    {
+        SolverTestMethods.TestUnsolvable(_solver, _unsolvableData);
     }
 }

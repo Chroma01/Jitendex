@@ -33,9 +33,6 @@ public abstract class Entry
 
     public Entry(string kanjiFormText, string readingText)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(kanjiFormText);
-        ArgumentException.ThrowIfNullOrWhiteSpace(readingText);
-
         if (readingText.Any(char.IsSurrogate))
         {
             throw new ArgumentException(

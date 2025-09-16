@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Solver;
-using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Test;
 
@@ -32,27 +31,25 @@ internal static partial class TextSolution
     {
         var solutionBuilder = new SolutionBuilder();
 
-        if (text.IsAllKana())
+        var matches = TextSolutionRegex().Matches(text);
+
+        if (matches.Count == 0)
         {
-            solutionBuilder.Add(new(text, null));
-            return solutionBuilder.ToSolution(entry) ?? throw new Exception();
+            solutionBuilder.Add(new(entry.KanjiFormText, null));
         }
 
-        foreach (Match match in TextSolutionRegex().Matches(text))
+        foreach (Match match in matches)
         {
             var noFurigana1 = match.Groups[1].Value;
             var baseText = match.Groups[2].Value;
             var furigana = match.Groups[3].Value;
             var noFurigana2 = match.Groups[4].Value;
 
-            Assert.IsTrue(furigana.IsAllKana());
-            Assert.IsTrue(noFurigana1.IsAllKana());
-            Assert.IsTrue(noFurigana2.IsAllKana());
-
             solutionBuilder.Add(new(noFurigana1, null));
             solutionBuilder.Add(new(baseText, furigana));
             solutionBuilder.Add(new(noFurigana2, null));
         }
+
         var solution = solutionBuilder.ToSolution(entry) ?? 
             throw new ArgumentException("Malformatted solution text", nameof(text));
 
