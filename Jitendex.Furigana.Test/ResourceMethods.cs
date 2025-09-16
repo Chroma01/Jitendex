@@ -22,21 +22,21 @@ namespace Jitendex.Furigana.Test;
 
 internal static class ResourceMethods
 {
-    public static IEnumerable<JapaneseCharacter> VocabKanji(Dictionary<string, List<string>> data) => data
+    public static IEnumerable<JapaneseCharacter> VocabKanji(Dictionary<string, IEnumerable<string>> data) => data
         .Select(static item => new VocabKanji
         (
             item.Key.EnumerateRunes().First(),
             item.Value
         ));
 
-    public static IEnumerable<JapaneseCharacter> NameKanji(Dictionary<string, List<string>> data) => data
+    public static IEnumerable<JapaneseCharacter> NameKanji(Dictionary<string, IEnumerable<string>> data) => data
         .Select(static item => new NameKanji
         (
             item.Key.EnumerateRunes().First(),
             item.Value
         ));
 
-    public static IEnumerable<SpecialExpression> SpecialExpressions(Dictionary<string, List<string>> data) => data
+    public static IEnumerable<SpecialExpression> SpecialExpressions(Dictionary<string, IEnumerable<string>> data) => data
         .Select(static item => new SpecialExpression
         (
             item.Key,
