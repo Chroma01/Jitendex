@@ -53,8 +53,8 @@ public class RequiresKanjiReadings
     private static readonly IterationSolver _solver = new(_kanji, []);
     private static readonly IterationSolver _resourcelessSolver = new([], []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("御姉さん", "おねえさん", "[御|お][姉|ねえ]さん"),
         ("御母さん", "おかあさん", "[御|お][母|かあ]さん"),
         ("御兄さん", "おにいさん", "[御|お][兄|にい]さん"),
@@ -71,7 +71,7 @@ public class RequiresKanjiReadings
         // Despite being repeated kanji, the reading length is odd
         ("蝶蝶", "ちょうちょ", "[蝶|ちょう][蝶|ちょ]"),
         ("夫夫", "ふうふ", "[夫|ふう][夫|ふ]"),
-    };
+    ];
 
     private static readonly (string, string, int)[] _dataWithNoSolutions = _data
         .Select(static x => (x.Item1, x.Item2, 0))

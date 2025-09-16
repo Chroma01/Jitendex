@@ -25,8 +25,8 @@ public class SingleNonKana
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         // Single kanji
         ("腹", "はら", "[腹|はら]"),
         ("嗹", "れん", "[嗹|れん]"),
@@ -57,7 +57,7 @@ public class SingleNonKana
         // Furigana written in katakana
         ("嗹", "レン", "[嗹|レン]"),
         ("ありがたい事に", "ありがたいコトに", "ありがたい[事|コト]に"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

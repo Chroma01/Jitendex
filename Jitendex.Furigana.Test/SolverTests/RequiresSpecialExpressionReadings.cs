@@ -36,8 +36,8 @@ public class RequiresSpecialExpressionReadings
 
     private static readonly IterationSolver _solver = new([], _specialExpressions);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("芝生", "しばふ", "[芝生|しばふ]"),
         ("草履", "ぞうり", "[草履|ぞうり]"),
         ("竹刀", "しない", "[竹刀|しない]"),
@@ -52,12 +52,12 @@ public class RequiresSpecialExpressionReadings
 
         // This is bogus data but it will solve because it's the correct length.
         ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
-    };
+    ];
 
-    private static readonly (string, string, int)[] _unsolvableData = new[]
-    {
+    private static readonly (string, string, int)[] _unsolvableData =
+    [
         ("発条仕掛け", "はつじょうじかけ", 0),
-    };
+    ];
 
     [TestMethod]
     public void Test()

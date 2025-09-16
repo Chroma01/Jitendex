@@ -25,8 +25,8 @@ public class EqualLengthTexts
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("木の葉", "このは", "[木|こ]の[葉|は]"),
         ("こ之は", "このは", "こ[之|の]は"),
         ("余所見", "よそみ", "[余|よ][所|そ][見|み]"),
@@ -47,7 +47,7 @@ public class EqualLengthTexts
         ("木の葉", "コのは", "[木|コ]の[葉|は]"),
         ("余所見", "ヨそミ", "[余|ヨ][所|そ][見|ミ]"),
         ("真っサお", "マっさお", "[真|マ]っサお"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

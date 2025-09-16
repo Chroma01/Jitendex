@@ -33,8 +33,8 @@ public class ImpossibleStartReadings
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         // っ
         ("仏者", "ぶっしゃ", "[仏|ぶっ][者|しゃ]"),
         ("ご法度", "ごはっと", "ご[法|はっ][度|と]"),
@@ -69,7 +69,7 @@ public class ImpossibleStartReadings
 
         // With non-normalized readings
         ("阿呆陀羅", "アほンだラ", "[阿|ア][呆|ほン][陀|だ][羅|ラ]"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

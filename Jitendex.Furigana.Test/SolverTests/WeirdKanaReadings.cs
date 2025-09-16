@@ -35,14 +35,14 @@ public class WeirdKanaReadings
 
     private static readonly IterationSolver _solver = new(_kanji, []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
         ("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]"),
         ("一ケ月", "いっかげつ", "[一|いっ][ケ|か][月|げつ]"),
         ("一ケ月", "いっけげつ", "[一|いっ]ケ[月|げつ]"),
         ("一ケ月", "いっケげつ", "[一|いっ]ケ[月|げつ]"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

@@ -25,8 +25,8 @@ public class KanaBorderedKanji
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("真っ青", "まっさお", "[真|ま]っ[青|さお]"),
         ("桜ん坊", "さくらんぼ", "[桜|さくら]ん[坊|ぼ]"),
         ("桜ん坊", "さくらんぼう", "[桜|さくら]ん[坊|ぼう]"),
@@ -36,7 +36,7 @@ public class KanaBorderedKanji
         ("掻っ攫う", "かっさらう", "[掻|か]っ[攫|さら]う"),
         ("険しい路", "けわしいみち", "[険|けわ]しい[路|みち]"),
         ("好き運ぶ嫌い", "すきはこぶきらい", "[好|す]き[運|はこ]ぶ[嫌|きら]い"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

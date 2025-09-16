@@ -25,15 +25,15 @@ public class EntirelyKana
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string KanjiFormText, string ReadingText, string ExpectedResultText)[] _data = new[]
-    {
+    private static readonly (string KanjiFormText, string ReadingText, string ExpectedResultText)[] _data =
+    [
         ("あ", "あ", "あ"),
         ("ア", "あ", "ア"),
         ("あいうえお", "あいうえお", "あいうえお"),
         ("アイウエオ", "あいうえお", "アイウエオ"),
         ("あいうえお", "アイウエオ", "あいうえお"),
         ("あイうエお", "あいうえお", "あイうエお"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

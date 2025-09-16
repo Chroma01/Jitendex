@@ -38,10 +38,10 @@ public class AmbiguousKanjiReadings
 
     private static readonly IterationSolver _solver = new(_kanji, []);
 
-    private static readonly (string, string, int)[] _data = new[]
-    {
+    private static readonly (string, string, int)[] _data =
+    [
         ("好き嫌い", "すききらい", 2),
-    };
+    ];
 
     [TestMethod]
     public void Test()

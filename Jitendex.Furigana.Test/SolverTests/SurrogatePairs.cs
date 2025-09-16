@@ -25,8 +25,8 @@ public class SurrogatePairs
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("𩺊", "あら", "[𩺊|あら]"),
 
         // 1 furigana character
@@ -38,7 +38,7 @@ public class SurrogatePairs
         // Repeated
         ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
         ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
-    };
+    ];
 
     [TestMethod]
     public void Test()

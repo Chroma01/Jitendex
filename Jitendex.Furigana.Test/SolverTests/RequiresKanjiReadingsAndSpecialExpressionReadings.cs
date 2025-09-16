@@ -56,8 +56,8 @@ public class RequiresKanjiReadingsAndSpecialExpressions
 
     private static readonly IterationSolver _solver = new(_kanji, _specialExpressions);
 
-    private static readonly (string, string, string)[] _data = new[]
-    {
+    private static readonly (string, string, string)[] _data =
+    [
         ("大和魂", "やまとだましい", "[大和|やまと][魂|だましい]"),
         ("風邪薬", "かぜぐすり", "[風邪|かぜ][薬|ぐすり]"),
         ("純日本風", "じゅんにほんふう", "[純|じゅん][日本|にほん][風|ふう]"),
@@ -82,7 +82,7 @@ public class RequiresKanjiReadingsAndSpecialExpressions
         ("発条仕掛け", "バねジカけ", "[発条|バね][仕|ジ][掛|カ]け"),
         ("発条仕掛け", "ハつじョうじカケ", "[発|ハつ][条|じョう][仕|じ][掛|カ]け"),
         ("発条仕掛け", "あアあアけ", "[発|あ][条|ア][仕|あ][掛|ア]け"),
-    };
+    ];
 
     [TestMethod]
     public void Test()
