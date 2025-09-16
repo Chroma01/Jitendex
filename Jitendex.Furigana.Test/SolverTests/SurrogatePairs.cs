@@ -41,7 +41,7 @@ public class SurrogatePairs
     };
 
     [TestMethod]
-    public void TextWithSurrogatePair()
+    public void Test()
     {
         foreach (var (kanjiFormText, readingText, expectedResultText) in _data)
         {

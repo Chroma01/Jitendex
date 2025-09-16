@@ -44,7 +44,7 @@ public class AmbiguousKanjiReadings
     };
 
     [TestMethod]
-    public void AmbiguousReadingCache()
+    public void Test()
     {
         SolverTestMethods.TestUnsolvable(2, _solver, _data);
     }

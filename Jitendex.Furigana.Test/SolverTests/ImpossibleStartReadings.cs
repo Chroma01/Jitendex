@@ -72,7 +72,7 @@ public class ImpossibleStartReadings
     };
 
     [TestMethod]
-    public void TestImpossibleKanjiReadingStarts()
+    public void Test()
     {
         foreach (var (kanjiFormText, readingText, _) in _data)
         {
