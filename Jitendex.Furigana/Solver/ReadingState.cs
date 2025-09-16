@@ -99,15 +99,18 @@ internal class ReadingState
     private Match Match(string groupPattern, string remainingKanjiFormTextNormalized)
     {
         var pattern = new StringBuilder($"^{groupPattern}");
+        bool newGroup = false;
         foreach (var character in remainingKanjiFormTextNormalized)
         {
             if (character.IsKana())
             {
                 pattern.Append(character);
+                newGroup = true;
             }
-            else
+            else if (newGroup)
             {
                 pattern.Append(groupPattern);
+                newGroup = false;
             }
         }
         pattern.Append('$');

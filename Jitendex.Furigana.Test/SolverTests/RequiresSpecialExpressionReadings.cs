@@ -31,6 +31,7 @@ public class RequiresSpecialExpressionReadings
         ["草履"] = ["ぞうり"],
         ["竹刀"] = ["しない"],
         ["大人"] = ["おとな"],
+        ["狗母魚"] = ["えそ"],
     });
 
     private static readonly IterationSolver _solver = new([], _specialExpressions);
@@ -41,6 +42,9 @@ public class RequiresSpecialExpressionReadings
         ("草履", "ぞうり", "[草履|ぞうり]"),
         ("竹刀", "しない", "[竹刀|しない]"),
         ("大人の人", "おとなのひと", "[大人|おとな]の[人|ひと]"),
+
+        // Three kanji, two furigana characters
+        ("鯛なくば狗母魚", "たいなくばえそ", "[鯛|たい]なくば[狗母魚|えそ]"),
 
         // 発条 has two different special readings
         ("発条仕掛け", "ぜんまいじかけ", "[発条|ぜんまい][仕|じ][掛|か]け"),
