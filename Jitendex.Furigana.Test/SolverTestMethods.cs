@@ -28,11 +28,20 @@ internal static class SolverTestMethods
         foreach (var (kanjiFormText, readingText, expectedResultText) in data)
         {
             var entry = new VocabEntry(kanjiFormText, readingText);
-            TestSolvableProblem(solver, entry, expectedResultText);
+            TestSingleSolvable(solver, entry, expectedResultText);
         }
     }
 
-    private static void TestSolvableProblem(IterationSolver solver, Entry entry, string expectedResultText)
+    public static void TestUnsolvable(int expectedSolutionCount, IterationSolver solver, IEnumerable<(string, string)> data)
+    {
+        foreach (var (kanjiFormText, readingText) in data)
+        {
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestSingleUnsolvable(expectedSolutionCount, solver, entry);
+        }
+    }
+
+    private static void TestSingleSolvable(IterationSolver solver, Entry entry, string expectedResultText)
     {
         var solutions = solver.Solve(entry).ToList();
         Assert.HasCount(1, solutions);
@@ -42,16 +51,7 @@ internal static class SolverTestMethods
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    public static void TestUnsolvable(int expectedSolutionCount, IterationSolver solver, IEnumerable<(string, string)> data)
-    {
-        foreach (var (kanjiFormText, readingText) in data)
-        {
-            var entry = new VocabEntry(kanjiFormText, readingText);
-            TestUnsovableProblem(expectedSolutionCount, solver, entry);
-        }
-    }
-
-    public static void TestUnsovableProblem(int expectedSolutionCount, IterationSolver solver, Entry entry)
+    private static void TestSingleUnsolvable(int expectedSolutionCount, IterationSolver solver, Entry entry)
     {
         var solutions = solver.Solve(entry);
         Assert.AreEqual(expectedSolutionCount, solutions.Count());
