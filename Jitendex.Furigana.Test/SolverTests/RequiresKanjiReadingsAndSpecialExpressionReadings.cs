@@ -85,7 +85,7 @@ public class RequiresKanjiReadingsAndSpecialExpressions
     ];
 
     [TestMethod]
-    public void Test()
+    public void TestSolvable()
     {
         SolverTestMethods.TestSolvable(_solver, _data);
     }

@@ -50,7 +50,7 @@ public class EqualLengthTexts
     ];
 
     [TestMethod]
-    public void Test()
+    public void TestSolvable()
     {
         foreach (var (kanjiFormText, readingText, _) in _data)
         {

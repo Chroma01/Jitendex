@@ -41,14 +41,13 @@ public class SurrogatePairs
     ];
 
     [TestMethod]
-    public void Test()
+    public void TestSolvable()
     {
         foreach (var (kanjiFormText, readingText, expectedResultText) in _data)
         {
             Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
             Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
         }
-
         SolverTestMethods.TestSolvable(_solver, _data);
     }
 }

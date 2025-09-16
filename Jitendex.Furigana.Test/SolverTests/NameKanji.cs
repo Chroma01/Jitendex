@@ -44,23 +44,22 @@ public class NameKanji
 
     private static readonly VocabEntry _vocabEntry = new(_kanjiFormText, _readingText);
     private static readonly NameEntry _nameEntry = new(_kanjiFormText, _readingText);
+
+    private static readonly IEnumerable<Solution> _vocabSolutions = _solver.Solve(_vocabEntry);
+    private static readonly IEnumerable<Solution> _nameSolutions = _solver.Solve(_nameEntry);
     private static readonly Solution _expectedSolution = TextSolution.Parse(_expectedSolutionText, _nameEntry);
 
     [TestMethod]
-    public void TestVocabEntry()
+    public void TestSolvable()
     {
-        var vocabSolution = _solver.Solve(_vocabEntry).FirstOrDefault();
-        Assert.IsNull(vocabSolution);
+        Assert.HasCount(1, _nameSolutions);
+
+        var nameSolution = _nameSolutions.First();
+        CollectionAssert.AreEqual(_expectedSolution.Parts, nameSolution.Parts);
     }
 
     [TestMethod]
-    public void TestNameEntry()
+    public void TestUnsolvable()
     {
-        var nameSolutions = _solver.Solve(_nameEntry).ToList();
-        Assert.HasCount(1, nameSolutions);
-
-        var nameSolution = nameSolutions.FirstOrDefault();
-        Assert.IsNotNull(nameSolution);
-        CollectionAssert.AreEqual(_expectedSolution.Parts, nameSolution.Parts);
-    }
-}
+        Assert.HasCount(0, _vocabSolutions);
+    }}

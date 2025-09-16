@@ -39,13 +39,12 @@ public class KanaBorderedKanji
     ];
 
     [TestMethod]
-    public void Test()
+    public void TestSolvable()
     {
         foreach (var (kanjiFormText, readingText, _) in _data)
         {
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
-
         SolverTestMethods.TestSolvable(_solver, _data);
     }
 }

@@ -40,12 +40,13 @@ public class WeirdKanaReadings
         ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
         ("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]"),
         ("一ケ月", "いっかげつ", "[一|いっ][ケ|か][月|げつ]"),
+
         ("一ケ月", "いっけげつ", "[一|いっ]ケ[月|げつ]"),
         ("一ケ月", "いっケげつ", "[一|いっ]ケ[月|げつ]"),
     ];
 
     [TestMethod]
-    public void Test()
+    public void TestSolvable()
     {
         SolverTestMethods.TestSolvable(_solver, _data);
     }
