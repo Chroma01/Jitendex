@@ -33,7 +33,7 @@ public class ImpossibleStartReadings
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         // っ
         ("仏者", "ぶっしゃ", "[仏|ぶっ][者|しゃ]"),

@@ -30,7 +30,7 @@ public class EmptyOrWhitespace
     private const string TwoSpaces = "  ";
     private const string ThreeSpaces = "   ";
 
-    private static readonly (string, string, string)[] _solvableData =
+    private static readonly SolvableData _solvableData =
     [
         (Empty, Empty, Empty),
 
@@ -43,7 +43,7 @@ public class EmptyOrWhitespace
         (ThreeSpaces, ThreeSpaces, ThreeSpaces),
     ];
 
-    private static readonly (string, string, int)[] _unsolvableData =
+    private static readonly UnsolvableData _unsolvableData =
     [
         (Empty, OneSpace, 0),
         (Empty, TwoSpaces, 0),

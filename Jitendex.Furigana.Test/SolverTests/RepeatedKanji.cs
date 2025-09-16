@@ -25,7 +25,7 @@ public class RepeatedKanji
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         // One kana per kanji
         ("唖々", "ああ", "[唖|あ][々|あ]"),
@@ -62,7 +62,7 @@ public class RepeatedKanji
         ("捗々しい時時", "はかばかしいときどき", "[捗|はか][々|ばか]しい[時|とき][時|どき]"),
     ];
 
-    private static readonly (string, string, int)[] _unsolvableData =
+    private static readonly UnsolvableData _unsolvableData =
     [
         // Non-kanji
         ("々々", "ときどき", 0),

@@ -25,7 +25,7 @@ public class EntirelyKana
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string KanjiFormText, string ReadingText, string ExpectedResultText)[] _data =
+    private static readonly SolvableData _data =
     [
         ("あ", "あ", "あ"),
         ("あい", "あい", "あい"),

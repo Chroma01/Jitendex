@@ -25,7 +25,7 @@ public class EqualLengthTexts
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         ("木の葉", "このは", "[木|こ]の[葉|は]"),
         ("こ之は", "このは", "こ[之|の]は"),

@@ -35,7 +35,7 @@ public class WeirdKanaReadings
 
     private static readonly IterationSolver _solver = new(_kanji, []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
         ("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]"),

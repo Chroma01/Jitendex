@@ -16,6 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+global using SolvableData = System.Collections.Generic.IEnumerable<(string KanjiFormText, string ReadingText, string ExpectedSolutionText)>;
+global using UnsolvableData = System.Collections.Generic.IEnumerable<(string KanjiFormText, string ReadingText, int ExpectedSolutionCount)>;
+
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.Solver;
 
@@ -23,31 +26,31 @@ namespace Jitendex.Furigana.Test;
 
 internal static class SolverTestMethods
 {
-    public static void TestSolvable(IterationSolver solver, IEnumerable<(string, string, string)> data)
+    public static void TestSolvable(IterationSolver solver, SolvableData data)
     {
-        foreach (var (kanjiFormText, readingText, expectedResultText) in data)
+        foreach (var datum in data)
         {
-            var entry = new VocabEntry(kanjiFormText, readingText);
-            TestSingleSolvable(solver, entry, expectedResultText);
+            var entry = new VocabEntry(datum.KanjiFormText, datum.ReadingText);
+            TestSingleSolvable(solver, entry, datum.ExpectedSolutionText);
         }
     }
 
-    public static void TestUnsolvable(IterationSolver solver, IEnumerable<(string, string, int)> data)
+    public static void TestUnsolvable(IterationSolver solver, UnsolvableData data)
     {
-        foreach (var (kanjiFormText, readingText, expectedSolutionCount) in data)
+        foreach (var datum in data)
         {
-            var entry = new VocabEntry(kanjiFormText, readingText);
-            TestSingleUnsolvable(solver, entry, expectedSolutionCount);
+            var entry = new VocabEntry(datum.KanjiFormText, datum.ReadingText);
+            TestSingleUnsolvable(solver, entry, datum.ExpectedSolutionCount);
         }
     }
 
-    private static void TestSingleSolvable(IterationSolver solver, Entry entry, string expectedResultText)
+    private static void TestSingleSolvable(IterationSolver solver, Entry entry, string expectedSolutionText)
     {
         var solutions = solver.Solve(entry).ToList();
         Assert.HasCount(1, solutions, $"\n\n{entry}\n");
 
         var solution = solutions.First();
-        var expectedSolution = TextSolution.Parse(expectedResultText, entry);
+        var expectedSolution = TextSolution.Parse(expectedSolutionText, entry);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 

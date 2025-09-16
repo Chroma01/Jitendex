@@ -36,7 +36,7 @@ public class RequiresSpecialExpressionReadings
 
     private static readonly IterationSolver _solver = new([], _specialExpressions);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         ("芝生", "しばふ", "[芝生|しばふ]"),
         ("草履", "ぞうり", "[草履|ぞうり]"),
@@ -54,7 +54,7 @@ public class RequiresSpecialExpressionReadings
         ("発条仕掛け", "ああああけ", "[発|あ][条|あ][仕|あ][掛|あ]け"),
     ];
 
-    private static readonly (string, string, int)[] _unsolvableData =
+    private static readonly UnsolvableData _unsolvableData =
     [
         ("発条仕掛け", "はつじょうじかけ", 0),
     ];

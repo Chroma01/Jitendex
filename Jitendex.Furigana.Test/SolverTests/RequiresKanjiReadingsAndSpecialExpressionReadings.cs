@@ -56,7 +56,7 @@ public class RequiresKanjiReadingsAndSpecialExpressions
 
     private static readonly IterationSolver _solver = new(_kanji, _specialExpressions);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         ("大和魂", "やまとだましい", "[大和|やまと][魂|だましい]"),
         ("風邪薬", "かぜぐすり", "[風邪|かぜ][薬|ぐすり]"),

@@ -51,9 +51,8 @@ public class RequiresKanjiReadings
     });
 
     private static readonly IterationSolver _solver = new(_kanji, []);
-    private static readonly IterationSolver _resourcelessSolver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         ("御姉さん", "おねえさん", "[御|お][姉|ねえ]さん"),
         ("御母さん", "おかあさん", "[御|お][母|かあ]さん"),
@@ -73,19 +72,21 @@ public class RequiresKanjiReadings
         ("夫夫", "ふうふ", "[夫|ふう][夫|ふ]"),
     ];
 
-    private static readonly (string, string, int)[] _dataWithNoSolutions = _data
-        .Select(static x => (x.Item1, x.Item2, 0))
-        .ToArray();
-
     [TestMethod]
     public void TestSolvable()
     {
         SolverTestMethods.TestSolvable(_solver, _data);
     }
 
+    private static readonly IterationSolver _resourcelessSolver = new([], []);
+
+    private static readonly UnsolvableData _unsolvableData = _data
+        .Select(static x => (x.Item1, x.Item2, 0))
+        .ToArray();
+
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_resourcelessSolver, _dataWithNoSolutions);
+        SolverTestMethods.TestUnsolvable(_resourcelessSolver, _unsolvableData);
     }
 }

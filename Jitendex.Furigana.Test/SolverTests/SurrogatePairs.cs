@@ -25,7 +25,7 @@ public class SurrogatePairs
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         ("𩺊", "あら", "[𩺊|あら]"),
 

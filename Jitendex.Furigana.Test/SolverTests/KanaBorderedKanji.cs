@@ -32,7 +32,7 @@ public class KanaBorderedKanji
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         // Suffixed kanji
         ("難しい", "むずかしい", "[難|むずか]しい"),

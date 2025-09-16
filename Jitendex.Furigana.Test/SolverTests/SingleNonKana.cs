@@ -25,7 +25,7 @@ public class SingleNonKana
 {
     private static readonly IterationSolver _solver = new([], []);
 
-    private static readonly (string, string, string)[] _data =
+    private static readonly SolvableData _data =
     [
         // Single kanji
         ("腹", "はら", "[腹|はら]"),
