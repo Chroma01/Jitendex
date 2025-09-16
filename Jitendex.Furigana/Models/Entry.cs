@@ -98,6 +98,6 @@ public abstract class Entry
 
     public override string ToString()
     {
-        return $"{ReadingText}【{KanjiFormText}】";
+        return $"{GetType()}: {ReadingText}【{KanjiFormText}】";
     }
 }
