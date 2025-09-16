@@ -1,5 +1,4 @@
 /*
-Copyright (c) 2015 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -24,7 +23,7 @@ using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Test;
 
-public static partial class TextSolution
+internal static partial class TextSolution
 {
     [GeneratedRegex(@"([^\[]*)\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
     private static partial Regex TextSolutionRegex();

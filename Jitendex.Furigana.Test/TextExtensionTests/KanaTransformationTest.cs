@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.Test;
+namespace Jitendex.Furigana.Test.TextExtensionTests;
 
 [TestClass]
 public class KanaTransformationTest

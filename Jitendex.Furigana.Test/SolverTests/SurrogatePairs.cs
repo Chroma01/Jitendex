@@ -1,0 +1,54 @@
+/*
+Copyright (c) 2025 Stephen Kraus
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using Jitendex.Furigana.Solver;
+
+namespace Jitendex.Furigana.Test.SolverTests;
+
+[TestClass]
+public class SurrogatePairs
+{
+    private static readonly IterationSolver _solver = new([], []);
+
+    private static readonly (string, string, string)[] _data = new[]
+    {
+        ("𩺊", "あら", "[𩺊|あら]"),
+
+        // 1 furigana character
+        ("𠮟かり", "しかり", "[𠮟|し]かり"),
+
+        // 2 furigana characters
+        ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]"),
+
+        // Repeated
+        ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
+        ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
+    };
+
+    [TestMethod]
+    public void TextWithSurrogatePair()
+    {
+        foreach (var (kanjiFormText, readingText, expectedResultText) in _data)
+        {
+            Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
+            Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
+        }
+
+        SolverTestMethods.TestSolvable(_solver, _data);
+    }
+}
