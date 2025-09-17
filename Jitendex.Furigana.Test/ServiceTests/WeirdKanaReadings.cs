@@ -47,6 +47,6 @@ public class WeirdKanaReadings : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        ServiceTest.TestSolvable(_service, _data);
+        TestSolvable(_service, _data);
     }
 }

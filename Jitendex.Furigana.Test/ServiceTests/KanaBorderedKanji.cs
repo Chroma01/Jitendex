@@ -62,6 +62,6 @@ public class KanaBorderedKanji : ServiceTest
         {
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
-        ServiceTest.TestSolvable(DefaultService, _data);
+        TestSolvable(DefaultService, _data);
     }
 }

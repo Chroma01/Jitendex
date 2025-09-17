@@ -61,12 +61,12 @@ public class RequiresSpecialExpressionReadings : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        ServiceTest.TestSolvable(_service, _data);
+        TestSolvable(_service, _data);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        ServiceTest.TestUnsolvable(_service, _unsolvableData);
+        TestUnsolvable(_service, _unsolvableData);
     }
 }

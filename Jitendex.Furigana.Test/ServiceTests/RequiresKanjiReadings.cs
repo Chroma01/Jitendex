@@ -77,12 +77,12 @@ public class RequiresKanjiReadings : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        ServiceTest.TestSolvable(_service, _data);
+        TestSolvable(_service, _data);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        ServiceTest.TestUnsolvable(DefaultService, _unsolvableData);
+        TestUnsolvable(DefaultService, _unsolvableData);
     }
 }

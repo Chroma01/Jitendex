@@ -31,6 +31,6 @@ public class EntirelyKana : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        ServiceTest.TestSolvable(DefaultService, _data);
+        TestSolvable(DefaultService, _data);
     }
 }
