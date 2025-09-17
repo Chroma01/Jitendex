@@ -51,7 +51,7 @@ public class ServiceTest
         Assert.IsNotNull(solution, $"\n\n{entry}\n");
 
         var expectedSolution = TextSolution.Parse(expectedSolutionText, entry);
-        CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
+        Assert.AreEqual(expectedSolution, solution);
     }
 
     private static void TestSingleUnsolvable(Service service, Entry entry)

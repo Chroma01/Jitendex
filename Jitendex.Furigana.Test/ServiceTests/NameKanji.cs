@@ -52,7 +52,7 @@ public class NameKanji : ServiceTest
     public void TestSolvable()
     {
         Assert.IsNotNull(_nameSolution);
-        CollectionAssert.AreEqual(_expectedSolution.Parts, _nameSolution.Parts);
+        Assert.AreEqual(_expectedSolution, _nameSolution);
     }
 
     [TestMethod]
