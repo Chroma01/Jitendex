@@ -29,22 +29,21 @@ internal class KanjiFormSlice
     private readonly int _sliceStart;
     private readonly int _sliceEnd;
 
-    public ImmutableArray<Rune> PriorRunes { get => _entry.KanjiFormRunes[.._sliceStart]; }
-    public ImmutableArray<Rune> Runes { get => _entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
-    public ImmutableArray<Rune> RemainingRunes { get => _entry.KanjiFormRunes[_sliceEnd..]; }
+    public ImmutableArray<Rune> PriorRunes { get => _entry.NormalizedKanjiFormRunes[.._sliceStart]; }
+    public ImmutableArray<Rune> Runes { get => _entry.NormalizedKanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public ImmutableArray<Rune> RemainingRunes { get => _entry.NormalizedKanjiFormRunes[_sliceEnd..]; }
 
-    public ImmutableArray<Rune> RawRunes { get => _entry.RawKanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public ImmutableArray<Rune> RawRunes { get => _entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
 
     public Rune PreviousRune() => PriorRunes.LastOrDefault();
     public Rune NextRune() => RemainingRunes.FirstOrDefault();
 
     public bool ContainsFirstRune { get => _sliceStart == 0; }
-    public bool ContainsFinalRune { get => _sliceEnd == _entry.KanjiFormRunes.Length; }
+    public bool ContainsFinalRune { get => _sliceEnd == _entry.NormalizedKanjiFormRunes.Length; }
 
     public string Text() => string.Join(string.Empty, Runes);
     public string RawText() => string.Join(string.Empty, RawRunes);
     public string RemainingText() => string.Join(string.Empty, RemainingRunes);
-    public string RemainingTextNormalized() => RemainingText().KatakanaToHiragana();
 
     public KanjiFormSlice(Entry entry, int sliceStart, int sliceEnd)
     {

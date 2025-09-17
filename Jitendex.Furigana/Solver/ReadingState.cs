@@ -74,10 +74,10 @@ internal class ReadingState
 
     public string? RegexReading(KanjiFormSlice kanjiFormSlice)
     {
-        var remainingKanjiFormTextNormalized = kanjiFormSlice.RemainingTextNormalized();
+        var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
 
-        var greedyMatch = Match("(.+)", remainingKanjiFormTextNormalized);
-        var lazyMatch = Match("(.+?)", remainingKanjiFormTextNormalized);
+        var greedyMatch = Match("(.+)", remainingKanjiFormText);
+        var lazyMatch = Match("(.+?)", remainingKanjiFormText);
 
         if (!greedyMatch.Success || !lazyMatch.Success)
         {

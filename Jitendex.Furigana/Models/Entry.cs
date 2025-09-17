@@ -26,10 +26,12 @@ namespace Jitendex.Furigana.Models;
 public abstract class Entry
 {
     public string KanjiFormText { get; }
+    internal ImmutableArray<Rune> KanjiFormRunes { get; }
+    internal ImmutableArray<Rune> NormalizedKanjiFormRunes { get; }
+
     public string ReadingText { get; }
     internal string NormalizedReadingText { get; }
-    internal ImmutableArray<Rune> RawKanjiFormRunes { get; }
-    internal ImmutableArray<Rune> KanjiFormRunes { get; }
+
 
     public Entry(string kanjiFormText, string readingText)
     {
@@ -41,56 +43,12 @@ public abstract class Entry
         }
 
         KanjiFormText = kanjiFormText;
+        KanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
+        NormalizedKanjiFormRunes = [.. KanjiFormRunes.IterationMarksToKanji()];
+
         ReadingText = readingText;
         NormalizedReadingText = readingText.KatakanaToHiragana();
-        RawKanjiFormRunes = [.. kanjiFormText.EnumerateRunes()];
-        KanjiFormRunes = [.. CreateKanjiFormRunes(RawKanjiFormRunes)];
     }
-
-    private static bool IsKanjiIterationCharacter(int c) => c switch
-    {
-        '々' or '〻' => true,
-        _ => false
-    };
-
-    private static Rune[] CreateKanjiFormRunes(ImmutableArray<Rune> rawRunes)
-    {
-        var runes = new Rune[rawRunes.Length];
-        var repeaterIndices = GetRepeaterIndices(rawRunes);
-
-        // Replace repeaters (々) and double repeaters (々々) with their respective kanji.
-        for (int i = 0; i < rawRunes.Length; i++)
-        {
-            if (i > 1 && repeaterIndices.Contains(i) && repeaterIndices.Contains(i + 1))
-            {
-                // Double repeater
-                runes[i] = runes[i - 2];
-                i++;
-                runes[i] = runes[i - 2];
-            }
-            else if (i > 0 && repeaterIndices.Contains(i))
-            {
-                // Single repeater
-                runes[i] = runes[i - 1];
-            }
-            else
-            {
-                // No repeater
-                runes[i] = rawRunes[i];
-            }
-        }
-        return runes;
-    }
-
-    private static ImmutableHashSet<int> GetRepeaterIndices(ImmutableArray<Rune> rawRunes) => rawRunes
-        .Select(static (rune, index) =>
-        (
-            IsRepeater: IsKanjiIterationCharacter(rune.Value),
-            Index: index
-        ))
-        .Where(static x => x.IsRepeater)
-        .Select(static x => x.Index)
-        .ToImmutableHashSet();
 
     public override abstract bool Equals(object? obj);
 

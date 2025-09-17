@@ -21,7 +21,7 @@ using Jitendex.Furigana.TextExtensions;
 namespace Jitendex.Furigana.Test.TextExtensionTests;
 
 [TestClass]
-public class KanaTransformationTest
+public class KanaTransformTest
 {
     private const string hiraTest = "Abc5゠ぁゖずほヷヸヹヺ・ーゝゞヿ";
     private const string kataTest = "Abc5゠ァヶズホヷヸヹヺ・ーヽヾヿ";
