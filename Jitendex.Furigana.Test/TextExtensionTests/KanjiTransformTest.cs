@@ -46,6 +46,9 @@ public class KanjiTransformTest
         ("一杯〻々", "一杯一杯"),
     ];
 
+    /// <summary>
+    /// Tests the <see cref="KanjiTransform.IterationMarksToKanji"/> extension method.
+    /// </summary>
     [TestMethod]
     public void Test()
     {

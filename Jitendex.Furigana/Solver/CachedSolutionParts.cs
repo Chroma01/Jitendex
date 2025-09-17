@@ -101,7 +101,8 @@ internal class CachedSolutionParts
             }
 
             var verbEnding = reading.Okurigana.Last();
-            if (GodanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
+            char? newEnding = GodanVerbEndingToMasuInflection(verbEnding);
+            if (newEnding is not null)
             {
                 var newReading = reading.Text[..^1] + newEnding;
                 readingSet.Add(newReading);
@@ -164,6 +165,19 @@ internal class CachedSolutionParts
         _ => false
     };
 
+    private static char? GodanVerbEndingToMasuInflection(char c) => c switch
+    {
+        'く' => 'き',
+        'ぐ' => 'ぎ',
+        'す' => 'し',
+        'ず' => 'じ',
+        'む' => 'み',
+        'る' => 'り',
+        'ぶ' => 'び',
+        'う' => 'い',
+        _ => null
+    };
+
     private static readonly FrozenDictionary<char, char[]> HiraganaToDiacriticForms = new Dictionary<char, char[]>
     {
         ['か'] = ['が'],
@@ -186,17 +200,5 @@ internal class CachedSolutionParts
         ['ふ'] = ['ぶ', 'ぷ'],
         ['へ'] = ['べ', 'ぺ'],
         ['ほ'] = ['ぼ', 'ぽ'],
-    }.ToFrozenDictionary();
-
-    private static readonly FrozenDictionary<char, char> GodanVerbEndingToMasuInflection = new Dictionary<char, char>
-    {
-        ['く'] = 'き',
-        ['ぐ'] = 'ぎ',
-        ['す'] = 'し',
-        ['ず'] = 'じ',
-        ['む'] = 'み',
-        ['る'] = 'り',
-        ['ぶ'] = 'び',
-        ['う'] = 'い',
     }.ToFrozenDictionary();
 }
