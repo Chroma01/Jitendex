@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Models;
@@ -102,7 +101,7 @@ internal class CachedSolutionParts
 
             var verbEnding = reading.Okurigana.Last();
             char? newEnding = GodanVerbEndingToMasuInflection(verbEnding);
-            if (newEnding is not null)
+            if (newEnding != default)
             {
                 var newReading = reading.Text[..^1] + newEnding;
                 readingSet.Add(newReading);
@@ -149,12 +148,9 @@ internal class CachedSolutionParts
     {
         foreach (var reading in readings)
         {
-            if (HiraganaToDiacriticForms.TryGetValue(reading.First(), out char[]? rendakuChars))
+            foreach (var rendakuChar in HiraganaToRendaku(reading.First()))
             {
-                foreach (var rendakuChar in rendakuChars)
-                {
-                    yield return rendakuChar + reading[1..];
-                }
+                yield return rendakuChar + reading[1..];
             }
         }
     }
@@ -165,7 +161,7 @@ internal class CachedSolutionParts
         _ => false
     };
 
-    private static char? GodanVerbEndingToMasuInflection(char c) => c switch
+    private static char GodanVerbEndingToMasuInflection(char c) => c switch
     {
         'く' => 'き',
         'ぐ' => 'ぎ',
@@ -175,30 +171,31 @@ internal class CachedSolutionParts
         'る' => 'り',
         'ぶ' => 'び',
         'う' => 'い',
-        _ => null
+        _ => default
     };
 
-    private static readonly FrozenDictionary<char, char[]> HiraganaToDiacriticForms = new Dictionary<char, char[]>
+    private static ImmutableArray<char> HiraganaToRendaku(char x) => x switch
     {
-        ['か'] = ['が'],
-        ['き'] = ['ぎ'],
-        ['く'] = ['ぐ'],
-        ['け'] = ['げ'],
-        ['こ'] = ['ご'],
-        ['さ'] = ['ざ'],
-        ['し'] = ['じ'],
-        ['す'] = ['ず'],
-        ['せ'] = ['ぜ'],
-        ['そ'] = ['ぞ'],
-        ['た'] = ['だ'],
-        ['ち'] = ['ぢ', 'じ'],
-        ['つ'] = ['づ', 'ず'],
-        ['て'] = ['で'],
-        ['と'] = ['ど'],
-        ['は'] = ['ば', 'ぱ'],
-        ['ひ'] = ['び', 'ぴ'],
-        ['ふ'] = ['ぶ', 'ぷ'],
-        ['へ'] = ['べ', 'ぺ'],
-        ['ほ'] = ['ぼ', 'ぽ'],
-    }.ToFrozenDictionary();
+        'か' => ['が'],
+        'き' => ['ぎ'],
+        'く' => ['ぐ'],
+        'け' => ['げ'],
+        'こ' => ['ご'],
+        'さ' => ['ざ'],
+        'し' => ['じ'],
+        'す' => ['ず'],
+        'せ' => ['ぜ'],
+        'そ' => ['ぞ'],
+        'た' => ['だ'],
+        'ち' => ['ぢ', 'じ'],
+        'つ' => ['づ', 'ず'],
+        'て' => ['で'],
+        'と' => ['ど'],
+        'は' => ['ば', 'ぱ'],
+        'ひ' => ['び', 'ぴ'],
+        'ふ' => ['ぶ', 'ぷ'],
+        'へ' => ['べ', 'ぺ'],
+        'ほ' => ['ぼ', 'ぽ'],
+        _ => []
+    };
 }
