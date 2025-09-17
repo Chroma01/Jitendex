@@ -35,25 +35,24 @@ internal class SolutionBuilder
 
     public string KanjiFormText() => new(_parts.SelectMany(static x => x.BaseText).ToArray());
     public string ReadingText() => new(_parts.SelectMany(static x => x.Furigana ?? x.BaseText).ToArray());
-    public string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
+    private string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
     public int ReadingTextLength() => ReadingText().Length;
 
     public void Add(Solution.Part part) => _parts.Add(part);
     public ImmutableArray<Solution.Part> ToParts() => [.. _parts];
 
-    public Solution? ToSolution(Entry entry) => !IsValid(entry) ? null :
-        new Solution
-        {
-            Entry = entry,
-            Parts = NormalizedParts(),
-        };
+    public Solution? ToSolution(Entry entry) => !IsValid(entry) ? null : new Solution
+    {
+        Entry = entry,
+        Parts = NormalizedParts(),
+    };
 
     /// <summary>
     /// Determine if the parts contained within this builder are valid for the given entry.
     /// </summary>
     /// <remarks>
     /// Solutions may be valid even if they do not contain furigana for every non-kana rune
-    /// in the entry's "Kanji Form Text" data. This is by design to allow for solutions to
+    /// in the entry's <see cref="Entry.KanjiFormText"/> property. This is by design to allow for solutions to
     /// entries containing punctuation.
     /// <list type="bullet">
     /// <item>ブルータス、お[前|まえ]もか</item>
