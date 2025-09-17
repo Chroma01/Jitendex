@@ -26,10 +26,8 @@ namespace Jitendex.Furigana.Test.ServiceTests;
 /// Tests for equal-length problems belong in the <see cref="EqualLengthTexts"/> class.
 /// </remarks>
 [TestClass]
-public class KanaBorderedKanji
+public class KanaBorderedKanji : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private static readonly SolvableData _data =
     [
         // Suffixed kanji
@@ -64,6 +62,6 @@ public class KanaBorderedKanji
         {
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(DefaultService, _data);
     }
 }

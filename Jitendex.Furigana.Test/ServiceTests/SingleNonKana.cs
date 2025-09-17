@@ -19,10 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class SingleNonKana
+public class SingleNonKana : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private static readonly SolvableData _data =
     [
         // Single kanji
@@ -37,6 +35,6 @@ public class SingleNonKana
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(DefaultService, _data);
     }
 }

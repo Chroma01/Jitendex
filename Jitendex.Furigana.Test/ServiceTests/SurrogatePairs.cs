@@ -19,10 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class SurrogatePairs
+public class SurrogatePairs : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private static readonly SolvableData _data =
     [
         ("𩺊", "あら", "[𩺊|あら]"),
@@ -46,6 +44,6 @@ public class SurrogatePairs
             Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
             Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
         }
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(DefaultService, _data);
     }
 }

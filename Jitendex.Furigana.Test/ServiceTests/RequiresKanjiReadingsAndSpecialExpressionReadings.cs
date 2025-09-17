@@ -21,7 +21,7 @@ using Jitendex.Furigana.Models;
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class RequiresKanjiReadingsAndSpecialExpressions
+public class RequiresKanjiReadingsAndSpecialExpressions : ServiceTest
 {
     private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji(new()
     {
@@ -86,6 +86,6 @@ public class RequiresKanjiReadingsAndSpecialExpressions
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(_service, _data);
     }
 }

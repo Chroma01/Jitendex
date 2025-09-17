@@ -21,7 +21,7 @@ using Jitendex.Furigana.Models;
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class NameKanji
+public class NameKanji : ServiceTest
 {
     private static readonly IEnumerable<JapaneseCharacter> _vocabKanji = ResourceMethods.VocabKanji(new()
     {

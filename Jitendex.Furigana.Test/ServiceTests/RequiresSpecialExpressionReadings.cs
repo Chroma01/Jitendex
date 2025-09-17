@@ -21,7 +21,7 @@ using Jitendex.Furigana.Models;
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class RequiresSpecialExpressionReadings
+public class RequiresSpecialExpressionReadings : ServiceTest
 {
     private static readonly IEnumerable<SpecialExpression> _specialExpressions = ResourceMethods.SpecialExpressions(new()
     {
@@ -55,18 +55,18 @@ public class RequiresSpecialExpressionReadings
 
     private static readonly UnsolvableData _unsolvableData =
     [
-        ("発条仕掛け", "はつじょうじかけ", 0),
+        ("発条仕掛け", "はつじょうじかけ"),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(_service, _data);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_service, _unsolvableData);
+        ServiceTest.TestUnsolvable(_service, _unsolvableData);
     }
 }

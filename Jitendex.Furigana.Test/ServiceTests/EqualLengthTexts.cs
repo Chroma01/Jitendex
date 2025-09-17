@@ -19,10 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class EqualLengthTexts
+public class EqualLengthTexts : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private static readonly SolvableData _data =
     [
         ("木の葉", "このは", "[木|こ]の[葉|は]"),
@@ -44,6 +42,6 @@ public class EqualLengthTexts
         {
             Assert.AreEqual(kanjiFormText.Length, readingText.Length);
         }
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(DefaultService, _data);
     }
 }

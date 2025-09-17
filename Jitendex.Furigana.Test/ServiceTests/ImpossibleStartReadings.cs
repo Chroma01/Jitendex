@@ -27,10 +27,8 @@ namespace Jitendex.Furigana.Test.ServiceTests;
 /// we are able to solve these problems without any prior knowledge of usual kanji readings.
 /// </remarks>
 [TestClass]
-public class ImpossibleStartReadings
+public class ImpossibleStartReadings : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private static readonly SolvableData _data =
     [
         // っ
@@ -73,6 +71,6 @@ public class ImpossibleStartReadings
         {
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(DefaultService, _data);
     }
 }

@@ -27,7 +27,7 @@ namespace Jitendex.Furigana.Test.ServiceTests;
 /// [好|すき]き[嫌|ら]い and [好|す]き[嫌|きら]い are both valid solutions according to the parameters of the problem.
 /// </remarks>
 [TestClass]
-public class AmbiguousKanjiReadings
+public class AmbiguousKanjiReadings : ServiceTest
 {
     private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji(new()
     {
@@ -39,12 +39,12 @@ public class AmbiguousKanjiReadings
 
     private static readonly UnsolvableData _data =
     [
-        ("好き嫌い", "すききらい", 2),
+        ("好き嫌い", "すききらい"),
     ];
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_service, _data);
+        TestUnsolvable(_service, _data);
     }
 }

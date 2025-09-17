@@ -19,10 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class EmptyOrWhitespace
+public class EmptyOrWhitespace : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private const string Empty = "";
     private const string OneSpace = " ";
     private const string TwoSpaces = "  ";
@@ -43,30 +41,30 @@ public class EmptyOrWhitespace
 
     private static readonly UnsolvableData _unsolvableData =
     [
-        (Empty, OneSpace, 0),
-        (Empty, TwoSpaces, 0),
-        (Empty, ThreeSpaces, 0),
+        (Empty, OneSpace),
+        (Empty, TwoSpaces),
+        (Empty, ThreeSpaces),
 
-        (OneSpace, Empty, 0),
+        (OneSpace, Empty),
 
-        (TwoSpaces, Empty, 0),
-        (TwoSpaces, OneSpace, 0),
-        (TwoSpaces, ThreeSpaces, 0),
+        (TwoSpaces, Empty),
+        (TwoSpaces, OneSpace),
+        (TwoSpaces, ThreeSpaces),
 
-        (ThreeSpaces, Empty, 0),
-        (ThreeSpaces, OneSpace, 0),
-        (ThreeSpaces, TwoSpaces, 0),
+        (ThreeSpaces, Empty),
+        (ThreeSpaces, OneSpace),
+        (ThreeSpaces, TwoSpaces),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_service, _solvableData);
+        TestSolvable(DefaultService, _solvableData);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_service, _unsolvableData);
+        TestUnsolvable(DefaultService, _unsolvableData);
     }
 }

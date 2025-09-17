@@ -19,10 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class RepeatedKanji
+public class RepeatedKanji : ServiceTest
 {
-    private static readonly Service _service = new([], []);
-
     private static readonly SolvableData _data =
     [
         // One kana per kanji
@@ -63,21 +61,21 @@ public class RepeatedKanji
     private static readonly UnsolvableData _unsolvableData =
     [
         // Non-kanji
-        ("々々", "ときどき", 0),
-        ("〇〇", "まるまる", 0),
-        ("ＡＡ", "アー", 0),
-        ("ＸＸ", "ダブル・エックス", 0),
+        ("々々", "ときどき"),
+        ("〇〇", "まるまる"),
+        ("ＡＡ", "アー"),
+        ("ＸＸ", "ダブル・エックス"),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_service, _data);
+        ServiceTest.TestSolvable(DefaultService, _data);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_service, _unsolvableData);
+        ServiceTest.TestUnsolvable(DefaultService, _unsolvableData);
     }
 }

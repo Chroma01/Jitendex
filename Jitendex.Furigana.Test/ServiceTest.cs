@@ -17,15 +17,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 global using SolvableData = System.Collections.Generic.IEnumerable<(string KanjiFormText, string ReadingText, string ExpectedSolutionText)>;
-global using UnsolvableData = System.Collections.Generic.IEnumerable<(string KanjiFormText, string ReadingText, int ExpectedSolutionCount)>;
+global using UnsolvableData = System.Collections.Generic.IEnumerable<(string KanjiFormText, string ReadingText)>;
 
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Test;
 
-internal static class SolverTestMethods
+public class ServiceTest
 {
-    public static void TestSolvable(Service service, SolvableData data)
+    protected static Service DefaultService { get; } = new([], []);
+
+    protected static void TestSolvable(Service service, SolvableData data)
     {
         foreach (var datum in data)
         {
@@ -34,12 +36,12 @@ internal static class SolverTestMethods
         }
     }
 
-    public static void TestUnsolvable(Service service, UnsolvableData data)
+    protected static void TestUnsolvable(Service service, UnsolvableData data)
     {
         foreach (var datum in data)
         {
             var entry = new VocabEntry(datum.KanjiFormText, datum.ReadingText);
-            TestSingleUnsolvable(service, entry, datum.ExpectedSolutionCount);
+            TestSingleUnsolvable(service, entry);
         }
     }
 
@@ -52,7 +54,7 @@ internal static class SolverTestMethods
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    private static void TestSingleUnsolvable(Service service, Entry entry, int expectedSolutionCount)
+    private static void TestSingleUnsolvable(Service service, Entry entry)
     {
         var solution = service.Solve(entry);
         Assert.IsNull(solution, $"\n\n{entry}\n");
