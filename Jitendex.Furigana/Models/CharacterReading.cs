@@ -34,6 +34,7 @@ public class CharacterReading
     public Yomi Yomi { get; }
     public string Stem { get; }
     public string? Okurigana { get; }
+    public string Text { get => Stem + (Okurigana ?? string.Empty); }
 
     public CharacterReading(string text)
     {

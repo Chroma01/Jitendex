@@ -39,7 +39,6 @@ internal class CachedSolutionParts
         var readings = GetReadings(entry, kanjiFormSlice);
         var baseText = kanjiFormSlice.RawText();
 
-
         foreach (var reading in readings)
         {
             if (!readingState.RemainingTextNormalized.StartsWith(reading))
@@ -95,7 +94,7 @@ internal class CachedSolutionParts
             }
 
             var sum = new StringBuilder(reading.Stem);
-            foreach (var okuriganaChar in reading.Okurigana)
+            foreach (var okuriganaChar in reading.Okurigana[..^1])
             {
                 sum.Append(okuriganaChar);
                 readingSet.Add(sum.ToString());
@@ -104,8 +103,12 @@ internal class CachedSolutionParts
             var verbEnding = reading.Okurigana.Last();
             if (GodanVerbEndingToMasuInflection.TryGetValue(verbEnding, out char newEnding))
             {
-                var newReading = reading.Stem + reading.Okurigana[..^1] + newEnding;
+                var newReading = reading.Text[..^1] + newEnding;
                 readingSet.Add(newReading);
+            }
+            else
+            {
+                readingSet.Add(reading.Text);
             }
         }
 
