@@ -64,14 +64,20 @@ internal class IterationSolver
     private List<SolutionBuilder> IterateSolutions(Entry entry, List<SolutionBuilder> partialSolutions, KanjiFormSlice kanjiFormSlice)
     {
         var solutions = new List<SolutionBuilder>();
-        var sliceReadingCache = new SliceReadingCache(entry, kanjiFormSlice, _readingCache);
+
+        var cachedReadings = _readingCache.GetReadings(entry, kanjiFormSlice);
+        var cachedSolutionParts = new CachedSolutionParts(cachedReadings);
+        var defaultSolutionParts = new DefaultSolutionParts();
 
         foreach (var partialSolution in partialSolutions)
         {
-            var readingState = new ReadingState(entry, partialSolution.ReadingTextLength());
             var previousSolutionParts = partialSolution.ToParts();
 
-            foreach (var nextSolutionParts in sliceReadingCache.EnumerateParts(readingState))
+            var readingState = new ReadingState(entry, partialSolution.ReadingTextLength());
+            var foo = cachedSolutionParts.Enumerate(kanjiFormSlice, readingState);
+            var bar = foo.Any() ? foo : defaultSolutionParts.Enumerate(kanjiFormSlice, readingState);
+
+            foreach (var nextSolutionParts in bar)
             {
                 solutions.Add
                 (
@@ -79,6 +85,7 @@ internal class IterationSolver
                 );
             }
         }
+
         return solutions;
     }
 }
