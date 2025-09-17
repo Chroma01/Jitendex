@@ -22,6 +22,10 @@ namespace Jitendex.Furigana.TextExtensions;
 
 public static class KanaComparison
 {
+    public static bool IsKana(this char c) => IsKana((int)c);
+    public static bool IsHiragana(this char c) => IsHiragana((int)c);
+    public static bool IsKatakana(this char c) => IsKatakana((int)c);
+
     public static bool IsKana(this Rune c) => IsKana(c.Value);
     public static bool IsHiragana(this Rune c) => IsHiragana(c.Value);
     public static bool IsKatakana(this Rune c) => IsKatakana(c.Value);
@@ -29,10 +33,6 @@ public static class KanaComparison
     public static bool IsKanaOrDefault(this Rune c) => c.IsKana() || c == default;
     public static bool IsHiraganaOrDefault(this Rune c) => c.IsHiragana() || c == default;
     public static bool IsKatakanaOrDefault(this Rune c) => c.IsKatakana() || c == default;
-
-    public static bool IsKana(this char c) => IsKana((int)c);
-    public static bool IsHiragana(this char c) => IsHiragana((int)c);
-    public static bool IsKatakana(this char c) => IsKatakana((int)c);
 
     public static bool IsAllKana(this string text) => text.All(IsKana);
     public static bool IsAllHiragana(this string text) => text.All(IsHiragana);
@@ -43,6 +43,8 @@ public static class KanaComparison
     public static bool AreAllKatakana(this IEnumerable<Rune> runes) => runes.All(IsKatakana);
 
     public static bool IsKanaEquivalent(this char c, char comparison) =>
+        c.KatakanaToHiragana() == comparison.KatakanaToHiragana();
+    public static bool IsKanaEquivalent(this Rune c, Rune comparison) =>
         c.KatakanaToHiragana() == comparison.KatakanaToHiragana();
     public static bool IsKanaEquivalent(this string text, string comparisonText) =>
         text.KatakanaToHiragana() == comparisonText.KatakanaToHiragana();
