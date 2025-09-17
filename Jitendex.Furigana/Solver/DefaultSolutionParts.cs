@@ -79,8 +79,7 @@ internal class DefaultSolutionParts
         {
             return minimumReading;
         }
-
-        if (currentRune.ToString() == minimumReading)
+        else if (currentRune.ToString() == minimumReading)
         {
             return minimumReading;
         }
