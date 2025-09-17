@@ -16,35 +16,33 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.Test.SolverTests;
+namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class SurrogatePairs
+public class EqualLengthTexts
 {
     private static readonly Service _service = new([], []);
 
     private static readonly SolvableData _data =
     [
-        ("𩺊", "あら", "[𩺊|あら]"),
+        ("木の葉", "このは", "[木|こ]の[葉|は]"),
+        ("こ之は", "このは", "こ[之|の]は"),
+        ("ぜんまい仕かけ", "ぜんまいじかけ", "ぜんまい[仕|じ]かけ"),
+        ("余所見", "よそみ", "[余|よ][所|そ][見|み]"),
+        ("御坊っちゃん", "おぼっちゃん", "[御|お][坊|ぼ]っちゃん"),
 
-        // 1 furigana character
-        ("𠮟かり", "しかり", "[𠮟|し]かり"),
-
-        // 2 furigana characters
-        ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]"),
-
-        // Repeated
-        ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
-        ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
+        // Don't capture the impossible start characters (っ, ん, etc.) if not followed by a kanji
+        ("真っさお", "まっさお", "[真|ま]っさお"),
+        ("を呼んで", "をよんで", "を[呼|よ]んで"),
+        ("田ん圃", "たんぼ", "[田|た]ん[圃|ぼ]"),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
-        foreach (var (kanjiFormText, readingText, expectedResultText) in _data)
+        foreach (var (kanjiFormText, readingText, _) in _data)
         {
-            Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
-            Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
+            Assert.AreEqual(kanjiFormText.Length, readingText.Length);
         }
         SolverTestMethods.TestSolvable(_service, _data);
     }

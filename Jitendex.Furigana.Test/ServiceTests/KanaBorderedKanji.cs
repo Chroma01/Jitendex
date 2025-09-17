@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.Test.SolverTests;
+namespace Jitendex.Furigana.Test.ServiceTests;
 
 /// <summary>
 /// Tests problems in which a single kanji is bordered by either kana or nothing on both sides.

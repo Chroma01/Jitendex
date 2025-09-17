@@ -18,33 +18,35 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Test.SolverTests;
+namespace Jitendex.Furigana.Test.ServiceTests;
 
-/// <summary>
-/// Tests a situation in which there is no unique correct solution in principle.
-/// </summary>
-/// <remarks>
-/// [好|すき]き[嫌|ら]い and [好|す]き[嫌|きら]い are both valid solutions according to the parameters of the problem.
-/// </remarks>
 [TestClass]
-public class AmbiguousKanjiReadings
+public class WeirdKanaReadings
 {
     private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji(new()
     {
-        ["好"] = ["コウ", "この.む", "す.く", "よ.い", "い.い"],
-        ["嫌"] = ["ケン", "ゲン", "きら.う", "きら.い", "いや"],
+        ["一"] = ["イチ", "イツ", "ひと-", "ひと.つ"],
+        ["ヶ"] = ["か", "が"],
+        ["ヵ"] = ["か", "が"],
+        ["ケ"] = ["か", "が"],
+        ["月"] = ["ゲツ", "ガツ", "つき"],
     });
 
     private static readonly Service _service = new(_kanji, []);
 
-    private static readonly UnsolvableData _data =
+    private static readonly SolvableData _data =
     [
-        ("好き嫌い", "すききらい", 2),
+        ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
+        ("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]"),
+        ("一ケ月", "いっかげつ", "[一|いっ][ケ|か][月|げつ]"),
+
+        ("一ケ月", "いっけげつ", "[一|いっ]ケ[月|げつ]"),
+        ("一ケ月", "いっケげつ", "[一|いっ]ケ[月|げつ]"),
     ];
 
     [TestMethod]
-    public void TestUnsolvable()
+    public void TestSolvable()
     {
-        SolverTestMethods.TestUnsolvable(_service, _data);
+        SolverTestMethods.TestSolvable(_service, _data);
     }
 }

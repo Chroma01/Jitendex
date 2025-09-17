@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Test.SolverTests;
+namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
 public class RequiresKanjiReadingsAndSpecialExpressions

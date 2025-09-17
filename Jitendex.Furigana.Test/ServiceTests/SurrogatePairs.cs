@@ -16,37 +16,36 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models;
-
-namespace Jitendex.Furigana.Test.SolverTests;
+namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class WeirdKanaReadings
+public class SurrogatePairs
 {
-    private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji(new()
-    {
-        ["一"] = ["イチ", "イツ", "ひと-", "ひと.つ"],
-        ["ヶ"] = ["か", "が"],
-        ["ヵ"] = ["か", "が"],
-        ["ケ"] = ["か", "が"],
-        ["月"] = ["ゲツ", "ガツ", "つき"],
-    });
-
-    private static readonly Service _service = new(_kanji, []);
+    private static readonly Service _service = new([], []);
 
     private static readonly SolvableData _data =
     [
-        ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
-        ("一ヵ月", "いっかげつ", "[一|いっ][ヵ|か][月|げつ]"),
-        ("一ケ月", "いっかげつ", "[一|いっ][ケ|か][月|げつ]"),
+        ("𩺊", "あら", "[𩺊|あら]"),
 
-        ("一ケ月", "いっけげつ", "[一|いっ]ケ[月|げつ]"),
-        ("一ケ月", "いっケげつ", "[一|いっ]ケ[月|げつ]"),
+        // 1 furigana character
+        ("𠮟かり", "しかり", "[𠮟|し]かり"),
+
+        // 2 furigana characters
+        ("しょう𤸎", "しょうかち", "しょう[𤸎|かち]"),
+
+        // Repeated
+        ("𩺊𩺊", "あらあら", "[𩺊|あら][𩺊|あら]"),
+        ("𩺊々", "あらあら", "[𩺊|あら][々|あら]"),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
+        foreach (var (kanjiFormText, readingText, expectedResultText) in _data)
+        {
+            Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
+            Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
+        }
         SolverTestMethods.TestSolvable(_service, _data);
     }
 }

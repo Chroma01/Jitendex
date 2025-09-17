@@ -16,34 +16,23 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.Test.SolverTests;
+namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
-public class EqualLengthTexts
+public class EntirelyKana
 {
     private static readonly Service _service = new([], []);
 
     private static readonly SolvableData _data =
     [
-        ("木の葉", "このは", "[木|こ]の[葉|は]"),
-        ("こ之は", "このは", "こ[之|の]は"),
-        ("ぜんまい仕かけ", "ぜんまいじかけ", "ぜんまい[仕|じ]かけ"),
-        ("余所見", "よそみ", "[余|よ][所|そ][見|み]"),
-        ("御坊っちゃん", "おぼっちゃん", "[御|お][坊|ぼ]っちゃん"),
-
-        // Don't capture the impossible start characters (っ, ん, etc.) if not followed by a kanji
-        ("真っさお", "まっさお", "[真|ま]っさお"),
-        ("を呼んで", "をよんで", "を[呼|よ]んで"),
-        ("田ん圃", "たんぼ", "[田|た]ん[圃|ぼ]"),
+        ("あ", "あ", "あ"),
+        ("あい", "あい", "あい"),
+        ("あいうえお", "あいうえお", "あいうえお"),
     ];
 
     [TestMethod]
     public void TestSolvable()
     {
-        foreach (var (kanjiFormText, readingText, _) in _data)
-        {
-            Assert.AreEqual(kanjiFormText.Length, readingText.Length);
-        }
         SolverTestMethods.TestSolvable(_service, _data);
     }
 }
