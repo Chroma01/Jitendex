@@ -32,7 +32,6 @@ public abstract class Entry
     public string ReadingText { get; }
     internal string NormalizedReadingText { get; }
 
-
     public Entry(string kanjiFormText, string readingText)
     {
         if (readingText.Any(char.IsSurrogate))
