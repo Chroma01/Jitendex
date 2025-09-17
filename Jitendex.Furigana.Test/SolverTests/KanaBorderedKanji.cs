@@ -16,8 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Solver;
-
 namespace Jitendex.Furigana.Test.SolverTests;
 
 /// <summary>
@@ -30,7 +28,7 @@ namespace Jitendex.Furigana.Test.SolverTests;
 [TestClass]
 public class KanaBorderedKanji
 {
-    private static readonly IterationSolver _solver = new([], []);
+    private static readonly Service _service = new([], []);
 
     private static readonly SolvableData _data =
     [
@@ -66,6 +64,6 @@ public class KanaBorderedKanji
         {
             Assert.AreNotEqual(kanjiFormText.Length, readingText.Length);
         }
-        SolverTestMethods.TestSolvable(_solver, _data);
+        SolverTestMethods.TestSolvable(_service, _data);
     }
 }

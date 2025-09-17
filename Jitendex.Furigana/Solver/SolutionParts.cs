@@ -17,39 +17,33 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class CachedSolutionParts
+internal class SolutionParts
 {
-    private readonly ReadingCache _readingCache;
+    private readonly CachedSolutionParts _cachedParts;
+    private readonly DefaultSolutionParts _defaultParts;
 
-    public CachedSolutionParts(ReadingCache readingCache)
+    public SolutionParts(CachedSolutionParts cachedParts, DefaultSolutionParts defaultParts)
     {
-        _readingCache = readingCache;
+        _cachedParts = cachedParts;
+        _defaultParts = defaultParts;
     }
 
     public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
-        var baseText = kanjiFormSlice.RawText();
-        var cachedReadings = _readingCache.GetReadings(entry, kanjiFormSlice);
+        var enumeratedCachedParts =
+            _cachedParts.Enumerate(entry, kanjiFormSlice, readingState);
 
-        foreach (var reading in cachedReadings)
+        var enumeratedNextParts =
+            enumeratedCachedParts.Any() ?
+            enumeratedCachedParts :
+            _defaultParts.Enumerate(kanjiFormSlice, readingState);
+
+        foreach(var nextParts in enumeratedNextParts)
         {
-            if (!readingState.RemainingTextNormalized.StartsWith(reading))
-            {
-                continue;
-            }
-            else if (baseText.IsKanaEquivalent(reading))
-            {
-                yield return [new(baseText, null)];
-            }
-            else
-            {
-                var furigana = readingState.RemainingText[..reading.Length];
-                yield return [new(baseText, furigana)];
-            }
+            yield return nextParts;
         }
     }
 }

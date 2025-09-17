@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test.SolverTests;
 
@@ -34,7 +33,7 @@ public class RequiresSpecialExpressionReadings
         ["狗母魚"] = ["えそ"],
     });
 
-    private static readonly IterationSolver _solver = new([], _specialExpressions);
+    private static readonly Service _service = new([], _specialExpressions);
 
     private static readonly SolvableData _data =
     [
@@ -62,12 +61,12 @@ public class RequiresSpecialExpressionReadings
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_solver, _data);
+        SolverTestMethods.TestSolvable(_service, _data);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_solver, _unsolvableData);
+        SolverTestMethods.TestUnsolvable(_service, _unsolvableData);
     }
 }

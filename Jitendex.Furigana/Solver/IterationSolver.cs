@@ -22,11 +22,11 @@ namespace Jitendex.Furigana.Solver;
 
 internal class IterationSolver
 {
-    private readonly ReadingCache _readingCache;
+    private readonly SolutionParts _solutionParts;
 
-    public IterationSolver(IEnumerable<JapaneseCharacter> japaneseCharacters, IEnumerable<SpecialExpression> specialExpressions)
+    public IterationSolver(SolutionParts solutionParts)
     {
-        _readingCache = new ReadingCache(japaneseCharacters, specialExpressions);
+        _solutionParts = solutionParts;
     }
 
     public IEnumerable<Solution> Solve(Entry entry)
@@ -65,23 +65,16 @@ internal class IterationSolver
     {
         var solutions = new List<SolutionBuilder>();
 
-        var cachedReadings = _readingCache.GetReadings(entry, kanjiFormSlice);
-        var cachedSolutionParts = new CachedSolutionParts(cachedReadings);
-        var defaultSolutionParts = new DefaultSolutionParts();
-
         foreach (var partialSolution in partialSolutions)
         {
-            var previousSolutionParts = partialSolution.ToParts();
-
+            var previousParts = partialSolution.ToParts();
             var readingState = new ReadingState(entry, partialSolution.ReadingTextLength());
-            var foo = cachedSolutionParts.Enumerate(kanjiFormSlice, readingState);
-            var bar = foo.Any() ? foo : defaultSolutionParts.Enumerate(kanjiFormSlice, readingState);
 
-            foreach (var nextSolutionParts in bar)
+            foreach (var nextParts in _solutionParts.Enumerate(entry, kanjiFormSlice, readingState))
             {
                 solutions.Add
                 (
-                    new SolutionBuilder(previousSolutionParts.AddRange(nextSolutionParts))
+                    new SolutionBuilder(previousParts.AddRange(nextParts))
                 );
             }
         }

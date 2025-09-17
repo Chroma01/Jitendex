@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test.SolverTests;
 
@@ -36,7 +35,7 @@ public class AmbiguousKanjiReadings
         ["嫌"] = ["ケン", "ゲン", "きら.う", "きら.い", "いや"],
     });
 
-    private static readonly IterationSolver _solver = new(_kanji, []);
+    private static readonly Service _service = new(_kanji, []);
 
     private static readonly UnsolvableData _data =
     [
@@ -46,6 +45,6 @@ public class AmbiguousKanjiReadings
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_solver, _data);
+        SolverTestMethods.TestUnsolvable(_service, _data);
     }
 }

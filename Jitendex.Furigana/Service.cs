@@ -27,7 +27,12 @@ public class Service
 
     public Service(IEnumerable<JapaneseCharacter> japaneseCharacters, IEnumerable<SpecialExpression> specialExpressions)
     {
-        _solver = new(japaneseCharacters, specialExpressions);
+        var readingCache = new ReadingCache(japaneseCharacters, specialExpressions);
+        var cachedSolutionParts = new CachedSolutionParts(readingCache);
+        var defaultSolutionParts = new DefaultSolutionParts();
+        var solutionParts = new SolutionParts(cachedSolutionParts, defaultSolutionParts);
+
+        _solver = new IterationSolver(solutionParts);
     }
 
     public Solution? Solve(Entry entry)

@@ -16,14 +16,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Solver;
-
 namespace Jitendex.Furigana.Test.SolverTests;
 
 [TestClass]
 public class EmptyOrWhitespace
 {
-    private static readonly IterationSolver _solver = new([], []);
+    private static readonly Service _service = new([], []);
 
     private const string Empty = "";
     private const string OneSpace = " ";
@@ -63,12 +61,12 @@ public class EmptyOrWhitespace
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_solver, _solvableData);
+        SolverTestMethods.TestSolvable(_service, _solvableData);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_solver, _unsolvableData);
+        SolverTestMethods.TestUnsolvable(_service, _unsolvableData);
     }
 }

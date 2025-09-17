@@ -20,43 +20,41 @@ global using SolvableData = System.Collections.Generic.IEnumerable<(string Kanji
 global using UnsolvableData = System.Collections.Generic.IEnumerable<(string KanjiFormText, string ReadingText, int ExpectedSolutionCount)>;
 
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test;
 
 internal static class SolverTestMethods
 {
-    public static void TestSolvable(IterationSolver solver, SolvableData data)
+    public static void TestSolvable(Service service, SolvableData data)
     {
         foreach (var datum in data)
         {
             var entry = new VocabEntry(datum.KanjiFormText, datum.ReadingText);
-            TestSingleSolvable(solver, entry, datum.ExpectedSolutionText);
+            TestSingleSolvable(service, entry, datum.ExpectedSolutionText);
         }
     }
 
-    public static void TestUnsolvable(IterationSolver solver, UnsolvableData data)
+    public static void TestUnsolvable(Service service, UnsolvableData data)
     {
         foreach (var datum in data)
         {
             var entry = new VocabEntry(datum.KanjiFormText, datum.ReadingText);
-            TestSingleUnsolvable(solver, entry, datum.ExpectedSolutionCount);
+            TestSingleUnsolvable(service, entry, datum.ExpectedSolutionCount);
         }
     }
 
-    private static void TestSingleSolvable(IterationSolver solver, Entry entry, string expectedSolutionText)
+    private static void TestSingleSolvable(Service service, Entry entry, string expectedSolutionText)
     {
-        var solutions = solver.Solve(entry).ToList();
-        Assert.HasCount(1, solutions, $"\n\n{entry}\n");
+        var solution = service.Solve(entry);
+        Assert.IsNotNull(solution, $"\n\n{entry}\n");
 
-        var solution = solutions.First();
         var expectedSolution = TextSolution.Parse(expectedSolutionText, entry);
         CollectionAssert.AreEqual(expectedSolution.Parts, solution.Parts);
     }
 
-    private static void TestSingleUnsolvable(IterationSolver solver, Entry entry, int expectedSolutionCount)
+    private static void TestSingleUnsolvable(Service service, Entry entry, int expectedSolutionCount)
     {
-        var solutions = solver.Solve(entry);
-        Assert.AreEqual(expectedSolutionCount, solutions.Count(), $"\n\n{entry}\n");
+        var solution = service.Solve(entry);
+        Assert.IsNull(solution, $"\n\n{entry}\n");
     }
 }

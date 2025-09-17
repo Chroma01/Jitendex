@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test.SolverTests;
 
@@ -50,7 +49,7 @@ public class RequiresKanjiReadings
         ["脈"] = ["ミャク", "すじ",],
     });
 
-    private static readonly IterationSolver _solver = new(_kanji, []);
+    private static readonly Service _service = new(_kanji, []);
 
     private static readonly SolvableData _data =
     [
@@ -75,10 +74,10 @@ public class RequiresKanjiReadings
     [TestMethod]
     public void TestSolvable()
     {
-        SolverTestMethods.TestSolvable(_solver, _data);
+        SolverTestMethods.TestSolvable(_service, _data);
     }
 
-    private static readonly IterationSolver _resourcelessSolver = new([], []);
+    private static readonly Service _resourcelessService = new([], []);
 
     private static readonly UnsolvableData _unsolvableData = _data
         .Select(static x => (x.Item1, x.Item2, 0))
@@ -87,6 +86,6 @@ public class RequiresKanjiReadings
     [TestMethod]
     public void TestUnsolvable()
     {
-        SolverTestMethods.TestUnsolvable(_resourcelessSolver, _unsolvableData);
+        SolverTestMethods.TestUnsolvable(_resourcelessService, _unsolvableData);
     }
 }

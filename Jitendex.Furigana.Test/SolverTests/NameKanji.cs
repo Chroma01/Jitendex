@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana.Test.SolverTests;
 
@@ -36,7 +35,7 @@ public class NameKanji
         ["藤"] = ["あ", "とう"],
     });
 
-    private static readonly IterationSolver _solver = new(_vocabKanji.Concat(_nameKanji), []);
+    private static readonly Service _service = new(_vocabKanji.Concat(_nameKanji), []);
 
     private const string _kanjiFormText = "佐藤";
     private const string _readingText = "さとう";
@@ -45,21 +44,19 @@ public class NameKanji
     private static readonly VocabEntry _vocabEntry = new(_kanjiFormText, _readingText);
     private static readonly NameEntry _nameEntry = new(_kanjiFormText, _readingText);
 
-    private static readonly IEnumerable<Solution> _vocabSolutions = _solver.Solve(_vocabEntry);
-    private static readonly IEnumerable<Solution> _nameSolutions = _solver.Solve(_nameEntry);
+    private static readonly Solution? _vocabSolution = _service.Solve(_vocabEntry);
+    private static readonly Solution? _nameSolution = _service.Solve(_nameEntry);
     private static readonly Solution _expectedSolution = TextSolution.Parse(_expectedSolutionText, _nameEntry);
 
     [TestMethod]
     public void TestSolvable()
     {
-        Assert.HasCount(1, _nameSolutions);
-
-        var nameSolution = _nameSolutions.First();
-        CollectionAssert.AreEqual(_expectedSolution.Parts, nameSolution.Parts);
+        Assert.IsNotNull(_nameSolution);
+        CollectionAssert.AreEqual(_expectedSolution.Parts, _nameSolution.Parts);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        Assert.HasCount(0, _vocabSolutions);
+        Assert.IsNull(_vocabSolution);
     }}
