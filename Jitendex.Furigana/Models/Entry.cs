@@ -53,8 +53,6 @@ public abstract class Entry
 
     public override abstract int GetHashCode();
 
-    public override string ToString()
-    {
-        return $"{GetType()}: {ReadingText}【{KanjiFormText}】";
-    }
+    public override string ToString() =>
+        $"{GetType()}: {ReadingText}【{KanjiFormText}】";
 }

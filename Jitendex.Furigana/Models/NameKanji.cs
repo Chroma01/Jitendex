@@ -22,7 +22,5 @@ namespace Jitendex.Furigana.Models;
 
 public class NameKanji : JapaneseCharacter
 {
-    public NameKanji(Rune value, IEnumerable<string> readings) : base(value, readings)
-    {
-    }
+    public NameKanji(Rune value, IEnumerable<string> readings) : base(value, readings) { }
 }

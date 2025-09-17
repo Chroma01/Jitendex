@@ -22,7 +22,5 @@ namespace Jitendex.Furigana.Models;
 
 public class VocabKanji : JapaneseCharacter
 {
-    public VocabKanji(Rune value, IEnumerable<string> readings) : base(value, readings)
-    {
-    }
+    public VocabKanji(Rune value, IEnumerable<string> readings) : base(value, readings) { }
 }

@@ -25,19 +25,21 @@ public static class KanjiTransform
     public static Rune[] IterationMarksToKanji(this IList<Rune> runes)
     {
         var normalizedRunes = new Rune[runes.Count];
-        var iterationMarkIndices = GetIterationMarkIndices(runes);
 
         // Replace iteration marks (々) and doubled iteration marks (々々) with their respective kanji.
         for (int i = 0; i < runes.Count; i++)
         {
-            if (i > 1 && iterationMarkIndices.Contains(i) && iterationMarkIndices.Contains(i + 1))
+            var currentRune = runes[i];
+            var nextRune = runes.ElementAtOrDefault(i + 1);
+
+            if (i > 1 && IsIterationMark(currentRune) && IsIterationMark(nextRune))
             {
                 // Double repeater
                 normalizedRunes[i] = normalizedRunes[i - 2];
                 i++;
                 normalizedRunes[i] = normalizedRunes[i - 2];
             }
-            else if (i > 0 && iterationMarkIndices.Contains(i))
+            else if (i > 0 && IsIterationMark(currentRune))
             {
                 // Single repeater
                 normalizedRunes[i] = normalizedRunes[i - 1];
@@ -45,24 +47,14 @@ public static class KanjiTransform
             else
             {
                 // No repeater
-                normalizedRunes[i] = runes[i];
+                normalizedRunes[i] = currentRune;
             }
         }
 
         return normalizedRunes;
     }
 
-    private static HashSet<int> GetIterationMarkIndices(IEnumerable<Rune> rawRunes) => rawRunes
-        .Select(static (rune, index) =>
-        (
-            IsIterationMark: IsIterationMark(rune.Value),
-            Index: index
-        ))
-        .Where(static x => x.IsIterationMark)
-        .Select(static x => x.Index)
-        .ToHashSet();
-
-    private static bool IsIterationMark(int c) => c switch
+    private static bool IsIterationMark(Rune c) => c.Value switch
     {
         '々' or '〻' => true,
         _ => false

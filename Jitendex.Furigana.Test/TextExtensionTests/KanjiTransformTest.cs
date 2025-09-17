@@ -16,10 +16,14 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Test.TextExtensionTests;
 
+/// <summary>
+/// Tests the <see cref="KanjiTransform.IterationMarksToKanji"/> extension method.
+/// </summary>
 [TestClass]
 public class KanjiTransformTest
 {
@@ -44,24 +48,58 @@ public class KanjiTransformTest
         ("事〻物々", "事事物物"),
         ("一杯々〻", "一杯一杯"),
         ("一杯〻々", "一杯一杯"),
+
+        // Just for laughs
+        ("一杯々々々々", "一杯一杯一杯"),
     ];
 
     /// <summary>
-    /// Tests the <see cref="KanjiTransform.IterationMarksToKanji"/> extension method.
+    /// Pathological case.
     /// </summary>
-    [TestMethod]
-    public void Test()
-    {
-        foreach (var (kanjiFormText, expectedText) in _data)
-        {
-            var runes = kanjiFormText.EnumerateRunes().ToList();
-            var expectedRunes = expectedText.EnumerateRunes().ToList();
+    /// <remarks>
+    /// Could be handled by checking if the substitute character is
+    /// truly a kanji with the <see cref="KanjiComparison.IsKanji"/>
+    /// method. I don't think it's worth it.
+    /// </remarks>
+    private static readonly (string, string)[] _unsolvableData =
+    [
+        ("古々々米、古々々米", "古古古米、古古古米"),
+    ];
 
+    [TestMethod]
+    public void TestSolvable()
+    {
+        foreach (var (expectedRunes, runes) in GetRunes(_data))
+        {
             CollectionAssert.AreEqual
             (
                 expectedRunes,
-                runes.IterationMarksToKanji()
+                runes
             );
+        }
+    }
+
+    [TestMethod]
+    public void TestUnsolvable()
+    {
+        foreach (var (expectedRunes, runes) in GetRunes(_unsolvableData))
+        {
+            CollectionAssert.AreNotEqual
+            (
+                expectedRunes,
+                runes
+            );
+        }
+    }
+
+    private static IEnumerable<(Rune[] ExpectedRunes, Rune[] Runes)> GetRunes((string, string)[] data)
+    {
+        foreach (var (kanjiFormText, expectedText) in data)
+        {
+            var runes = kanjiFormText.EnumerateRunes().ToArray();
+            var expectedRunes = expectedText.EnumerateRunes().ToArray();
+
+            yield return (expectedRunes, runes.IterationMarksToKanji());
         }
     }
 }
