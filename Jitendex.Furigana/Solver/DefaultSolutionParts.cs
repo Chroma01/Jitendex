@@ -53,7 +53,7 @@ internal class DefaultSolutionParts
         }
     }
 
-    private string? DefaultSingleCharacterReadings(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static string? DefaultSingleCharacterReadings(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var currentRune = kanjiFormSlice.Runes[0];
         if (currentRune.IsKana())
@@ -87,7 +87,7 @@ internal class DefaultSolutionParts
         return null;
     }
 
-    private List<Solution.Part> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static List<Solution.Part> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var currentRune1 = kanjiFormSlice.Runes[0];
         var currentRune2 = kanjiFormSlice.Runes[1];

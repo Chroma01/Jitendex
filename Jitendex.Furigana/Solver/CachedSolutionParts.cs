@@ -62,7 +62,7 @@ internal class CachedSolutionParts
         {
             var rune = kanjiFormSlice.Runes[0];
             var characterReadings = _readingCache.GetCharacterReadings(entry, rune);
-            return GetReadingTexts(characterReadings, kanjiFormSlice);
+            return GetReadingTexts(kanjiFormSlice, characterReadings);
         }
         else
         {
@@ -70,7 +70,7 @@ internal class CachedSolutionParts
         }
     }
 
-    private ImmutableArray<string> GetReadingTexts(ImmutableArray<CharacterReading> characterReadings, KanjiFormSlice kanjiFormSlice)
+    private static ImmutableArray<string> GetReadingTexts(KanjiFormSlice kanjiFormSlice, ImmutableArray<CharacterReading> characterReadings)
     {
         var textSet = new HashSet<string>();
 
@@ -84,7 +84,7 @@ internal class CachedSolutionParts
             {
                 continue;
             }
-            foreach (var text in EnumerateReadingTexts(reading, kanjiFormSlice))
+            foreach (var text in EnumerateReadingTexts(kanjiFormSlice, reading))
             {
                 textSet.Add(text);
             }
@@ -93,15 +93,15 @@ internal class CachedSolutionParts
         return [.. textSet];
     }
 
-    private IEnumerable<string> EnumerateReadingTexts(CharacterReading characterReading, KanjiFormSlice kanjiFormSlice) =>
+    private static IEnumerable<string> EnumerateReadingTexts(KanjiFormSlice kanjiFormSlice, CharacterReading characterReading) =>
         characterReading switch
         {
-            KunReading kunReading => EnumerateKunReadingTexts(kunReading, kanjiFormSlice),
-            OnReading onReading => EnumerateOnReadingTexts(onReading, kanjiFormSlice),
+            KunReading kunReading => EnumerateKunReadingTexts(kanjiFormSlice, kunReading),
+            OnReading onReading => EnumerateOnReadingTexts(kanjiFormSlice, onReading),
             _ => throw new NotImplementedException()
         };
 
-    private IEnumerable<string> EnumerateKunReadingTexts(KunReading kunReading, KanjiFormSlice kanjiFormSlice)
+    private static IEnumerable<string> EnumerateKunReadingTexts(KanjiFormSlice kanjiFormSlice, KunReading kunReading)
     {
         var stems = kanjiFormSlice.ContainsFirstRune ?
             [kunReading.Stem] :
@@ -137,7 +137,7 @@ internal class CachedSolutionParts
         }
     }
 
-    private IEnumerable<string> EnumerateOnReadingTexts(OnReading onReading, KanjiFormSlice kanjiFormSlice)
+    private static IEnumerable<string> EnumerateOnReadingTexts(KanjiFormSlice kanjiFormSlice, OnReading onReading)
     {
         yield return onReading.Reading;
 
