@@ -35,7 +35,7 @@ internal static partial class TextSolution
 
         if (matches.Count == 0)
         {
-            solutionBuilder.Add(new(entry.KanjiFormText, null));
+            solutionBuilder.Add(new(text, null));
         }
 
         foreach (Match match in matches)
