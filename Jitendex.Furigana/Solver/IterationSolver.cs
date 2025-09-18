@@ -38,7 +38,7 @@ internal class IterationSolver
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
                 var kanjiFormSlice = new KanjiFormSlice(entry, sliceStart, sliceEnd);
-                newSolutions = IterateSolutions(entry, solutions, kanjiFormSlice);
+                newSolutions = IterateSolutions(entry, kanjiFormSlice, solutions);
                 if (newSolutions.Count > 0)
                 {
                     sliceStart += sliceEnd - sliceStart - 1;
@@ -61,7 +61,7 @@ internal class IterationSolver
         }
     }
 
-    private List<SolutionBuilder> IterateSolutions(Entry entry, List<SolutionBuilder> partialSolutions, KanjiFormSlice kanjiFormSlice)
+    private List<SolutionBuilder> IterateSolutions(Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> partialSolutions)
     {
         var solutions = new List<SolutionBuilder>();
 

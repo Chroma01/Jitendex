@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using System.Text;
+using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Models;
 
@@ -25,7 +26,27 @@ public abstract class JapaneseCharacter(Rune rune, IEnumerable<string> readings)
 {
     public Rune Rune { get; } = rune;
     public ImmutableArray<CharacterReading> Readings { get; } = readings
-        .Select(text => new CharacterReading(text))
+        .Select(ReadingFactory)
         .Distinct()
         .ToImmutableArray();
+
+    private static CharacterReading ReadingFactory(string text)
+    {
+        var normalText = text.Replace("-", string.Empty).Replace(".", string.Empty);
+
+        if (normalText.IsAllHiragana())
+        {
+            return new KunReading(text);
+        }
+        else if (normalText.IsAllKatakana())
+        {
+            return new OnReading(text);
+        }
+        else
+        {
+            throw new ArgumentException(
+                $"Reading `{text}` must either be all hiragana or all katakana.",
+                nameof(text));
+        }
+    }
 }

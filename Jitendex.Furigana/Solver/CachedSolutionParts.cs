@@ -62,7 +62,7 @@ internal class CachedSolutionParts
         {
             var rune = kanjiFormSlice.Runes[0];
             var characterReadings = _readingCache.GetCharacterReadings(entry, rune);
-            return GetReadings(characterReadings, kanjiFormSlice);
+            return GetReadingTexts(characterReadings, kanjiFormSlice);
         }
         else
         {
@@ -70,9 +70,9 @@ internal class CachedSolutionParts
         }
     }
 
-    private ImmutableArray<string> GetReadings(ImmutableArray<CharacterReading> characterReadings, KanjiFormSlice kanjiFormSlice)
+    private ImmutableArray<string> GetReadingTexts(ImmutableArray<CharacterReading> characterReadings, KanjiFormSlice kanjiFormSlice)
     {
-        var readingSet = new HashSet<string>();
+        var textSet = new HashSet<string>();
 
         foreach (var reading in characterReadings)
         {
@@ -84,118 +84,82 @@ internal class CachedSolutionParts
             {
                 continue;
             }
-
-            readingSet.Add(reading.Stem);
-
-            if (reading.Okurigana is null)
+            foreach (var text in EnumerateReadingTexts(reading, kanjiFormSlice))
             {
-                continue;
+                textSet.Add(text);
+            }
+        }
+
+        return [.. textSet];
+    }
+
+    private IEnumerable<string> EnumerateReadingTexts(CharacterReading characterReading, KanjiFormSlice kanjiFormSlice) =>
+        characterReading switch
+        {
+            KunReading kunReading => EnumerateKunReadingTexts(kunReading, kanjiFormSlice),
+            OnReading onReading => EnumerateOnReadingTexts(onReading, kanjiFormSlice),
+            _ => throw new NotImplementedException()
+        };
+
+    private IEnumerable<string> EnumerateKunReadingTexts(KunReading kunReading, KanjiFormSlice kanjiFormSlice)
+    {
+        var stems = kanjiFormSlice.ContainsFirstRune ?
+            [kunReading.Stem] :
+            kunReading.RendakuStems.Add(kunReading.Stem);
+
+        foreach (var stem in stems)
+        {
+            yield return stem;
+        }
+
+        if (kunReading.InflectionalSuffix is null)
+        {
+            yield break;
+        }
+
+        foreach (var stem in stems)
+        {
+            var sum = new StringBuilder(stem);
+            foreach (var suffixChar in kunReading.InflectionalSuffix[..^1])
+            {
+                sum.Append(suffixChar);
+                yield return sum.ToString();
             }
 
-            var sum = new StringBuilder(reading.Stem);
-            foreach (var okuriganaChar in reading.Okurigana[..^1])
+            if (kunReading.MasuFormSuffix is not null)
             {
-                sum.Append(okuriganaChar);
-                readingSet.Add(sum.ToString());
-            }
-
-            var verbEnding = reading.Okurigana.Last();
-            char? newEnding = GodanVerbEndingToMasuInflection(verbEnding);
-            if (newEnding != default)
-            {
-                var newReading = reading.Text[..^1] + newEnding;
-                readingSet.Add(newReading);
+                yield return stem + kunReading.MasuFormSuffix;
             }
             else
             {
-                readingSet.Add(reading.Text);
+                yield return stem + kunReading.InflectionalSuffix;
             }
         }
+    }
 
-        // Rendaku
+    private IEnumerable<string> EnumerateOnReadingTexts(OnReading onReading, KanjiFormSlice kanjiFormSlice)
+    {
+        yield return onReading.Reading;
+
         if (!kanjiFormSlice.ContainsFirstRune)
         {
-            foreach (var reading in GetAllRendaku([.. readingSet]))
+            foreach (var text in onReading.RendakuReadings)
             {
-                readingSet.Add(reading);
+                yield return text;
             }
         }
 
-        // Add final small tsu rendaku
-        if (!kanjiFormSlice.ContainsFinalRune)
+        if (!kanjiFormSlice.ContainsFinalRune && onReading.SokuonForm is not null)
         {
-            foreach (var reading in GetSmallTsuRendaku([.. readingSet]))
-            {
-                readingSet.Add(reading);
-            }
+            yield return onReading.SokuonForm;
         }
 
-        return [.. readingSet];
-    }
-
-    private static IEnumerable<string> GetSmallTsuRendaku(IEnumerable<string> readings)
-    {
-        foreach (var reading in readings)
+        if (!kanjiFormSlice.ContainsFirstRune && !kanjiFormSlice.ContainsFinalRune)
         {
-            if (IsConvertibleToSmallTsu(reading.Last()))
+            foreach (var text in onReading.RendakuSokuonReadings)
             {
-                yield return reading[..^1] + "っ";
+                yield return text;
             }
         }
     }
-
-    private static IEnumerable<string> GetAllRendaku(IEnumerable<string> readings)
-    {
-        foreach (var reading in readings)
-        {
-            foreach (var rendakuChar in HiraganaToRendaku(reading.First()))
-            {
-                yield return rendakuChar + reading[1..];
-            }
-        }
-    }
-
-    private static bool IsConvertibleToSmallTsu(char c) => c switch
-    {
-        'つ' or 'く' or 'き' or 'ち' => true,
-        _ => false
-    };
-
-    private static char GodanVerbEndingToMasuInflection(char c) => c switch
-    {
-        'く' => 'き',
-        'ぐ' => 'ぎ',
-        'す' => 'し',
-        'ず' => 'じ',
-        'む' => 'み',
-        'る' => 'り',
-        'ぶ' => 'び',
-        'う' => 'い',
-        _ => default
-    };
-
-    private static ImmutableArray<char> HiraganaToRendaku(char x) => x switch
-    {
-        'か' => ['が'],
-        'き' => ['ぎ'],
-        'く' => ['ぐ'],
-        'け' => ['げ'],
-        'こ' => ['ご'],
-        'さ' => ['ざ'],
-        'し' => ['じ'],
-        'す' => ['ず'],
-        'せ' => ['ぜ'],
-        'そ' => ['ぞ'],
-        'た' => ['だ'],
-        'ち' => ['ぢ', 'じ'],
-        'つ' => ['づ', 'ず'],
-        'て' => ['で'],
-        'と' => ['ど'],
-        'は' => ['ば', 'ぱ'],
-        'ひ' => ['び', 'ぴ'],
-        'ふ' => ['ぶ', 'ぷ'],
-        'へ' => ['べ', 'ぺ'],
-        'ほ' => ['ぼ', 'ぽ'],
-        _ => []
-    };
 }

@@ -16,16 +16,24 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.TextExtensions;
 
-public abstract class CharacterReading
+public static class SokuonTransform
 {
-    public bool IsPrefix { get; }
-    public bool IsSuffix { get; }
+    public static string? ToSokuonForm(this string text) =>
+        LastCanGeminate(text) switch
+        {
+            true => text[..^1] + "っ",
+            false => null,
+        };
 
-    public CharacterReading(string text)
-    {
-        IsPrefix = text.EndsWith('-');
-        IsSuffix = text.StartsWith('-');
-    }
+    private static bool LastCanGeminate(string text) =>
+        text.LastOrDefault() switch
+        {
+            'つ' or
+            'く' or
+            'き' or
+            'ち' => true,
+            _ => false
+        };
 }

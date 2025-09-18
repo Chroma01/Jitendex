@@ -16,16 +16,28 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.TextExtensions;
 
-public abstract class CharacterReading
+public static class VerbTransform
 {
-    public bool IsPrefix { get; }
-    public bool IsSuffix { get; }
+    public static string? VerbToMasuStem(this string text) =>
+        LastToMasuStemLast(text) switch
+        {
+            default(char) => null,
+            char masuStemLast => text[..^1] + masuStemLast,
+        };
 
-    public CharacterReading(string text)
-    {
-        IsPrefix = text.EndsWith('-');
-        IsSuffix = text.StartsWith('-');
-    }
+    private static char LastToMasuStemLast(string text) =>
+        text.LastOrDefault() switch
+        {
+            'く' => 'き',
+            'ぐ' => 'ぎ',
+            'す' => 'し',
+            'ず' => 'じ',
+            'む' => 'み',
+            'る' => 'り',
+            'ぶ' => 'び',
+            'う' => 'い',
+            _ => default
+        };
 }
