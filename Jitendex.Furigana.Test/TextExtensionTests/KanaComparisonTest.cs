@@ -53,5 +53,10 @@ public class KanaComparisonTest
         Assert.IsFalse('\u3097'.IsKana());
         Assert.IsFalse('\u3098'.IsKana());
         Assert.IsTrue('\u3099'.IsKana());
+
+        // Empty string is both all hiragana and all katakana.
+        // Hmm...
+        Assert.IsTrue(string.Empty.IsAllHiragana());
+        Assert.IsTrue(string.Empty.IsAllKatakana());
     }
 }

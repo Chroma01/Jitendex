@@ -32,4 +32,14 @@ public class SuffixedKunReading : KunReading
             .ElementAt(1)
             .KatakanaToHiragana();
     }
+
+    public override bool Equals(object? obj) =>
+        obj is SuffixedKunReading reading &&
+        base.Equals(obj) &&
+        Suffix == reading.Suffix;
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Suffix);
+    }
 }

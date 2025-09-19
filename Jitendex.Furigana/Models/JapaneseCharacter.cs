@@ -39,9 +39,9 @@ public abstract class JapaneseCharacter(Rune rune, IEnumerable<string> readings)
 
         return (normalText.IsAllKatakana(), normalText.IsAllHiragana()) switch
         {
-            (true, _) => new OnReading(text),
+            (true, false) => new OnReading(text),
 
-            (_, true) => (textSplit, masuForm) switch
+            (false, true) => (textSplit, masuForm) switch
             {
                 ({ Length: 1 }, _) => new KunReading(text),
                 ({ Length: 2 }, null) => new SuffixedKunReading(text),

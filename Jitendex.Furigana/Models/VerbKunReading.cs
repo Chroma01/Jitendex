@@ -31,4 +31,14 @@ public class VerbKunReading : SuffixedKunReading
                 $"Reading `{text}` is not a verb",
                 nameof(text));
     }
+
+    public override bool Equals(object? obj) =>
+        obj is VerbKunReading reading &&
+        base.Equals(obj) &&
+        MasuFormSuffix == reading.MasuFormSuffix;
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), MasuFormSuffix);
+    }
 }

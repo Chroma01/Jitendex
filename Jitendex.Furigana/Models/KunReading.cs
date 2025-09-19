@@ -36,4 +36,15 @@ public class KunReading : CharacterReading
 
         RendakuReadings = Reading.ToRendakuForms();
     }
+
+    public override bool Equals(object? obj) =>
+        obj is KunReading reading &&
+        IsPrefix == reading.IsPrefix &&
+        IsSuffix == reading.IsSuffix &&
+        Reading == reading.Reading;
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
+    }
 }
