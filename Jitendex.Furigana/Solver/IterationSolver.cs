@@ -32,6 +32,7 @@ internal class IterationSolver
     public IEnumerable<Solution> Solve(Entry entry)
     {
         var solutions = new List<SolutionBuilder>() { new() };
+
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
@@ -46,6 +47,7 @@ internal class IterationSolver
                 }
             }
         }
+
         foreach (var solutionBuilder in solutions)
         {
             var solution = solutionBuilder.ToSolution(entry);
@@ -56,24 +58,24 @@ internal class IterationSolver
         }
     }
 
-    private List<SolutionBuilder> IterateSolutions(Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> partialSolutions)
+    private List<SolutionBuilder> IterateSolutions(Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> solutions)
     {
-        var solutions = new List<SolutionBuilder>();
+        var newSolutions = new List<SolutionBuilder>();
 
-        foreach (var partialSolution in partialSolutions)
+        foreach (var solution in solutions)
         {
-            var previousParts = partialSolution.ToParts();
-            var readingState = new ReadingState(entry, partialSolution.ReadingTextLength());
+            var solutionParts = solution.ToParts();
+            var readingState = new ReadingState(entry, solution.ReadingTextLength());
 
-            foreach (var nextParts in _solutionParts.Enumerate(entry, kanjiFormSlice, readingState))
+            foreach (var newParts in _solutionParts.Enumerate(entry, kanjiFormSlice, readingState))
             {
-                solutions.Add
+                newSolutions.Add
                 (
-                    new SolutionBuilder(previousParts.AddRange(nextParts))
+                    new(solutionParts.AddRange(newParts))
                 );
             }
         }
 
-        return solutions;
+        return newSolutions;
     }
 }

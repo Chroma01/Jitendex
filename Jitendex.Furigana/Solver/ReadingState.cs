@@ -45,33 +45,6 @@ internal class ReadingState
     public string? MinimumReading() =>
         RemainingText == string.Empty ? null : RemainingTextNormalized[..1];
 
-    public string? RegularKanjiReading()
-    {
-        if (RemainingText == string.Empty)
-        {
-            return null;
-        }
-        var reading = new StringBuilder(RemainingTextNormalized[..1]);
-        foreach (var character in RemainingTextNormalized[1..])
-        {
-            if (IsImpossibleKanjiReadingStart(character))
-            {
-                reading.Append(character);
-            }
-            else
-            {
-                break;
-            }
-        }
-        return reading.ToString();
-    }
-
-    private static bool IsImpossibleKanjiReadingStart(char c) => c switch
-    {
-        'っ' or 'ょ' or 'ゃ' or 'ゅ' or 'ん' => true,
-        _ => false
-    };
-
     public string? RegexReading(KanjiFormSlice kanjiFormSlice)
     {
         var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();

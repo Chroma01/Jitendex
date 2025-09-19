@@ -36,8 +36,10 @@ public class OnReading : CharacterReading
     {
         if (text.Contains('.'))
         {
-            throw new ArgumentException(
-                "Onyomi must not contain dot splits", nameof(text));
+            throw new ArgumentException
+            (
+                "Onyomi must not contain dot splits", nameof(text)
+            );
         }
 
         Reading = text.Replace("-", string.Empty).KatakanaToHiragana();
