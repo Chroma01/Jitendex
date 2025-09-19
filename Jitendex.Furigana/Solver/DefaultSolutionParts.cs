@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
+using System.Text.RegularExpressions;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.TextExtensions;
 
@@ -25,12 +27,6 @@ internal class DefaultSolutionParts
 {
     public IEnumerable<List<Solution.Part>> Enumerate(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
-        if (readingState.RemainingText.Length == 0)
-        {
-            // All "default" readings are based on the remaining text in the reading.
-            // If there is no remaining text, then there's nothing to do.
-            yield break;
-        }
         if (kanjiFormSlice.Runes.Length == 1)
         {
             foreach (var parts in DefaultSingleKanjiParts(kanjiFormSlice, readingState))
@@ -69,7 +65,10 @@ internal class DefaultSolutionParts
         var currentRune = kanjiFormSlice.Runes[0];
         if (currentRune.IsKana())
         {
-            yield return currentRune.KatakanaToHiragana().ToString();
+            if (readingState.RemainingText.FirstOrDefault().IsKanaEquivalent((char)currentRune.Value))
+            {
+                yield return currentRune.ToString();
+            }
             yield break;
         }
 
@@ -77,7 +76,7 @@ internal class DefaultSolutionParts
         var nextRune = kanjiFormSlice.NextRune();
         if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
-            var regexReading = readingState.RegexReading(kanjiFormSlice);
+            var regexReading = RegexReading(kanjiFormSlice, readingState);
             if (regexReading is not null)
             {
                 yield return regexReading;
@@ -87,7 +86,7 @@ internal class DefaultSolutionParts
 
         if (currentRune.IsKanji())
         {
-            var readingFirst = readingState.RemainingTextNormalized.First();
+            var readingFirst = readingState.RemainingTextNormalized.FirstOrDefault();
             if (IsImpossibleKanjiReadingFirst(readingFirst))
             {
                 yield break;
@@ -99,10 +98,10 @@ internal class DefaultSolutionParts
             yield break;
         }
 
-        var minimumReading = readingState.MinimumReading();
-        if (currentRune.ToString() == minimumReading)
+        var minimumReading = readingState.RemainingText.FirstOrDefault();
+        if (minimumReading == currentRune.Value)
         {
-            yield return minimumReading;
+            yield return minimumReading.ToString();
         }
     }
 
@@ -134,7 +133,7 @@ internal class DefaultSolutionParts
             yield break;
         }
 
-        var reading = readingState.RegexReading(kanjiFormSlice);
+        var reading = RegexReading(kanjiFormSlice, readingState);
 
         if (reading is null || reading.Length % 2 != 0)
         {
@@ -147,5 +146,52 @@ internal class DefaultSolutionParts
             new(kanjiFormSlice.RawRunes[0].ToString(), reading[..halfLength]),
             new(kanjiFormSlice.RawRunes[1].ToString(), reading[halfLength..])
         ];
+    }
+
+    private static string? RegexReading(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    {
+        var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
+        var reaminingReadingText = readingState.RemainingTextNormalized;
+
+        var greedyMatch = Match("(.+)", remainingKanjiFormText, reaminingReadingText);
+        var lazyMatch = Match("(.+?)", remainingKanjiFormText, reaminingReadingText);
+
+        if (!greedyMatch.Success || !lazyMatch.Success)
+        {
+            return null;
+        }
+
+        var greedyValue = greedyMatch.Groups[1].Value;
+
+        if (greedyValue != string.Empty && greedyValue == lazyMatch.Groups[1].Value)
+        {
+            return greedyValue;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private static Match Match(string groupPattern, string kanjiFormText, string readingText)
+    {
+        var pattern = new StringBuilder($"^{groupPattern}");
+        bool newGroup = false;
+        foreach (var character in kanjiFormText)
+        {
+            if (character.IsKana())
+            {
+                pattern.Append(character);
+                newGroup = true;
+            }
+            else if (newGroup)
+            {
+                pattern.Append(groupPattern);
+                newGroup = false;
+            }
+        }
+        pattern.Append('$');
+        var regex = new Regex(pattern.ToString());
+        return regex.Match(readingText);
     }
 }

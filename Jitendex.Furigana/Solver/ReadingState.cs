@@ -16,10 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
-using System.Text.RegularExpressions;
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solver;
 
@@ -40,54 +37,5 @@ internal class ReadingState
     {
         _entry = entry;
         _readingIndex = readingIndex;
-    }
-
-    public string? MinimumReading() =>
-        RemainingText == string.Empty ? null : RemainingTextNormalized[..1];
-
-    public string? RegexReading(KanjiFormSlice kanjiFormSlice)
-    {
-        var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
-
-        var greedyMatch = Match("(.+)", remainingKanjiFormText);
-        var lazyMatch = Match("(.+?)", remainingKanjiFormText);
-
-        if (!greedyMatch.Success || !lazyMatch.Success)
-        {
-            return null;
-        }
-
-        var greedyValue = greedyMatch.Groups[1].Value;
-
-        if (greedyValue != string.Empty && greedyValue == lazyMatch.Groups[1].Value)
-        {
-            return greedyValue;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    private Match Match(string groupPattern, string remainingKanjiFormTextNormalized)
-    {
-        var pattern = new StringBuilder($"^{groupPattern}");
-        bool newGroup = false;
-        foreach (var character in remainingKanjiFormTextNormalized)
-        {
-            if (character.IsKana())
-            {
-                pattern.Append(character);
-                newGroup = true;
-            }
-            else if (newGroup)
-            {
-                pattern.Append(groupPattern);
-                newGroup = false;
-            }
-        }
-        pattern.Append('$');
-        var regex = new Regex(pattern.ToString());
-        return regex.Match(RemainingTextNormalized);
     }
 }
