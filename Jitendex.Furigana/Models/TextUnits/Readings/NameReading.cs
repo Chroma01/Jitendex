@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -16,13 +16,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
-using System.Text;
+using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
-public abstract class JapaneseCharacter(Rune rune)
+public class NameReading : CharacterReading
 {
-    public Rune Rune { get; } = rune;
-    public abstract ImmutableArray<CharacterReading> Readings { get; }
+    public override string Reading { get; }
+
+    public NameReading(string text) : base(text)
+    {
+        Reading = text.KatakanaToHiragana();
+    }
+
+    public override bool Equals(object? obj) =>
+        obj is NameReading reading &&
+        IsPrefix == reading.IsPrefix &&
+        IsSuffix == reading.IsSuffix &&
+        Reading == reading.Reading;
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
+    }
 }

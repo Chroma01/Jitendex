@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public class VerbKunReading : SuffixedKunReading
 {

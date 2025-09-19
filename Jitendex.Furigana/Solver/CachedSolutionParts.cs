@@ -20,6 +20,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.TextExtensions;
+using Jitendex.Furigana.Models.TextUnits;
+using Jitendex.Furigana.Models.TextUnits.Readings;
 
 namespace Jitendex.Furigana.Solver;
 
@@ -60,7 +62,7 @@ internal class CachedSolutionParts
         if (kanjiFormSlice.Runes.Length == 1)
         {
             var rune = kanjiFormSlice.Runes[0];
-            if (_resourceCache.JapaneseCharacters.TryGetValue(rune.Value, out JapaneseCharacter? character))
+            if (_resourceCache.Characters.TryGetValue(rune.Value, out JapaneseCharacter? character))
             {
                 return GetCharacterReadingTexts(entry, kanjiFormSlice, character);
             }
@@ -68,9 +70,9 @@ internal class CachedSolutionParts
         else
         {
             var text = kanjiFormSlice.Text();
-            if (_resourceCache.SpecialExpressions.TryGetValue(text, out SpecialExpression? expression))
+            if (_resourceCache.Compounds.TryGetValue(text, out JapaneseCompound? compound))
             {
-                return expression.Readings;
+                return compound.Readings.Select(x => x.Reading).ToImmutableArray();
             }
         }
         return [];

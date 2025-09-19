@@ -19,8 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.TextExtensions;
+using Jitendex.Furigana.Models.TextUnits.Readings;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models.TextUnits;
 
 public class Kanji : JapaneseCharacter
 {

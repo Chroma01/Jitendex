@@ -16,14 +16,14 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models;
+using Jitendex.Furigana.Models.TextUnits;
 
 namespace Jitendex.Furigana.Test.ServiceTests;
 
 [TestClass]
 public class RequiresSpecialExpressionReadings : ServiceTest
 {
-    private static readonly IEnumerable<SpecialExpression> _specialExpressions = ResourceMethods.SpecialExpressions(new()
+    private static readonly IEnumerable<JapaneseCompound> _compounds = ResourceMethods.Compounds(new()
     {
         ["発条"] = ["ぜんまい", "ばね"],
         ["芝生"] = ["しばふ"],
@@ -33,7 +33,7 @@ public class RequiresSpecialExpressionReadings : ServiceTest
         ["狗母魚"] = ["えそ"],
     });
 
-    private static readonly Service _service = new([], _specialExpressions);
+    private static readonly Service _service = new([], _compounds);
 
     private static readonly SolvableData _data =
     [

@@ -16,31 +16,17 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models.TextUnits;
+namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
-namespace Jitendex.Furigana.Test.ServiceTests;
-
-/// <summary>
-/// Tests a situation in which there is no unique correct solution in principle.
-/// </summary>
-[TestClass]
-public class AmbiguousKanjiReadings : ServiceTest
+public abstract class CharacterReading : IReading
 {
-    private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji(new()
+    public abstract string Reading { get; }
+    public bool IsPrefix { get; }
+    public bool IsSuffix { get; }
+
+    public CharacterReading(string text)
     {
-        ["夫"] = ["フ", "フウ", "ブ", "おっと", "それ"],
-    });
-
-    private static readonly Service _service = new(_kanji, []);
-
-    private static readonly UnsolvableData _data =
-    [
-        ("夫夫", "ふうふ"),
-    ];
-
-    [TestMethod]
-    public void TestUnsolvable()
-    {
-        TestUnsolvable(_service, _data);
+        IsPrefix = text.EndsWith('-');
+        IsSuffix = text.StartsWith('-');
     }
 }

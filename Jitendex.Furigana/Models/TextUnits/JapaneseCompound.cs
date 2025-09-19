@@ -19,8 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using Jitendex.Furigana.TextExtensions;
+using Jitendex.Furigana.Models.TextUnits.Readings;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models.TextUnits;
 
 /// <summary>
 /// Represents a compound expression and its potential readings.
@@ -35,11 +36,12 @@ namespace Jitendex.Furigana.Models;
 /// 発条 could either be [発条|ばね] or [発条|ぜんまい].
 /// </para>
 /// </remarks>
-public class SpecialExpression(string expression, IEnumerable<string> readings)
+public class JapaneseCompound(string text, IEnumerable<string> readings) : IJapaneseTextUnit<CompoundReading>
 {
-    public string Expression { get; } = expression;
-    public ImmutableArray<string> Readings { get; } = readings
+    public string Text { get; } = text;
+    public ImmutableArray<CompoundReading> Readings { get; } = readings
         .Select(KanaTransform.KatakanaToHiragana)
         .Distinct()
+        .Select(r => new CompoundReading(r))
         .ToImmutableArray();
 }

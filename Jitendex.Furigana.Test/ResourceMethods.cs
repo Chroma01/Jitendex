@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models;
+using Jitendex.Furigana.Models.TextUnits;
 
 namespace Jitendex.Furigana.Test;
 
@@ -38,8 +38,8 @@ internal static class ResourceMethods
             item.Value.Item2
         ));
 
-    public static IEnumerable<SpecialExpression> SpecialExpressions(Dictionary<string, IEnumerable<string>> dataDictionary) => dataDictionary
-        .Select(static item => new SpecialExpression
+    public static IEnumerable<JapaneseCompound> Compounds(Dictionary<string, IEnumerable<string>> dataDictionary) => dataDictionary
+        .Select(static item => new JapaneseCompound
         (
             item.Key,
             item.Value

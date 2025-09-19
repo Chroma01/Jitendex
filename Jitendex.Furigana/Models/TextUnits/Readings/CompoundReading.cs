@@ -16,30 +16,14 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.TextExtensions;
+namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
-namespace Jitendex.Furigana.Models;
-
-public class SuffixedKunReading : KunReading
+public class CompoundReading : IReading
 {
-    public string Suffix { get; }
+    public string Reading { get; }
 
-    public SuffixedKunReading(string text) : base(text)
+    public CompoundReading(string text)
     {
-        Suffix = text
-            .Replace("-", string.Empty)
-            .Split('.')
-            .ElementAt(1)
-            .KatakanaToHiragana();
-    }
-
-    public override bool Equals(object? obj) =>
-        obj is SuffixedKunReading reading &&
-        base.Equals(obj) &&
-        Suffix == reading.Suffix;
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(base.GetHashCode(), Suffix);
+        Reading = text;
     }
 }

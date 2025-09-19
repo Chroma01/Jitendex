@@ -16,27 +16,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.TextExtensions;
+using System.Collections.Immutable;
+using Jitendex.Furigana.Models.TextUnits.Readings;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models.TextUnits;
 
-public class NameReading : CharacterReading
+public interface IJapaneseTextUnit<T> where T : IReading
 {
-    public override string Reading { get; }
-
-    public NameReading(string text) : base(text)
-    {
-        Reading = text.KatakanaToHiragana();
-    }
-
-    public override bool Equals(object? obj) =>
-        obj is NameReading reading &&
-        IsPrefix == reading.IsPrefix &&
-        IsSuffix == reading.IsSuffix &&
-        Reading == reading.Reading;
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
-    }
+    public ImmutableArray<T> Readings { get; }
 }

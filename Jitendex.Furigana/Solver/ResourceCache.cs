@@ -18,23 +18,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
-using Jitendex.Furigana.Models;
+using Jitendex.Furigana.Models.TextUnits;
 
 namespace Jitendex.Furigana.Solver;
 
 internal class ResourceCache
 {
-    public FrozenDictionary<int, JapaneseCharacter> JapaneseCharacters { get; }
-    public FrozenDictionary<string, SpecialExpression> SpecialExpressions { get; }
+    public FrozenDictionary<int, JapaneseCharacter> Characters { get; }
+    public FrozenDictionary<string, JapaneseCompound> Compounds { get; }
 
-    public ResourceCache(IEnumerable<JapaneseCharacter> japaneseCharacters, IEnumerable<SpecialExpression> specialExpressions)
+    public ResourceCache(IEnumerable<JapaneseCharacter> characters, IEnumerable<JapaneseCompound> compounds)
     {
-        JapaneseCharacters = japaneseCharacters
+        Characters = characters
             .Select(x => new KeyValuePair<int, JapaneseCharacter>(x.Rune.Value, x))
             .ToFrozenDictionary();
 
-        SpecialExpressions = specialExpressions
-            .Select(x => new KeyValuePair<string, SpecialExpression>(x.Expression, x))
+        Compounds = compounds
+            .Select(x => new KeyValuePair<string, JapaneseCompound>(x.Text, x))
             .ToFrozenDictionary();
     }
 }

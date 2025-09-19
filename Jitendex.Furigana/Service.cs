@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
+using Jitendex.Furigana.Models.TextUnits;
 using Jitendex.Furigana.Solver;
 
 namespace Jitendex.Furigana;
@@ -25,9 +26,9 @@ public class Service
 {
     private readonly IterationSolver _solver;
 
-    public Service(IEnumerable<JapaneseCharacter> japaneseCharacters, IEnumerable<SpecialExpression> specialExpressions)
+    public Service(IEnumerable<JapaneseCharacter> characters, IEnumerable<JapaneseCompound> compounds)
     {
-        var resourceCache = new ResourceCache(japaneseCharacters, specialExpressions);
+        var resourceCache = new ResourceCache(characters, compounds);
         var cachedSolutionParts = new CachedSolutionParts(resourceCache);
         var defaultSolutionParts = new DefaultSolutionParts();
         var solutionParts = new SolutionParts(cachedSolutionParts, defaultSolutionParts);

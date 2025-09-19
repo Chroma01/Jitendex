@@ -19,41 +19,32 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using Jitendex.Furigana.TextExtensions;
 
-namespace Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
-public class OnReading : CharacterReading
+public class KunReading : CharacterReading
 {
     public override string Reading { get; }
-    public string? SokuonForm { get; }
     public ImmutableArray<string> RendakuReadings { get; }
 
-    /// <remarks>
-    /// Not sure if this combination ever actually occurs in practice
-    /// </remarks>
-    public ImmutableArray<string> RendakuSokuonReadings { get; }
-
-    public OnReading(string text): base(text)
+    public KunReading(string text) : base(text)
     {
-        if (text.Contains('.'))
-        {
-            throw new ArgumentException
-            (
-                "Onyomi must not contain dot splits", nameof(text)
-            );
-        }
+        Reading = text
+            .Replace("-", string.Empty)
+            .Split(".")
+            .First()
+            .KatakanaToHiragana();
 
-        Reading = text.Replace("-", string.Empty).KatakanaToHiragana();
-        SokuonForm = Reading.ToSokuonForm();
         RendakuReadings = Reading.ToRendakuForms();
-        RendakuSokuonReadings = SokuonForm?.ToRendakuForms() ?? [];
     }
 
     public override bool Equals(object? obj) =>
-        obj is OnReading reading &&
+        obj is KunReading reading &&
         IsPrefix == reading.IsPrefix &&
         IsSuffix == reading.IsSuffix &&
         Reading == reading.Reading;
 
-    public override int GetHashCode() =>
-        HashCode.Combine(IsPrefix, IsSuffix, Reading);
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
+    }
 }

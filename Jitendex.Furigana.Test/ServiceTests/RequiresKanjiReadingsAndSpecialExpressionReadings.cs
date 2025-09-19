@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models;
+using Jitendex.Furigana.Models.TextUnits;
 
 namespace Jitendex.Furigana.Test.ServiceTests;
 
@@ -45,7 +45,7 @@ public class RequiresKanjiReadingsAndSpecialExpressions : ServiceTest
         ["掛"] = ["カイ", "ケイ", "か.ける", "-か.ける", "か.け", "-か.け", "-が.け", "か.かる", "-か.かる", "-が.かる", "か.かり", "-が.かり", "かかり", "-がかり"],
     });
 
-    private static readonly IEnumerable<SpecialExpression> _specialExpressions = ResourceMethods.SpecialExpressions(new()
+    private static readonly IEnumerable<JapaneseCompound> _compounds = ResourceMethods.Compounds(new()
     {
         ["日本"] = ["にほん"],
         ["大和"] = ["やまと"],
@@ -53,7 +53,7 @@ public class RequiresKanjiReadingsAndSpecialExpressions : ServiceTest
         ["発条"] = ["ぜんまい", "ばね"],
     });
 
-    private static readonly Service _service = new(_kanji, _specialExpressions);
+    private static readonly Service _service = new(_kanji, _compounds);
 
     private static readonly SolvableData _data =
     [
