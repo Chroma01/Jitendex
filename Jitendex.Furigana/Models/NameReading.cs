@@ -16,11 +16,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
+using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Models;
 
-public class NameKanji : JapaneseCharacter
+public class NameReading : CharacterReading
 {
-    public NameKanji(Rune value, IEnumerable<string> readings) : base(value, readings) { }
+    public override string Reading { get; }
+
+    public NameReading(string text) : base(text)
+    {
+        Reading = text.KatakanaToHiragana();
+    }
+
+    public override bool Equals(object? obj) =>
+        obj is NameReading reading &&
+        IsPrefix == reading.IsPrefix &&
+        IsSuffix == reading.IsSuffix &&
+        Reading == reading.Reading;
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
+    }
 }

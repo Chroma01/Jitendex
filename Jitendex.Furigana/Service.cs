@@ -27,8 +27,8 @@ public class Service
 
     public Service(IEnumerable<JapaneseCharacter> japaneseCharacters, IEnumerable<SpecialExpression> specialExpressions)
     {
-        var readingCache = new ReadingCache(japaneseCharacters, specialExpressions);
-        var cachedSolutionParts = new CachedSolutionParts(readingCache);
+        var resourceCache = new ResourceCache(japaneseCharacters, specialExpressions);
+        var cachedSolutionParts = new CachedSolutionParts(resourceCache);
         var defaultSolutionParts = new DefaultSolutionParts();
         var solutionParts = new SolutionParts(cachedSolutionParts, defaultSolutionParts);
 

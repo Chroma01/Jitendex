@@ -25,11 +25,11 @@ namespace Jitendex.Furigana.Solver;
 
 internal class CachedSolutionParts
 {
-    private readonly ReadingCache _readingCache;
+    private readonly ResourceCache _resourceCache;
 
-    public CachedSolutionParts(ReadingCache readingCache)
+    public CachedSolutionParts(ResourceCache resourceCache)
     {
-        _readingCache = readingCache;
+        _resourceCache = resourceCache;
     }
 
     public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
@@ -60,21 +60,32 @@ internal class CachedSolutionParts
         if (kanjiFormSlice.Runes.Length == 1)
         {
             var rune = kanjiFormSlice.Runes[0];
-            var characterReadings = _readingCache.GetCharacterReadings(entry, rune);
-            return GetCharacterReadingTexts(kanjiFormSlice, characterReadings);
+            if (_resourceCache.JapaneseCharacters.TryGetValue(rune.Value, out JapaneseCharacter? character))
+            {
+                return GetCharacterReadingTexts(entry, kanjiFormSlice, character);
+            }
         }
         else
         {
-            return _readingCache.GetSpecialExpressionReadings(kanjiFormSlice.Text());
+            var text = kanjiFormSlice.Text();
+            if (_resourceCache.SpecialExpressions.TryGetValue(text, out SpecialExpression? expression))
+            {
+                return expression.Readings;
+            }
         }
+        return [];
     }
 
-    private static ImmutableArray<string> GetCharacterReadingTexts(KanjiFormSlice kanjiFormSlice, ImmutableArray<CharacterReading> characterReadings)
+    private static ImmutableArray<string> GetCharacterReadingTexts(Entry entry, KanjiFormSlice kanjiFormSlice, JapaneseCharacter character)
     {
         var textSet = new HashSet<string>();
 
-        foreach (var reading in characterReadings)
+        foreach (var reading in character.Readings)
         {
+            if (reading is NameReading && entry is not NameEntry)
+            {
+                continue;
+            }
             if (reading.IsSuffix && kanjiFormSlice.ContainsFirstRune)
             {
                 continue;
@@ -95,12 +106,18 @@ internal class CachedSolutionParts
     private static IEnumerable<string> EnumerateReadingTexts(KanjiFormSlice kanjiFormSlice, CharacterReading characterReading) =>
         characterReading switch
         {
+            NameReading nameReading => EnumerateNameReadingTexts(nameReading),
             OnReading onReading => EnumerateOnReadingTexts(kanjiFormSlice, onReading),
             VerbKunReading verbKunReading => EnumerateVerbKunReadingTexts(kanjiFormSlice, verbKunReading),
             SuffixedKunReading suffixedKunReading => EnumerateSuffixedKunReadingTexts(kanjiFormSlice, suffixedKunReading),
             KunReading kunReading => EnumerateKunReadingTexts(kanjiFormSlice, kunReading),
             _ => throw new NotImplementedException()
         };
+
+    private static IEnumerable<string> EnumerateNameReadingTexts(NameReading nameReading)
+    {
+        yield return nameReading.Reading;
+    }
 
     private static IEnumerable<string> EnumerateOnReadingTexts(KanjiFormSlice kanjiFormSlice, OnReading onReading)
     {

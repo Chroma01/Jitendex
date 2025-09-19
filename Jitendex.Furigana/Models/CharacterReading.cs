@@ -20,6 +20,7 @@ namespace Jitendex.Furigana.Models;
 
 public abstract class CharacterReading
 {
+    public abstract string Reading { get; }
     public bool IsPrefix { get; }
     public bool IsSuffix { get; }
 

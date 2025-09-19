@@ -23,7 +23,7 @@ namespace Jitendex.Furigana.Models;
 
 public class KunReading : CharacterReading
 {
-    public string Reading { get; }
+    public override string Reading { get; }
     public ImmutableArray<string> RendakuReadings { get; }
 
     public KunReading(string text) : base(text)

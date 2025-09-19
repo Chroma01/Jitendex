@@ -23,7 +23,7 @@ namespace Jitendex.Furigana.Models;
 
 public class OnReading : CharacterReading
 {
-    public string Reading { get; }
+    public override string Reading { get; }
     public string? SokuonForm { get; }
     public ImmutableArray<string> RendakuReadings { get; }
 

@@ -17,27 +17,28 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Furigana.Models;
-using DataDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>;
 
 namespace Jitendex.Furigana.Test;
 
 internal static class ResourceMethods
 {
-    public static IEnumerable<JapaneseCharacter> VocabKanji(DataDictionary dataDictionary) => dataDictionary
-        .Select(static item => new VocabKanji
+    public static IEnumerable<JapaneseCharacter> VocabKanji(Dictionary<string, IEnumerable<string>> dataDictionary) => dataDictionary
+        .Select(static item => new Kanji
         (
             item.Key.EnumerateRunes().First(),
-            item.Value
+            item.Value,
+            []
         ));
 
-    public static IEnumerable<JapaneseCharacter> NameKanji(DataDictionary dataDictionary) => dataDictionary
-        .Select(static item => new NameKanji
+    public static IEnumerable<JapaneseCharacter> NameKanji(Dictionary<string, (IEnumerable<string>, IEnumerable<string>)> dataDictionary) => dataDictionary
+        .Select(static item => new Kanji
         (
             item.Key.EnumerateRunes().First(),
-            item.Value
+            item.Value.Item1,
+            item.Value.Item2
         ));
 
-    public static IEnumerable<SpecialExpression> SpecialExpressions(DataDictionary dataDictionary) => dataDictionary
+    public static IEnumerable<SpecialExpression> SpecialExpressions(Dictionary<string, IEnumerable<string>> dataDictionary) => dataDictionary
         .Select(static item => new SpecialExpression
         (
             item.Key,

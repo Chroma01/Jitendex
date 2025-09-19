@@ -18,51 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using System.Text;
-using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Models;
 
-public abstract class JapaneseCharacter(Rune rune, IEnumerable<string> readings)
+public abstract class JapaneseCharacter(Rune rune)
 {
     public Rune Rune { get; } = rune;
-    public ImmutableArray<CharacterReading> Readings { get; } = readings
-        .Select(ReadingFactory)
-        .Distinct()
-        .ToImmutableArray();
-
-    private static CharacterReading ReadingFactory(string text)
-    {
-        var hyphenlessText = text.Replace("-", string.Empty);
-        var normalText = hyphenlessText.Replace(".", string.Empty);
-
-        return (normalText.IsAllKatakana(), normalText.IsAllHiragana()) switch
-        {
-            (true, false) => new OnReading(text),
-
-            (false, true) => (hyphenlessText.Split("."), normalText.VerbToMasuStem()) switch
-            {
-                ({ Length: 1 }, _) => new KunReading(text),
-                ({ Length: 2 }, null) => new SuffixedKunReading(text),
-                ({ Length: 2 }, not null) => new VerbKunReading(text),
-
-                _ => throw new ArgumentException
-                (
-                    $"Reading `{text}` has too many '.' delimiters",
-                    nameof(text)
-                )
-            },
-
-            (true, true) => throw new ArgumentException
-            (
-                "Reading must not be empty",
-                nameof(text)
-            ),
-
-            (false, false) => throw new ArgumentException
-            (
-                $"Reading `{text}` must either be all hiragana or all katakana",
-                nameof(text)
-            )
-        };
-    }
+    public abstract ImmutableArray<CharacterReading> Readings { get; }
 }

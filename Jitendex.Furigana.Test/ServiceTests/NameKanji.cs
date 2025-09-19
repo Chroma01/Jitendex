@@ -31,8 +31,8 @@ public class NameKanji : ServiceTest
 
     private static readonly IEnumerable<JapaneseCharacter> _nameKanji = ResourceMethods.NameKanji(new()
     {
-        ["佐"] = ["あ", "さ"],
-        ["藤"] = ["あ", "とう"],
+        ["佐"] = (["あ"], ["さ"]),
+        ["藤"] = (["あ"], ["とう"]),
     });
 
     private static readonly Service _service = new(_vocabKanji.Concat(_nameKanji), []);
