@@ -33,15 +33,17 @@ internal class SolutionParts
 
     public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
-        var enumeratedCachedParts =
-            _cachedParts.Enumerate(entry, kanjiFormSlice, readingState);
+        bool anyCachedParts = false;
 
-        var enumeratedNextParts =
-            enumeratedCachedParts.Any() ?
-            enumeratedCachedParts :
-            _defaultParts.Enumerate(kanjiFormSlice, readingState);
+        foreach(var nextParts in _cachedParts.Enumerate(entry, kanjiFormSlice, readingState))
+        {
+            anyCachedParts = true;
+            yield return nextParts;
+        }
 
-        foreach(var nextParts in enumeratedNextParts)
+        if (anyCachedParts) yield break;
+
+        foreach(var nextParts in _defaultParts.Enumerate(kanjiFormSlice, readingState))
         {
             yield return nextParts;
         }

@@ -34,21 +34,16 @@ internal class IterationSolver
         var solutions = new List<SolutionBuilder>() { new() };
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            var newSolutions = new List<SolutionBuilder>();
             for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
             {
                 var kanjiFormSlice = new KanjiFormSlice(entry, sliceStart, sliceEnd);
-                newSolutions = IterateSolutions(entry, kanjiFormSlice, solutions);
+                var newSolutions = IterateSolutions(entry, kanjiFormSlice, solutions);
                 if (newSolutions.Count > 0)
                 {
                     sliceStart += sliceEnd - sliceStart - 1;
                     solutions = newSolutions;
                     break;
                 }
-            }
-            if (newSolutions.Count == 0)
-            {
-                yield break;
             }
         }
         foreach (var solutionBuilder in solutions)
