@@ -27,9 +27,11 @@ public class VerbKunReading : SuffixedKunReading
     public VerbKunReading(string text) : base(text)
     {
         MasuFormSuffix = Suffix.VerbToMasuStem() ??
-            throw new ArgumentException(
+            throw new ArgumentException
+            (
                 $"Reading `{text}` is not a verb",
-                nameof(text));
+                nameof(text)
+            );
     }
 
     public override bool Equals(object? obj) =>
