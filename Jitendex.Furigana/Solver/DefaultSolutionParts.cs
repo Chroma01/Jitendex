@@ -151,10 +151,10 @@ internal class DefaultSolutionParts
     private static string? RegexReading(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
-        var reaminingReadingText = readingState.RemainingTextNormalized;
+        var remainingReadingText = readingState.RemainingTextNormalized;
 
-        var greedyMatch = Match("(.+)", remainingKanjiFormText, reaminingReadingText);
-        var lazyMatch = Match("(.+?)", remainingKanjiFormText, reaminingReadingText);
+        var greedyMatch = Match("(.+)", remainingKanjiFormText, remainingReadingText);
+        var lazyMatch = Match("(.+?)", remainingKanjiFormText, remainingReadingText);
 
         if (!greedyMatch.Success || !lazyMatch.Success)
         {

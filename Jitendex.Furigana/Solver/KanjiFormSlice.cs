@@ -38,7 +38,7 @@ internal class KanjiFormSlice
     public Rune NextRune() => RemainingRunes.FirstOrDefault();
 
     public bool ContainsFirstRune { get => _sliceStart == 0; }
-    public bool ContainsFinalRune { get => _sliceEnd == _entry.NormalizedKanjiFormRunes.Length; }
+    public bool ContainsFinalRune { get => _sliceEnd == _entry.KanjiFormRunes.Length; }
 
     public string Text() => string.Join(string.Empty, Runes);
     public string RawText() => string.Join(string.Empty, RawRunes);

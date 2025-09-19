@@ -128,18 +128,6 @@ internal class CachedSolutionParts
         }
     }
 
-    private static ImmutableArray<string> GetStems(KanjiFormSlice kanjiFormSlice, KunReading kunReading)
-    {
-        if (kanjiFormSlice.ContainsFirstRune)
-        {
-            return [kunReading.Reading];
-        }
-        else
-        {
-            return kunReading.RendakuReadings.Add(kunReading.Reading);
-        }
-    }
-
     private static IEnumerable<string> EnumerateKunReadingTexts(KanjiFormSlice kanjiFormSlice, KunReading kunReading)
     {
         var readings = GetStems(kanjiFormSlice, kunReading);
@@ -201,6 +189,18 @@ internal class CachedSolutionParts
                 yield return stem + kunReading.Suffix[..(i + 1)];
                 yield return stem + kunReading.MasuFormSuffix[..(i + 1)];
             }
+        }
+    }
+
+    private static ImmutableArray<string> GetStems(KanjiFormSlice kanjiFormSlice, KunReading kunReading)
+    {
+        if (kanjiFormSlice.ContainsFirstRune)
+        {
+            return [kunReading.Reading];
+        }
+        else
+        {
+            return kunReading.RendakuReadings.Add(kunReading.Reading);
         }
     }
 }
