@@ -33,28 +33,36 @@ public abstract class JapaneseCharacter(Rune rune, IEnumerable<string> readings)
     private static CharacterReading ReadingFactory(string text)
     {
         var hyphenlessText = text.Replace("-", string.Empty);
-        var textSplit = hyphenlessText.Split(".");
         var normalText = hyphenlessText.Replace(".", string.Empty);
-        var masuForm = normalText.VerbToMasuStem();
 
         return (normalText.IsAllKatakana(), normalText.IsAllHiragana()) switch
         {
             (true, false) => new OnReading(text),
 
-            (false, true) => (textSplit, masuForm) switch
+            (false, true) => (hyphenlessText.Split("."), normalText.VerbToMasuStem()) switch
             {
                 ({ Length: 1 }, _) => new KunReading(text),
                 ({ Length: 2 }, null) => new SuffixedKunReading(text),
                 ({ Length: 2 }, not null) => new VerbKunReading(text),
 
-                _ => throw new ArgumentException(
+                _ => throw new ArgumentException
+                (
                     $"Reading `{text}` has too many '.' delimiters",
-                    nameof(text))
+                    nameof(text)
+                )
             },
 
-            _ => throw new ArgumentException(
+            (true, true) => throw new ArgumentException
+            (
+                "Reading must not be empty",
+                nameof(text)
+            ),
+
+            (false, false) => throw new ArgumentException
+            (
                 $"Reading `{text}` must either be all hiragana or all katakana",
-                nameof(text))
+                nameof(text)
+            )
         };
     }
 }
