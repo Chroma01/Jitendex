@@ -36,12 +36,18 @@ namespace Jitendex.Furigana.Models.TextUnits;
 /// 発条 could either be [発条|ばね] or [発条|ぜんまい].
 /// </para>
 /// </remarks>
-public class JapaneseCompound(string text, IEnumerable<string> readings) : IJapaneseTextUnit<CompoundReading>
+public class JapaneseCompound : IJapaneseTextUnit<CompoundReading>
 {
-    public string Text { get; } = text;
-    public ImmutableArray<CompoundReading> Readings { get; } = readings
-        .Select(KanaTransform.KatakanaToHiragana)
-        .Distinct()
-        .Select(r => new CompoundReading(r))
-        .ToImmutableArray();
+    public string Text { get; }
+    public ImmutableArray<CompoundReading> Readings { get; }
+
+    public JapaneseCompound(string text, IEnumerable<string> readings)
+    {
+        Text = text;
+        Readings = readings
+            .Select(KanaTransform.KatakanaToHiragana)
+            .Distinct()
+            .Select(r => new CompoundReading(this, r))
+            .ToImmutableArray();
+    }
 }

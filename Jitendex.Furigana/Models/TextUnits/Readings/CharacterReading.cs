@@ -20,12 +20,14 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public abstract class CharacterReading : IReading
 {
+    public JapaneseCharacter Character { get; }
     public abstract string Reading { get; }
     public bool IsPrefix { get; }
     public bool IsSuffix { get; }
 
-    public CharacterReading(string text)
+    public CharacterReading(JapaneseCharacter character, string text)
     {
+        Character = character;
         IsPrefix = text.EndsWith('-');
         IsSuffix = text.StartsWith('-');
     }

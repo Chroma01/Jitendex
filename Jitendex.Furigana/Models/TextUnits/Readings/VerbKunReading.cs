@@ -24,7 +24,7 @@ public class VerbKunReading : SuffixedKunReading
 {
     public string MasuFormSuffix { get; }
 
-    public VerbKunReading(string text) : base(text)
+    public VerbKunReading(Kanji character, string text) : base(character, text)
     {
         MasuFormSuffix = Suffix.VerbToMasuStem() ??
             throw new ArgumentException

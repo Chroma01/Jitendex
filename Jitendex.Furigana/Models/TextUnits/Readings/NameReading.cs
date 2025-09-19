@@ -24,7 +24,7 @@ public class NameReading : CharacterReading
 {
     public override string Reading { get; }
 
-    public NameReading(string text) : base(text)
+    public NameReading(Kanji character, string text) : base(character, text)
     {
         Reading = text.KatakanaToHiragana();
     }

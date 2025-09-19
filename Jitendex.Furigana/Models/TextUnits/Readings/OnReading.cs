@@ -32,7 +32,7 @@ public class OnReading : CharacterReading
     /// </remarks>
     public ImmutableArray<string> RendakuSokuonReadings { get; }
 
-    public OnReading(string text): base(text)
+    public OnReading(Kanji character, string text): base(character, text)
     {
         if (text.Contains('.'))
         {

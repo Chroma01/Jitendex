@@ -26,7 +26,7 @@ public class KunReading : CharacterReading
     public override string Reading { get; }
     public ImmutableArray<string> RendakuReadings { get; }
 
-    public KunReading(string text) : base(text)
+    public KunReading(Kanji character, string text) : base(character, text)
     {
         Reading = text
             .Replace("-", string.Empty)

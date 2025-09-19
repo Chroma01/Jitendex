@@ -24,7 +24,7 @@ public class SuffixedKunReading : KunReading
 {
     public string Suffix { get; }
 
-    public SuffixedKunReading(string text) : base(text)
+    public SuffixedKunReading(Kanji character, string text) : base(character, text)
     {
         Suffix = text
             .Replace("-", string.Empty)

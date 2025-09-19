@@ -31,25 +31,25 @@ public class Kanji : JapaneseCharacter
     {
         Readings = readings
             .Select(ReadingFactory)
-            .Concat(nanori.Select(static text => new NameReading(text)))
+            .Concat(nanori.Select(text => new NameReading(this, text)))
             .Distinct()
             .ToImmutableArray();
     }
 
-    private static CharacterReading ReadingFactory(string text)
+    private CharacterReading ReadingFactory(string text)
     {
         var hyphenlessText = text.Replace("-", string.Empty);
         var normalText = hyphenlessText.Replace(".", string.Empty);
 
         return (normalText.IsAllKatakana(), normalText.IsAllHiragana()) switch
         {
-            (true, false) => new OnReading(text),
+            (true, false) => new OnReading(this, text),
 
             (false, true) => (hyphenlessText.Split("."), normalText.VerbToMasuStem()) switch
             {
-                ({ Length: 1 }, _) => new KunReading(text),
-                ({ Length: 2 }, null) => new SuffixedKunReading(text),
-                ({ Length: 2 }, not null) => new VerbKunReading(text),
+                ({ Length: 1 }, _) => new KunReading(this, text),
+                ({ Length: 2 }, null) => new SuffixedKunReading(this, text),
+                ({ Length: 2 }, not null) => new VerbKunReading(this, text),
 
                 _ => throw new ArgumentException
                 (
