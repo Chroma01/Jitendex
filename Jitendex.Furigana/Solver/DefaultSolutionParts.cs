@@ -25,14 +25,33 @@ internal class DefaultSolutionParts
 {
     public IEnumerable<List<Solution.Part>> Enumerate(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
+        if (readingState.RemainingText.Length == 0)
+        {
+            // All "default" readings are based on the remaining text in the reading.
+            // If there is no remaining text, then there's nothing to do.
+            yield break;
+        }
         if (kanjiFormSlice.Runes.Length == 1)
         {
-            var reading = DefaultSingleCharacterReadings(kanjiFormSlice, readingState);
-            if (reading is null)
+            foreach (var parts in DefaultSingleKanjiParts(kanjiFormSlice, readingState))
             {
-                yield break;
+                yield return parts;
             }
-            var baseText = kanjiFormSlice.RawText();
+        }
+        else if (kanjiFormSlice.Runes.Length == 2)
+        {
+            foreach (var parts in DefaultRepeatedKanjiParts(kanjiFormSlice, readingState))
+            {
+                yield return parts;
+            }
+        }
+    }
+
+    private static IEnumerable<List<Solution.Part>> DefaultSingleKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    {
+        var baseText = kanjiFormSlice.RawText();
+        foreach (var reading in DefaultSingleCharacterReadings(kanjiFormSlice, readingState))
+        {
             if (baseText.IsKanaEquivalent(reading))
             {
                 yield return [new(baseText, null)];
@@ -43,58 +62,68 @@ internal class DefaultSolutionParts
                 yield return [new(baseText, furigana)];
             }
         }
-        else if (kanjiFormSlice.Runes.Length == 2)
-        {
-            var parts = DefaultRepeatedKanjiParts(kanjiFormSlice, readingState);
-            if (parts.Count > 0)
-            {
-                yield return parts;
-            }
-        }
     }
 
-    private static string? DefaultSingleCharacterReadings(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static IEnumerable<string> DefaultSingleCharacterReadings(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var currentRune = kanjiFormSlice.Runes[0];
         if (currentRune.IsKana())
         {
-            return currentRune.KatakanaToHiragana().ToString();
+            yield return currentRune.KatakanaToHiragana().ToString();
+            yield break;
         }
 
         var previousRune = kanjiFormSlice.PreviousRune();
         var nextRune = kanjiFormSlice.NextRune();
         if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
         {
-            return readingState.RegexReading(kanjiFormSlice);
+            var regexReading = readingState.RegexReading(kanjiFormSlice);
+            if (regexReading is not null)
+            {
+                yield return regexReading;
+                yield break;
+            }
         }
 
-        bool currentRuneIsKanji = currentRune.IsKanji();
-        if (currentRuneIsKanji && nextRune.IsKanjiOrDefault())
+        if (currentRune.IsKanji())
         {
-            return readingState.RegularKanjiReading();
+            var readingFirst = readingState.RemainingTextNormalized.First();
+            if (IsImpossibleKanjiReadingFirst(readingFirst))
+            {
+                yield break;
+            }
+            for (int i = readingState.RemainingText.Length; i > 0; i--)
+            {
+                yield return readingState.RemainingText[..i];
+            }
+            yield break;
         }
 
         var minimumReading = readingState.MinimumReading();
-        if (currentRuneIsKanji)
+        if (currentRune.ToString() == minimumReading)
         {
-            return minimumReading;
+            yield return minimumReading;
         }
-        else if (currentRune.ToString() == minimumReading)
-        {
-            return minimumReading;
-        }
-
-        return null;
     }
 
-    private static List<Solution.Part> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static bool IsImpossibleKanjiReadingFirst(char c) => c switch
+    {
+        'っ' or
+        'ょ' or
+        'ゃ' or
+        'ゅ' or
+        'ん' => true,
+        _ => false
+    };
+
+    private static IEnumerable<List<Solution.Part>> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var currentRune1 = kanjiFormSlice.Runes[0];
         var currentRune2 = kanjiFormSlice.Runes[1];
 
         if (!currentRune1.IsKanji() || currentRune1 != currentRune2)
         {
-            return [];
+            yield break;
         }
 
         var previousRune = kanjiFormSlice.PreviousRune();
@@ -102,19 +131,19 @@ internal class DefaultSolutionParts
 
         if (!previousRune.IsKanaOrDefault() || !nextRune.IsKanaOrDefault())
         {
-            return [];
+            yield break;
         }
 
         var reading = readingState.RegexReading(kanjiFormSlice);
 
         if (reading is null || reading.Length % 2 != 0)
         {
-            return [];
+            yield break;
         }
 
         int halfLength = reading.Length / 2;
 
-        return [
+        yield return [
             new(kanjiFormSlice.RawRunes[0].ToString(), reading[..halfLength]),
             new(kanjiFormSlice.RawRunes[1].ToString(), reading[halfLength..])
         ];

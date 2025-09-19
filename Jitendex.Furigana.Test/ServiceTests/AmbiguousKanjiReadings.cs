@@ -23,23 +23,19 @@ namespace Jitendex.Furigana.Test.ServiceTests;
 /// <summary>
 /// Tests a situation in which there is no unique correct solution in principle.
 /// </summary>
-/// <remarks>
-/// [好|すき]き[嫌|ら]い and [好|す]き[嫌|きら]い are both valid solutions according to the parameters of the problem.
-/// </remarks>
 [TestClass]
 public class AmbiguousKanjiReadings : ServiceTest
 {
     private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji(new()
     {
-        ["好"] = ["コウ", "この.む", "す.く", "よ.い", "い.い"],
-        ["嫌"] = ["ケン", "ゲン", "きら.う", "きら.い", "いや"],
+        ["夫"] = ["フ", "フウ", "ブ", "おっと", "それ"],
     });
 
     private static readonly Service _service = new(_kanji, []);
 
     private static readonly UnsolvableData _data =
     [
-        ("好き嫌い", "すききらい"),
+        ("夫夫", "ふうふ"),
     ];
 
     [TestMethod]

@@ -16,24 +16,20 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
 using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Models;
 
-public class KunReading : CharacterReading
+public class SuffixedKunReading : KunReading
 {
-    public string Reading { get; }
-    public ImmutableArray<string> RendakuReadings { get; }
+    public string Suffix { get; }
 
-    public KunReading(string text) : base(text)
+    public SuffixedKunReading(string text) : base(text)
     {
-        Reading = text
+        Suffix = text
             .Replace("-", string.Empty)
-            .Split(".")
-            .First()
+            .Split('.')
+            .ElementAt(1)
             .KatakanaToHiragana();
-
-        RendakuReadings = Reading.ToRendakuForms();
     }
 }

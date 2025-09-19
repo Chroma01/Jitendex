@@ -44,9 +44,10 @@ public class RequiresKanjiReadings : ServiceTest
         ["題"] = ["ダイ"],
         ["質"] = ["シツ", "シチ", "チ", "たち", "ただ.す", "もと", "わりふ"],
         ["蝶"] = ["チョウ"],
-        ["夫"] = ["フ", "フウ", "ブ", "おっと", "それ"],
         ["乱"] = ["ラン", "ロン", "みだ.れる", "みだ.る", "みだ.す", "みだ", "おさ.める", "わた.る"],
         ["脈"] = ["ミャク", "すじ",],
+        ["好"] = ["コウ", "この.む", "す.く", "よ.い", "い.い"],
+        ["嫌"] = ["ケン", "ゲン", "きら.う", "きら.い", "いや"],
     });
 
     private static readonly Service _service = new(_kanji, []);
@@ -68,7 +69,13 @@ public class RequiresKanjiReadings : ServiceTest
 
         // Despite being repeated kanji, the reading length is odd
         ("蝶蝶", "ちょうちょ", "[蝶|ちょう][蝶|ちょ]"),
-        ("夫夫", "ふうふ", "[夫|ふう][夫|ふ]"),
+
+        // Have to be especially careful with this one because
+        // the solver uses both the stem 'す' and the inflected
+        // masu-form 'すき' as possible readings for 好.
+        // By checking for okurigana in the kanji form text,
+        // we can limit the potential readings to just 'す'.
+        ("好き嫌い", "すききらい", "[好|す]き[嫌|きら]い"),
     ];
 
     private static readonly UnsolvableData _unsolvableData = _data

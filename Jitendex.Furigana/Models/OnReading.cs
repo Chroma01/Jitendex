@@ -26,6 +26,10 @@ public class OnReading : CharacterReading
     public string Reading { get; }
     public string? SokuonForm { get; }
     public ImmutableArray<string> RendakuReadings { get; }
+
+    /// <remarks>
+    /// Not sure if this combination ever actually occurs in practice
+    /// </remarks>
     public ImmutableArray<string> RendakuSokuonReadings { get; }
 
     public OnReading(string text): base(text)
