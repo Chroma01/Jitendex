@@ -73,7 +73,7 @@ public class RequiresKanjiReadings : ServiceTest
         ("夫夫", "ふうふ", "[夫|ふう][夫|ふ]"),
 
         // Have to be especially careful with this one because
-        // the solver uses both the stem 'す' and the inflected
+        // the solver can use both the stem 'す' and the inflected
         // masu-form 'すき' as possible readings for 好.
         // By checking for okurigana in the kanji form text,
         // we can limit the potential readings to just 'す'.
@@ -81,7 +81,7 @@ public class RequiresKanjiReadings : ServiceTest
     ];
 
     private static readonly UnsolvableData _unsolvableData = _data
-        .Select(static x => (x.Item1, x.Item2));
+        .Select(static x => (x.KanjiFormText, x.ReadingText));
 
     [TestMethod]
     public void TestSolvable()

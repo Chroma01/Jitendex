@@ -36,9 +36,11 @@ public abstract class Entry
     {
         if (readingText.Any(char.IsSurrogate))
         {
-            throw new ArgumentException(
+            throw new ArgumentException
+            (
                 "Reading text must not contain characters with surrogate code units.",
-                nameof(readingText));
+                nameof(readingText)
+            );
         }
 
         KanjiFormText = kanjiFormText;
