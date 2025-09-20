@@ -25,23 +25,13 @@ namespace Jitendex.Furigana.Solver;
 
 internal class DefaultSolutionParts : ISolutionParts
 {
-    public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
-    {
-        if (kanjiFormSlice.Runes.Length == 1)
+    public IEnumerable<List<Solution.Part>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
+        kanjiFormSlice.Runes switch
         {
-            foreach (var parts in DefaultSingleKanjiParts(kanjiFormSlice, readingState))
-            {
-                yield return parts;
-            }
-        }
-        else if (kanjiFormSlice.Runes.Length == 2)
-        {
-            foreach (var parts in DefaultRepeatedKanjiParts(kanjiFormSlice, readingState))
-            {
-                yield return parts;
-            }
-        }
-    }
+            { Length: 1 } => DefaultSingleKanjiParts(kanjiFormSlice, readingState),
+            { Length: 2 } => DefaultRepeatedKanjiParts(kanjiFormSlice, readingState),
+            _ => []
+        };
 
     private static IEnumerable<List<Solution.Part>> DefaultSingleKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
