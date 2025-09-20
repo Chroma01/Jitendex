@@ -23,9 +23,9 @@ using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class DefaultSolutionParts
+internal class DefaultSolutionParts : ISolutionParts
 {
-    public IEnumerable<List<Solution.Part>> Enumerate(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         if (kanjiFormSlice.Runes.Length == 1)
         {

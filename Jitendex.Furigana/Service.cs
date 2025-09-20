@@ -29,11 +29,12 @@ public class Service
     public Service(IEnumerable<JapaneseCharacter> characters, IEnumerable<JapaneseCompound> compounds)
     {
         var resourceCache = new ResourceCache(characters, compounds);
-        var cachedSolutionParts = new CachedSolutionParts(resourceCache);
-        var defaultSolutionParts = new DefaultSolutionParts();
-        var solutionParts = new SolutionParts(cachedSolutionParts, defaultSolutionParts);
-
-        _solver = new IterationSolver(solutionParts);
+        var solutionPartsGenerators = new List<ISolutionParts>()
+        {
+            new CachedSolutionParts(resourceCache),
+            new DefaultSolutionParts()
+        };
+        _solver = new IterationSolver(solutionPartsGenerators);
     }
 
     public Solution? Solve(Entry entry)

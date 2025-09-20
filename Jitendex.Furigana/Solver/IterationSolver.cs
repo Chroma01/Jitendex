@@ -22,11 +22,11 @@ namespace Jitendex.Furigana.Solver;
 
 internal class IterationSolver
 {
-    private readonly SolutionParts _solutionParts;
+    private readonly List<ISolutionParts> _solutionPartsGenerators;
 
-    public IterationSolver(SolutionParts solutionParts)
+    public IterationSolver(List<ISolutionParts> solutionPartsGenerators)
     {
-        _solutionParts = solutionParts;
+        _solutionPartsGenerators = solutionPartsGenerators;
     }
 
     public IEnumerable<Solution> Solve(Entry entry)
@@ -35,15 +35,19 @@ internal class IterationSolver
 
         for (int sliceStart = 0; sliceStart < entry.KanjiFormRunes.Length; sliceStart++)
         {
-            for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
+        BeginGeneratorLoop:
+            foreach (var solutionPartsGenerator in _solutionPartsGenerators)
             {
-                var kanjiFormSlice = new KanjiFormSlice(entry, sliceStart, sliceEnd);
-                var newSolutions = IterateSolutions(entry, kanjiFormSlice, solutions);
-                if (newSolutions.Count > 0)
+                for (int sliceEnd = entry.KanjiFormRunes.Length; sliceStart < sliceEnd; sliceEnd--)
                 {
-                    sliceStart += sliceEnd - sliceStart - 1;
-                    solutions = newSolutions;
-                    break;
+                    var kanjiFormSlice = new KanjiFormSlice(entry, sliceStart, sliceEnd);
+                    var newSolutions = IterateSolutions(solutionPartsGenerator, entry, kanjiFormSlice, solutions);
+                    if (newSolutions.Count > 0)
+                    {
+                        sliceStart += sliceEnd - sliceStart;
+                        solutions = newSolutions;
+                        goto BeginGeneratorLoop;
+                    }
                 }
             }
         }
@@ -58,7 +62,7 @@ internal class IterationSolver
         }
     }
 
-    private List<SolutionBuilder> IterateSolutions(Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> solutions)
+    private List<SolutionBuilder> IterateSolutions(ISolutionParts solutionPartsGenerator, Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> solutions)
     {
         var newSolutions = new List<SolutionBuilder>();
 
@@ -67,7 +71,7 @@ internal class IterationSolver
             var solutionParts = solution.ToParts();
             var readingState = new ReadingState(entry, solution.ReadingTextLength());
 
-            foreach (var newParts in _solutionParts.Enumerate(entry, kanjiFormSlice, readingState))
+            foreach (var newParts in solutionPartsGenerator.Enumerate(entry, kanjiFormSlice, readingState))
             {
                 newSolutions.Add
                 (

@@ -16,28 +16,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models.TextUnits;
+using Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Test.ServiceTests;
+namespace Jitendex.Furigana.Solver;
 
-/// <summary>
-/// Tests a situation in which there is no unique correct solution in principle.
-/// </summary>
-[TestClass]
-public class AmbiguousKanjiReadings : ServiceTest
+internal interface ISolutionParts
 {
-    private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji([]);
-
-    private static readonly Service _service = new(_kanji, []);
-
-    private static readonly UnsolvableData _data =
-    [
-    ];
-
-    [Ignore]
-    [TestMethod]
-    public void TestUnsolvable()
-    {
-        TestUnsolvable(_service, _data);
-    }
+    public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState);
 }
