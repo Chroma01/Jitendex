@@ -23,7 +23,7 @@ using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class DefaultSolutionParts : ISolutionParts
+internal class DefaultSolutionParts : ISolutionPartsGenerator
 {
     public IEnumerable<List<Solution.Part>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
         kanjiFormSlice.Runes switch

@@ -25,11 +25,11 @@ using Jitendex.Furigana.Models.TextUnits.Readings;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class CachedSolutionParts : ISolutionParts
+internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
 {
     private readonly ResourceCache _resourceCache;
 
-    public CachedSolutionParts(ResourceCache resourceCache)
+    public CachedSolutionPartsGenerator(ResourceCache resourceCache)
     {
         _resourceCache = resourceCache;
     }

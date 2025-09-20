@@ -22,9 +22,9 @@ namespace Jitendex.Furigana.Solver;
 
 internal class IterationSolver
 {
-    private readonly List<ISolutionParts> _solutionPartsGenerators;
+    private readonly List<ISolutionPartsGenerator> _solutionPartsGenerators;
 
-    public IterationSolver(List<ISolutionParts> solutionPartsGenerators)
+    public IterationSolver(List<ISolutionPartsGenerator> solutionPartsGenerators)
     {
         _solutionPartsGenerators = solutionPartsGenerators;
     }
@@ -62,7 +62,7 @@ internal class IterationSolver
         }
     }
 
-    private List<SolutionBuilder> IterateSolutions(ISolutionParts solutionPartsGenerator, Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> solutions)
+    private List<SolutionBuilder> IterateSolutions(ISolutionPartsGenerator solutionPartsGenerator, Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> solutions)
     {
         var newSolutions = new List<SolutionBuilder>();
 

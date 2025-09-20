@@ -29,9 +29,9 @@ public class Service
     public Service(IEnumerable<JapaneseCharacter> characters, IEnumerable<JapaneseCompound> compounds)
     {
         var resourceCache = new ResourceCache(characters, compounds);
-        var solutionPartsGenerators = new List<ISolutionParts>()
+        var solutionPartsGenerators = new List<ISolutionPartsGenerator>()
         {
-            new CachedSolutionParts(resourceCache),
+            new CachedSolutionPartsGenerator(resourceCache),
             new DefaultSolutionParts()
         };
         _solver = new IterationSolver(solutionPartsGenerators);

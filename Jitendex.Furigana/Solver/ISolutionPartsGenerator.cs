@@ -20,7 +20,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal interface ISolutionParts
+internal interface ISolutionPartsGenerator
 {
     public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState);
 }
