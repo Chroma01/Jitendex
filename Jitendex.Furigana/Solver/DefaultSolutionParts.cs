@@ -28,12 +28,12 @@ internal class DefaultSolutionParts : ISolutionParts
     public IEnumerable<List<Solution.Part>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
         kanjiFormSlice.Runes switch
         {
-            { Length: 1 } => DefaultSingleKanjiParts(kanjiFormSlice, readingState),
+            { Length: 1 } => DefaultSingleCharacterParts(kanjiFormSlice, readingState),
             { Length: 2 } => DefaultRepeatedKanjiParts(kanjiFormSlice, readingState),
             _ => []
         };
 
-    private static IEnumerable<List<Solution.Part>> DefaultSingleKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static IEnumerable<List<Solution.Part>> DefaultSingleCharacterParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var baseText = kanjiFormSlice.RawText();
         foreach (var reading in DefaultSingleCharacterReadings(kanjiFormSlice, readingState))
