@@ -87,7 +87,7 @@ internal class SolutionBuilder
             if (mergedTexts.Count > 0)
             {
                 var baseText = string.Join(string.Empty, mergedTexts);
-                parts.Add(new SolutionPart(baseText, null));
+                parts.Add(new SolutionPart { BaseText = baseText });
                 mergedTexts = [];
             }
             parts.Add(part);
@@ -95,7 +95,7 @@ internal class SolutionBuilder
         if (mergedTexts.Count > 0)
         {
             var baseText = string.Join(string.Empty, mergedTexts);
-            parts.Add(new SolutionPart(baseText, null));
+            parts.Add(new SolutionPart { BaseText = baseText });
         }
         return parts.Where(static part =>
                 part.BaseText != string.Empty ||

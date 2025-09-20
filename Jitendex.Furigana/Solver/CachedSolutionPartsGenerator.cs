@@ -47,12 +47,12 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             }
             else if (baseText.IsKanaEquivalent(reading))
             {
-                yield return [new(baseText, null)];
+                yield return [new SolutionPart { BaseText = baseText }];
             }
             else
             {
                 var furigana = readingState.RemainingText[..reading.Length];
-                yield return [new(baseText, furigana)];
+                yield return [new SolutionPart { BaseText = baseText, Furigana = furigana }];
             }
         }
     }

@@ -17,6 +17,19 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+
 namespace Jitendex.Furigana.Models;
 
-public record SolutionPart(string BaseText, string? Furigana);
+public class SolutionPart
+{
+    public required string BaseText { get; init; }
+    public string? Furigana { get; init; }
+
+    public override bool Equals(object? obj) =>
+        obj is SolutionPart part &&
+        BaseText == part.BaseText &&
+        Furigana == part.Furigana;
+
+    public override int GetHashCode() =>
+        HashCode.Combine(BaseText, Furigana);
+}

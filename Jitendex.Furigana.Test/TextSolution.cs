@@ -35,7 +35,7 @@ internal static partial class TextSolution
 
         if (matches.Count == 0)
         {
-            solutionBuilder.Add(new(text, null));
+            solutionBuilder.Add(new SolutionPart { BaseText = text });
         }
 
         foreach (Match match in matches)
@@ -45,9 +45,9 @@ internal static partial class TextSolution
             var furigana = match.Groups[3].Value;
             var noFurigana2 = match.Groups[4].Value;
 
-            solutionBuilder.Add(new(noFurigana1, null));
-            solutionBuilder.Add(new(baseText, furigana));
-            solutionBuilder.Add(new(noFurigana2, null));
+            solutionBuilder.Add(new SolutionPart { BaseText = noFurigana1 });
+            solutionBuilder.Add(new SolutionPart { BaseText = baseText, Furigana = furigana });
+            solutionBuilder.Add(new SolutionPart { BaseText = noFurigana2 });
         }
 
         var solution = solutionBuilder.ToSolution(entry) ?? 
