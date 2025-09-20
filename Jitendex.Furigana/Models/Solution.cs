@@ -23,10 +23,8 @@ namespace Jitendex.Furigana.Models;
 
 public class Solution
 {
-    public record Part(string BaseText, string? Furigana);
-
     public required Entry Entry { get; init; }
-    public required ImmutableArray<Part> Parts { get; init; }
+    public required ImmutableArray<SolutionPart> Parts { get; init; }
 
     public override bool Equals(object? obj) =>
         obj is Solution other &&

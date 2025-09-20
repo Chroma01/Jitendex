@@ -25,7 +25,7 @@ namespace Jitendex.Furigana.Solver;
 
 internal class DefaultSolutionParts : ISolutionPartsGenerator
 {
-    public IEnumerable<List<Solution.Part>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
+    public IEnumerable<List<SolutionPart>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
         kanjiFormSlice.Runes switch
         {
             { Length: 1 } => DefaultSingleCharacterParts(kanjiFormSlice, readingState),
@@ -33,7 +33,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             _ => []
         };
 
-    private static IEnumerable<List<Solution.Part>> DefaultSingleCharacterParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static IEnumerable<List<SolutionPart>> DefaultSingleCharacterParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var baseText = kanjiFormSlice.RawText();
         foreach (var reading in DefaultSingleCharacterReadings(kanjiFormSlice, readingState))
@@ -105,7 +105,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         _ => false
     };
 
-    private static IEnumerable<List<Solution.Part>> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static IEnumerable<List<SolutionPart>> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var currentRune1 = kanjiFormSlice.Runes[0];
         var currentRune2 = kanjiFormSlice.Runes[1];

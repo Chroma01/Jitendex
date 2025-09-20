@@ -24,11 +24,11 @@ namespace Jitendex.Furigana.Solver;
 
 internal class SolutionBuilder
 {
-    private readonly List<Solution.Part> _parts;
+    private readonly List<SolutionPart> _parts;
 
     public SolutionBuilder() : this([]) { }
 
-    public SolutionBuilder(IEnumerable<Solution.Part> parts)
+    public SolutionBuilder(IEnumerable<SolutionPart> parts)
     {
         _parts = [.. parts];
     }
@@ -38,8 +38,8 @@ internal class SolutionBuilder
     private string NormalizedReadingText() => ReadingText().KatakanaToHiragana();
     public int ReadingTextLength() => ReadingText().Length;
 
-    public void Add(Solution.Part part) => _parts.Add(part);
-    public ImmutableArray<Solution.Part> ToParts() => [.. _parts];
+    public void Add(SolutionPart part) => _parts.Add(part);
+    public ImmutableArray<SolutionPart> ToParts() => [.. _parts];
 
     public Solution? ToSolution(Entry entry) => !IsValid(entry) ? null : new Solution
     {
@@ -73,9 +73,9 @@ internal class SolutionBuilder
     /// Merge consecutive parts together if they have null furigana.
     /// Ignore merged parts with both empty text and null furigana.
     /// </summary>
-    private ImmutableArray<Solution.Part> NormalizedParts()
+    private ImmutableArray<SolutionPart> NormalizedParts()
     {
-        var parts = new List<Solution.Part>();
+        var parts = new List<SolutionPart>();
         var mergedTexts = new List<string>();
         foreach (var part in _parts)
         {
@@ -87,7 +87,7 @@ internal class SolutionBuilder
             if (mergedTexts.Count > 0)
             {
                 var baseText = string.Join(string.Empty, mergedTexts);
-                parts.Add(new Solution.Part(baseText, null));
+                parts.Add(new SolutionPart(baseText, null));
                 mergedTexts = [];
             }
             parts.Add(part);
@@ -95,7 +95,7 @@ internal class SolutionBuilder
         if (mergedTexts.Count > 0)
         {
             var baseText = string.Join(string.Empty, mergedTexts);
-            parts.Add(new Solution.Part(baseText, null));
+            parts.Add(new SolutionPart(baseText, null));
         }
         return parts.Where(static part =>
                 part.BaseText != string.Empty ||

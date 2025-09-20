@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2015 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -16,11 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Furigana.Models;
+namespace Jitendex.Furigana.Models;
 
-namespace Jitendex.Furigana.Solver;
-
-internal interface ISolutionPartsGenerator
-{
-    public IEnumerable<List<SolutionPart>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState);
-}
+public record SolutionPart(string BaseText, string? Furigana);

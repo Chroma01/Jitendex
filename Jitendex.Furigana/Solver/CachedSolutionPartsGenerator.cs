@@ -34,7 +34,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
         _resourceCache = resourceCache;
     }
 
-    public IEnumerable<List<Solution.Part>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    public IEnumerable<List<SolutionPart>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var readings = GetReadings(entry, kanjiFormSlice);
         var baseText = kanjiFormSlice.RawText();
