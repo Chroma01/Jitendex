@@ -32,8 +32,6 @@ public class WeirdKanaReadings : ServiceTest
         ["月"] = ["ゲツ", "ガツ", "つき"],
     });
 
-    private static readonly Service _service = new(_kanji, []);
-
     private static readonly SolvableData _data =
     [
         ("一ヶ月", "いっかげつ", "[一|いっ][ヶ|か][月|げつ]"),
@@ -47,6 +45,7 @@ public class WeirdKanaReadings : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        TestSolvable(_service, _data);
+        var service = new Service(_kanji, []);
+        TestSolvable(service, _data);
     }
 }

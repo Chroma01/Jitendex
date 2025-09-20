@@ -28,8 +28,6 @@ public class AmbiguousKanjiReadings : ServiceTest
 {
     private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.VocabKanji([]);
 
-    private static readonly Service _service = new(_kanji, []);
-
     private static readonly UnsolvableData _data =
     [
     ];
@@ -38,6 +36,7 @@ public class AmbiguousKanjiReadings : ServiceTest
     [TestMethod]
     public void TestUnsolvable()
     {
-        TestUnsolvable(_service, _data);
+        var service = new Service(_kanji, []);
+        TestUnsolvable(service, _data);
     }
 }

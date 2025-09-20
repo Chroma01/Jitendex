@@ -53,8 +53,6 @@ public class RequiresKanjiReadingsAndSpecialExpressions : ServiceTest
         ["発条"] = ["ぜんまい", "ばね"],
     });
 
-    private static readonly Service _service = new(_kanji, _compounds);
-
     private static readonly SolvableData _data =
     [
         ("大和魂", "やまとだましい", "[大和|やまと][魂|だましい]"),
@@ -86,6 +84,7 @@ public class RequiresKanjiReadingsAndSpecialExpressions : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        TestSolvable(_service, _data);
+        var service = new Service(_kanji, _compounds);
+        TestSolvable(service, _data);
     }
 }

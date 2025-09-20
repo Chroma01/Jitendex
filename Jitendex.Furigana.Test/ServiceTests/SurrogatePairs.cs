@@ -39,10 +39,9 @@ public class SurrogatePairs : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        foreach (var (kanjiFormText, readingText, expectedResultText) in _data)
+        foreach (var (kanjiFormText, _, expectedResultText) in _data)
         {
             Assert.IsTrue(kanjiFormText.Any(char.IsSurrogate));
-            Assert.IsFalse(readingText.Any(char.IsSurrogate));
             Assert.IsTrue(expectedResultText.Any(char.IsSurrogate));
         }
         TestSolvable(DefaultService, _data);

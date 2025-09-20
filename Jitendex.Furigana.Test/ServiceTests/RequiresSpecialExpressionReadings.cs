@@ -33,8 +33,6 @@ public class RequiresSpecialExpressionReadings : ServiceTest
         ["狗母魚"] = ["えそ"],
     });
 
-    private static readonly Service _service = new([], _compounds);
-
     private static readonly SolvableData _data =
     [
         ("芝生", "しばふ", "[芝生|しばふ]"),
@@ -61,12 +59,14 @@ public class RequiresSpecialExpressionReadings : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        TestSolvable(_service, _data);
+        var service = new Service([], _compounds);
+        TestSolvable(service, _data);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        TestUnsolvable(_service, _unsolvableData);
+        var service = new Service([], _compounds);
+        TestUnsolvable(service, _unsolvableData);
     }
 }

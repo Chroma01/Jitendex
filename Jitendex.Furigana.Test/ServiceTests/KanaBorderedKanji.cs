@@ -52,7 +52,10 @@ public class KanaBorderedKanji : ServiceTest
 
         // Many kanji and kana separators
         ("毒を以て毒を制す", "どくをもってどくをせいす", "[毒|どく]を[以|もっ]て[毒|どく]を[制|せい]す"),
-        ("好き運ぶ嫌い", "すきはこぶきらい", "[好|す]き[運|はこ]ぶ[嫌|きら]い"),
+
+        // Note that "好き嫌い" isn't solvable by the default service,
+        // but the "者が" delimiter here allows for a default solution.
+        ("好き者が嫌い", "すきものがきらい", "[好|す]き[者|もの]が[嫌|きら]い"),
     ];
 
     [TestMethod]

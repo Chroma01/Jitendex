@@ -51,8 +51,6 @@ public class RequiresKanjiReadings : ServiceTest
         ["嫌"] = ["ケン", "ゲン", "きら.う", "きら.い", "いや"],
     });
 
-    private static readonly Service _service = new(_kanji, []);
-
     private static readonly SolvableData _data =
     [
         ("御姉さん", "おねえさん", "[御|お][姉|ねえ]さん"),
@@ -86,7 +84,8 @@ public class RequiresKanjiReadings : ServiceTest
     [TestMethod]
     public void TestSolvable()
     {
-        TestSolvable(_service, _data);
+        var service = new Service(_kanji, []);
+        TestSolvable(service, _data);
     }
 
     [TestMethod]
