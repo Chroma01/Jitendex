@@ -121,6 +121,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
     private static IEnumerable<string> EnumerateReadingTexts(KanjiFormSlice kanjiFormSlice, CharacterReading characterReading) =>
         characterReading switch
         {
+            NonKanjiReading nonKanjiReading => EnumerateNonKanjiReadingTexts(nonKanjiReading),
             NameReading nameReading => EnumerateNameReadingTexts(nameReading),
             OnReading onReading => EnumerateOnReadingTexts(kanjiFormSlice, onReading),
             VerbKunReading verbKunReading => EnumerateVerbKunReadingTexts(kanjiFormSlice, verbKunReading),
@@ -128,6 +129,11 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             KunReading kunReading => EnumerateKunReadingTexts(kanjiFormSlice, kunReading),
             _ => throw new NotImplementedException()
         };
+
+    private static IEnumerable<string> EnumerateNonKanjiReadingTexts(NonKanjiReading nonKanjiReading)
+    {
+        yield return nonKanjiReading.Reading;
+    }
 
     private static IEnumerable<string> EnumerateNameReadingTexts(NameReading nameReading)
     {

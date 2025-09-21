@@ -38,6 +38,13 @@ internal static class ResourceMethods
             item.Value.Item2
         ));
 
+    public static IEnumerable<JapaneseCharacter> NonKanji(Dictionary<string, IEnumerable<string>> dataDictionary) => dataDictionary
+        .Select(static item => new NonKanji
+        (
+            item.Key.EnumerateRunes().First(),
+            item.Value
+        ));
+
     public static IEnumerable<JapaneseCompound> Compounds(Dictionary<string, IEnumerable<string>> dataDictionary) => dataDictionary
         .Select(static item => new JapaneseCompound
         (

@@ -24,7 +24,7 @@ namespace Jitendex.Furigana.Test;
 
 internal static partial class TextSolution
 {
-    [GeneratedRegex(@"([^\[]*)\[(.+?)\|(.+?)\]([^\[]*)", RegexOptions.None)]
+    [GeneratedRegex(@"([^\[]*)\[(.+?)\|(.*?)\]([^\[]*)", RegexOptions.None)]
     private static partial Regex TextSolutionRegex();
 
     public static Solution Parse(string text, Entry entry)
