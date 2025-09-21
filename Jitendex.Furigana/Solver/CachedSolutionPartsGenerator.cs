@@ -47,11 +47,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             }
             else if (baseText.IsKanaEquivalent(text))
             {
-                yield return [new SolutionPart
-                {
-                    BaseText = baseText,
-                    Readings = [.. readings],
-                }];
+                yield return [new SolutionPart { BaseText = baseText }];
             }
             else
             {

@@ -18,7 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Frozen;
+using System.Text;
 using Jitendex.Furigana.Models.TextUnits;
+using Jitendex.Furigana.Models.TextUnits.Readings;
 
 namespace Jitendex.Furigana.Solver;
 
@@ -36,5 +38,20 @@ internal class ResourceCache
         Compounds = compounds
             .Select(x => new KeyValuePair<string, JapaneseCompound>(x.Text, x))
             .ToFrozenDictionary();
+    }
+
+    public UnknownCharacterReading NewReading(Rune rune, string readingText)
+    {
+        if (Characters.TryGetValue(rune.Value, out JapaneseCharacter? character))
+        {
+            var reading = new UnknownCharacterReading(character, readingText);
+            return reading;
+        }
+        else
+        {
+            var newCharacter = new Kanji(rune, [], []);
+            var reading = new UnknownCharacterReading(newCharacter, readingText);
+            return reading;
+        }
     }
 }

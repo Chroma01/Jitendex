@@ -25,6 +25,13 @@ namespace Jitendex.Furigana.Solver;
 
 internal class DefaultSolutionParts : ISolutionPartsGenerator
 {
+    private readonly ResourceCache _resourceCache;
+
+    public DefaultSolutionParts(ResourceCache resourceCache)
+    {
+        _resourceCache = resourceCache;
+    }
+
     public IEnumerable<List<SolutionPart>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
         kanjiFormSlice.Runes switch
         {
@@ -33,25 +40,22 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             _ => []
         };
 
-    private static IEnumerable<List<SolutionPart>> DefaultSingleCharacterParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private IEnumerable<List<SolutionPart>> DefaultSingleCharacterParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var baseText = kanjiFormSlice.RawText();
         foreach (var reading in DefaultSingleCharacterReadings(kanjiFormSlice, readingState))
         {
             if (baseText.IsKanaEquivalent(reading))
             {
-                yield return [new SolutionPart
-                {
-                    BaseText = baseText,
-                }];
+                yield return [new SolutionPart { BaseText = baseText }];
             }
             else
             {
-                var furigana = readingState.RemainingText[..reading.Length];
                 yield return [new SolutionPart
                 {
                     BaseText = baseText,
-                    Furigana = furigana,
+                    Furigana = readingState.RemainingText[..reading.Length],
+                    Readings = [_resourceCache.NewReading(kanjiFormSlice.Runes[0], reading)],
                 }];
             }
         }
@@ -112,7 +116,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         _ => false
     };
 
-    private static IEnumerable<List<SolutionPart>> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private IEnumerable<List<SolutionPart>> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
         var currentRune1 = kanjiFormSlice.Runes[0];
         var currentRune2 = kanjiFormSlice.Runes[1];
@@ -145,11 +149,13 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             {
                 BaseText = kanjiFormSlice.RawRunes[0].ToString(),
                 Furigana = reading[..halfLength],
+                Readings = [_resourceCache.NewReading(currentRune1, reading[..halfLength])],
             },
             new SolutionPart
             {
                 BaseText = kanjiFormSlice.RawRunes[1].ToString(),
                 Furigana = reading[halfLength..],
+                Readings = [_resourceCache.NewReading(currentRune2, reading[halfLength..])],
             }
         ];
     }
