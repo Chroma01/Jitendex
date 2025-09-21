@@ -30,14 +30,16 @@ public static class VerbTransform
     private static char LastToMasuStemLast(string text) =>
         text.LastOrDefault() switch
         {
+            'う' => 'い',
             'く' => 'き',
             'ぐ' => 'ぎ',
             'す' => 'し',
             'ず' => 'じ',
+            'つ' => 'ち',
+            'ぬ' => 'に',
+            'ぶ' => 'び',
             'む' => 'み',
             'る' => 'り',
-            'ぶ' => 'び',
-            'う' => 'い',
             _ => default
         };
 }
