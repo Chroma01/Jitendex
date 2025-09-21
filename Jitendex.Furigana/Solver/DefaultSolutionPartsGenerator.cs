@@ -40,12 +40,19 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         {
             if (baseText.IsKanaEquivalent(reading))
             {
-                yield return [new SolutionPart { BaseText = baseText }];
+                yield return [new SolutionPart
+                {
+                    BaseText = baseText,
+                }];
             }
             else
             {
                 var furigana = readingState.RemainingText[..reading.Length];
-                yield return [new SolutionPart { BaseText = baseText, Furigana = furigana }];
+                yield return [new SolutionPart
+                {
+                    BaseText = baseText,
+                    Furigana = furigana,
+                }];
             }
         }
     }
@@ -132,9 +139,18 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
 
         int halfLength = reading.Length / 2;
 
-        yield return [
-            new SolutionPart { BaseText = kanjiFormSlice.RawRunes[0].ToString(), Furigana = reading[..halfLength] },
-            new SolutionPart { BaseText = kanjiFormSlice.RawRunes[1].ToString(), Furigana = reading[halfLength..] }
+        yield return
+        [
+            new SolutionPart
+            {
+                BaseText = kanjiFormSlice.RawRunes[0].ToString(),
+                Furigana = reading[..halfLength],
+            },
+            new SolutionPart
+            {
+                BaseText = kanjiFormSlice.RawRunes[1].ToString(),
+                Furigana = reading[halfLength..],
+            }
         ];
     }
 

@@ -36,28 +36,36 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
 
     public IEnumerable<List<SolutionPart>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
     {
-        var readings = GetReadings(entry, kanjiFormSlice);
+        var textToReadings = GetReadings(entry, kanjiFormSlice);
         var baseText = kanjiFormSlice.RawText();
 
-        foreach (var reading in readings)
+        foreach (var (text, readings) in textToReadings)
         {
-            if (!readingState.RemainingTextNormalized.StartsWith(reading))
+            if (!readingState.RemainingTextNormalized.StartsWith(text))
             {
                 continue;
             }
-            else if (baseText.IsKanaEquivalent(reading))
+            else if (baseText.IsKanaEquivalent(text))
             {
-                yield return [new SolutionPart { BaseText = baseText }];
+                yield return [new SolutionPart
+                {
+                    BaseText = baseText,
+                    Readings = [.. readings],
+                }];
             }
             else
             {
-                var furigana = readingState.RemainingText[..reading.Length];
-                yield return [new SolutionPart { BaseText = baseText, Furigana = furigana }];
+                yield return [new SolutionPart
+                {
+                    BaseText = baseText,
+                    Furigana = readingState.RemainingText[..text.Length],
+                    Readings = [.. readings],
+                }];
             }
         }
     }
 
-    private ImmutableArray<string> GetReadings(Entry entry, KanjiFormSlice kanjiFormSlice)
+    private Dictionary<string, List<IReading>> GetReadings(Entry entry, KanjiFormSlice kanjiFormSlice)
     {
         if (kanjiFormSlice.Runes.Length == 1)
         {
@@ -72,15 +80,17 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             var text = kanjiFormSlice.Text();
             if (_resourceCache.Compounds.TryGetValue(text, out JapaneseCompound? compound))
             {
-                return compound.Readings.Select(x => x.Reading).ToImmutableArray();
+                return compound.Readings
+                    .Select(x => new KeyValuePair<string, List<IReading>>(x.Reading, [x]))
+                    .ToDictionary();
             }
         }
         return [];
     }
 
-    private static ImmutableArray<string> GetCharacterReadingTexts(Entry entry, KanjiFormSlice kanjiFormSlice, JapaneseCharacter character)
+    private static Dictionary<string, List<IReading>> GetCharacterReadingTexts(Entry entry, KanjiFormSlice kanjiFormSlice, JapaneseCharacter character)
     {
-        var textSet = new HashSet<string>();
+        var textToReadings = new Dictionary<string, List<IReading>>();
 
         foreach (var reading in character.Readings)
         {
@@ -98,11 +108,18 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             }
             foreach (var text in EnumerateReadingTexts(kanjiFormSlice, reading))
             {
-                textSet.Add(text);
+                if (textToReadings.TryGetValue(text, out List<IReading>? readings))
+                {
+                    readings.Add(reading);
+                }
+                else
+                {
+                    textToReadings[text] = [reading];
+                }
             }
         }
 
-        return [.. textSet];
+        return textToReadings;
     }
 
     private static IEnumerable<string> EnumerateReadingTexts(KanjiFormSlice kanjiFormSlice, CharacterReading characterReading) =>
@@ -175,7 +192,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
 
             foreach (var stem in stems)
             {
-                yield return stem + kunReading.Suffix[..(i + 1)];;
+                yield return stem + kunReading.Suffix[..(i + 1)]; ;
             }
         }
     }
@@ -206,8 +223,12 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             foreach (var stem in stems)
             {
                 yield return stem + kunReading.Suffix[..(i + 1)];
-                yield return stem + kunReading.MasuFormSuffix[..(i + 1)];
             }
+        }
+
+        foreach (var stem in stems)
+        {
+            yield return stem + kunReading.MasuFormSuffix;
         }
     }
 
