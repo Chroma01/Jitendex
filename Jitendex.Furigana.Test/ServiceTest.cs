@@ -29,18 +29,18 @@ public class ServiceTest
 
     protected static void TestSolvable(Service service, SolvableData data)
     {
-        foreach (var (KanjiFormText, ReadingText, ExpectedSolutionText) in data)
+        foreach (var (kanjiFormText, readingText, expectedSolutionText) in data)
         {
-            var entry = new VocabEntry(KanjiFormText, ReadingText);
-            TestSingleSolvable(service, entry, ExpectedSolutionText);
+            var entry = new VocabEntry(kanjiFormText, readingText);
+            TestSingleSolvable(service, entry, expectedSolutionText);
         }
     }
 
     protected static void TestUnsolvable(Service service, UnsolvableData data)
     {
-        foreach (var (KanjiFormText, ReadingText) in data)
+        foreach (var (kanjiFormText, readingText) in data)
         {
-            var entry = new VocabEntry(KanjiFormText, ReadingText);
+            var entry = new VocabEntry(kanjiFormText, readingText);
             TestSingleUnsolvable(service, entry);
         }
     }
