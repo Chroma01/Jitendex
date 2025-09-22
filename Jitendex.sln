@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Warehouse", "Jitendex.Warehouse\Jitendex.Warehouse.csproj", "{32F9E596-3A5E-4954-92DF-D078F8509421}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Import", "Jitendex.Import\Jitendex.Import.csproj", "{32F9E596-3A5E-4954-92DF-D078F8509421}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Furigana", "Jitendex.Furigana\Jitendex.Furigana.csproj", "{EC818159-168A-4ECD-8200-D6CC89EA6502}"
 EndProject
