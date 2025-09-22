@@ -1,5 +1,4 @@
 ﻿/*
-Copyright (c) 2015, 2017 Doublevil
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
