@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Warehouse.Kanjidic2.Models;
+using Jitendex.Import.Kanjidic2.Models;
 
-namespace Jitendex.Warehouse.Kanjidic2;
+namespace Jitendex.Import.Kanjidic2;
 
 public class Kanjidic2Context : DbContext
 {

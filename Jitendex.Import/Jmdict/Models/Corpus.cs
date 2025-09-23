@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Import.Jmdict.Models;
 
 public enum CorpusId
 {

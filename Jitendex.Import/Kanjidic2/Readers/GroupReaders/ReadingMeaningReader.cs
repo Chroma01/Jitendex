@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Warehouse.Kanjidic2.Models.Groups;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
+using Jitendex.Import.Kanjidic2.Models.Groups;
+using Jitendex.Import.Kanjidic2.Models.EntryElements;
 
-namespace Jitendex.Warehouse.Kanjidic2.Readers.GroupReaders;
+namespace Jitendex.Import.Kanjidic2.Readers.GroupReaders;
 
 internal partial class ReadingMeaningReader
 {

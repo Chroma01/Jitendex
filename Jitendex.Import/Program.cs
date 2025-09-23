@@ -17,10 +17,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Diagnostics;
-using Jitendex.Warehouse.Jmdict;
-using Jitendex.Warehouse.Kanjidic2;
+using Jitendex.Import.Jmdict;
+using Jitendex.Import.Kanjidic2;
 
-namespace Jitendex.Warehouse;
+namespace Jitendex.Import;
 
 public class Program
 {

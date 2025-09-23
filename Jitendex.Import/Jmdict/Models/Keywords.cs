@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Frozen;
 using System.ComponentModel.DataAnnotations;
 
-namespace Jitendex.Warehouse.Jmdict.Models;
+namespace Jitendex.Import.Jmdict.Models;
 
 public class ReadingInfoTag : IKeyword
 {

@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse;
+namespace Jitendex.Import;
 
 public static class BuildDb
 {

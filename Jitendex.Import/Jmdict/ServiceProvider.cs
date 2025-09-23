@@ -19,19 +19,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
-using Jitendex.Warehouse.Jmdict.Models;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
+using Jitendex.Import.Jmdict.Models;
+using Jitendex.Import.Jmdict.Models.EntryElements;
+using Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
+using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
+using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
 
-using Jitendex.Warehouse.Jmdict.Readers;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
-using Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
+using Jitendex.Import.Jmdict.Readers;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-namespace Jitendex.Warehouse.Jmdict;
+namespace Jitendex.Import.Jmdict;
 
 internal record FilePaths(string XmlFile, string XRefCache);
 

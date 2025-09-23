@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.ReadingElements;
+namespace Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
 
 [NotMapped]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]

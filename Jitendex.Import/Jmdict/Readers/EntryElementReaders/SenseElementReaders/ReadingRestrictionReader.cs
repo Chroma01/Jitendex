@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.SenseElements;
+using Jitendex.Import.Jmdict.Models.EntryElements;
+using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
+namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
 internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRestriction>
 {

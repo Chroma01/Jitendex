@@ -20,7 +20,7 @@ using System.Text.Json;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.Warehouse;
+namespace Jitendex.Import;
 
 public class Resources
 {

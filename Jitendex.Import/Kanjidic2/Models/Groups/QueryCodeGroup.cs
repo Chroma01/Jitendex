@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.Warehouse.Kanjidic2.Models.EntryElements;
+using Jitendex.Import.Kanjidic2.Models.EntryElements;
 
-namespace Jitendex.Warehouse.Kanjidic2.Models.Groups;
+namespace Jitendex.Import.Kanjidic2.Models.Groups;
 
 [NotMapped]
 internal class QueryCodeGroup

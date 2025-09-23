@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
-using Jitendex.Warehouse.Jmdict.Models;
+using Jitendex.Import.Jmdict.Models;
 
-namespace Jitendex.Warehouse.Jmdict.Readers;
+namespace Jitendex.Import.Jmdict.Readers;
 
 internal partial class DocumentTypes(ILogger<DocumentTypes> logger)
 {

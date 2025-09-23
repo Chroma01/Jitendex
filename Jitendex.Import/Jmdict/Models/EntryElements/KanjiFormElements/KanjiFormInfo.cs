@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+namespace Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
 
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
 public class KanjiFormInfo

@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.Warehouse.Jmdict;
+namespace Jitendex.Import.Jmdict;
 
 internal static partial class Log
 {

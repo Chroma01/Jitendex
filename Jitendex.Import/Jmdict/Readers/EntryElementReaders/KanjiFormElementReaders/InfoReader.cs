@@ -18,11 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Warehouse.Jmdict.Models;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements;
-using Jitendex.Warehouse.Jmdict.Models.EntryElements.KanjiFormElements;
+using Jitendex.Import.Jmdict.Models;
+using Jitendex.Import.Jmdict.Models.EntryElements;
+using Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
 
-namespace Jitendex.Warehouse.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
+namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
 internal class KInfoReader : IJmdictReader<KanjiForm, KanjiFormInfo>
 {

@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Warehouse.Kanjidic2.Models;
-using Jitendex.Warehouse.Kanjidic2.Readers;
+using Jitendex.Import.Kanjidic2.Models;
+using Jitendex.Import.Kanjidic2.Readers;
 
-namespace Jitendex.Warehouse.Kanjidic2;
+namespace Jitendex.Import.Kanjidic2;
 
 internal class Service
 {
