@@ -16,8 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.Import.Jmdict.Models;
 
@@ -108,10 +108,17 @@ public class PriorityTag : IKeyword
     public string Description { get; set; } = null!;
     public bool IsCorrupt { get; set; }
 
-    public bool IsHighPriority() => HighPriorityNames.Contains(Name);
+    public bool IsHighPriority() => IsHighPriorityName(Name);
 
-    private static readonly FrozenSet<string> HighPriorityNames =
-        ["gai1", "ichi1", "news1", "spec1", "spec2"];
+    private static bool IsHighPriorityName(string tagName) => tagName switch
+    {
+        "gai1" or
+        "ichi1" or
+        "news1" or
+        "spec1" or
+        "spec2" => true,
+        _ => false
+    };
 }
 
 public class Language : IKeyword
