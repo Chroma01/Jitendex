@@ -21,18 +21,19 @@ using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Models.EntryElements;
 using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders;
 
-internal partial class ReadingReader : IJmdictReader<Entry, Reading>
+internal partial class ReadingReader
 {
     private readonly ILogger<ReadingReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly IJmdictReader<Reading, Restriction> _restrictionReader;
-    private readonly IJmdictReader<Reading, ReadingInfo> _infoReader;
-    private readonly IJmdictReader<Reading, ReadingPriority> _priorityReader;
+    private readonly RestrictionReader _restrictionReader;
+    private readonly RInfoReader _infoReader;
+    private readonly RPriorityReader _priorityReader;
 
-    public ReadingReader(ILogger<ReadingReader> logger, XmlReader xmlReader, IJmdictReader<Reading, Restriction> restrictionReader, IJmdictReader<Reading, ReadingInfo> infoReader, IJmdictReader<Reading, ReadingPriority> priorityReader) =>
+    public ReadingReader(ILogger<ReadingReader> logger, XmlReader xmlReader, RestrictionReader restrictionReader, RInfoReader infoReader, RPriorityReader priorityReader) =>
         (_logger, _xmlReader, _restrictionReader, _infoReader, _priorityReader) =
         (@logger, @xmlReader, @restrictionReader, @infoReader, @priorityReader);
 

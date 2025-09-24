@@ -107,9 +107,7 @@ public class PriorityTag : IKeyword
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
     public bool IsCorrupt { get; set; }
-
     public bool IsHighPriority() => IsHighPriorityName(Name);
-
     private static bool IsHighPriorityName(string tagName) => tagName switch
     {
         "gai1" or

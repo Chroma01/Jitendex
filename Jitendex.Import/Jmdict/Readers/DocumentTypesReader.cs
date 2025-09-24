@@ -23,7 +23,7 @@ using Jitendex.Import.Jmdict.Models;
 
 namespace Jitendex.Import.Jmdict.Readers;
 
-internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
+internal partial class DocumentTypesReader
 {
     private readonly ILogger<DocumentTypesReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -33,7 +33,7 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
         (_logger, _xmlReader, _keywordCache) =
         (@logger, @xmlReader, @keywordCache);
 
-    public async Task ReadAsync(NoParent noParent)
+    public async Task ReadAsync()
     {
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())

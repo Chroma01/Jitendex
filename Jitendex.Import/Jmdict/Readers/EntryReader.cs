@@ -20,19 +20,20 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Models.EntryElements;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders;
 
 namespace Jitendex.Import.Jmdict.Readers;
 
-internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
+internal partial class EntryReader
 {
     private readonly ILogger<EntryReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly CorpusCache _corpusCache;
-    private readonly IJmdictReader<Entry, KanjiForm> _kanjiFormReader;
-    private readonly IJmdictReader<Entry, Reading> _readingReader;
-    private readonly IJmdictReader<Entry, Sense> _senseReader;
+    private readonly KanjiFormReader _kanjiFormReader;
+    private readonly ReadingReader _readingReader;
+    private readonly SenseReader _senseReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CorpusCache corpusCache, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader) =>
+    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CorpusCache corpusCache, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader) =>
         (_logger, _xmlReader, _corpusCache, _kanjiFormReader, _readingReader, _senseReader) =
         (@logger, @xmlReader, @corpusCache, @kanjiFormReader, @readingReader, @senseReader);
 

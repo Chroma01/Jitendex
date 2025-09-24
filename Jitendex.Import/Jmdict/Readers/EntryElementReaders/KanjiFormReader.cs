@@ -21,17 +21,18 @@ using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Models.EntryElements;
 using Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
+using Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders;
 
-internal partial class KanjiFormReader : IJmdictReader<Entry, KanjiForm>
+internal partial class KanjiFormReader
 {
     private readonly ILogger<KanjiFormReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly IJmdictReader<KanjiForm, KanjiFormInfo> _infoReader;
-    private readonly IJmdictReader<KanjiForm, KanjiFormPriority> _priorityReader;
+    private readonly KInfoReader _infoReader;
+    private readonly KPriorityReader _priorityReader;
 
-    public KanjiFormReader(ILogger<KanjiFormReader> logger, XmlReader xmlReader, IJmdictReader<KanjiForm, KanjiFormInfo> infoReader, IJmdictReader<KanjiForm, KanjiFormPriority> priorityReader) =>
+    public KanjiFormReader(ILogger<KanjiFormReader> logger, XmlReader xmlReader, KInfoReader infoReader, KPriorityReader priorityReader) =>
         (_logger, _xmlReader, _infoReader, _priorityReader) =
         (@logger, @xmlReader, @infoReader, @priorityReader);
 

@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
+using Jitendex.Import.Jmdict.Readers;
 
 namespace Jitendex.Import.Jmdict;
 
@@ -26,29 +27,15 @@ internal class EntriesReader
 {
     private readonly ILogger<EntriesReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly IJmdictReader<NoParent, NoChild> _documentReader;
-    private readonly IJmdictReader<List<Entry>, Entry> _entryReader;
+    private readonly EntryReader _entryReader;
     private readonly ReferenceSequencer _referenceSequencer;
 
-    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, IJmdictReader<NoParent, NoChild> documentReader, IJmdictReader<List<Entry>, Entry> entryReader, ReferenceSequencer referenceSequencer) =>
-        (_logger, _xmlReader, _documentReader, _entryReader, _referenceSequencer) =
-        (@logger, @xmlReader, @documentReader, @entryReader, @referenceSequencer);
+    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, EntryReader entryReader, ReferenceSequencer referenceSequencer) =>
+        (_logger, _xmlReader, _entryReader, _referenceSequencer) =
+        (@logger, @xmlReader, @entryReader, @referenceSequencer);
 
-    public async Task<List<Entry>> CreateEntriesAsync()
+    public async Task<List<Entry>> ReadAsync()
     {
-        var entries = await ReadJmdictAsync();
-
-        // Post-processing of all entries.
-        _referenceSequencer.FixCrossReferences(entries);
-
-        return entries;
-    }
-
-    private async Task<List<Entry>> ReadJmdictAsync()
-    {
-        var @void = new NoParent();
-        await _documentReader.ReadAsync(@void);
-
         var entries = new List<Entry>();
 
         while (await _xmlReader.ReadAsync())
@@ -66,6 +53,9 @@ internal class EntriesReader
                     break;
             }
         }
+
+        // Post-processing of all entries.
+        _referenceSequencer.FixCrossReferences(entries);
 
         return entries;
     }

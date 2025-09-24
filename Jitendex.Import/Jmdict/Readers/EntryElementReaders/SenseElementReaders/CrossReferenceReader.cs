@@ -24,7 +24,7 @@ using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReference>
+internal partial class CrossReferenceReader
 {
     private readonly ILogger<CrossReferenceReader> _logger;
     private readonly XmlReader _xmlReader;

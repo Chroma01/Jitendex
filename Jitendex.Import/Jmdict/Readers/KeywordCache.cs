@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Import.Jmdict.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Jitendex.Import.Jmdict.Readers;
@@ -81,4 +82,21 @@ internal partial class KeywordCache(ILogger<KeywordCache> logger)
     [LoggerMessage(LogLevel.Warning,
     "Description `{Description}` for type `{TypeName}` was not registered with a keyword name before use.")]
     private partial void LogUnregisteredKeywordDescription(string description, string typeName);
+
+    public IEnumerable<PriorityTag> PriorityTags() => GetKeywords<PriorityTag>();
+    public IEnumerable<ReadingInfoTag> ReadingInfoTags() => GetKeywords<ReadingInfoTag>();
+    public IEnumerable<KanjiFormInfoTag> KanjiFormInfoTags() => GetKeywords<KanjiFormInfoTag>();
+    public IEnumerable<PartOfSpeechTag> PartOfSpeechTags() => GetKeywords<PartOfSpeechTag>();
+    public IEnumerable<FieldTag> FieldTags() => GetKeywords<FieldTag>();
+    public IEnumerable<MiscTag> MiscTags() => GetKeywords<MiscTag>();
+    public IEnumerable<DialectTag> DialectTags() => GetKeywords<DialectTag>();
+    public IEnumerable<GlossType> GlossTypes() => GetKeywords<GlossType>();
+    public IEnumerable<CrossReferenceType> CrossReferenceTypes() => GetKeywords<CrossReferenceType>();
+    public IEnumerable<LanguageSourceType> LanguageSourceTypes() => GetKeywords<LanguageSourceType>();
+    public IEnumerable<Language> Languages() => GetKeywords<Language>();
+    public IEnumerable<ExampleSourceType> ExampleSourceTypes() => GetKeywords<ExampleSourceType>();
+
+    private IEnumerable<T> GetKeywords<T>() where T : IKeyword => _cache.Values
+        .Where(static keyword => keyword is T)
+        .Select(static keyword => (T)keyword);
 }

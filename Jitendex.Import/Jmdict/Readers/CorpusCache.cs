@@ -23,6 +23,8 @@ namespace Jitendex.Import.Jmdict.Readers;
 
 internal partial class CorpusCache(ILogger<CorpusCache> logger)
 {
+    public IEnumerable<Corpus> Corpora { get => _cache.Values; }
+
     private readonly Dictionary<CorpusId, Corpus> _cache = [];
 
     public Corpus GetCorpus(int entryId)

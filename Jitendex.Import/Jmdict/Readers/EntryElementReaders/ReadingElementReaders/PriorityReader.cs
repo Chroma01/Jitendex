@@ -24,7 +24,7 @@ using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal class RPriorityReader : IJmdictReader<Reading, ReadingPriority>
+internal class RPriorityReader
 {
     private readonly ILogger<RPriorityReader> _logger;
     private readonly XmlReader _xmlReader;

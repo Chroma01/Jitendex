@@ -19,12 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
-using Jitendex.Import.Jmdict.Models;
-using Jitendex.Import.Jmdict.Models.EntryElements;
-using Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
-using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
-using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
-
 using Jitendex.Import.Jmdict.Readers;
 using Jitendex.Import.Jmdict.Readers.EntryElementReaders;
 using Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
@@ -37,7 +31,7 @@ internal record FilePaths(string XmlFile, string XRefCache);
 
 internal static class JmdictServiceProvider
 {
-    public static EntriesReader GetService(FilePaths paths) => new ServiceCollection()
+    public static JmdictReader GetService(FilePaths paths) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -60,34 +54,35 @@ internal static class JmdictServiceProvider
         .AddSingleton<ExampleCache>()
 
         // Top-level readers.
-        .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypesReader>()
-        .AddTransient<IJmdictReader<List<Entry>, Entry>, EntryReader>()
+        .AddTransient<DocumentTypesReader>()
+        .AddTransient<EntriesReader>()
+        .AddTransient<EntryReader>()
 
         // Entry element readers.
-        .AddTransient<IJmdictReader<Entry, KanjiForm>, KanjiFormReader>()
-        .AddTransient<IJmdictReader<Entry, Reading>, ReadingReader>()
-        .AddTransient<IJmdictReader<Entry, Sense>, SenseReader>()
+        .AddTransient<KanjiFormReader>()
+        .AddTransient<ReadingReader>()
+        .AddTransient<SenseReader>()
 
         // Kanji form element readers.
-        .AddTransient<IJmdictReader<KanjiForm, KanjiFormInfo>, KInfoReader>()
-        .AddTransient<IJmdictReader<KanjiForm, KanjiFormPriority>, KPriorityReader>()
+        .AddTransient<KInfoReader>()
+        .AddTransient<KPriorityReader>()
 
         // Reading element readers.
-        .AddTransient<IJmdictReader<Reading, Restriction>, RestrictionReader>()
-        .AddTransient<IJmdictReader<Reading, ReadingInfo>, RInfoReader>()
-        .AddTransient<IJmdictReader<Reading, ReadingPriority>, RPriorityReader>()
+        .AddTransient<RestrictionReader>()
+        .AddTransient<RInfoReader>()
+        .AddTransient<RPriorityReader>()
 
         // Sense element readers.
-        .AddTransient<IJmdictReader<Sense, CrossReference>, CrossReferenceReader>()
-        .AddTransient<IJmdictReader<Sense, Dialect>, DialectReader>()
-        .AddTransient<IJmdictReader<Sense, Example>, ExampleReader>()
-        .AddTransient<IJmdictReader<Sense, Field>, FieldReader>()
-        .AddTransient<IJmdictReader<Sense, Gloss>, GlossReader>()
-        .AddTransient<IJmdictReader<Sense, KanjiFormRestriction>, KanjiFormRestrictionReader>()
-        .AddTransient<IJmdictReader<Sense, LanguageSource>, LanguageSourceReader>()
-        .AddTransient<IJmdictReader<Sense, Misc>, MiscReader>()
-        .AddTransient<IJmdictReader<Sense, PartOfSpeech>, PartOfSpeechReader>()
-        .AddTransient<IJmdictReader<Sense, ReadingRestriction>, ReadingRestrictionReader>()
+        .AddTransient<CrossReferenceReader>()
+        .AddTransient<DialectReader>()
+        .AddTransient<ExampleReader>()
+        .AddTransient<FieldReader>()
+        .AddTransient<GlossReader>()
+        .AddTransient<KanjiFormRestrictionReader>()
+        .AddTransient<LanguageSourceReader>()
+        .AddTransient<MiscReader>()
+        .AddTransient<PartOfSpeechReader>()
+        .AddTransient<ReadingRestrictionReader>()
 
         // Post-processing of entries.
         .AddTransient<ReferenceSequencer>(provider =>
@@ -99,7 +94,7 @@ internal static class JmdictServiceProvider
         })
 
         // Build and return the Jmdict service.
-        .AddTransient<EntriesReader>()
+        .AddTransient<JmdictReader>()
         .BuildServiceProvider()
-        .GetRequiredService<EntriesReader>();
+        .GetRequiredService<JmdictReader>();
 }

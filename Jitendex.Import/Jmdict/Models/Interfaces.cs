@@ -16,21 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Import.Jmdict;
-
-#region Reader interfaces
-
-internal readonly struct NoParent {}
-internal readonly struct NoChild {}
-
-internal interface IJmdictReader<TParent, TChild>
-{
-    Task ReadAsync(TParent parent);
-}
-
-#endregion
-
-#region Model interfaces
+namespace Jitendex.Import.Jmdict.Models;
 
 internal interface ICorruptable
 {
@@ -42,5 +28,3 @@ internal interface IKeyword : ICorruptable
     string Name { get; set; }
     string Description { get; set; }
 }
-
-#endregion

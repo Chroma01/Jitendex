@@ -23,7 +23,7 @@ using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
 
-internal partial class RestrictionReader : IJmdictReader<Reading, Restriction>
+internal partial class RestrictionReader
 {
     private readonly ILogger<RestrictionReader> _logger;
     private readonly XmlReader _xmlReader;

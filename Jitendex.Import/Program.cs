@@ -64,11 +64,11 @@ public class Program
         );
 
         var jmdictService = JmdictServiceProvider.GetService(jmdictPaths);
-        var jmdictEntries = await jmdictService.CreateEntriesAsync();
+        var jmdict = await jmdictService.ReadJmdictAsync();
 
         var db = new JmdictContext();
         await BuildDb.InitializeAsync(db);
-        await db.Entries.AddRangeAsync(jmdictEntries);
+        await db.Entries.AddRangeAsync(jmdict.Entries);
         await db.SaveChangesAsync();
     }
 }

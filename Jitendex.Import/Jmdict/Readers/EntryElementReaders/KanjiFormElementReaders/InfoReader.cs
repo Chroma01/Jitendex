@@ -24,7 +24,7 @@ using Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 
-internal class KInfoReader : IJmdictReader<KanjiForm, KanjiFormInfo>
+internal class KInfoReader
 {
     private readonly ILogger<KInfoReader> _logger;
     private readonly XmlReader _xmlReader;

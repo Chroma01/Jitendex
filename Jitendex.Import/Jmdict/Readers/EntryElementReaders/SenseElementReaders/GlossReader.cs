@@ -24,7 +24,7 @@ using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal class GlossReader : IJmdictReader<Sense, Gloss>
+internal class GlossReader
 {
     private readonly ILogger<GlossReader> _logger;
     private readonly XmlReader _xmlReader;
