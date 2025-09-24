@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.Import.Jmdict;
+namespace Jitendex.Import.Jmdict.Readers;
 
 internal partial class ReferenceSequencer
 {

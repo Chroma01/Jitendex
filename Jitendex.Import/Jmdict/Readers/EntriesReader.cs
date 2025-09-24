@@ -19,9 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
-using Jitendex.Import.Jmdict.Readers;
 
-namespace Jitendex.Import.Jmdict;
+namespace Jitendex.Import.Jmdict.Readers;
 
 internal class EntriesReader
 {

@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Models.EntryElements;
 using Jitendex.Import.Jmdict.Models.EntryElements.KanjiFormElements;
+using Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 

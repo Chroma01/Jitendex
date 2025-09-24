@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Jitendex.Import.Jmdict.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.Import.Jmdict.Readers;
+namespace Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
 internal partial class KeywordCache(ILogger<KeywordCache> logger)
 {

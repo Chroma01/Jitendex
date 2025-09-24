@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
 using Jitendex.Import.Jmdict.Readers;
+using Jitendex.Import.Jmdict.Readers.DocumentTypes;
 using Jitendex.Import.Jmdict.Readers.EntryElementReaders;
 using Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 using Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
@@ -50,8 +51,8 @@ internal static class JmdictServiceProvider
 
         // Global document types.
         .AddSingleton<CorpusCache>()
-        .AddSingleton<KeywordCache>()
         .AddSingleton<ExampleCache>()
+        .AddSingleton<KeywordCache>()
 
         // Top-level readers.
         .AddTransient<DocumentTypesReader>()

@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Import.Jmdict.Models;
-using Jitendex.Import.Jmdict.Readers;
+using Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
-namespace Jitendex.Import.Jmdict;
+namespace Jitendex.Import.Jmdict.Readers;
 
 internal class JmdictReader
 {

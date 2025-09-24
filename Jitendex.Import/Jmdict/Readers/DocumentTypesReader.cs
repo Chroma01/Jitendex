@@ -20,6 +20,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
+using Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
 namespace Jitendex.Import.Jmdict.Readers;
 
