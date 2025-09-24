@@ -30,4 +30,5 @@ public class Corpus
 {
     public required CorpusId Id { get; set; }
     public required string Name { get; set; }
+    public required List<Entry> Entries { get; set; }
 }

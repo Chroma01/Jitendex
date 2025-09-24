@@ -27,17 +27,18 @@ internal partial class CorpusCache(ILogger<CorpusCache> logger)
 
     private readonly Dictionary<CorpusId, Corpus> _cache = [];
 
-    public Corpus GetCorpus(int entryId)
+    public Corpus GetCorpus(Entry entry)
     {
-        var id = EntryIdToCorpusId(entryId);
+        var id = EntryIdToCorpusId(entry.Id);
 
         if (id == CorpusId.Unknown)
         {
-            LogUnknownCorpusEntry(entryId);
+            LogUnknownCorpusEntry(entry.Id);
         }
 
         if (_cache.TryGetValue(id, out Corpus? corpus))
         {
+            corpus.Entries.Add(entry);
             return corpus;
         }
 
@@ -45,6 +46,7 @@ internal partial class CorpusCache(ILogger<CorpusCache> logger)
         {
             Id = id,
             Name = id.ToString(),
+            Entries = [entry],
         };
 
         _cache.Add(id, newCorpus);

@@ -23,6 +23,8 @@ namespace Jitendex.Import.Jmdict.Models;
 [NotMapped]
 public class JmdictDocument
 {
+    public required DateOnly Date { get; init; }
+
     public required List<Corpus> Corpora { get; init; }
     public required List<Entry> Entries { get; init; }
 

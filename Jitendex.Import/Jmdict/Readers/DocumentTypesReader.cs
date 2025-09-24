@@ -240,6 +240,6 @@ internal partial class DocumentTypesReader
         ["urd"] = "Urdu",
         ["uzb"] = "Uzbek",
         ["vie"] = "Vietnamese",
-        ["yid"] = "Yiddish"
+        ["yid"] = "Yiddish",
     };
 }

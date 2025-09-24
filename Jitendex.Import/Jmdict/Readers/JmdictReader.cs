@@ -16,12 +16,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text.RegularExpressions;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
 namespace Jitendex.Import.Jmdict.Readers;
 
-internal class JmdictReader
+internal partial class JmdictReader
 {
     private readonly DocumentTypesReader _documentTypesReader;
     private readonly EntriesReader _entriesReader;
@@ -40,6 +41,7 @@ internal class JmdictReader
 
         var jmdict = new JmdictDocument
         {
+            Date = GetDate(_corpusCache.Corpora),
             Corpora = [.. _corpusCache.Corpora],
             Entries = entries,
             PriorityTags = [.. _keywordCache.PriorityTags()],
@@ -59,4 +61,36 @@ internal class JmdictReader
 
         return jmdict;
     }
+
+    private static DateOnly GetDate(IEnumerable<Corpus> corpora)
+    {
+        var dateGlossText = corpora
+            .Where(static corpus => corpus.Id == CorpusId.Metadata).FirstOrDefault()?
+            .Entries.FirstOrDefault()?
+            .Senses.FirstOrDefault()?
+            .Glosses.FirstOrDefault()?
+            .Text;
+
+        if (dateGlossText is null)
+        {
+            return default;
+        }
+
+        Match match = DateOnlyRegex().Match(dateGlossText);
+
+        if (!match.Success)
+        {
+            return default;
+        }
+
+        int year = int.Parse(match.Groups[1].Value);
+        int month = int.Parse(match.Groups[2].Value);
+        int day = int.Parse(match.Groups[3].Value);
+
+        return new DateOnly(year, month, day);
+    }
+
+
+    [GeneratedRegex(@"(\d{4})-(\d{2})-(\d{2})", RegexOptions.None)]
+    private static partial Regex DateOnlyRegex();
 }

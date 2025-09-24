@@ -119,7 +119,7 @@ internal partial class EntryReader
 
     private void AssignCorpus(Entry entry)
     {
-        var corpus = _corpusCache.GetCorpus(entry.Id);
+        var corpus = _corpusCache.GetCorpus(entry);
 
         if (corpus.Id == CorpusId.Unknown)
         {
