@@ -55,7 +55,9 @@ internal static class JmdictServiceProvider
         })
 
         // Global document types.
-        .AddSingleton<DocumentTypes>()
+        .AddSingleton<CorpusCache>()
+        .AddSingleton<KeywordCache>()
+        .AddSingleton<ExampleCache>()
 
         // Top-level readers.
         .AddTransient<IJmdictReader<NoParent, NoChild>, DocumentTypesReader>()

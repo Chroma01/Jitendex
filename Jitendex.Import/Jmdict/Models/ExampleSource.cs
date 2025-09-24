@@ -33,4 +33,8 @@ public class ExampleSource
     public virtual ExampleSourceType ExampleSourceType { get; set; } = null!;
 
     internal const string XmlTagName = "ex_srce";
+    internal const string XmlTagName_Keyword = "ex_text";
+    internal const string XmlTagName_Sentence = "ex_sent";
+    internal const string XmlTagName_Sentence_Japanese = "jpn";
+    internal const string XmlTagName_Sentence_English = "eng";
 }

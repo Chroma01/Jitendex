@@ -28,16 +28,16 @@ internal class RPriorityReader : IJmdictReader<Reading, ReadingPriority>
 {
     private readonly ILogger<RPriorityReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public RPriorityReader(ILogger<RPriorityReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public RPriorityReader(ILogger<RPriorityReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Reading reading)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
+        var tag = _keywordCache.GetByName<PriorityTag>(tagName);
 
         if (reading.Priorities.Any(t => t.TagName == tag.Name))
         {

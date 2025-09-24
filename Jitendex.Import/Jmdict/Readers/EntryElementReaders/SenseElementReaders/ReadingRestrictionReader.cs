@@ -35,6 +35,7 @@ internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRe
     public async Task ReadAsync(Sense sense)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
+
         var restriction = new ReadingRestriction
         {
             EntryId = sense.EntryId,
@@ -43,9 +44,11 @@ internal partial class ReadingRestrictionReader : IJmdictReader<Sense, ReadingRe
             ReadingOrder = -1,
             Sense = sense,
         };
+
         var reading = sense.Entry.Readings
             .Where(x => x.Text == text)
             .FirstOrDefault();
+
         if (reading is not null)
         {
             restriction.ReadingOrder = reading.Order;

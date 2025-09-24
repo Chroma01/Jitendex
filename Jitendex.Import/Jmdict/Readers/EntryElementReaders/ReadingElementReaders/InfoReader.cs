@@ -28,16 +28,16 @@ internal class RInfoReader : IJmdictReader<Reading, ReadingInfo>
 {
     private readonly ILogger<RInfoReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public RInfoReader(ILogger<RInfoReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public RInfoReader(ILogger<RInfoReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Reading reading)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _docTypes.GetKeywordByDescription<ReadingInfoTag>(description);
+        var tag = _keywordCache.GetByDescription<ReadingInfoTag>(description);
 
         if (reading.Infos.Any(t => t.TagName == tag.Name))
         {

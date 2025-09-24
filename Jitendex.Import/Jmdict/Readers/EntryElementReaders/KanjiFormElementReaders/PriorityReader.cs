@@ -28,16 +28,16 @@ internal class KPriorityReader: IJmdictReader<KanjiForm, KanjiFormPriority>
 {
     private readonly ILogger<KPriorityReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public KPriorityReader(ILogger<KPriorityReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public KPriorityReader(ILogger<KPriorityReader> logger, XmlReader xmlReader, KeywordCache @keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(KanjiForm kanjiForm)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _docTypes.GetKeywordByName<PriorityTag>(tagName);
+        var tag = _keywordCache.GetByName<PriorityTag>(tagName);
 
         if (kanjiForm.Infos.Any(t => t.TagName == tag.Name))
         {

@@ -35,6 +35,7 @@ internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFo
     public async Task ReadAsync(Sense sense)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
+
         var restriction = new KanjiFormRestriction
         {
             EntryId = sense.EntryId,
@@ -43,9 +44,11 @@ internal partial class KanjiFormRestrictionReader : IJmdictReader<Sense, KanjiFo
             KanjiFormOrder = -1,
             Sense = sense,
         };
+
         var kanjiForm = sense.Entry.KanjiForms
             .Where(x => x.Text == text)
             .FirstOrDefault();
+
         if (kanjiForm is not null)
         {
             restriction.KanjiFormOrder = kanjiForm.Order;

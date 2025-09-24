@@ -28,11 +28,11 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example>
 {
     private readonly ILogger<ExampleReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly ExampleCache _exampleCache;
 
-    public ExampleReader(ILogger<ExampleReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public ExampleReader(ILogger<ExampleReader> logger, XmlReader xmlReader, ExampleCache exampleCache) =>
+        (_logger, _xmlReader, _exampleCache) =
+        (@logger, @xmlReader, @exampleCache);
 
     public async Task ReadAsync(Sense sense)
     {
@@ -42,7 +42,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example>
             SenseOrder = sense.Order,
             Order = sense.Examples.Count + 1,
             SourceTypeName = string.Empty,
-            SourceKey = -1,
+            SourceKey = default,
             Keyword = string.Empty,
             Sense = sense,
         };
@@ -66,7 +66,7 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example>
             }
         }
 
-        if (example.SourceKey == -1)
+        if (example.SourceKey == default)
         {
             sense.Entry.IsCorrupt = true;
         }
@@ -81,71 +81,98 @@ internal partial class ExampleReader : IJmdictReader<Sense, Example>
         switch (_xmlReader.Name)
         {
             case ExampleSource.XmlTagName:
-                if (example.SourceTypeName != string.Empty || example.SourceKey != -1)
-                {
-                    LogKeyRedefinition(example.EntryId, example.SenseOrder, example.Order, ExampleSource.XmlTagName);
-                    example.Sense.Entry.IsCorrupt = true;
-                }
-                var sourceTypeName = _xmlReader.GetAttribute("exsrc_type");
-                if (sourceTypeName is not null)
-                {
-                    example.SourceTypeName = sourceTypeName;
-                }
-                else
-                {
-                    LogMissingSourceType(example.EntryId, example.SenseOrder, example.Order);
-                    example.Sense.Entry.IsCorrupt = true;
-                    example.SourceTypeName = Guid.NewGuid().ToString();
-                }
-                var sourceText = await _xmlReader.ReadElementContentAsStringAsync();
-                if (int.TryParse(sourceText, out int sourceKey))
-                {
-                    example.SourceKey = sourceKey;
-                }
-                else
-                {
-                    LogInvalidSourceKey(example.EntryId, example.SenseOrder, example.Order, sourceText);
-                    example.Sense.Entry.IsCorrupt = true;
-                    break;
-                }
-                example.Source = _docTypes.GetExampleSource(example.SourceTypeName, example.SourceKey);
+                await ReadExampleSource(example);
                 break;
-            case "ex_text":
+            case ExampleSource.XmlTagName_Keyword:
                 example.Keyword = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
-            case "ex_sent":
-                var sentenceLanguage = _xmlReader.GetAttribute("xml:lang");
-                switch (sentenceLanguage)
-                {
-                    case "jpn":
-                        var text = await _xmlReader.ReadElementContentAsStringAsync();
-                        if (example.Source.Text != string.Empty && example.Source.Text != text)
-                        {
-                            LogMultipleExamples(example.SourceTypeName, example.SourceKey);
-                            example.Sense.Entry.IsCorrupt = true;
-                        }
-                        example.Source.Text = text;
-                        break;
-                    case "eng":
-                        var translation = await _xmlReader.ReadElementContentAsStringAsync();
-                        if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
-                        {
-                            LogMultipleTranslations(example.SourceTypeName, example.SourceKey);
-                            example.Sense.Entry.IsCorrupt = true;
-                        }
-                        example.Source.Translation = translation;
-                        break;
-                    default:
-                        LogUnexpectedLanguage(example.EntryId, example.SenseOrder, example.Order, sentenceLanguage);
-                        example.Sense.Entry.IsCorrupt = true;
-                        break;
-                }
+            case ExampleSource.XmlTagName_Sentence:
+                await ReadExampleSentence(example);
                 break;
             default:
                 Log.UnexpectedChildElement(_logger, _xmlReader.Name, Example.XmlTagName);
                 example.Sense.Entry.IsCorrupt = true;
                 break;
         }
+    }
+
+    private async Task ReadExampleSource(Example example)
+    {
+        if (example.SourceTypeName != string.Empty || example.SourceKey != default)
+        {
+            LogKeyRedefinition(example.EntryId, example.SenseOrder, example.Order, ExampleSource.XmlTagName);
+            example.Sense.Entry.IsCorrupt = true;
+        }
+
+        var sourceTypeName = _xmlReader.GetAttribute("exsrc_type");
+
+        if (sourceTypeName is not null)
+        {
+            example.SourceTypeName = sourceTypeName;
+        }
+        else
+        {
+            LogMissingSourceType(example.EntryId, example.SenseOrder, example.Order);
+            example.Sense.Entry.IsCorrupt = true;
+            example.SourceTypeName = Guid.NewGuid().ToString();
+        }
+
+        var sourceText = await _xmlReader.ReadElementContentAsStringAsync();
+
+        if (int.TryParse(sourceText, out int sourceKey))
+        {
+            example.SourceKey = sourceKey;
+            example.Source = _exampleCache.GetExampleSource(example.SourceTypeName, example.SourceKey);
+        }
+        else
+        {
+            LogInvalidSourceKey(example.EntryId, example.SenseOrder, example.Order, sourceText);
+            example.Sense.Entry.IsCorrupt = true;
+        }
+    }
+
+    private async Task ReadExampleSentence(Example example)
+    {
+        var sentenceLanguage = _xmlReader.GetAttribute("xml:lang");
+        switch (sentenceLanguage)
+        {
+            case ExampleSource.XmlTagName_Sentence_Japanese:
+                await ReadJapaneseSentence(example);
+                break;
+            case ExampleSource.XmlTagName_Sentence_English:
+                await ReadEnglishSentence(example);
+                break;
+            default:
+                LogUnexpectedLanguage(example.EntryId, example.SenseOrder, example.Order, sentenceLanguage);
+                example.Sense.Entry.IsCorrupt = true;
+                break;
+        }
+    }
+
+    private async Task ReadJapaneseSentence(Example example)
+    {
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
+
+        if (example.Source.Text != string.Empty && example.Source.Text != text)
+        {
+            LogMultipleExamples(example.SourceTypeName, example.SourceKey);
+            example.Sense.Entry.IsCorrupt = true;
+        }
+
+        example.Source.Text = text;
+    }
+
+    private async Task ReadEnglishSentence(Example example)
+    {
+        var translation = await _xmlReader.ReadElementContentAsStringAsync();
+
+        if (example.Source.Translation != string.Empty && example.Source.Translation != translation)
+        {
+            LogMultipleTranslations(example.SourceTypeName, example.SourceKey);
+            example.Sense.Entry.IsCorrupt = true;
+        }
+
+        example.Source.Translation = translation;
     }
 
     [LoggerMessage(LogLevel.Error,

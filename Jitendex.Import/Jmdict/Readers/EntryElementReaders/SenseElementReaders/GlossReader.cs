@@ -28,24 +28,26 @@ internal class GlossReader : IJmdictReader<Sense, Gloss>
 {
     private readonly ILogger<GlossReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public GlossReader(ILogger<GlossReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public GlossReader(ILogger<GlossReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Sense sense)
     {
         var typeName = _xmlReader.GetAttribute("g_type");
         GlossType? type;
+
         if (typeName is not null)
         {
-            type = _docTypes.GetKeywordByName<GlossType>(typeName);
+            type = _keywordCache.GetByName<GlossType>(typeName);
         }
         else
         {
             type = null;
         };
+
         var gloss = new Gloss
         {
             EntryId = sense.EntryId,

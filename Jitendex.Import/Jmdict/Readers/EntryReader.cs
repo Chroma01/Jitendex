@@ -27,14 +27,14 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
 {
     private readonly ILogger<EntryReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly CorpusCache _corpusCache;
     private readonly IJmdictReader<Entry, KanjiForm> _kanjiFormReader;
     private readonly IJmdictReader<Entry, Reading> _readingReader;
     private readonly IJmdictReader<Entry, Sense> _senseReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, DocumentTypes docTypes, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader) =>
-        (_logger, _xmlReader, _docTypes, _kanjiFormReader, _readingReader, _senseReader) =
-        (@logger, @xmlReader, @docTypes, @kanjiFormReader, @readingReader, @senseReader);
+    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CorpusCache corpusCache, IJmdictReader<Entry, KanjiForm> kanjiFormReader, IJmdictReader<Entry, Reading> readingReader, IJmdictReader<Entry, Sense> senseReader) =>
+        (_logger, _xmlReader, _corpusCache, _kanjiFormReader, _readingReader, _senseReader) =
+        (@logger, @xmlReader, @corpusCache, @kanjiFormReader, @readingReader, @senseReader);
 
     public async Task ReadAsync(List<Entry> entries)
     {
@@ -117,7 +117,7 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
 
     private void AssignCorpus(Entry entry)
     {
-        var corpus = _docTypes.GetCorpus(entry.Id);
+        var corpus = _corpusCache.GetCorpus(entry.Id);
 
         if (corpus.Id == CorpusId.Unknown)
         {

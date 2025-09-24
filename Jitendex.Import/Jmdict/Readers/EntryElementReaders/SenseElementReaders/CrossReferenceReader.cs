@@ -28,11 +28,11 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
 {
     private readonly ILogger<CrossReferenceReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public CrossReferenceReader(ILogger<CrossReferenceReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public CrossReferenceReader(ILogger<CrossReferenceReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     private record ParsedReference(string Text1, string? Text2, int SenseOrder);
 
@@ -55,7 +55,7 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
             return;
         }
 
-        var type = _docTypes.GetKeywordByName<CrossReferenceType>(typeName);
+        var type = _keywordCache.GetByName<CrossReferenceType>(typeName);
         var crossRef = new CrossReference
         {
             EntryId = sense.EntryId,

@@ -28,16 +28,16 @@ internal class FieldReader : IJmdictReader<Sense, Field>
 {
     private readonly ILogger<FieldReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public FieldReader(ILogger<FieldReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public FieldReader(ILogger<FieldReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _docTypes.GetKeywordByDescription<FieldTag>(description);
+        var tag = _keywordCache.GetByDescription<FieldTag>(description);
 
         if (sense.Fields.Any(t => t.TagName == tag.Name))
         {

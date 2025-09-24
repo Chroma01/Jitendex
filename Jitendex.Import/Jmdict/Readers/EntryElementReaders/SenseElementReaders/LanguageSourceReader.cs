@@ -28,11 +28,11 @@ internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSourc
 {
     private readonly ILogger<LanguageSourceReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public LanguageSourceReader(ILogger<LanguageSourceReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public LanguageSourceReader(ILogger<LanguageSourceReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Sense sense)
     {
@@ -65,8 +65,8 @@ internal partial class LanguageSourceReader : IJmdictReader<Sense, LanguageSourc
             LanguageCode = languageCode,
             TypeName = typeName,
             IsWasei = wasei == "y",
-            Language = _docTypes.GetKeywordByName<Language>(languageCode),
-            Type = _docTypes.GetKeywordByName<LanguageSourceType>(typeName),
+            Language = _keywordCache.GetByName<Language>(languageCode),
+            Type = _keywordCache.GetByName<LanguageSourceType>(typeName),
         });
     }
 

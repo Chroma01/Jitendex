@@ -27,11 +27,11 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
 {
     private readonly ILogger<DocumentTypesReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public DocumentTypesReader(ILogger<DocumentTypesReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public DocumentTypesReader(ILogger<DocumentTypesReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(NoParent noParent)
     {
@@ -99,32 +99,32 @@ internal partial class DocumentTypesReader : IJmdictReader<NoParent, NoChild>
         foreach (var (name, description) in ParseEntities(dtd))
         {
             // TODO: categorize parsed entities by type.
-            _docTypes.RegisterKeyword<ReadingInfoTag>(name, description);
-            _docTypes.RegisterKeyword<KanjiFormInfoTag>(name, description);
-            _docTypes.RegisterKeyword<PartOfSpeechTag>(name, description);
-            _docTypes.RegisterKeyword<FieldTag>(name, description);
-            _docTypes.RegisterKeyword<MiscTag>(name, description);
-            _docTypes.RegisterKeyword<DialectTag>(name, description);
+            _keywordCache.Register<ReadingInfoTag>(name, description);
+            _keywordCache.Register<KanjiFormInfoTag>(name, description);
+            _keywordCache.Register<PartOfSpeechTag>(name, description);
+            _keywordCache.Register<FieldTag>(name, description);
+            _keywordCache.Register<MiscTag>(name, description);
+            _keywordCache.Register<DialectTag>(name, description);
         }
 
         // Entities implicitly defined that cannot be parsed from the document.
         foreach (var (name, description) in GlossTypeEntities)
-            _docTypes.RegisterKeyword<GlossType>(name, description);
+            _keywordCache.Register<GlossType>(name, description);
 
         foreach (var (name, description) in CrossReferenceTypeEntities)
-            _docTypes.RegisterKeyword<CrossReferenceType>(name, description);
+            _keywordCache.Register<CrossReferenceType>(name, description);
 
         foreach (var (name, description) in LanguageSourceTypeEntities)
-            _docTypes.RegisterKeyword<LanguageSourceType>(name, description);
+            _keywordCache.Register<LanguageSourceType>(name, description);
 
         foreach (var (name, description) in ExampleSourceTypeEntities)
-            _docTypes.RegisterKeyword<ExampleSourceType>(name, description);
+            _keywordCache.Register<ExampleSourceType>(name, description);
 
         foreach (var (name, description) in PriorityTagEntities)
-            _docTypes.RegisterKeyword<PriorityTag>(name, description);
+            _keywordCache.Register<PriorityTag>(name, description);
 
         foreach (var (name, description) in LanguageEntities)
-            _docTypes.RegisterKeyword<Language>(name, description);
+            _keywordCache.Register<Language>(name, description);
     }
 
     // Gloss types

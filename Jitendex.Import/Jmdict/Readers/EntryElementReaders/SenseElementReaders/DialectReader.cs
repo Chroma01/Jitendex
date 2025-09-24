@@ -28,16 +28,16 @@ internal class DialectReader : IJmdictReader<Sense, Dialect>
 {
     private readonly ILogger<DialectReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public DialectReader(ILogger<DialectReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public DialectReader(ILogger<DialectReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _docTypes.GetKeywordByDescription<DialectTag>(description);
+        var tag = _keywordCache.GetByDescription<DialectTag>(description);
 
         if (sense.Dialects.Any(t => t.TagName == tag.Name))
         {

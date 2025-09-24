@@ -28,16 +28,16 @@ internal class PartOfSpeechReader : IJmdictReader<Sense, PartOfSpeech>
 {
     private readonly ILogger<PartOfSpeechReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly KeywordCache _keywordCache;
 
-    public PartOfSpeechReader(ILogger<PartOfSpeechReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public PartOfSpeechReader(ILogger<PartOfSpeechReader> logger, XmlReader xmlReader, KeywordCache keywordCache) =>
+        (_logger, _xmlReader, _keywordCache) =
+        (@logger, @xmlReader, @keywordCache);
 
     public async Task ReadAsync(Sense sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
-        var tag = _docTypes.GetKeywordByDescription<PartOfSpeechTag>(description);
+        var tag = _keywordCache.GetByDescription<PartOfSpeechTag>(description);
 
         if (sense.Miscs.Any(t => t.TagName == tag.Name))
         {
