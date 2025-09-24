@@ -44,8 +44,8 @@ internal partial class ReferenceSequencer
         var referenceTextToEntries = ReferenceTextToEntries(entries);
 
         var allCrossReferences = entries
-            .SelectMany(e => e.Senses)
-            .SelectMany(s => s.CrossReferences);
+            .SelectMany(static entry => entry.Senses)
+            .SelectMany(static sense => sense.CrossReferences);
 
         foreach (var xref in allCrossReferences)
         {

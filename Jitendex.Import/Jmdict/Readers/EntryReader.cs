@@ -38,8 +38,11 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
 
     public async Task ReadAsync(List<Entry> entries)
     {
-        Entry? entry = null;
-        var isCorrupt = false;
+        var entry = new Entry
+        {
+            Id = default,
+            CorpusId = CorpusId.Unknown,
+        };
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -47,20 +50,12 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    if (entry is null)
-                    {
-                        entry = await CreateEntry();
-                        if (entry is null) isCorrupt = true;
-                    }
-                    else
-                    {
-                        await ReadChildElementAsync(entry);
-                    }
+                    await ReadChildElementAsync(entry);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, Entry.XmlTagName, text);
-                    isCorrupt = true;
+                    entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == Entry.XmlTagName;
@@ -68,48 +63,10 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
             }
         }
 
-        if (entry is null) return;
-        entry.IsCorrupt = isCorrupt ? isCorrupt : entry.IsCorrupt;
-
-        PostProcess(entry);
-        entries.Add(entry);
-    }
-
-    private async Task<Entry?> CreateEntry()
-    {
-        int? entryId = await ReadEntryId();
-        if (entryId is null) return null;
-
-        var corpus = _docTypes.GetCorpus((int)entryId);
-        var entry = new Entry
+        if (entry.Id != default)
         {
-            Id = (int)entryId,
-            CorpusId = corpus.Id,
-            Corpus = corpus,
-        };
-        if (corpus.Id == CorpusId.Unknown)
-        {
-            entry.IsCorrupt = true;
-        }
-        return entry;
-    }
-
-    private async Task<int?> ReadEntryId()
-    {
-        if (_xmlReader.Name != Entry.Id_XmlTagName)
-        {
-            LogUnsetEntryId(_xmlReader.Name);
-            return null;
-        }
-        var idText = await _xmlReader.ReadElementContentAsStringAsync();
-        if (int.TryParse(idText, out int id))
-        {
-            return id;
-        }
-        else
-        {
-            LogUnparsableId(idText);
-            return null;
+            PostProcess(entry);
+            entries.Add(entry);
         }
     }
 
@@ -117,6 +74,10 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
     {
         switch (_xmlReader.Name)
         {
+            case Entry.Id_XmlTagName:
+                await ReadEntryId(entry);
+                AssignCorpus(entry);
+                break;
             case KanjiForm.XmlTagName:
                 await _kanjiFormReader.ReadAsync(entry);
                 break;
@@ -131,6 +92,40 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
                 entry.IsCorrupt = true;
                 break;
         }
+    }
+
+    private async Task ReadEntryId(Entry entry)
+    {
+        if (entry.Id != default)
+        {
+            LogDuplicateEntryId(entry.Id, Entry.Id_XmlTagName);
+            entry.IsCorrupt = true;
+        }
+
+        var idText = await _xmlReader.ReadElementContentAsStringAsync();
+
+        if (int.TryParse(idText, out int id))
+        {
+            entry.Id = id;
+        }
+        else
+        {
+            LogUnparsableId(idText);
+            entry.IsCorrupt = true;
+        }
+    }
+
+    private void AssignCorpus(Entry entry)
+    {
+        var corpus = _docTypes.GetCorpus(entry.Id);
+
+        if (corpus.Id == CorpusId.Unknown)
+        {
+            entry.IsCorrupt = true;
+        }
+
+        entry.Corpus = corpus;
+        entry.CorpusId = corpus.Id;
     }
 
     private void PostProcess(Entry entry)
@@ -170,13 +165,14 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
 
     private void CheckForKanjiFormOrphans(Entry entry)
     {
-        foreach (var kanjiForm in entry.KanjiForms.Where(k => !k.IsHidden()))
+        foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
         {
             if (kanjiForm.ReadingBridges.Count == 0)
             {
                 LogOrphanKanjiForm(kanjiForm.EntryId, kanjiForm.Text);
                 entry.IsCorrupt = true;
-                var defaultReading = entry.Readings.Where(r => !r.IsHidden()).First();
+
+                var defaultReading = entry.Readings.Where(static r => !r.IsHidden()).First();
                 var bridge = new ReadingKanjiFormBridge
                 {
                     EntryId = entry.Id,
@@ -185,6 +181,7 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
                     Reading = defaultReading,
                     KanjiForm = kanjiForm,
                 };
+
                 defaultReading.KanjiFormBridges.Add(bridge);
                 kanjiForm.ReadingBridges.Add(bridge);
             }
@@ -196,8 +193,8 @@ internal partial class EntryReader : IJmdictReader<List<Entry>, Entry>
     private partial void LogOrphanKanjiForm(int entryId, string kanjiFormText);
 
     [LoggerMessage(LogLevel.Error,
-    "Attempted to read entry element <{TagName}> before setting the entry ID")]
-    private partial void LogUnsetEntryId(string tagName);
+    "Entry ID {EntryId} contains more than one <{TagName}> element")]
+    private partial void LogDuplicateEntryId(int entryId, string tagName);
 
     [LoggerMessage(LogLevel.Error,
     "Cannot parse entry ID from text `{Text}`")]

@@ -40,6 +40,7 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
     {
         var typeName = _xmlReader.Name;
         var text = await _xmlReader.ReadElementContentAsStringAsync();
+
         if (sense.Entry.CorpusId != CorpusId.Jmdict)
         {
             LogUnsupportedCorpus(sense.Entry.Id, sense.Entry.Corpus.Name);
@@ -62,8 +63,8 @@ internal partial class CrossReferenceReader : IJmdictReader<Sense, CrossReferenc
             Order = sense.CrossReferences.Count + 1,
             TypeName = typeName,
             Type = type,
-            RefEntryId = -1,
-            RefReadingOrder = -1,
+            RefEntryId = default,
+            RefReadingOrder = default,
             RefText1 = parsedRef.Text1,
             RefText2 = parsedRef.Text2,
             RefSenseOrder = parsedRef.SenseOrder,
