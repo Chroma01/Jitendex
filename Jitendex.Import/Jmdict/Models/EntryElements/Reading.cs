@@ -45,5 +45,5 @@ public class Reading
     internal const string Text_XmlTagName = "reb";
     internal const string NoKanji_XmlTagName = "re_nokanji";
 
-    public bool IsHidden() => Infos.Any(x => x.TagName == "sk");
+    public bool IsHidden() => Infos.Any(static x => x.TagName == "sk");
 }
