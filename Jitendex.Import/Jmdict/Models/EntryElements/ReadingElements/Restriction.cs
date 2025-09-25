@@ -31,10 +31,10 @@ internal class Restriction
     public required int KanjiFormOrder { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    public required Reading Reading { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    public required KanjiForm KanjiForm { get; set; }
 
     internal const string XmlTagName = "re_restr";
 }

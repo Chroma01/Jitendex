@@ -30,10 +30,10 @@ public class Misc
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    public required Sense Sense { get; set; }
 
     [ForeignKey(nameof(TagName))]
-    public virtual MiscTag Tag { get; set; } = null!;
+    public required MiscTag Tag { get; set; }
 
     internal const string XmlTagName = "misc";
 }

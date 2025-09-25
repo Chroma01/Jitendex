@@ -66,6 +66,7 @@ internal partial class LanguageSourceReader
             LanguageCode = languageCode,
             TypeName = typeName,
             IsWasei = wasei == "y",
+            Sense = sense,
             Language = _keywordCache.GetByName<Language>(languageCode),
             Type = _keywordCache.GetByName<LanguageSourceType>(typeName),
         });

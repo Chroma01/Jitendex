@@ -36,30 +36,28 @@ internal partial class KanjiFormRestrictionReader
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
 
+        var kanjiForm = sense.Entry.KanjiForms
+            .Where(x => x.Text == text)
+            .FirstOrDefault();
+
+        if (kanjiForm is null)
+        {
+            LogInvalidKanjiFormRestriction(sense.EntryId, sense.Order, text);
+            sense.Entry.IsCorrupt = true;
+            return;
+        }
+
         var restriction = new KanjiFormRestriction
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.KanjiFormRestrictions.Count + 1,
-            KanjiFormOrder = -1,
+            KanjiFormOrder = kanjiForm.Order,
+            KanjiForm = kanjiForm,
             Sense = sense,
         };
 
-        var kanjiForm = sense.Entry.KanjiForms
-            .Where(x => x.Text == text)
-            .FirstOrDefault();
-
-        if (kanjiForm is not null)
-        {
-            restriction.KanjiFormOrder = kanjiForm.Order;
-            restriction.KanjiForm = kanjiForm;
-            sense.KanjiFormRestrictions.Add(restriction);
-        }
-        else
-        {
-            LogInvalidKanjiFormRestriction(sense.EntryId, sense.Order, text);
-            sense.Entry.IsCorrupt = true;
-        }
+        sense.KanjiFormRestrictions.Add(restriction);
     }
 
     [LoggerMessage(LogLevel.Warning,

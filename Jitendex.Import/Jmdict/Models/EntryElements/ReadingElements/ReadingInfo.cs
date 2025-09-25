@@ -30,10 +30,10 @@ public class ReadingInfo
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    public required Reading Reading { get; set; }
 
     [ForeignKey(nameof(TagName))]
-    public virtual ReadingInfoTag Tag { get; set; } = null!;
+    public required ReadingInfoTag Tag { get; set; }
 
     internal const string XmlTagName = "re_inf";
 }

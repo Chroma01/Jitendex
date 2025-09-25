@@ -57,6 +57,7 @@ internal class GlossReader
             Language = _xmlReader.GetAttribute("xml:lang") ?? "eng",
             TypeName = typeName,
             Type = type,
+            Sense = sense,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
 

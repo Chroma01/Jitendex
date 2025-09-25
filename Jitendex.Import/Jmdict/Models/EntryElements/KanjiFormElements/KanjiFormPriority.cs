@@ -30,10 +30,10 @@ public class KanjiFormPriority
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    public required KanjiForm KanjiForm { get; set; }
 
     [ForeignKey(nameof(TagName))]
-    public virtual PriorityTag Tag { get; set; } = null!;
+    public required PriorityTag Tag { get; set; }
 
     internal const string XmlTagName = "ke_pri";
 }

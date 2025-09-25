@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Jmdict.Models;
 using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
+using Jitendex.Import.Jmdict.Models.EntryElements;
 
 namespace Jitendex.Import.Jmdict.Readers;
 
@@ -45,7 +46,7 @@ internal partial class ReferenceSequencer
 
         var allCrossReferences = entries
             .SelectMany(static entry => entry.Senses)
-            .SelectMany(static sense => sense.CrossReferences);
+            .SelectMany(static sense => sense.RawCrossReferences);
 
         foreach (var xref in allCrossReferences)
         {
@@ -68,36 +69,43 @@ internal partial class ReferenceSequencer
 
             var targetEntry = FindTargetEntry(possibleTargetEntries, xref) ?? entries.Last();
 
-            // Assign Sense foreign key.
-            xref.RefEntryId = targetEntry.Id;
-            xref.RefSense = targetEntry.Senses
-                .Where(s => s.Order == xref.RefSenseOrder).First();
-            xref.RefSense.ReverseCrossReferences.Add(xref);
+            var refSense = targetEntry.Senses.Where(s => s.Order == xref.RefSenseOrder).First();
+            Reading refReading;
+            KanjiForm? refKanjiForm;
 
-            // Assign Reading and KanjiForm foreign keys.
-            var validSpellingIds = ValidSpellings(targetEntry);
-            if (validSpellingIds.TryGetValue(key, out SpellingId? id))
+            if (ValidSpellings(targetEntry).TryGetValue(key, out SpellingId? id))
             {
-                xref.RefKanjiFormOrder = id.KanjiFormOrder;
-                xref.RefKanjiForm = targetEntry.KanjiForms
-                    .Where(k => k.Order == id.KanjiFormOrder).FirstOrDefault();
-
-                xref.RefReadingOrder = id.ReadingOrder;
-                xref.RefReading = targetEntry.Readings
-                    .Where(r => r.Order == id.ReadingOrder).First();
+                refReading = targetEntry.Readings.Where(r => r.Order == id.ReadingOrder).First();
+                refKanjiForm = targetEntry.KanjiForms.Where(k => k.Order == id.KanjiFormOrder).FirstOrDefault();
             }
             else
             {
+                refReading = targetEntry.Readings.Where(r => !r.IsHidden()).First();
+                refKanjiForm = refReading.KanjiFormBridges.FirstOrDefault()?.KanjiForm;
+
                 LogInvalidSpelling(key.ToString(), xref.EntryId, targetEntry.Id);
                 xref.Sense.Entry.IsCorrupt = true;
-
-                xref.RefReading = targetEntry.Readings
-                    .Where(r => !r.IsHidden()).First();
-                xref.RefReadingOrder = xref.RefReading.Order;
-
-                xref.RefKanjiForm = xref.RefReading.KanjiFormBridges.FirstOrDefault()?.KanjiForm;
-                xref.RefKanjiFormOrder = xref.RefKanjiForm?.Order;
             }
+
+            var newXref = new CrossReference
+            {
+                EntryId = xref.EntryId,
+                SenseOrder = xref.SenseOrder,
+                Order = xref.Order,
+                TypeName = xref.TypeName,
+                Sense = xref.Sense,
+                Type = xref.Type,
+                RefEntryId = targetEntry.Id,
+                RefSenseOrder = xref.RefSenseOrder,
+                RefReadingOrder = refReading.Order,
+                RefKanjiFormOrder = refKanjiForm?.Order,
+                RefSense = refSense,
+                RefReading = refReading,
+                RefKanjiForm = refKanjiForm,
+            };
+
+            xref.Sense.CrossReferences.Add(newXref);
+            refSense.ReverseCrossReferences.Add(newXref);
         }
     }
 
@@ -129,9 +137,11 @@ internal partial class ReferenceSequencer
             {
                 yield return new ReferenceText(kanjiForm.Text, reading.Text);
             }
+
             // References in Jmdict sometimes display only the kanji form without a reading.
             yield return new ReferenceText(kanjiForm.Text, null);
         }
+
         // It is also possible for references to only show the reading,
         // even if valid kanji forms are available.
         foreach (var reading in entry.Readings)
@@ -140,7 +150,7 @@ internal partial class ReferenceSequencer
         }
     }
 
-    private Entry? FindTargetEntry(List<Entry> possibleTargetEntries, CrossReference xref)
+    private Entry? FindTargetEntry(List<Entry> possibleTargetEntries, RawCrossReference xref)
     {
         if (possibleTargetEntries.Count == 1)
             return possibleTargetEntries.First();
@@ -153,6 +163,7 @@ internal partial class ReferenceSequencer
             var targetEntry = possibleTargetEntries
                 .Where(e => e.Id == targetEntryId)
                 .FirstOrDefault();
+
             if (targetEntry is not null)
                 return targetEntry;
             else
@@ -188,15 +199,18 @@ internal partial class ReferenceSequencer
                 referenceText = new ReferenceText(kanjiForm.Text, bridge.Reading.Text);
                 map[referenceText] = new SpellingId(bridge.Reading.Order, kanjiForm.Order);
             }
+
             // Sometimes references in Jmdict display only the kanji form without
             // a reading. In these cases, we'll map to the first valid reading.
             referenceText = new ReferenceText(kanjiForm.Text, null);
+
             map[referenceText] = new SpellingId
             (
                 kanjiForm.ReadingBridges.First().Reading.Order,
                 kanjiForm.Order
             );
         }
+
         // It is also possible for references to only show the reading,
         // even if valid kanji forms are available.
         foreach (var reading in entry.Readings.Where(r => !r.IsHidden()))

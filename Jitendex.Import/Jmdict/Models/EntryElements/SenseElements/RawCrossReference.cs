@@ -17,27 +17,31 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
 
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public class Example
+[NotMapped]
+internal class RawCrossReference
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
+    public required string TypeName { get; set; }
 
-    public required string SourceTypeName { get; set; }
-    public required int SourceKey { get; set; }
+    public required string RefText1 { get; set; }
+    public required string? RefText2 { get; set; }
+    public required int RefSenseOrder { get; set; }
 
-    public required string Keyword { get; set; }
-
-    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public required Sense Sense { get; set; }
+    public required CrossReferenceType Type { get; set; }
 
-    [ForeignKey($"{nameof(SourceTypeName)}, {nameof(SourceKey)}")]
-    public required ExampleSource Source { get; set; }
+    /// <summary>
+    /// Stable and unique identifier for this reference in the raw data.
+    /// </summary>
+    public string RawKey() => RefText2 is null ?
+        $"{EntryId}・{Sense.Order}・{RefText1}・{RefSenseOrder}" :
+        $"{EntryId}・{Sense.Order}・{RefText1}【{RefText2}】・{RefSenseOrder}";
 
-    internal const string XmlTagName = "example";
+    public const string XmlTagName = "xref";
+    public const string XmlTagName_Antonym = "ant";
 }

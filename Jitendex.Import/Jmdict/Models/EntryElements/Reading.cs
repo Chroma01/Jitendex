@@ -29,12 +29,12 @@ public class Reading
     public required int Order { get; set; }
     public required string Text { get; set; }
 
-    public virtual List<ReadingInfo> Infos { get; set; } = [];
-    public virtual List<ReadingPriority> Priorities { get; set; } = [];
-    public virtual List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
+    public List<ReadingInfo> Infos { get; set; } = [];
+    public List<ReadingPriority> Priorities { get; set; } = [];
+    public List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
 
     [NotMapped]
     internal bool NoKanji { get; set; } = false;

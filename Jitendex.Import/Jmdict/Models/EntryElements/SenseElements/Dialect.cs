@@ -30,10 +30,10 @@ public class Dialect
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    public required Sense Sense { get; set; }
 
     [ForeignKey(nameof(TagName))]
-    public virtual DialectTag Tag { get; set; } = null!;
+    public required DialectTag Tag { get; set; }
 
     internal const string XmlTagName = "dial";
 }

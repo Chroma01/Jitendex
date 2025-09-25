@@ -24,14 +24,14 @@ namespace Jitendex.Import.Jmdict.Models;
 [Table(nameof(Entry))]
 public class Entry : ICorruptable
 {
-    public required int Id { get; set; }
-    public required CorpusId CorpusId { get; set; }
-    public virtual List<Reading> Readings { get; set; } = [];
-    public virtual List<KanjiForm> KanjiForms { get; set; } = [];
-    public virtual List<Sense> Senses { get; set; } = [];
+    public int Id { get; set; }
+    public CorpusId CorpusId { get; set; }
+    public List<Reading> Readings { get; set; } = [];
+    public List<KanjiForm> KanjiForms { get; set; } = [];
+    public List<Sense> Senses { get; set; } = [];
 
     [ForeignKey(nameof(CorpusId))]
-    public virtual Corpus Corpus { get; set; } = null!;
+    public Corpus Corpus { get; set; } = null!;
 
     public bool IsCorrupt { get; set; }
 

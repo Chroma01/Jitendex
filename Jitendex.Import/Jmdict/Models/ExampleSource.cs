@@ -30,7 +30,7 @@ public class ExampleSource
     public required string Translation { get; set; }
 
     [ForeignKey(nameof(TypeName))]
-    public virtual ExampleSourceType ExampleSourceType { get; set; } = null!;
+    public required ExampleSourceType ExampleSourceType { get; set; }
 
     internal const string XmlTagName = "ex_srce";
     internal const string XmlTagName_Keyword = "ex_text";

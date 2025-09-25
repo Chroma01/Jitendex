@@ -43,6 +43,7 @@ internal partial class ExampleReader
             SenseOrder = sense.Order,
             Order = sense.Examples.Count + 1,
             SourceTypeName = string.Empty,
+            Source = null!,
             SourceKey = default,
             Keyword = string.Empty,
             Sense = sense,

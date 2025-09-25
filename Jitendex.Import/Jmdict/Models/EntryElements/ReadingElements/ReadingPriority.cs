@@ -30,10 +30,10 @@ public class ReadingPriority
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    public required Reading Reading { get; set; }
 
     [ForeignKey(nameof(TagName))]
-    public virtual PriorityTag Tag { get; set; } = null!;
+    public required PriorityTag Tag { get; set; }
 
     internal const string XmlTagName = "re_pri";
 }

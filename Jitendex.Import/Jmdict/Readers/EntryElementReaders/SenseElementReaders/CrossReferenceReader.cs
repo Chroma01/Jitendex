@@ -57,22 +57,20 @@ internal partial class CrossReferenceReader
         }
 
         var type = _keywordCache.GetByName<CrossReferenceType>(typeName);
-        var crossRef = new CrossReference
+        var crossRef = new RawCrossReference
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = sense.CrossReferences.Count + 1,
+            Order = sense.RawCrossReferences.Count + 1,
             TypeName = typeName,
-            Type = type,
-            RefEntryId = default,
-            RefReadingOrder = default,
             RefText1 = parsedRef.Text1,
             RefText2 = parsedRef.Text2,
             RefSenseOrder = parsedRef.SenseOrder,
             Sense = sense,
+            Type = type,
         };
 
-        sense.CrossReferences.Add(crossRef);
+        sense.RawCrossReferences.Add(crossRef);
     }
 
     private ParsedReference? Parse(string text)

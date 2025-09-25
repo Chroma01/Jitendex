@@ -30,10 +30,10 @@ public class KanjiFormRestriction
     public required int KanjiFormOrder { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    public required Sense Sense { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public virtual KanjiForm KanjiForm { get; set; } = null!;
+    public required KanjiForm KanjiForm { get; set; }
 
     internal const string XmlTagName = "stagk";
 }

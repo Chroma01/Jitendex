@@ -30,10 +30,10 @@ public class ReadingRestriction
     public required int ReadingOrder { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    public required Sense Sense { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public virtual Reading Reading { get; set; } = null!;
+    public required Reading Reading { get; set; }
 
     internal const string XmlTagName = "stagr";
 }

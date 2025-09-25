@@ -30,10 +30,10 @@ public class Field
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    public required Sense Sense { get; set; }
 
     [ForeignKey(nameof(TagName))]
-    public virtual FieldTag Tag { get; set; } = null!;
+    public required FieldTag Tag { get; set; }
 
     internal const string XmlTagName = "field";
 }

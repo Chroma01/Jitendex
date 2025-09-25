@@ -109,8 +109,8 @@ internal partial class SenseReader
             case Example.XmlTagName:
                 await _exampleReader.ReadAsync(sense);
                 break;
-            case CrossReference.XmlTagName:
-            case CrossReference.XmlTagName_Antonym:
+            case RawCrossReference.XmlTagName:
+            case RawCrossReference.XmlTagName_Antonym:
                 await _crossReferenceReader.ReadAsync(sense);
                 break;
             case Sense.Note_XmlTagName:

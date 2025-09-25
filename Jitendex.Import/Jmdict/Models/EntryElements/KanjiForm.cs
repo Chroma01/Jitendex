@@ -28,12 +28,12 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public virtual List<KanjiFormInfo> Infos { get; set; } = [];
-    public virtual List<KanjiFormPriority> Priorities { get; set; } = [];
-    public virtual List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
+    public List<KanjiFormInfo> Infos { get; set; } = [];
+    public List<KanjiFormPriority> Priorities { get; set; } = [];
+    public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
 
     [ForeignKey(nameof(EntryId))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
 
     internal const string XmlTagName = "k_ele";
     internal const string Text_XmlTagName = "keb";

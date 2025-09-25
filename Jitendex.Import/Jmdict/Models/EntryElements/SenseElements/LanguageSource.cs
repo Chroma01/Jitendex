@@ -34,13 +34,13 @@ public class LanguageSource
     public required bool IsWasei { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public virtual Sense Sense { get; set; } = null!;
+    public required Sense Sense { get; set; }
 
     [ForeignKey(nameof(LanguageCode))]
-    public virtual Language Language { get; set; } = null!;
+    public required Language Language { get; set; }
 
     [ForeignKey(nameof(TypeName))]
-    public virtual LanguageSourceType Type { get; set; } = null!;
+    public required LanguageSourceType Type { get; set; }
 
     internal const string XmlTagName = "lsource";
 }

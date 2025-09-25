@@ -36,30 +36,28 @@ internal partial class ReadingRestrictionReader
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
 
+        var reading = sense.Entry.Readings
+            .Where(x => x.Text == text)
+            .FirstOrDefault();
+
+        if (reading is null)
+        {
+            LogInvalidReadingRestriction(sense.EntryId, sense.Order, text);
+            sense.Entry.IsCorrupt = true;
+            return;
+        }
+
         var restriction = new ReadingRestriction
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
             Order = sense.ReadingRestrictions.Count + 1,
-            ReadingOrder = -1,
+            ReadingOrder = reading.Order,
+            Reading = reading,
             Sense = sense,
         };
 
-        var reading = sense.Entry.Readings
-            .Where(x => x.Text == text)
-            .FirstOrDefault();
-
-        if (reading is not null)
-        {
-            restriction.ReadingOrder = reading.Order;
-            restriction.Reading = reading;
-            sense.ReadingRestrictions.Add(restriction);
-        }
-        else
-        {
-            LogInvalidReadingRestriction(sense.EntryId, sense.Order, text);
-            sense.Entry.IsCorrupt = true;
-        }
+        sense.ReadingRestrictions.Add(restriction);
     }
 
     [LoggerMessage(LogLevel.Warning,
