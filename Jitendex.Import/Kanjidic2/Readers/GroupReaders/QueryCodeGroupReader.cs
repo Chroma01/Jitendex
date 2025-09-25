@@ -28,10 +28,11 @@ internal partial class QueryCodeGroupReader
 {
     private readonly ILogger<QueryCodeGroupReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly DocumentTypes _docTypes;
 
-    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<QueryCodeGroup> ReadAsync(Entry entry)
     {
@@ -78,15 +79,26 @@ internal partial class QueryCodeGroupReader
 
     private async Task ReadQueryCode(QueryCodeGroup group)
     {
+        var typeName = GetTypeName(group);
+        var type = _docTypes.GetByName<QueryCodeType>(typeName);
+
+        var misclassification = _xmlReader.GetAttribute("skip_misclass");
+        var misclassificationType = misclassification is not null ?
+            _docTypes.GetByName<MisclassificationType>(misclassification) :
+            null;
+
         var queryCode = new QueryCode
         {
             Character = group.Character,
             Order = group.QueryCodes.Count + 1,
-            TypeName = GetTypeName(group),
-            Misclassification = _xmlReader.GetAttribute("skip_misclass"),
+            TypeName = typeName,
+            Misclassification = misclassification,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
+            Type = type,
+            MisclassificationType = misclassificationType,
         };
+
         group.QueryCodes.Add(queryCode);
     }
 

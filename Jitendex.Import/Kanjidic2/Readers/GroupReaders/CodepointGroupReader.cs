@@ -28,10 +28,11 @@ internal partial class CodepointGroupReader
 {
     private readonly ILogger<CodepointGroupReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly DocumentTypes _docTypes;
 
-    public CodepointGroupReader(ILogger<CodepointGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public CodepointGroupReader(ILogger<CodepointGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<CodepointGroup> ReadAsync(Entry entry)
     {
@@ -78,13 +79,17 @@ internal partial class CodepointGroupReader
 
     private async Task ReadCodepoint(CodepointGroup group)
     {
+        var typeName = GetTypeName(group);
+        var type = _docTypes.GetByName<CodepointType>(typeName);
+
         var codepoint = new Codepoint
         {
             Character = group.Character,
             Order = group.Codepoints.Count + 1,
-            TypeName = GetTypeName(group),
+            TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
+            Type = type,
         };
         group.Codepoints.Add(codepoint);
     }
@@ -104,5 +109,4 @@ internal partial class CodepointGroupReader
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a codepoint type attribute")]
     private partial void LogMissingTypeName(string character);
-
 }

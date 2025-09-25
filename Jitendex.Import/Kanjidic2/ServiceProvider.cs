@@ -32,7 +32,7 @@ internal record FilePaths(string XmlFile);
 
 internal static class Kanjidic2ServiceProvider
 {
-    public static Service GetService(FilePaths paths) => new ServiceCollection()
+    public static Kanjidic2Reader GetService(FilePaths paths) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -49,6 +49,9 @@ internal static class Kanjidic2ServiceProvider
             return resources.CreateXmlReader(paths.XmlFile);
         })
 
+        // Global document types.
+        .AddSingleton<DocumentTypes>()
+
         // Top-level readers.
         .AddTransient<EntryReader>()
 
@@ -64,7 +67,7 @@ internal static class Kanjidic2ServiceProvider
         .AddTransient<ReadingMeaningReader>()
 
         // Build and return the Kanjidic2 service.
-        .AddTransient<Service>()
+        .AddTransient<Kanjidic2Reader>()
         .BuildServiceProvider()
-        .GetRequiredService<Service>();
+        .GetRequiredService<Kanjidic2Reader>();
 }

@@ -30,7 +30,10 @@ public class Codepoint
     public required string TypeName { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public required CodepointType Type { get; set; }
 
     internal const string XmlTagName = "cp_value";
 }

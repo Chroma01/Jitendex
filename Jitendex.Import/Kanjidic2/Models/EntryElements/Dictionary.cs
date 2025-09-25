@@ -32,7 +32,10 @@ public class Dictionary
     public int? Page { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public required DictionaryType Type { get; set; }
 
     internal const string XmlTagName = "dic_ref";
 }

@@ -28,10 +28,11 @@ internal partial class DictionaryGroupReader
 {
     private readonly ILogger<DictionaryGroupReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly DocumentTypes _docTypes;
 
-    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<DictionaryGroup> ReadAsync(Entry entry)
     {
@@ -78,15 +79,19 @@ internal partial class DictionaryGroupReader
 
     private async Task ReadDictionary(DictionaryGroup group)
     {
+        var typeName = GetTypeName(group);
+        var type = _docTypes.GetByName<DictionaryType>(typeName);
+
         var dictionary = new Dictionary
         {
             Character = group.Character,
             Order = group.Dictionaries.Count + 1,
-            TypeName = GetTypeName(group),
+            TypeName = typeName,
             Volume = GetDictionaryVolume(group),
             Page = GetDictionaryPage(group),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
+            Type = type,
         };
         group.Dictionaries.Add(dictionary);
     }

@@ -30,7 +30,10 @@ public class Variant
     public required string TypeName { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public required VariantType Type { get; set; }
 
     internal const string XmlTagName = "variant";
 }

@@ -32,10 +32,11 @@ internal partial class MiscGroupReader
 
     private readonly ILogger<MiscGroupReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly DocumentTypes _docTypes;
 
-    public MiscGroupReader(ILogger<MiscGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public MiscGroupReader(ILogger<MiscGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<MiscGroup> ReadAsync(Entry entry)
     {
@@ -170,6 +171,7 @@ internal partial class MiscGroupReader
             group.Entry.IsCorrupt = true;
             typeName = string.Empty;
         }
+        var type = _docTypes.GetByName<VariantType>(typeName);
         var variant = new Variant
         {
             Character = group.Character,
@@ -177,6 +179,7 @@ internal partial class MiscGroupReader
             TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
+            Type = type,
         };
         group.Variants.Add(variant);
     }

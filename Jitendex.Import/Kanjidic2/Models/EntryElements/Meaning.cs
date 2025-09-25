@@ -32,7 +32,7 @@ public class Meaning
     internal string? Language { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
 
     internal const string XmlTagName = "meaning";
 }

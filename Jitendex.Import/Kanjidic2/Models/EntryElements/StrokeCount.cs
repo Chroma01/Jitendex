@@ -29,7 +29,7 @@ public class StrokeCount
     public required int Value { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
 
     internal const string XmlTagName = "stroke_count";
 }

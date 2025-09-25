@@ -28,10 +28,16 @@ public class QueryCode
     public required int Order { get; set; }
     public required string Text { get; set; }
     public required string TypeName { get; set; }
-    public string? Misclassification { get; set; }
+    public required string? Misclassification { get; set; }
 
     [ForeignKey(nameof(Character))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public required QueryCodeType Type { get; set; }
+
+    [ForeignKey(nameof(Misclassification))]
+    public required MisclassificationType? MisclassificationType { get; set; }
 
     internal const string XmlTagName = "q_code";
 }

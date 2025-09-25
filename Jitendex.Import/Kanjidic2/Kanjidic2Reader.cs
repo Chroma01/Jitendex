@@ -23,15 +23,15 @@ using Jitendex.Import.Kanjidic2.Readers;
 
 namespace Jitendex.Import.Kanjidic2;
 
-internal class Service
+internal class Kanjidic2Reader
 {
+    private readonly ILogger<Kanjidic2Reader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly EntryReader _entryReader;
-    private readonly ILogger<Service> _logger;
 
-    public Service(XmlReader xmlReader, EntryReader entryReader, ILogger<Service> logger) =>
-        (_xmlReader, _entryReader, _logger) =
-        (@xmlReader, @entryReader, @logger);
+    public Kanjidic2Reader(ILogger<Kanjidic2Reader> logger, XmlReader xmlReader, EntryReader entryReader) =>
+        (_logger, _xmlReader, _entryReader) =
+        (@logger, @xmlReader, @entryReader);
 
     public async Task<List<Entry>> CreateEntriesAsync()
     {

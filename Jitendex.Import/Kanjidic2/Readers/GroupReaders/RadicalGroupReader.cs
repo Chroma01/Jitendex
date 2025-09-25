@@ -28,10 +28,11 @@ internal partial class RadicalGroupReader
 {
     private readonly ILogger<RadicalGroupReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly DocumentTypes _docTypes;
 
-    public RadicalGroupReader(ILogger<RadicalGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public RadicalGroupReader(ILogger<RadicalGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<RadicalGroup> ReadAsync(Entry entry)
     {
@@ -79,20 +80,20 @@ internal partial class RadicalGroupReader
     private async Task ReadRadical(RadicalGroup group)
     {
         var typeName = GetTypeName(group);
-        int? number = await GetNumber(group);
-        if (number is null)
-        {
-            // An error occurred
-            return;
-        }
+        var type = _docTypes.GetByName<RadicalType>(typeName);
+
+        var number = await GetNumber(group);
+
         var radical = new Radical
         {
             Character = group.Character,
             Order = group.Radicals.Count + 1,
             TypeName = typeName,
-            Number = (int)number,
+            Number = number,
             Entry = group.Entry,
+            Type = type,
         };
+
         group.Radicals.Add(radical);
     }
 
@@ -108,7 +109,7 @@ internal partial class RadicalGroupReader
         return typeName;
     }
 
-    private async Task<int?> GetNumber(RadicalGroup group)
+    private async Task<int> GetNumber(RadicalGroup group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -119,7 +120,7 @@ internal partial class RadicalGroupReader
         {
             LogNonNumericRadicalNumber(group.Character, text);
             group.Entry.IsCorrupt = true;
-            return null;
+            return default;
         }
     }
 

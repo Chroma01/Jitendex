@@ -20,6 +20,7 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Kanjidic2.Models.Groups;
 using Jitendex.Import.Kanjidic2.Models.EntryElements;
+using Jitendex.Import.Kanjidic2.Models;
 
 namespace Jitendex.Import.Kanjidic2.Readers.GroupReaders;
 
@@ -27,10 +28,11 @@ internal partial class ReadingMeaningReader
 {
     private readonly ILogger<ReadingMeaningReader> _logger;
     private readonly XmlReader _xmlReader;
+    private readonly DocumentTypes _docTypes;
 
-    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
+        (_logger, _xmlReader, _docTypes) =
+        (@logger, @xmlReader, @docTypes);
 
     public async Task<ReadingMeaning> ReadAsync(ReadingMeaningGroup group)
     {
@@ -80,13 +82,9 @@ internal partial class ReadingMeaningReader
 
     private async Task ReadReading(ReadingMeaning readingMeaning)
     {
-        var typeName = _xmlReader.GetAttribute("r_type");
-        if (string.IsNullOrWhiteSpace(typeName))
-        {
-            LogMissingTypeName(readingMeaning.Character);
-            readingMeaning.Entry.IsCorrupt = true;
-            typeName = string.Empty;
-        }
+        var typeName = GetTypeName(readingMeaning);
+        var type = _docTypes.GetByName<ReadingType>(typeName);
+
         var reading = new Reading
         {
             Character = readingMeaning.Character,
@@ -94,8 +92,22 @@ internal partial class ReadingMeaningReader
             TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = readingMeaning.Entry,
+            Type = type,
         };
+
         readingMeaning.Readings.Add(reading);
+    }
+
+    private string GetTypeName(ReadingMeaning readingMeaning)
+    {
+        var typeName = _xmlReader.GetAttribute("r_type");
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            LogMissingTypeName(readingMeaning.Character);
+            readingMeaning.Entry.IsCorrupt = true;
+            typeName = string.Empty;
+        }
+        return typeName;
     }
 
     private async Task ReadMeaning(ReadingMeaning readingMeaning)
@@ -108,20 +120,22 @@ internal partial class ReadingMeaningReader
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = readingMeaning.Entry,
         };
+
         if (meaning.Language != "en")
         {
-            return; // Only want English meanings
+            return;
         }
         if (meaning.Text == "(kokuji)")
         {
             readingMeaning.IsKokuji = true;
-            return; // Don't add these "meanings"
+            return;
         }
         if (meaning.Text == "(ghost kanji)")
         {
             readingMeaning.IsGhost = true;
-            return; // Don't add these "meanings"
+            return;
         }
+
         readingMeaning.Meanings.Add(meaning);
     }
 
