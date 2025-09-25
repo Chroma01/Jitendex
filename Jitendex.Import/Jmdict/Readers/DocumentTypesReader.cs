@@ -129,7 +129,7 @@ internal partial class DocumentTypesReader
     }
 
     // Gloss types
-    internal static readonly Dictionary<string, string> GlossTypeEntities = new()
+    private static readonly Dictionary<string, string> GlossTypeEntities = new()
     {
         ["tm"] = "trademark",
         ["lit"] = "literal",
@@ -138,27 +138,27 @@ internal partial class DocumentTypesReader
     };
 
     // Cross reference types
-    internal static readonly Dictionary<string, string> CrossReferenceTypeEntities = new()
+    private static readonly Dictionary<string, string> CrossReferenceTypeEntities = new()
     {
         ["xref"] = "cross-reference",
         ["ant"] = "antonym",
     };
 
     // Language source types
-    internal static readonly Dictionary<string, string> LanguageSourceTypeEntities = new()
+    private static readonly Dictionary<string, string> LanguageSourceTypeEntities = new()
     {
         ["full"] = "Full description of the source word or phrase of the loanword",
         ["part"] = "Partial description of the source word or phrase of the loanword",
     };
 
     // Example source types
-    internal static readonly Dictionary<string, string> ExampleSourceTypeEntities = new()
+    private static readonly Dictionary<string, string> ExampleSourceTypeEntities = new()
     {
         ["tat"] = "tatoeba.org",
     };
 
     // Priority tags
-    internal static readonly Dictionary<string, string> PriorityTagEntities =
+    private static readonly Dictionary<string, string> PriorityTagEntities =
         Enumerable.Range(1, 2).SelectMany(i => new KeyValuePair<string, string>[] {
             new($"news{i}", $"Ranking in wordfreq file, {i} of 2"),
             new($"ichi{i}", $"Ranking from \"Ichimango goi bunruishuu\", {i} of 2"),
@@ -170,7 +170,7 @@ internal partial class DocumentTypesReader
         )).ToDictionary();
 
     // Languages
-    internal static readonly Dictionary<string, string> LanguageEntities = new()
+    private static readonly Dictionary<string, string> LanguageEntities = new()
     {
         ["afr"] = "Afrikaans",
         ["ain"] = "Ainu",
