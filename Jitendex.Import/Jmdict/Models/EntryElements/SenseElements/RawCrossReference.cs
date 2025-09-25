@@ -39,8 +39,8 @@ internal class RawCrossReference
     /// Stable and unique identifier for this reference in the raw data.
     /// </summary>
     public string RawKey() => RefText2 is null ?
-        $"{EntryId}・{Sense.Order}・{RefText1}・{RefSenseOrder}" :
-        $"{EntryId}・{Sense.Order}・{RefText1}【{RefText2}】・{RefSenseOrder}";
+        $"{EntryId}・{SenseOrder}・{RefText1}・{RefSenseOrder}" :
+        $"{EntryId}・{SenseOrder}・{RefText1}【{RefText2}】・{RefSenseOrder}";
 
     public const string XmlTagName = "xref";
     public const string XmlTagName_Antonym = "ant";
