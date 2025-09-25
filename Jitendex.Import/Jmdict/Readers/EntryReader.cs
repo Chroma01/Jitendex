@@ -43,7 +43,8 @@ internal partial class EntryReader
         var entry = new Entry
         {
             Id = default,
-            CorpusId = CorpusId.Unknown,
+            CorpusId = default,
+            Corpus = null!,
         };
 
         var exit = false;
@@ -140,10 +141,10 @@ internal partial class EntryReader
     {
         foreach (var reading in entry.Readings)
         {
-            if (reading.NoKanji)
+            if (reading.NoKanji || reading.IsHidden())
+            {
                 continue;
-            if (reading.IsHidden())
-                continue;
+            }
 
             foreach (var kanjiForm in entry.KanjiForms)
             {

@@ -23,16 +23,15 @@ namespace Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
 internal partial class ExampleCache
 {
-    public IEnumerable<ExampleSource> ExampleSources { get => _cache.Values; }
-
     private readonly ILogger<ExampleCache> _logger;
     private readonly KeywordCache _keywordCache;
+    private readonly Dictionary<(string, int), ExampleSource> _cache = [];
 
     public ExampleCache(ILogger<ExampleCache> logger, KeywordCache keywordCache) =>
         (_logger, _keywordCache) =
         (@logger, @keywordCache);
 
-    private readonly Dictionary<(string, int), ExampleSource> _cache = [];
+    public IEnumerable<ExampleSource> ExampleSources { get => _cache.Values; }
 
     public ExampleSource GetExampleSource(string typeName, int originKey)
     {

@@ -41,6 +41,7 @@ public class Sense
     public List<LanguageSource> LanguageSources { get; set; } = [];
     public List<Example> Examples { get; set; } = [];
 
+    [NotMapped]
     internal List<RawCrossReference> RawCrossReferences { get; set; } = [];
 
     [InverseProperty(nameof(CrossReference.Sense))]
