@@ -75,20 +75,17 @@ internal partial class DocumentTypesReader
         {
             var name = match.Groups[1].Value;
             var description = match.Groups[2].Value;
-            try
+
+            if (entityNameToDescription.TryGetValue(name, out string? oldDescription))
+            {
+                if (description != oldDescription)
+                {
+                    throw new Exception($"Keyword `{name}` has multiple descriptions in the Jmdict DTD");
+                }
+            }
+            else
             {
                 entityNameToDescription.Add(name, description);
-            }
-            catch (ArgumentException)
-            {
-                if (entityNameToDescription[name] == description)
-                {
-                    // Ignore repeated definitions that are exact duplicates.
-                }
-                else
-                {
-                    throw;
-                }
             }
         }
         return entityNameToDescription;
