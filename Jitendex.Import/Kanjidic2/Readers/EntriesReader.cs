@@ -22,7 +22,7 @@ using Jitendex.Import.Kanjidic2.Models;
 
 namespace Jitendex.Import.Kanjidic2.Readers;
 
-internal class EntriesReader
+internal partial class EntriesReader
 {
     private readonly ILogger<EntriesReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -43,6 +43,10 @@ internal class EntriesReader
                 case XmlNodeType.Element:
                     await ReadChildElementAsync(entries);
                     break;
+                case XmlNodeType.Text:
+                    var text = await _xmlReader.GetValueAsync();
+                    LogUnexpectedTextNode(text);
+                    break;
             }
         }
 
@@ -56,6 +60,17 @@ internal class EntriesReader
             case Entry.XmlTagName:
                 await _entryReader.ReadAsync(entries);
                 break;
+            default:
+                LogUnexpectedElement(_xmlReader.Name);
+                break;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected text node found between entries: `{Text}`")]
+    private partial void LogUnexpectedTextNode(string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected element node found between entries: <{Name}>")]
+    private partial void LogUnexpectedElement(string name);
 }

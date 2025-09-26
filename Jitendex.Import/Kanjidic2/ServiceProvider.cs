@@ -18,11 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-
-// using Jitendex.Import.Kanjidic2.Models;
-// using Jitendex.Import.Kanjidic2.Models.Groups;
-// using Jitendex.Import.Kanjidic2.Models.EntryElements;
-
 using Jitendex.Import.Kanjidic2.Readers;
 using Jitendex.Import.Kanjidic2.Readers.GroupReaders;
 
