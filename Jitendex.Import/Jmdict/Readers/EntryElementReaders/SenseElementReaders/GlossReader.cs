@@ -25,7 +25,7 @@ using Jitendex.Import.Jmdict.Readers.DocumentTypes;
 
 namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
 
-internal class GlossReader
+internal partial class GlossReader
 {
     private readonly ILogger<GlossReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -65,6 +65,29 @@ internal class GlossReader
         if (gloss.Language == "eng")
         {
             sense.Glosses.Add(gloss);
+            CheckGloss(gloss);
         }
     }
+
+    private void CheckGloss(Gloss gloss)
+    {
+        if (gloss.Text.Contains('\u200B'))
+        {
+            LogZeroWidthSpace(gloss.EntryId, gloss.SenseOrder, gloss.Order, gloss.Text);
+            gloss.Sense.Entry.IsCorrupt = true;
+        }
+        if (gloss.Text.Contains('\u2019'))
+        {
+            LogRightSingleQuotationMark(gloss.EntryId, gloss.SenseOrder, gloss.Order, gloss.Text);
+            gloss.Sense.Entry.IsCorrupt = true;
+        }
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry ID `{entryId}` sense #{SenseOrder} gloss #{Order} contains a right single quotation mark: `{Text}`")]
+    private partial void LogRightSingleQuotationMark(int entryId, int senseOrder, int order, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry ID `{entryId}` sense #{SenseOrder} gloss #{Order} contains a zero-width space: `{Text}`")]
+    private partial void LogZeroWidthSpace(int entryId, int senseOrder, int order, string text);
 }
