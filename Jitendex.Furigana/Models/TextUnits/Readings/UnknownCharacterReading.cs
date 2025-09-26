@@ -22,21 +22,21 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public class UnknownCharacterReading : CharacterReading
 {
-    public override string Reading { get; }
+    public override string Text { get; }
 
     public UnknownCharacterReading(JapaneseCharacter character, string text) : base(character, text)
     {
-        Reading = text.KatakanaToHiragana();
+        Text = text.KatakanaToHiragana();
     }
 
     public override bool Equals(object? obj) =>
         obj is UnknownCharacterReading reading &&
         IsPrefix == reading.IsPrefix &&
         IsSuffix == reading.IsSuffix &&
-        Reading == reading.Reading;
+        Text == reading.Text;
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
+        return HashCode.Combine(IsPrefix, IsSuffix, Text);
     }
 }

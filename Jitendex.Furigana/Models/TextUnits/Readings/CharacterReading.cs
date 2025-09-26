@@ -21,7 +21,7 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 public abstract class CharacterReading : IReading
 {
     public JapaneseCharacter Character { get; }
-    public abstract string Reading { get; }
+    public abstract string Text { get; }
     public bool IsPrefix { get; }
     public bool IsSuffix { get; }
 

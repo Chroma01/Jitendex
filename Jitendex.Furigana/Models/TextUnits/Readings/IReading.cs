@@ -20,5 +20,5 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public interface IReading
 {
-    string Reading { get; }
+    string Text { get; }
 }

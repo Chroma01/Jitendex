@@ -76,7 +76,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             if (_resourceCache.Compounds.TryGetValue(text, out JapaneseCompound? compound))
             {
                 return compound.Readings
-                    .Select(x => new KeyValuePair<string, List<IReading>>(x.Reading, [x]))
+                    .Select(x => new KeyValuePair<string, List<IReading>>(x.Text, [x]))
                     .ToDictionary();
             }
         }
@@ -131,17 +131,17 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
 
     private static IEnumerable<string> EnumerateNonKanjiReadingTexts(NonKanjiReading nonKanjiReading)
     {
-        yield return nonKanjiReading.Reading;
+        yield return nonKanjiReading.Text;
     }
 
     private static IEnumerable<string> EnumerateNameReadingTexts(NameReading nameReading)
     {
-        yield return nameReading.Reading;
+        yield return nameReading.Text;
     }
 
     private static IEnumerable<string> EnumerateOnReadingTexts(KanjiFormSlice kanjiFormSlice, OnReading onReading)
     {
-        yield return onReading.Reading;
+        yield return onReading.Text;
 
         if (!kanjiFormSlice.ContainsFirstRune)
         {
@@ -237,11 +237,11 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
     {
         if (kanjiFormSlice.ContainsFirstRune)
         {
-            return [kunReading.Reading];
+            return [kunReading.Text];
         }
         else
         {
-            return kunReading.RendakuReadings.Add(kunReading.Reading);
+            return kunReading.RendakuReadings.Add(kunReading.Text);
         }
     }
 }

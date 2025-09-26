@@ -23,7 +23,7 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public class OnReading : CharacterReading
 {
-    public override string Reading { get; }
+    public override string Text { get; }
     public string? SokuonForm { get; }
     public ImmutableArray<string> RendakuReadings { get; }
 
@@ -42,9 +42,9 @@ public class OnReading : CharacterReading
             );
         }
 
-        Reading = text.Replace("-", string.Empty).KatakanaToHiragana();
-        SokuonForm = Reading.ToSokuonForm();
-        RendakuReadings = Reading.ToRendakuForms();
+        Text = text.Replace("-", string.Empty).KatakanaToHiragana();
+        SokuonForm = Text.ToSokuonForm();
+        RendakuReadings = Text.ToRendakuForms();
         RendakuSokuonReadings = SokuonForm?.ToRendakuForms() ?? [];
     }
 
@@ -52,8 +52,8 @@ public class OnReading : CharacterReading
         obj is OnReading reading &&
         IsPrefix == reading.IsPrefix &&
         IsSuffix == reading.IsSuffix &&
-        Reading == reading.Reading;
+        Text == reading.Text;
 
     public override int GetHashCode() =>
-        HashCode.Combine(IsPrefix, IsSuffix, Reading);
+        HashCode.Combine(IsPrefix, IsSuffix, Text);
 }

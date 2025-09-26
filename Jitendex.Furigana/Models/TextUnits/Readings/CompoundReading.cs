@@ -21,11 +21,11 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 public class CompoundReading : IReading
 {
     public JapaneseCompound Compound { get; }
-    public string Reading { get; }
+    public string Text { get; }
 
     public CompoundReading(JapaneseCompound compound, string text)
     {
         Compound = compound;
-        Reading = text;
+        Text = text;
     }
 }

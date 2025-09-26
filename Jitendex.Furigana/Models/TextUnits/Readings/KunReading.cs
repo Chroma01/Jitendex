@@ -23,28 +23,28 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public class KunReading : CharacterReading
 {
-    public override string Reading { get; }
+    public override string Text { get; }
     public ImmutableArray<string> RendakuReadings { get; }
 
     public KunReading(Kanji character, string text) : base(character, text)
     {
-        Reading = text
+        Text = text
             .Replace("-", string.Empty)
             .Split(".")
             .First()
             .KatakanaToHiragana();
 
-        RendakuReadings = Reading.ToRendakuForms();
+        RendakuReadings = Text.ToRendakuForms();
     }
 
     public override bool Equals(object? obj) =>
         obj is KunReading reading &&
         IsPrefix == reading.IsPrefix &&
         IsSuffix == reading.IsSuffix &&
-        Reading == reading.Reading;
+        Text == reading.Text;
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(IsPrefix, IsSuffix, Reading);
+        return HashCode.Combine(IsPrefix, IsSuffix, Text);
     }
 }

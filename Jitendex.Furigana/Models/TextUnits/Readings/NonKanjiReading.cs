@@ -22,10 +22,10 @@ namespace Jitendex.Furigana.Models.TextUnits.Readings;
 
 public class NonKanjiReading : CharacterReading
 {
-    public override string Reading { get; }
+    public override string Text { get; }
 
     public NonKanjiReading(NonKanji character, string text) : base(character, text)
     {
-        Reading = text.KatakanaToHiragana();
+        Text = text.KatakanaToHiragana();
     }
 }
