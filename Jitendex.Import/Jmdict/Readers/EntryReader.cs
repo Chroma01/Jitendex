@@ -66,15 +66,26 @@ internal partial class EntryReader
             }
         }
 
-        if (entry.Id != default)
+        if (entry.Corpus is not null)
         {
             PostProcess(entry);
             entries.Add(entry);
+        }
+        else
+        {
+            LogMissingEntryId(Entry.Id_XmlTagName);
         }
     }
 
     private async Task ReadChildElementAsync(Entry entry)
     {
+        if(entry.Corpus is null && _xmlReader.Name != Entry.Id_XmlTagName)
+        {
+            LogPrematureElement(_xmlReader.Name);
+            entry.IsCorrupt = true;
+            return;
+        }
+
         switch (_xmlReader.Name)
         {
             case Entry.Id_XmlTagName:
@@ -99,12 +110,6 @@ internal partial class EntryReader
 
     private async Task ReadEntryId(Entry entry)
     {
-        if (entry.Id != default)
-        {
-            LogDuplicateEntryId(entry.Id, Entry.Id_XmlTagName);
-            entry.IsCorrupt = true;
-        }
-
         var idText = await _xmlReader.ReadElementContentAsStringAsync();
 
         if (int.TryParse(idText, out int id))
@@ -120,6 +125,12 @@ internal partial class EntryReader
 
     private void AssignCorpus(Entry entry)
     {
+        if (entry.Corpus is not null)
+        {
+            LogDuplicateEntryId(entry.Id, Entry.Id_XmlTagName);
+            entry.IsCorrupt = true;
+        }
+
         var corpus = _corpusCache.GetCorpus(entry);
 
         if (corpus.Id == CorpusId.Unknown)
@@ -191,6 +202,10 @@ internal partial class EntryReader
         }
     }
 
+    [LoggerMessage(LogLevel.Error,
+    "Attempted to read <{XmlTagName}> child element before reading the entry primary key")]
+    private partial void LogPrematureElement(string xmlTagName);
+
     [LoggerMessage(LogLevel.Warning,
     "Kanji form `{KanjiFormText}` in entry {EntryId} has no associated readings")]
     private partial void LogOrphanKanjiForm(int entryId, string kanjiFormText);
@@ -202,4 +217,8 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Error,
     "Cannot parse entry ID from text `{Text}`")]
     private partial void LogUnparsableId(string Text);
+
+    [LoggerMessage(LogLevel.Error,
+    "Entry contains no <{XmlTagName}> element; no primary key can be assigned")]
+    private partial void LogMissingEntryId(string xmlTagName);
 }
