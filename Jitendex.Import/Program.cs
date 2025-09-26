@@ -46,12 +46,12 @@ public class Program
             XmlFile: Path.Combine("Resources", "edrdg", "kanjidic2.xml")
         );
 
-        var kanjidic2Service = Kanjidic2ServiceProvider.GetService(kanjidic2Paths);
-        var kanjidic2Entries = await kanjidic2Service.CreateEntriesAsync();
+        var service = Kanjidic2ServiceProvider.GetService(kanjidic2Paths);
+        var kanjidic2 = await service.ReadKanjidic2Async();
 
         var db = new Kanjidic2Context();
         await BuildDb.InitializeAsync(db);
-        await db.Entries.AddRangeAsync(kanjidic2Entries);
+        await db.Entries.AddRangeAsync(kanjidic2.Entries);
         await db.SaveChangesAsync();
     }
 
@@ -63,8 +63,8 @@ public class Program
             XRefCache: Path.Combine("Resources", "jmdict", "cross_reference_sequences.json")
         );
 
-        var jmdictService = JmdictServiceProvider.GetService(jmdictPaths);
-        var jmdict = await jmdictService.ReadJmdictAsync();
+        var service = JmdictServiceProvider.GetService(jmdictPaths);
+        var jmdict = await service.ReadJmdictAsync();
 
         var db = new JmdictContext();
         await BuildDb.InitializeAsync(db);

@@ -1,0 +1,50 @@
+/*
+Copyright (c) 2025 Stephen Kraus
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using Jitendex.Import.Kanjidic2.Models;
+
+namespace Jitendex.Import.Kanjidic2.Readers;
+
+internal class Kanjidic2Reader
+{
+    private readonly DocumentTypes _docTypes;
+    private readonly EntriesReader _entriesReader;
+
+    public Kanjidic2Reader(DocumentTypes docTypes, EntriesReader entriesReader) =>
+        (_docTypes, _entriesReader) =
+        (@docTypes, @entriesReader);
+
+    public async Task<Kanjidic2Document> ReadKanjidic2Async()
+    {
+        var entries = await _entriesReader.ReadAsync();
+
+        var kanjidic2 = new Kanjidic2Document
+        {
+            Entries = entries,
+            CodepointTypes = [.. _docTypes.CodepointTypes()],
+            DictionaryTypes = [.. _docTypes.DictionaryTypes()],
+            QueryCodeTypes = [.. _docTypes.QueryCodeTypes()],
+            MisclassificationTypes = [.. _docTypes.MisclassificationTypes()],
+            RadicalTypes = [.. _docTypes.RadicalTypes()],
+            ReadingType = [.. _docTypes.ReadingType()],
+            VariantTypes = [.. _docTypes.VariantTypes()],
+        };
+
+        return kanjidic2;
+    }
+}

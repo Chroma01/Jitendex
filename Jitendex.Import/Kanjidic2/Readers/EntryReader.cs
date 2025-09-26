@@ -39,7 +39,7 @@ internal partial class EntryReader
         (_logger, _xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
         (@logger, @xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
 
-    public async Task<Entry> ReadAsync()
+    public async Task ReadAsync(List<Entry> entries)
     {
         var entry = new Entry
         {
@@ -66,7 +66,8 @@ internal partial class EntryReader
                     break;
             }
         }
-        return entry;
+
+        entries.Add(entry);
     }
 
     private async Task ReadChildElementAsync(Entry entry)

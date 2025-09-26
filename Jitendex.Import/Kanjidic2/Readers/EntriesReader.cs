@@ -19,44 +19,43 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.Kanjidic2.Models;
-using Jitendex.Import.Kanjidic2.Readers;
 
-namespace Jitendex.Import.Kanjidic2;
+namespace Jitendex.Import.Kanjidic2.Readers;
 
-internal class Kanjidic2Reader
+internal class EntriesReader
 {
-    private readonly ILogger<Kanjidic2Reader> _logger;
+    private readonly ILogger<EntriesReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly EntryReader _entryReader;
 
-    public Kanjidic2Reader(ILogger<Kanjidic2Reader> logger, XmlReader xmlReader, EntryReader entryReader) =>
+    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, EntryReader entryReader) =>
         (_logger, _xmlReader, _entryReader) =
         (@logger, @xmlReader, @entryReader);
 
-    public async Task<List<Entry>> CreateEntriesAsync()
+    public async Task<List<Entry>> ReadAsync()
     {
         var entries = new List<Entry>();
-        await foreach (var entry in ReadKanjidic2Async())
-        {
-            entries.Add(entry);
-        }
-        return entries;
-    }
 
-    private async IAsyncEnumerable<Entry> ReadKanjidic2Async()
-    {
         while (await _xmlReader.ReadAsync())
         {
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    if (_xmlReader.Name == Entry.XmlTagName)
-                    {
-                        var entry = await _entryReader.ReadAsync();
-                        yield return entry;
-                    }
+                    await ReadChildElementAsync(entries);
                     break;
             }
+        }
+
+        return entries;
+    }
+
+    private async Task ReadChildElementAsync(List<Entry> entries)
+    {
+        switch (_xmlReader.Name)
+        {
+            case Entry.XmlTagName:
+                await _entryReader.ReadAsync(entries);
+                break;
         }
     }
 }
