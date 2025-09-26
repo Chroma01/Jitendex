@@ -40,13 +40,18 @@ internal class RInfoReader
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByDescription<ReadingInfoTag>(description);
 
+        if (tag.IsCorrupt)
+        {
+            reading.Entry.IsCorrupt = true;
+        }
+
         if (reading.Infos.Any(t => t.TagName == tag.Name))
         {
             reading.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, reading.EntryId, Reading.XmlTagName, reading.Order, tag.Name, ReadingInfo.XmlTagName);
         }
 
-        reading.Infos.Add(new ReadingInfo
+        var info = new ReadingInfo
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
@@ -54,6 +59,8 @@ internal class RInfoReader
             TagName = tag.Name,
             Reading = reading,
             Tag = tag,
-        });
+        };
+
+        reading.Infos.Add(info);
     }
 }

@@ -68,7 +68,7 @@ internal partial class ExampleReader
             }
         }
 
-        if (example.SourceKey == default)
+        if (example.Source is null)
         {
             sense.Entry.IsCorrupt = true;
         }
@@ -125,6 +125,8 @@ internal partial class ExampleReader
         {
             example.SourceKey = sourceKey;
             example.Source = _exampleCache.GetExampleSource(example.SourceTypeName, example.SourceKey);
+
+            if (example.Source.ExampleSourceType.IsCorrupt) example.Sense.Entry.IsCorrupt = true;
         }
         else
         {

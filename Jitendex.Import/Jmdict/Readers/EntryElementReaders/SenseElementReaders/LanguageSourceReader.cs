@@ -38,7 +38,15 @@ internal partial class LanguageSourceReader
     public async Task ReadAsync(Sense sense)
     {
         var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
+        var type = _keywordCache.GetByName<LanguageSourceType>(typeName);
+
         var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
+        var language = _keywordCache.GetByName<Language>(languageCode);
+
+        if (type.IsCorrupt || language.IsCorrupt)
+        {
+            sense.Entry.IsCorrupt = true;
+        }
 
         var wasei = _xmlReader.GetAttribute("ls_wasei");
         if (wasei is not null && wasei != "y")
@@ -57,7 +65,7 @@ internal partial class LanguageSourceReader
             text = await _xmlReader.ReadElementContentAsStringAsync();
         }
 
-        sense.LanguageSources.Add(new LanguageSource
+        var languageSource = new LanguageSource
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -67,9 +75,11 @@ internal partial class LanguageSourceReader
             TypeName = typeName,
             IsWasei = wasei == "y",
             Sense = sense,
-            Language = _keywordCache.GetByName<Language>(languageCode),
-            Type = _keywordCache.GetByName<LanguageSourceType>(typeName),
-        });
+            Language = language,
+            Type = type,
+        };
+
+        sense.LanguageSources.Add(languageSource);
     }
 
     [LoggerMessage(LogLevel.Warning,

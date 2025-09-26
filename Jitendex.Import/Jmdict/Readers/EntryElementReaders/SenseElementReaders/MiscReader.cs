@@ -40,13 +40,18 @@ internal class MiscReader
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByDescription<MiscTag>(description);
 
+        if (tag.IsCorrupt)
+        {
+            sense.Entry.IsCorrupt = true;
+        }
+
         if (sense.Miscs.Any(t => t.TagName == tag.Name))
         {
             sense.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, Misc.XmlTagName);
         }
 
-        sense.Miscs.Add(new Misc
+        var misc = new Misc
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -54,6 +59,8 @@ internal class MiscReader
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        });
+        };
+
+        sense.Miscs.Add(misc);
     }
 }

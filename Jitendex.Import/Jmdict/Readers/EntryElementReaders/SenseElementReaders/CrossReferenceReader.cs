@@ -50,6 +50,7 @@ internal partial class CrossReferenceReader
         }
 
         var parsedRef = Parse(text);
+
         if (parsedRef is null)
         {
             sense.Entry.IsCorrupt = true;
@@ -57,6 +58,12 @@ internal partial class CrossReferenceReader
         }
 
         var type = _keywordCache.GetByName<CrossReferenceType>(typeName);
+
+        if (type.IsCorrupt)
+        {
+            sense.Entry.IsCorrupt = true;
+        }
+
         var crossRef = new RawCrossReference
         {
             EntryId = sense.EntryId,

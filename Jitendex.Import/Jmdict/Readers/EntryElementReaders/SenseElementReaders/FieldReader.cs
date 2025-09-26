@@ -40,13 +40,18 @@ internal class FieldReader
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByDescription<FieldTag>(description);
 
+        if (tag.IsCorrupt)
+        {
+            sense.Entry.IsCorrupt = true;
+        }
+
         if (sense.Fields.Any(t => t.TagName == tag.Name))
         {
             sense.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, Field.XmlTagName);
         }
 
-        sense.Fields.Add(new Field
+        var field = new Field
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -54,6 +59,8 @@ internal class FieldReader
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        });
+        };
+
+        sense.Fields.Add(field);
     }
 }

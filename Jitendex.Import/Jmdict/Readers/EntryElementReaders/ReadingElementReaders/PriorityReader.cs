@@ -40,13 +40,18 @@ internal class RPriorityReader
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByName<PriorityTag>(tagName);
 
+        if (tag.IsCorrupt)
+        {
+            reading.Entry.IsCorrupt = true;
+        }
+
         if (reading.Priorities.Any(t => t.TagName == tag.Name))
         {
             reading.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, reading.EntryId, Reading.XmlTagName, reading.Order, tag.Name, ReadingPriority.XmlTagName);
         }
 
-        reading.Priorities.Add(new ReadingPriority
+        var priority = new ReadingPriority
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
@@ -54,6 +59,8 @@ internal class RPriorityReader
             TagName = tagName,
             Reading = reading,
             Tag = tag,
-        });
+        };
+
+        reading.Priorities.Add(priority);
     }
 }

@@ -40,13 +40,18 @@ internal class KPriorityReader
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByName<PriorityTag>(tagName);
 
+        if (tag.IsCorrupt)
+        {
+            kanjiForm.Entry.IsCorrupt = true;
+        }
+
         if (kanjiForm.Infos.Any(t => t.TagName == tag.Name))
         {
             kanjiForm.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, kanjiForm.EntryId, KanjiForm.XmlTagName, kanjiForm.Order, tag.Name, KanjiFormPriority.XmlTagName);
         }
 
-        kanjiForm.Priorities.Add(new KanjiFormPriority
+        var priority = new KanjiFormPriority
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
@@ -54,6 +59,8 @@ internal class KPriorityReader
             TagName = tagName,
             KanjiForm = kanjiForm,
             Tag = tag,
-        });
+        };
+
+        kanjiForm.Priorities.Add(priority);
     }
 }

@@ -43,11 +43,12 @@ internal class GlossReader
         if (typeName is not null)
         {
             type = _keywordCache.GetByName<GlossType>(typeName);
+            if (type.IsCorrupt) sense.Entry.IsCorrupt = true;
         }
         else
         {
             type = null;
-        };
+        }
 
         var gloss = new Gloss
         {

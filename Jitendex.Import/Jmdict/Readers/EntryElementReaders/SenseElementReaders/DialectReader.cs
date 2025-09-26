@@ -40,13 +40,18 @@ internal class DialectReader
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByDescription<DialectTag>(description);
 
+        if (tag.IsCorrupt)
+        {
+            sense.Entry.IsCorrupt = true;
+        }
+
         if (sense.Dialects.Any(t => t.TagName == tag.Name))
         {
             sense.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, Dialect.XmlTagName);
         }
 
-        sense.Dialects.Add(new Dialect
+        var dialect = new Dialect
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -54,6 +59,8 @@ internal class DialectReader
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        });
+        };
+
+        sense.Dialects.Add(dialect);
     }
 }

@@ -40,13 +40,18 @@ internal class PartOfSpeechReader
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByDescription<PartOfSpeechTag>(description);
 
+        if (tag.IsCorrupt)
+        {
+            sense.Entry.IsCorrupt = true;
+        }
+
         if (sense.Miscs.Any(t => t.TagName == tag.Name))
         {
             sense.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, sense.EntryId, Sense.XmlTagName, sense.Order, tag.Name, PartOfSpeech.XmlTagName);
         }
 
-        sense.PartsOfSpeech.Add(new PartOfSpeech
+        var partOfSpeech = new PartOfSpeech
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
@@ -54,6 +59,8 @@ internal class PartOfSpeechReader
             TagName = tag.Name,
             Sense = sense,
             Tag = tag,
-        });
+        };
+
+        sense.PartsOfSpeech.Add(partOfSpeech);
     }
 }

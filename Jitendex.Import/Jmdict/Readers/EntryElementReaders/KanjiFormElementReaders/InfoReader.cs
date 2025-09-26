@@ -40,13 +40,18 @@ internal class KInfoReader
         var description = await _xmlReader.ReadElementContentAsStringAsync();
         var tag = _keywordCache.GetByDescription<KanjiFormInfoTag>(description);
 
+        if (tag.IsCorrupt)
+        {
+            kanjiForm.Entry.IsCorrupt = true;
+        }
+
         if (kanjiForm.Infos.Any(t => t.TagName == tag.Name))
         {
             kanjiForm.Entry.IsCorrupt = true;
             Log.DuplicateTag(_logger, kanjiForm.EntryId, KanjiForm.XmlTagName, kanjiForm.Order, tag.Name, KanjiFormInfo.XmlTagName);
         }
 
-        kanjiForm.Infos.Add(new KanjiFormInfo
+        var info = new KanjiFormInfo
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
@@ -54,6 +59,8 @@ internal class KInfoReader
             TagName = tag.Name,
             KanjiForm = kanjiForm,
             Tag = tag,
-        });
+        };
+
+        kanjiForm.Infos.Add(info);
     }
 }
