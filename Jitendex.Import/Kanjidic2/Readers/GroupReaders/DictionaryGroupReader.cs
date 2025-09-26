@@ -86,7 +86,7 @@ internal partial class DictionaryGroupReader
         {
             Character = group.Character,
             Order = group.Dictionaries.Count + 1,
-            TypeName = typeName,
+            TypeName = type.Name,
             Volume = GetDictionaryVolume(group),
             Page = GetDictionaryPage(group),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
@@ -96,14 +96,13 @@ internal partial class DictionaryGroupReader
         group.Dictionaries.Add(dictionary);
     }
 
-    private string GetTypeName(DictionaryGroup group)
+    private string? GetTypeName(DictionaryGroup group)
     {
         var typeName = _xmlReader.GetAttribute("dr_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
             LogMissingTypeName(group.Character);
             group.Entry.IsCorrupt = true;
-            typeName = string.Empty;
         }
         return typeName;
     }

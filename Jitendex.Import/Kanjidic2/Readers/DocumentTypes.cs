@@ -33,8 +33,14 @@ internal partial class DocumentTypes
         RegisterKeywords();
     }
 
-    public T GetByName<T>(string name) where T : IKeyword, new()
+    public T GetByName<T>(string? name) where T : IKeyword, new()
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            name = Guid.NewGuid().ToString();
+            Register<T>(name, string.Empty);
+        }
+
         var cacheKey = (typeof(T), name);
         if (_cache.TryGetValue(cacheKey, out IKeyword? keyword))
         {
@@ -45,7 +51,7 @@ internal partial class DocumentTypes
 
         if (_nameToDescription.TryGetValue(cacheKey, out string? value))
         {
-            newKeyword = new T { Name = name, Description = value };
+            newKeyword = new T { Name = name, Description = value, IsCorrupt = value == string.Empty };
         }
         else
         {

@@ -89,7 +89,7 @@ internal partial class ReadingMeaningReader
         {
             Character = readingMeaning.Character,
             Order = readingMeaning.Readings.Count + 1,
-            TypeName = typeName,
+            TypeName = type.Name,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = readingMeaning.Entry,
             Type = type,
@@ -98,14 +98,13 @@ internal partial class ReadingMeaningReader
         readingMeaning.Readings.Add(reading);
     }
 
-    private string GetTypeName(ReadingMeaning readingMeaning)
+    private string? GetTypeName(ReadingMeaning readingMeaning)
     {
         var typeName = _xmlReader.GetAttribute("r_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
             LogMissingTypeName(readingMeaning.Character);
             readingMeaning.Entry.IsCorrupt = true;
-            typeName = string.Empty;
         }
         return typeName;
     }

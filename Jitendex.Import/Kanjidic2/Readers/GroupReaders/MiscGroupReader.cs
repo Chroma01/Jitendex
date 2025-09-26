@@ -169,14 +169,13 @@ internal partial class MiscGroupReader
         {
             LogMissingTypeName(group.Character);
             group.Entry.IsCorrupt = true;
-            typeName = string.Empty;
         }
         var type = _docTypes.GetByName<VariantType>(typeName);
         var variant = new Variant
         {
             Character = group.Character,
             Order = group.Variants.Count + 1,
-            TypeName = typeName,
+            TypeName = type.Name,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
             Type = type,

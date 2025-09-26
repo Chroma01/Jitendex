@@ -91,7 +91,7 @@ internal partial class QueryCodeGroupReader
         {
             Character = group.Character,
             Order = group.QueryCodes.Count + 1,
-            TypeName = typeName,
+            TypeName = type.Name,
             Misclassification = misclassification,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
@@ -102,14 +102,13 @@ internal partial class QueryCodeGroupReader
         group.QueryCodes.Add(queryCode);
     }
 
-    private string GetTypeName(QueryCodeGroup group)
+    private string? GetTypeName(QueryCodeGroup group)
     {
         var typeName = _xmlReader.GetAttribute("qc_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
             LogMissingTypeName(group.Character);
             group.Entry.IsCorrupt = true;
-            typeName = string.Empty;
         }
         return typeName;
     }

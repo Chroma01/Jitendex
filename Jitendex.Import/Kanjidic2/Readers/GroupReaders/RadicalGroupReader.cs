@@ -88,7 +88,7 @@ internal partial class RadicalGroupReader
         {
             Character = group.Character,
             Order = group.Radicals.Count + 1,
-            TypeName = typeName,
+            TypeName = type.Name,
             Number = number,
             Entry = group.Entry,
             Type = type,
@@ -97,14 +97,13 @@ internal partial class RadicalGroupReader
         group.Radicals.Add(radical);
     }
 
-    private string GetTypeName(RadicalGroup group)
+    private string? GetTypeName(RadicalGroup group)
     {
         var typeName = _xmlReader.GetAttribute("rad_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
             LogMissingTypeName(group.Character);
             group.Entry.IsCorrupt = true;
-            typeName = string.Empty;
         }
         return typeName;
     }

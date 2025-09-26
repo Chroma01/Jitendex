@@ -86,7 +86,7 @@ internal partial class CodepointGroupReader
         {
             Character = group.Character,
             Order = group.Codepoints.Count + 1,
-            TypeName = typeName,
+            TypeName = type.Name,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
             Type = type,
@@ -94,14 +94,13 @@ internal partial class CodepointGroupReader
         group.Codepoints.Add(codepoint);
     }
 
-    private string GetTypeName(CodepointGroup group)
+    private string? GetTypeName(CodepointGroup group)
     {
         var typeName = _xmlReader.GetAttribute("cp_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
             LogMissingTypeName(group.Character);
             group.Entry.IsCorrupt = true;
-            typeName = string.Empty;
         }
         return typeName;
     }
