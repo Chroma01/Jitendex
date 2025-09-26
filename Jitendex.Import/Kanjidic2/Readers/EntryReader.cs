@@ -43,9 +43,7 @@ internal partial class EntryReader
     {
         var entry = new Entry
         {
-            Character = string.Empty,
-            IsKokuji = false,
-            IsGhost = false,
+            Character = null!,
         };
 
         var exit = false;
@@ -67,11 +65,25 @@ internal partial class EntryReader
             }
         }
 
-        entries.Add(entry);
+        if (entry.Character is not null)
+        {
+            entries.Add(entry);
+        }
+        else
+        {
+            LogMissingCharacter(Entry.Character_XmlTagName);
+        }
     }
 
     private async Task ReadChildElementAsync(Entry entry)
     {
+        if (_xmlReader.Name != Entry.Character_XmlTagName && entry.Character is null)
+        {
+            entry.IsCorrupt = true;
+            LogPrematureElement(_xmlReader.Name);
+            return;
+        }
+
         switch (_xmlReader.Name)
         {
             case Entry.Character_XmlTagName:
@@ -149,7 +161,7 @@ internal partial class EntryReader
 
     private async Task ReadCharacterAsync(Entry entry)
     {
-        if (entry.Character != string.Empty)
+        if (entry.Character is not null)
         {
             LogUnexpectedGroup(entry.Character, Entry.Character_XmlTagName);
         }
@@ -158,7 +170,7 @@ internal partial class EntryReader
 
         if (string.IsNullOrWhiteSpace(entry.Character))
         {
-            LogMissingCharacter(Entry.Character_XmlTagName);
+            LogEmptyElement(Entry.Character_XmlTagName);
         }
         else if (entry.Character.EnumerateRunes().Count() > 1)
         {
@@ -167,8 +179,12 @@ internal partial class EntryReader
     }
 
     [LoggerMessage(LogLevel.Error,
+    "Attempted to read <{XmlTagName}> child element before reading the entry primary key")]
+    private partial void LogPrematureElement(string xmlTagName);
+
+    [LoggerMessage(LogLevel.Warning,
     "Entry contains no text in <{XmlTagName}> child element")]
-    private partial void LogMissingCharacter(string xmlTagName);
+    private partial void LogEmptyElement(string xmlTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry contains more than one character in <{XmlTagName}> child element: `{Text}`")]
@@ -177,4 +193,8 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Warning,
     "Entry for character `{Character}` has more than one <{XmlTagName}> child element")]
     private partial void LogUnexpectedGroup(string character, string xmlTagName);
+
+    [LoggerMessage(LogLevel.Error,
+    "Entry contains no <{XmlTagName}> element; no primary key can be assigned")]
+    private partial void LogMissingCharacter(string xmlTagName);
 }
