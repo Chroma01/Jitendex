@@ -22,19 +22,22 @@ namespace Jitendex.Import.Kanjidic2.Readers;
 
 internal class Kanjidic2Reader
 {
-    private readonly DocumentTypes _docTypes;
+    private readonly HeaderReader _headerReader;
     private readonly EntriesReader _entriesReader;
+    private readonly DocumentTypes _docTypes;
 
-    public Kanjidic2Reader(DocumentTypes docTypes, EntriesReader entriesReader) =>
-        (_docTypes, _entriesReader) =
-        (@docTypes, @entriesReader);
+    public Kanjidic2Reader(HeaderReader headerReader, EntriesReader entriesReader, DocumentTypes docTypes) =>
+        (_headerReader, _entriesReader, _docTypes) =
+        (@headerReader, @entriesReader, @docTypes);
 
     public async Task<Kanjidic2Document> ReadKanjidic2Async()
     {
+        var header = await _headerReader.ReadAsync();
         var entries = await _entriesReader.ReadAsync();
 
         var kanjidic2 = new Kanjidic2Document
         {
+            Date = header.DateOfCreation,
             Entries = entries,
             CodepointTypes = [.. _docTypes.CodepointTypes()],
             DictionaryTypes = [.. _docTypes.DictionaryTypes()],

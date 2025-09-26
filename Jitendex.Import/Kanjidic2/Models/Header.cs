@@ -16,17 +16,21 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Jitendex.Import.Kanjidic2.Models;
 
-public class Kanjidic2Document
+[Table(nameof(Header))]
+public class Header
 {
-    public required string Date { get; set; }
-    public required List<Entry> Entries { get; init; }
-    public required List<CodepointType> CodepointTypes { get; init; }
-    public required List<DictionaryType> DictionaryTypes { get; init; }
-    public required List<QueryCodeType> QueryCodeTypes { get; init; }
-    public required List<MisclassificationType> MisclassificationTypes { get; init; }
-    public required List<RadicalType> RadicalTypes { get; init; }
-    public required List<ReadingType> ReadingType { get; init; }
-    public required List<VariantType> VariantTypes { get; init; }
+    [Key]
+    public required string DatabaseVersion { get; set; }
+    public required string FileVersion { get; set; }
+    public required string DateOfCreation { get; set; }
+
+    internal const string XmlTagName = "header";
+    internal const string file_XmlTagName = "file_version";
+    internal const string database_XmlTagName = "database_version";
+    internal const string date_XmlTagName = "date_of_creation";
 }

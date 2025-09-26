@@ -53,6 +53,7 @@ internal static class Kanjidic2ServiceProvider
         .AddSingleton<DocumentTypes>()
 
         // Top-level readers.
+        .AddTransient<HeaderReader>()
         .AddTransient<EntriesReader>()
         .AddTransient<EntryReader>()
 
