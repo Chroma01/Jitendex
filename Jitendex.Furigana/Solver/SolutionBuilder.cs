@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Immutable;
+using System.Text;
 using Jitendex.Furigana.Models;
 using Jitendex.Furigana.TextExtensions;
 
@@ -76,26 +77,24 @@ internal class SolutionBuilder
     private ImmutableArray<SolutionPart> NormalizedParts()
     {
         var parts = new List<SolutionPart>();
-        var mergedTexts = new List<string>();
+        var mergedTexts = new StringBuilder();
         foreach (var part in _parts)
         {
             if (part.Furigana is null)
             {
-                mergedTexts.Add(part.BaseText);
+                mergedTexts.Append(part.BaseText);
                 continue;
             }
-            if (mergedTexts.Count > 0)
+            if (mergedTexts.Length > 0)
             {
-                var baseText = string.Join(string.Empty, mergedTexts);
-                parts.Add(new SolutionPart { BaseText = baseText });
-                mergedTexts = [];
+                parts.Add(new SolutionPart { BaseText = mergedTexts.ToString() });
+                mergedTexts.Clear();
             }
             parts.Add(part);
         }
-        if (mergedTexts.Count > 0)
+        if (mergedTexts.Length > 0)
         {
-            var baseText = string.Join(string.Empty, mergedTexts);
-            parts.Add(new SolutionPart { BaseText = baseText });
+            parts.Add(new SolutionPart { BaseText = mergedTexts.ToString() });
         }
         return parts.Where(static part =>
                 part.BaseText != string.Empty ||
