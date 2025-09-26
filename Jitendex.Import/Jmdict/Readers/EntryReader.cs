@@ -79,7 +79,7 @@ internal partial class EntryReader
 
     private async Task ReadChildElementAsync(Entry entry)
     {
-        if(entry.Corpus is null && _xmlReader.Name != Entry.Id_XmlTagName)
+        if (entry.Corpus is null && _xmlReader.Name != Entry.Id_XmlTagName)
         {
             LogPrematureElement(_xmlReader.Name);
             entry.IsCorrupt = true;
@@ -90,7 +90,6 @@ internal partial class EntryReader
         {
             case Entry.Id_XmlTagName:
                 await ReadEntryId(entry);
-                AssignCorpus(entry);
                 break;
             case KanjiForm.XmlTagName:
                 await _kanjiFormReader.ReadAsync(entry);
@@ -110,6 +109,12 @@ internal partial class EntryReader
 
     private async Task ReadEntryId(Entry entry)
     {
+        if (entry.Corpus is not null)
+        {
+            LogDuplicateEntryId(entry.Id, Entry.Id_XmlTagName);
+            entry.IsCorrupt = true;
+        }
+
         var idText = await _xmlReader.ReadElementContentAsStringAsync();
 
         if (int.TryParse(idText, out int id))
@@ -119,15 +124,6 @@ internal partial class EntryReader
         else
         {
             LogUnparsableId(idText);
-            entry.IsCorrupt = true;
-        }
-    }
-
-    private void AssignCorpus(Entry entry)
-    {
-        if (entry.Corpus is not null)
-        {
-            LogDuplicateEntryId(entry.Id, Entry.Id_XmlTagName);
             entry.IsCorrupt = true;
         }
 
