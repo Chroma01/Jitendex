@@ -22,38 +22,36 @@ namespace Jitendex.Furigana.TextExtensions;
 
 public static class RendakuTransform
 {
-    public static ImmutableArray<string> ToRendakuForms(this string text) =>
-        FirstToRendakuChars(text) switch
-        {
-            [] => [],
-            var rendakuChars => rendakuChars
-                .Select(rendaku => rendaku + text[1..])
-                .ToImmutableArray()
-        };
+    public static ImmutableArray<string> ToRendakuForms(this string text) => FirstToRendakuChars(text) switch
+    {
+        [] => [],
+        var rendakuChars => rendakuChars
+            .Select(rendaku => rendaku + text[1..])
+            .ToImmutableArray()
+    };
 
-    private static ImmutableArray<char> FirstToRendakuChars(string x) =>
-        x.FirstOrDefault() switch
-        {
-            'か' => ['が'],
-            'き' => ['ぎ'],
-            'く' => ['ぐ'],
-            'け' => ['げ'],
-            'こ' => ['ご'],
-            'さ' => ['ざ'],
-            'し' => ['じ'],
-            'す' => ['ず'],
-            'せ' => ['ぜ'],
-            'そ' => ['ぞ'],
-            'た' => ['だ'],
-            'ち' => ['ぢ', 'じ'],
-            'つ' => ['づ', 'ず'],
-            'て' => ['で'],
-            'と' => ['ど'],
-            'は' => ['ば', 'ぱ'],
-            'ひ' => ['び', 'ぴ'],
-            'ふ' => ['ぶ', 'ぷ'],
-            'へ' => ['べ', 'ぺ'],
-            'ほ' => ['ぼ', 'ぽ'],
-            _ => []
-        };
+    private static ImmutableArray<char> FirstToRendakuChars(string x) => x.FirstOrDefault() switch
+    {
+        'か' => ['が'],
+        'き' => ['ぎ'],
+        'く' => ['ぐ'],
+        'け' => ['げ'],
+        'こ' => ['ご'],
+        'さ' => ['ざ'],
+        'し' => ['じ'],
+        'す' => ['ず'],
+        'せ' => ['ぜ'],
+        'そ' => ['ぞ'],
+        'た' => ['だ'],
+        'ち' => ['ぢ', 'じ'],
+        'つ' => ['づ', 'ず'],
+        'て' => ['で'],
+        'と' => ['ど'],
+        'は' => ['ば', 'ぱ'],
+        'ひ' => ['び', 'ぴ'],
+        'ふ' => ['ぶ', 'ぷ'],
+        'へ' => ['べ', 'ぺ'],
+        'ほ' => ['ぼ', 'ぽ'],
+        _ => []
+    };
 }

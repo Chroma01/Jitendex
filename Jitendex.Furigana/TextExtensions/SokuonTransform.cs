@@ -20,20 +20,18 @@ namespace Jitendex.Furigana.TextExtensions;
 
 public static class SokuonTransform
 {
-    public static string? ToSokuonForm(this string text) =>
-        LastCanGeminate(text) switch
-        {
-            true => text[..^1] + "っ",
-            false => null,
-        };
+    public static string? ToSokuonForm(this string text) => LastCanGeminate(text) switch
+    {
+        true => text[..^1] + "っ",
+        false => null,
+    };
 
-    private static bool LastCanGeminate(string text) =>
-        text.LastOrDefault() switch
-        {
-            'つ' or
-            'く' or
-            'き' or
-            'ち' => true,
-            _ => false
-        };
+    private static bool LastCanGeminate(string text) => text.LastOrDefault() switch
+    {
+        'つ' or
+        'く' or
+        'き' or
+        'ち' => true,
+        _ => false
+    };
 }

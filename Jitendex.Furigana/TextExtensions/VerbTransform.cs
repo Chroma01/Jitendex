@@ -20,26 +20,24 @@ namespace Jitendex.Furigana.TextExtensions;
 
 public static class VerbTransform
 {
-    public static string? VerbToMasuStem(this string text) =>
-        LastToMasuStemLast(text) switch
-        {
-            default(char) => null,
-            char masuStemLast => text[..^1] + masuStemLast,
-        };
+    public static string? VerbToMasuStem(this string text) => LastToMasuStemLast(text) switch
+    {
+        default(char) => null,
+        char masuStemLast => text[..^1] + masuStemLast,
+    };
 
-    private static char LastToMasuStemLast(string text) =>
-        text.LastOrDefault() switch
-        {
-            'う' => 'い',
-            'く' => 'き',
-            'ぐ' => 'ぎ',
-            'す' => 'し',
-            'ず' => 'じ',
-            'つ' => 'ち',
-            'ぬ' => 'に',
-            'ぶ' => 'び',
-            'む' => 'み',
-            'る' => 'り',
-            _ => default
-        };
+    private static char LastToMasuStemLast(string text) => text.LastOrDefault() switch
+    {
+        'う' => 'い',
+        'く' => 'き',
+        'ぐ' => 'ぎ',
+        'す' => 'し',
+        'ず' => 'じ',
+        'つ' => 'ち',
+        'ぬ' => 'に',
+        'ぶ' => 'び',
+        'む' => 'み',
+        'る' => 'り',
+        _ => default
+    };
 }
