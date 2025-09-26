@@ -42,7 +42,7 @@ internal partial class KanjiFormReader
         {
             EntryId = entry.Id,
             Order = entry.KanjiForms.Count + 1,
-            Text = string.Empty,
+            Text = null!,
             Entry = entry,
         };
 
@@ -65,7 +65,15 @@ internal partial class KanjiFormReader
             }
         }
 
-        entry.KanjiForms.Add(kanjiForm);
+        if (kanjiForm.Text is not null)
+        {
+            entry.KanjiForms.Add(kanjiForm);
+        }
+        else
+        {
+            LogMissingElement(kanjiForm.EntryId, kanjiForm.Order, KanjiForm.Text_XmlTagName);
+            entry.IsCorrupt = true;
+        }
     }
 
     private async Task ReadChildElementAsync(KanjiForm kanjiForm)
@@ -90,7 +98,14 @@ internal partial class KanjiFormReader
 
     private async Task ReadKanjiFormText(KanjiForm kanjiForm)
     {
+        if (kanjiForm.Text is not null)
+        {
+            LogMultipleElements(kanjiForm.EntryId, kanjiForm.Order, KanjiForm.Text_XmlTagName);
+            kanjiForm.Entry.IsCorrupt = true;
+        }
+
         kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();
+
         if (string.IsNullOrWhiteSpace(kanjiForm.Text))
         {
             LogEmptyTextForm(kanjiForm.Entry.Id, kanjiForm.Order);
@@ -98,7 +113,15 @@ internal partial class KanjiFormReader
         }
     }
 
+    [LoggerMessage(LogLevel.Error,
+    "Entry `{EntryId}` kanji form #{Order} does not contain a <{XmlTagName}> element")]
+    private partial void LogMissingElement(int entryId, int order, string xmlTagName);
+
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` kanji form #{Order} contains no text")]
     private partial void LogEmptyTextForm(int entryId, int order);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` kanji form #{Order} contains multiple <{XmlTagName}> elements")]
+    private partial void LogMultipleElements(int entryId, int order, string xmlTagName);
 }

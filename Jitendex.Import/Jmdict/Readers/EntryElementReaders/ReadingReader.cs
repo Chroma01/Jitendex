@@ -43,7 +43,7 @@ internal partial class ReadingReader
         {
             EntryId = entry.Id,
             Order = entry.Readings.Count + 1,
-            Text = string.Empty,
+            Text = null!,
             NoKanji = false,
             Entry = entry,
         };
@@ -67,8 +67,16 @@ internal partial class ReadingReader
             }
         }
 
-        CheckForRedundancies(reading);
-        entry.Readings.Add(reading);
+        if (reading.Text is not null)
+        {
+            CheckForRedundancies(reading);
+            entry.Readings.Add(reading);
+        }
+        else
+        {
+            LogMissingElement(reading.EntryId, reading.Order, Reading.Text_XmlTagName);
+            entry.IsCorrupt = true;
+        }
     }
 
     private async Task ReadChildElementAsync(Reading reading)
@@ -99,7 +107,14 @@ internal partial class ReadingReader
 
     private async Task ReadReadingText(Reading reading)
     {
+        if (reading.Text is not null)
+        {
+            LogMultipleElements(reading.EntryId, reading.Order, Reading.Text_XmlTagName);
+            reading.Entry.IsCorrupt = true;
+        }
+
         reading.Text = await _xmlReader.ReadElementContentAsStringAsync();
+
         if (string.IsNullOrWhiteSpace(reading.Text))
         {
             LogEmptyTextForm(reading.Entry.Id, reading.Order);
@@ -109,7 +124,7 @@ internal partial class ReadingReader
 
     private void CheckForRedundancies(Reading reading)
     {
-        var count = 0;
+        int count = 0;
         if (reading.Restrictions.Count > 0) count++;
         if (reading.IsHidden()) count++;
         if (reading.NoKanji) count++;
@@ -121,6 +136,10 @@ internal partial class ReadingReader
         }
     }
 
+    [LoggerMessage(LogLevel.Error,
+    "Entry `{EntryId}` reading #{Order} does not contain a <{XmlTagName}> element")]
+    private partial void LogMissingElement(int entryId, int order, string xmlTagName);
+
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains no text")]
     private partial void LogEmptyTextForm(int entryId, int order);
@@ -129,4 +148,7 @@ internal partial class ReadingReader
     "Entry `{EntryId}` reading #{Order} has redundant constraint / NoKanji / hidden information")]
     private partial void LogRedundantReadingConstraints(int entryId, int order);
 
+    [LoggerMessage(LogLevel.Warning,
+    "Entry `{EntryId}` reading #{Order} contains multiple <{XmlTagName}> elements")]
+    private partial void LogMultipleElements(int entryId, int order, string xmlTagName);
 }
