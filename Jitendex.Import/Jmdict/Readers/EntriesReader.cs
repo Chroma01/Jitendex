@@ -22,7 +22,7 @@ using Jitendex.Import.Jmdict.Models;
 
 namespace Jitendex.Import.Jmdict.Readers;
 
-internal class EntriesReader
+internal partial class EntriesReader
 {
     private readonly ILogger<EntriesReader> _logger;
     private readonly XmlReader _xmlReader;
@@ -41,14 +41,15 @@ internal class EntriesReader
         {
             switch (_xmlReader.NodeType)
             {
-                case XmlNodeType.DocumentType:
-                    _logger.LogWarning("Unexpected document type node `{Name}`", _xmlReader.Name);
-                    break;
                 case XmlNodeType.Element:
-                    if (_xmlReader.Name == Entry.XmlTagName)
-                    {
-                        await _entryReader.ReadAsync(entries);
-                    }
+                    await ReadChildElementAsync(entries);
+                    break;
+                case XmlNodeType.Text:
+                    var text = await _xmlReader.GetValueAsync();
+                    LogUnexpectedTextNode(text);
+                    break;
+                case XmlNodeType.DocumentType:
+                    LogUnexpectedDocumentType(_xmlReader.Name);
                     break;
             }
         }
@@ -58,4 +59,32 @@ internal class EntriesReader
 
         return entries;
     }
+
+    private async Task ReadChildElementAsync(List<Entry> entries)
+    {
+        switch (_xmlReader.Name)
+        {
+            case Entry.XmlTagName:
+                await _entryReader.ReadAsync(entries);
+                break;
+            case "JMdict":
+                // All of the entries are contained within this element.
+                break;
+            default:
+                LogUnexpectedElement(_xmlReader.Name);
+                break;
+        }
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected element node found between entries: <{Name}>")]
+    private partial void LogUnexpectedElement(string name);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected text node found between entries: `{Text}`")]
+    private partial void LogUnexpectedTextNode(string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected document type node `{Name}`")]
+    private partial void LogUnexpectedDocumentType(string name);
 }
