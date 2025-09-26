@@ -53,17 +53,13 @@ internal partial class CorpusCache(ILogger<CorpusCache> logger)
         return newCorpus;
     }
 
-    private static CorpusId EntryIdToCorpusId(int entryId) =>
-        entryId switch
-        {
-            < 1000000 => CorpusId.Unknown,
-            < 3000000 => CorpusId.Jmdict,
-            < 5000000 => CorpusId.Unknown,
-            < 6000000 => CorpusId.Jmnedict,
-            < 9999999 => CorpusId.Unknown,
-              9999999 => CorpusId.Metadata,
-                    _ => CorpusId.Unknown,
-        };
+    private static CorpusId EntryIdToCorpusId(int entryId) => entryId switch
+    {
+        (>= 1000000) and (< 3000000) => CorpusId.Jmdict,
+        (>= 5000000) and (< 6000000) => CorpusId.Jmnedict,
+                             9999999 => CorpusId.Metadata,
+                                   _ => CorpusId.Unknown,
+    };
 
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{EntryId}` belongs to an unknown corpus.")]
