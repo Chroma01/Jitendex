@@ -95,6 +95,12 @@ internal partial class ReadingMeaningReader
             Type = type,
         };
 
+        if (readingMeaning.Readings.Any(r => r.Text == reading.Text && r.TypeName == type.Name))
+        {
+            Log.Duplicate(_logger, readingMeaning.Character, ReadingMeaning.XmlTagName, type.Name, Reading.XmlTagName);
+            readingMeaning.Entry.IsCorrupt = true;
+        }
+
         readingMeaning.Readings.Add(reading);
     }
 
@@ -133,6 +139,12 @@ internal partial class ReadingMeaningReader
         {
             readingMeaning.IsGhost = true;
             return;
+        }
+
+        if (readingMeaning.Meanings.Any(m => m.Text == meaning.Text))
+        {
+            Log.Duplicate(_logger, readingMeaning.Character, ReadingMeaning.XmlTagName, meaning.Text, Meaning.XmlTagName);
+            readingMeaning.Entry.IsCorrupt = true;
         }
 
         readingMeaning.Meanings.Add(meaning);

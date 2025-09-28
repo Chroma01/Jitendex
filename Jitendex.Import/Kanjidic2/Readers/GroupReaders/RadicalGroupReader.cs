@@ -82,6 +82,12 @@ internal partial class RadicalGroupReader
         var typeName = GetTypeName(group);
         var type = _docTypes.GetByName<RadicalType>(typeName);
 
+        if (group.Radicals.Any(c => c.TypeName == type.Name))
+        {
+            Log.Duplicate(_logger, group.Character, RadicalGroup.XmlTagName, type.Name, Radical.XmlTagName);
+            group.Entry.IsCorrupt = true;
+        }
+
         var number = await GetNumber(group);
 
         var radical = new Radical

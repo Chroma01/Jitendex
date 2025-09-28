@@ -82,6 +82,12 @@ internal partial class CodepointGroupReader
         var typeName = GetTypeName(group);
         var type = _docTypes.GetByName<CodepointType>(typeName);
 
+        if (group.Codepoints.Any(c => c.TypeName == type.Name))
+        {
+            Log.Duplicate(_logger, group.Character, CodepointGroup.XmlTagName, type.Name, Codepoint.XmlTagName);
+            group.Entry.IsCorrupt = true;
+        }
+
         var codepoint = new Codepoint
         {
             Character = group.Character,
@@ -91,6 +97,7 @@ internal partial class CodepointGroupReader
             Entry = group.Entry,
             Type = type,
         };
+
         group.Codepoints.Add(codepoint);
     }
 

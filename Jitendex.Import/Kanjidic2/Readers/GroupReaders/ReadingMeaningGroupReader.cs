@@ -95,6 +95,13 @@ internal partial class ReadingMeaningGroupReader
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
         };
+
+        if (group.Nanoris.Any(n => n.Text == nanori.Text))
+        {
+            Log.Duplicate(_logger, group.Character, ReadingMeaningGroup.XmlTagName, nanori.Text, Nanori.XmlTagName);
+            group.Entry.IsCorrupt = true;
+        }
+
         group.Nanoris.Add(nanori);
     }
 
