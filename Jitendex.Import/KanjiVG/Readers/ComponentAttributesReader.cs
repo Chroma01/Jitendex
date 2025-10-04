@@ -87,7 +87,7 @@ internal partial class ComponentAttributesReader
                 default:
                     LogUnknownAttributeName(xmlReader.Name, xmlReader.Value, group.Entry.FileName());
                     break;
-            };
+            }
         }
 
         if (attributeCount > 0)

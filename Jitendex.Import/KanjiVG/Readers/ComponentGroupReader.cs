@@ -35,12 +35,14 @@ internal partial class ComponentGroupReader
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {
+        var (id, style) = GetAttributes(xmlReader, entry);
+
         var group = new ComponentGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
-            Id = xmlReader.GetAttribute("id")!,
-            Style = xmlReader.GetAttribute("style"),
+            Id = id,
+            Style = style,
             Entry = entry,
         };
 
@@ -72,6 +74,46 @@ internal partial class ComponentGroupReader
         }
     }
 
+    private (string Id, string? Style) GetAttributes(XmlReader xmlReader, Entry entry)
+    {
+        string id = null!;
+        string? style = null;
+
+        int attributeCount = xmlReader.AttributeCount;
+        for (int i = 0; i < attributeCount; i++)
+        {
+            xmlReader.MoveToAttribute(i);
+            switch (xmlReader.Name)
+            {
+                case "id":
+                    id = xmlReader.Value;
+                    break;
+                case "style":
+                    style = xmlReader.Value;
+                    break;
+                case "xmlns:kvg":
+                    // Nothing to be done.
+                    break;
+                default:
+                    LogUnknownAttributeName(xmlReader.Name, xmlReader.Value, entry.FileName());
+                    break;
+            }
+        }
+
+        if (attributeCount > 0)
+        {
+            xmlReader.MoveToElement();
+        }
+
+        if (id is null)
+        {
+            LogMissingId(entry.FileName());
+            id = Guid.NewGuid().ToString();
+        }
+
+        return (id, style);
+    }
+
     private async Task ReadChildElementAsync(XmlReader xmlReader, ComponentGroup group)
     {
         switch (xmlReader.Name)
@@ -94,6 +136,14 @@ internal partial class ComponentGroupReader
     private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
 
     [LoggerMessage(LogLevel.Warning,
+    "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
+    private partial void LogUnknownAttributeName(string name, string value, string file);
+
+    [LoggerMessage(LogLevel.Warning,
     "File `{FileName}` contains multiple component groups")]
     private partial void LogMultipleGroups(string fileName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Cannot find component group ID attribute in file `{File}`")]
+    private partial void LogMissingId(string file);
 }

@@ -93,8 +93,7 @@ internal partial class EntryReader
             _logger.LogError("Cannot parse filename {FileName}", fileName);
             return (default, string.Empty);
         }
-
-        if (int.TryParse(match.Groups[1].Value, NumberStyles.AllowHexSpecifier, provider: null, out int value))
+        else if (int.TryParse(match.Groups[1].Value, NumberStyles.AllowHexSpecifier, provider: null, out int value))
         {
             return (value, match.Groups[2].Value);
         }

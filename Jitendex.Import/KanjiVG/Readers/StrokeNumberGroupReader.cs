@@ -35,12 +35,14 @@ internal partial class StrokeNumberGroupReader
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {
+        var (id, style) = GetAttributes(xmlReader, entry);
+
         var strokeNumberGroup = new StrokeNumberGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
-            Id = xmlReader.GetAttribute("id")!,
-            Style = xmlReader.GetAttribute("style"),
+            Id = id,
+            Style = style,
             Entry = entry,
         };
 
@@ -72,6 +74,46 @@ internal partial class StrokeNumberGroupReader
         }
     }
 
+    private (string Id, string? Style) GetAttributes(XmlReader xmlReader, Entry entry)
+    {
+        string id = null!;
+        string? style = null;
+
+        int attributeCount = xmlReader.AttributeCount;
+        for (int i = 0; i < attributeCount; i++)
+        {
+            xmlReader.MoveToAttribute(i);
+            switch (xmlReader.Name)
+            {
+                case "id":
+                    id = xmlReader.Value;
+                    break;
+                case "style":
+                    style = xmlReader.Value;
+                    break;
+                case "xmlns:kvg":
+                    // Nothing to be done.
+                    break;
+                default:
+                    LogUnknownAttributeName(xmlReader.Name, xmlReader.Value, entry.FileName());
+                    break;
+            }
+        }
+
+        if (attributeCount > 0)
+        {
+            xmlReader.MoveToElement();
+        }
+
+        if (id is null)
+        {
+            LogMissingId(entry.FileName());
+            id = Guid.NewGuid().ToString();
+        }
+
+        return (id, style);
+    }
+
     private async Task ReadElementAsync(XmlReader xmlReader, StrokeNumberGroup strokeNumberGroup)
     {
         switch (xmlReader.Name)
@@ -84,6 +126,14 @@ internal partial class StrokeNumberGroupReader
                 break;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
+    private partial void LogUnknownAttributeName(string name, string value, string file);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Cannot find component group ID attribute in file `{File}`")]
+    private partial void LogMissingId(string file);
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]
