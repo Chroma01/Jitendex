@@ -33,23 +33,22 @@ public class Element
     public required int Order { get; set; }
 
     public required string? Text { get; set; }
-    public required string? Variant { get; set; } // Boolean?
-    public required string? Partial { get; set; } // Boolean?
+    public required bool Variant { get; set; } // Boolean?
+    public required bool Partial { get; set; } // Boolean?
     public required string? Original { get; set; }
-    public required string? Part { get; set; } // Int?
-    public required string? Number { get; set; } // Int?
-    public required string? TradForm { get; set; }
-    public required string? RadicalForm { get; set; }
+    public required int? Part { get; set; } // Int?
+    public required int? Number { get; set; } // Int?
+    public required bool TradForm { get; set; }
+    public required bool RadicalForm { get; set; }
     public required string? Position { get; set; }
     public required string? Radical { get; set; }
     public required string? Phon { get; set; }
-
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(GroupId)}")]
     public required ElementGroup Group { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ParentId)}")]
-    public Element? Parent { get; set; }
+    public required Element? Parent { get; set; }
 
     public List<Element> Children { get; set; } = [];
 

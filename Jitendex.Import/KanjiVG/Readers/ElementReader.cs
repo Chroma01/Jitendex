@@ -51,22 +51,23 @@ internal partial class ElementReader
         {
             UnicodeScalarValue = elementGroup.Entry.UnicodeScalarValue,
             VariantTypeName = elementGroup.Entry.VariantTypeName,
-            Id = GetId(xmlReader),
+            Id = GetStringAttribute(xmlReader, "id"),
             GroupId = elementGroup.Id,
             ParentId = null,
             Order = elementGroup.Elements.Count + 1,
             Text = xmlReader.GetAttribute(TextAttributeName),
-            Variant = xmlReader.GetAttribute(VariantAttributeName),
-            Partial = xmlReader.GetAttribute(PartialAttributeName),
+            Variant = GetBooleanAttribute(xmlReader, VariantAttributeName),
+            Partial = GetBooleanAttribute(xmlReader, PartialAttributeName),
             Original = xmlReader.GetAttribute(OriginalAttributeName),
-            Part = xmlReader.GetAttribute(PartAttributeName),
-            Number = xmlReader.GetAttribute(NumberAttributeName),
-            TradForm = xmlReader.GetAttribute(TradFormAttributeName),
-            RadicalForm = xmlReader.GetAttribute(RadicalFormAttributeName),
+            Part = GetNullableIntegerAttribute(xmlReader, PartAttributeName),
+            Number = GetNullableIntegerAttribute(xmlReader, NumberAttributeName),
+            TradForm = GetBooleanAttribute(xmlReader, TradFormAttributeName),
+            RadicalForm = GetBooleanAttribute(xmlReader, RadicalFormAttributeName),
             Position = xmlReader.GetAttribute(PositionAttributeName),
             Radical = xmlReader.GetAttribute(RadicalAttributeName),
             Phon = xmlReader.GetAttribute(PhonAttributeName),
             Group = elementGroup,
+            Parent = null,
         };
 
         bool exit = false;
@@ -95,22 +96,23 @@ internal partial class ElementReader
         {
             UnicodeScalarValue = parentElement.UnicodeScalarValue,
             VariantTypeName = parentElement.VariantTypeName,
-            Id = GetId(xmlReader),
+            Id = GetStringAttribute(xmlReader, "id"),
             GroupId = parentElement.GroupId,
             ParentId = parentElement.Id,
             Order = parentElement.Children.Count + 1,
             Text = xmlReader.GetAttribute(TextAttributeName),
-            Variant = xmlReader.GetAttribute(VariantAttributeName),
-            Partial = xmlReader.GetAttribute(PartialAttributeName),
+            Variant = GetBooleanAttribute(xmlReader, VariantAttributeName),
+            Partial = GetBooleanAttribute(xmlReader, PartialAttributeName),
             Original = xmlReader.GetAttribute(OriginalAttributeName),
-            Part = xmlReader.GetAttribute(PartAttributeName),
-            Number = xmlReader.GetAttribute(NumberAttributeName),
-            TradForm = xmlReader.GetAttribute(TradFormAttributeName),
-            RadicalForm = xmlReader.GetAttribute(RadicalFormAttributeName),
+            Part = GetNullableIntegerAttribute(xmlReader, PartAttributeName),
+            Number = GetNullableIntegerAttribute(xmlReader, NumberAttributeName),
+            TradForm = GetBooleanAttribute(xmlReader, TradFormAttributeName),
+            RadicalForm = GetBooleanAttribute(xmlReader, RadicalFormAttributeName),
             Position = xmlReader.GetAttribute(PositionAttributeName),
             Radical = xmlReader.GetAttribute(RadicalAttributeName),
             Phon = xmlReader.GetAttribute(PhonAttributeName),
             Group = parentElement.Group,
+            Parent = parentElement,
         };
 
         bool exit = false;
@@ -133,17 +135,53 @@ internal partial class ElementReader
         parentElement.Children.Add(element);
     }
 
-    private static string GetId(XmlReader xmlReader)
+    private string GetStringAttribute(XmlReader xmlReader, string name)
     {
-        var id = xmlReader.GetAttribute("id");
-        if (id is not null)
+        var attribute = xmlReader.GetAttribute(name);
+        if (attribute is not null)
         {
-            return id;
+            return attribute;
         }
         else
         {
-            // TODO: Log
+            LogMissingAttribute(name, xmlReader.Name);
             return Guid.NewGuid().ToString();
+        }
+    }
+
+    private int? GetNullableIntegerAttribute(XmlReader xmlReader, string name)
+    {
+        var attribute = xmlReader.GetAttribute(name);
+        if (attribute is null)
+        {
+            return null;
+        }
+        else if (int.TryParse(attribute, out int value))
+        {
+            return value;
+        }
+        else
+        {
+            LogUnparsableText(name, xmlReader.Name);
+            return null;
+        }
+    }
+
+    private bool GetBooleanAttribute(XmlReader xmlReader, string name)
+    {
+        var attribute = xmlReader.GetAttribute(name);
+        if (attribute is null)
+        {
+            return false;
+        }
+        else if (bool.TryParse(attribute, out bool value))
+        {
+            return value;
+        }
+        else
+        {
+            LogUnparsableText(name, xmlReader.Name);
+            return false;
         }
     }
 
@@ -166,4 +204,12 @@ internal partial class ElementReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
     private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Attribute `{AttributeName}` for element `{Name}` not found")]
+    private partial void LogMissingAttribute(string attributeName, string name);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Attribute `{AttributeName}` for element `{Name}` cannot be parsed")]
+    private partial void LogUnparsableText(string attributeName, string name);
 }

@@ -37,11 +37,11 @@ internal partial class StrokeReader
         {
             UnicodeScalarValue = element.UnicodeScalarValue,
             VariantTypeName = element.VariantTypeName,
-            Id = GetAttribute(xmlReader, "id"),
+            Id = GetStringAttribute(xmlReader, "id"),
             ElementId = element.Id,
             Order = element.Strokes.Count + 1,
             Type = xmlReader.GetAttribute("kvg:type"),
-            PathData = GetAttribute(xmlReader, "d"),
+            PathData = GetStringAttribute(xmlReader, "d"),
             Element = element,
         };
 
@@ -54,12 +54,12 @@ internal partial class StrokeReader
     }
 
 
-    private string GetAttribute(XmlReader xmlReader, string name)
+    private string GetStringAttribute(XmlReader xmlReader, string name)
     {
-        var id = xmlReader.GetAttribute(name);
-        if (id is not null)
+        var attribute = xmlReader.GetAttribute(name);
+        if (attribute is not null)
         {
-            return id;
+            return attribute;
         }
         else
         {
