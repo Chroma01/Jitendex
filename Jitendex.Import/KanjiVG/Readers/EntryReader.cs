@@ -16,11 +16,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.KanjiVG.Models;
-using System.Text.RegularExpressions;
-using System.Globalization;
 
 namespace Jitendex.Import.KanjiVG.Readers;
 

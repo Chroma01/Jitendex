@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Import.KanjiVG.Models;
+using Attributes = (string Id, string? Type, string PathData);
 
 namespace Jitendex.Import.KanjiVG.Readers;
 
@@ -33,15 +34,17 @@ internal partial class StrokeReader
 
     public void Read(XmlReader xmlReader, Component component)
     {
+        var attributes = GetAttributes(xmlReader, component);
+
         var stroke = new Stroke
         {
             UnicodeScalarValue = component.UnicodeScalarValue,
             VariantTypeName = component.VariantTypeName,
-            Id = GetStringAttribute(xmlReader, "id"),
+            Id = attributes.Id,
             ComponentId = component.Id,
             Order = component.Strokes.Count + 1,
-            Type = xmlReader.GetAttribute("kvg:type"),
-            PathData = GetStringAttribute(xmlReader, "d"),
+            Type = attributes.Type,
+            PathData = attributes.PathData,
             Component = component,
         };
 
@@ -53,30 +56,63 @@ internal partial class StrokeReader
         component.Strokes.Add(stroke);
     }
 
-
-    private string GetStringAttribute(XmlReader xmlReader, string name)
+    private Attributes GetAttributes(XmlReader xmlReader, Component component)
     {
-        var attribute = xmlReader.GetAttribute(name);
-        if (attribute is not null)
+        var attributes = new Attributes(null!, null, null!);
+
+        int attributeCount = xmlReader.AttributeCount;
+        for (int i = 0; i < attributeCount; i++)
         {
-            return attribute;
+            xmlReader.MoveToAttribute(i);
+            switch (xmlReader.Name)
+            {
+                case "id":
+                    attributes.Id = xmlReader.Value;
+                    break;
+                case "kvg:type":
+                    attributes.Type = xmlReader.Value;
+                    break;
+                case "d":
+                    attributes.PathData = xmlReader.Value;
+                    break;
+                case "xmlns:kvg":
+                    // Nothing to be done.
+                    break;
+                default:
+                    LogUnknownAttributeName(xmlReader.Name, xmlReader.Value, component.Group.Entry.FileName());
+                    break;
+            }
         }
-        else
+
+        if (attributeCount > 0)
         {
-            LogMissingAttribute(name, xmlReader.Name);
-            return Guid.NewGuid().ToString();
+            xmlReader.MoveToElement();
         }
+
+        if (attributes.Id is null)
+        {
+            LogMissingAttribute(nameof(attributes.Id), component.Group.Entry.FileName());
+            attributes.Id = Guid.NewGuid().ToString();
+        }
+
+        if (attributes.PathData is null)
+        {
+            LogMissingAttribute(nameof(attributes.PathData), component.Group.Entry.FileName());
+            attributes.Id = string.Empty;
+        }
+
+        return attributes;
     }
 
     [LoggerMessage(LogLevel.Warning,
-    "Unexpected element name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
-    private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
+    "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
+    private partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Stroke ID `{Id}` in file `{FileName}` is non-empty")]
     private partial void LogNonEmptyElement(string id, string fileName);
 
     [LoggerMessage(LogLevel.Warning,
-    "Attribute `{AttributeName}` for element `{Name}` not found")]
-    private partial void LogMissingAttribute(string attributeName, string name);
+    "Cannot find stroke attribute `{AttributeName}` in file `{File}`")]
+    private partial void LogMissingAttribute(string attributeName, string file);
 }

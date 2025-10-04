@@ -35,12 +35,14 @@ internal partial class StrokeNumberReader
 
     public async Task ReadAsync(XmlReader xmlReader, StrokeNumberGroup group)
     {
+        var transform = GetTransformAttribute(xmlReader, group);
+
         var strokeNumber = new StrokeNumber
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
             VariantTypeName = group.Entry.VariantTypeName,
             GroupId = group.Id,
-            Transform = xmlReader.GetAttribute("transform"),
+            Transform = transform,
             Number = await GetNumberAsync(xmlReader),
             Group = group,
         };
@@ -52,6 +54,36 @@ internal partial class StrokeNumberReader
         }
 
         group.StrokeNumbers.Add(strokeNumber);
+    }
+
+    private string? GetTransformAttribute(XmlReader xmlReader, StrokeNumberGroup group)
+    {
+        string? transform = null;
+
+        int attributeCount = xmlReader.AttributeCount;
+        for (int i = 0; i < attributeCount; i++)
+        {
+            xmlReader.MoveToAttribute(i);
+            switch (xmlReader.Name)
+            {
+                case "transform":
+                    transform = xmlReader.Value;
+                    break;
+                case "xmlns:kvg":
+                    // Nothing to be done.
+                    break;
+                default:
+                    LogUnknownAttributeName(xmlReader.Name, xmlReader.Value, group.Entry.FileName());
+                    break;
+            }
+        }
+
+        if (attributeCount > 0)
+        {
+            xmlReader.MoveToElement();
+        }
+
+        return transform;
     }
 
     private async Task<int> GetNumberAsync(XmlReader xmlReader)
@@ -67,6 +99,10 @@ internal partial class StrokeNumberReader
             return -1;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
+    private partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Stroke number text `{Text}` is not an integer")]

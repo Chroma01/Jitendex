@@ -33,6 +33,6 @@ public class Entry
 
     public string FileName() =>
         UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + (VariantTypeName is null ? string.Empty : $"-{VariantTypeName}")
+        + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}")
         + ".svg";
 }
