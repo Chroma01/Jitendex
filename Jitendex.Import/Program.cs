@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Diagnostics;
 using Jitendex.Import.Jmdict;
 using Jitendex.Import.Kanjidic2;
+using Jitendex.Import.KanjiVG;
 
 namespace Jitendex.Import;
 
@@ -33,6 +34,7 @@ public class Program
         {
             RunKanjidic2(),
             RunJmdict(),
+            RunKanjiVG(),
         };
         Task.WaitAll(tasks);
 
@@ -71,5 +73,15 @@ public class Program
         await db.Entries.AddRangeAsync(jmdict.Entries);
         await db.SaveChangesAsync();
     }
-}
 
+    private static async Task RunKanjiVG()
+    {
+        var kanjiVGPaths = new KanjiVG.FilePaths
+        (
+            SvgArchive: Path.Combine("Resources", "kanjivg", "kanji.tar.br")
+        );
+
+        var service = KanjiVGServiceProvider.GetService(kanjiVGPaths);
+        var kanjiVG = await service.ReadKanjiVGAsync();
+    }
+}

@@ -17,22 +17,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Import.KanjiVG.Models;
 
-[Table("Entry")]
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName))]
-public class Entry
+[NotMapped]
+public class KanjiVGDocument
 {
-    public required int UnicodeScalarValue { get; set; }
-    public required string VariantTypeName { get; set; }
-
-    public ElementGroup ElementGroup { get; set; } = null!;
-    public StrokeNumberGroup StrokeNumberGroup { get; set; } = null!;
-
-    public string FileName() =>
-        UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + (VariantTypeName is null ? string.Empty : $"-{VariantTypeName}")
-        + ".svg";
+    public required List<Entry> Entries { get; init; }
 }

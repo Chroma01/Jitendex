@@ -16,23 +16,26 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using Jitendex.Import.KanjiVG.Models;
 
-namespace Jitendex.Import.KanjiVG.Models;
+namespace Jitendex.Import.KanjiVG.Readers;
 
-[Table("Entry")]
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName))]
-public class Entry
+internal partial class KanjiVGReader
 {
-    public required int UnicodeScalarValue { get; set; }
-    public required string VariantTypeName { get; set; }
+    private readonly EntriesReader _entriesReader;
 
-    public ElementGroup ElementGroup { get; set; } = null!;
-    public StrokeNumberGroup StrokeNumberGroup { get; set; } = null!;
+    public KanjiVGReader(EntriesReader entriesReader) =>
+        (_entriesReader) = (@entriesReader);
 
-    public string FileName() =>
-        UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + (VariantTypeName is null ? string.Empty : $"-{VariantTypeName}")
-        + ".svg";
+    public async Task<KanjiVGDocument> ReadKanjiVGAsync()
+    {
+        var entries = await _entriesReader.ReadAsync();
+
+        var kanjiVG = new KanjiVGDocument
+        {
+            Entries = entries,
+        };
+
+        return kanjiVG;
+    }
 }

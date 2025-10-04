@@ -24,11 +24,11 @@ namespace Jitendex.Import.KanjiVG.Models;
 [PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
 public class StrokeNumberGroup
 {
-    public int UnicodeScalarValue { get; set; }
-    public string? VariantTypeName { get; set; }
+    public required int UnicodeScalarValue { get; set; }
+    public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
-    public required string Style { get; set; }
+    public string? Style { get; set; }
     public List<StrokeNumber> StrokeNumbers { get; set; } = [];
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]

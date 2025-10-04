@@ -24,34 +24,34 @@ namespace Jitendex.Import.KanjiVG.Models;
 [PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
 public class Element
 {
-    public int UnicodeScalarValue { get; set; }
-    public string? VariantTypeName { get; set; }
+    public required int UnicodeScalarValue { get; set; }
+    public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
     public required string GroupId { get; set; }
-    public string? ParentId { get; set; }
+    public required string? ParentId { get; set; }
     public required int Order { get; set; }
 
-    public string? Text { get; set; }
-    public string? Variant { get; set; } // Boolean?
-    public string? Partial { get; set; } // Boolean?
-    public string? Original { get; set; }
-    public string? Part { get; set; } // Int?
-    public string? Number { get; set; } // Int?
-    public string? TradForm { get; set; }
-    public string? RadicalForm { get; set; }
-    public string? Position { get; set; }
-    public string? Radical { get; set; }
-    public string? Phon { get; set; }
+    public required string? Text { get; set; }
+    public required string? Variant { get; set; } // Boolean?
+    public required string? Partial { get; set; } // Boolean?
+    public required string? Original { get; set; }
+    public required string? Part { get; set; } // Int?
+    public required string? Number { get; set; } // Int?
+    public required string? TradForm { get; set; }
+    public required string? RadicalForm { get; set; }
+    public required string? Position { get; set; }
+    public required string? Radical { get; set; }
+    public required string? Phon { get; set; }
 
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(GroupId)}")]
-    public required ElementGroup ElementGroup { get; set; }
+    public required ElementGroup Group { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ParentId)}")]
-    public Element? ParentElement { get; set; }
+    public Element? Parent { get; set; }
 
-    public List<Element> ChildElements { get; set; } = [];
+    public List<Element> Children { get; set; } = [];
 
     public List<Stroke> Strokes { get; set; } = [];
 }

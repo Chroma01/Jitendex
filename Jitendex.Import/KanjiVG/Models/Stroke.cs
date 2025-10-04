@@ -24,8 +24,8 @@ namespace Jitendex.Import.KanjiVG.Models;
 [PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
 public class Stroke
 {
-    public int UnicodeScalarValue { get; set; }
-    public string? VariantTypeName { get; set; }
+    public required int UnicodeScalarValue { get; set; }
+    public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
     public required string ElementId { get; set; }
@@ -36,4 +36,6 @@ public class Stroke
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ElementId)}")]
     public required Element Element { get; set; }
+
+    internal const string XmlTagName = "path";
 }

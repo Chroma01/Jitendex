@@ -21,19 +21,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Import.KanjiVG.Models;
 
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Number))]
 public class StrokeNumber
 {
-    public int UnicodeScalarValue { get; set; }
-    public string? VariantTypeName { get; set; }
-    public required string Id { get; set; }
+    public required int UnicodeScalarValue { get; set; }
+    public required string VariantTypeName { get; set; }
+    public int Number { get; set; }
 
     public required string GroupId { get; set; }
-    public required int Order { get; set; }
-
-    public int Number { get; set; }
     public string? Transform { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(GroupId)}")]
-    public required StrokeNumberGroup StrokeNumberGroup { get; set; }
+    public required StrokeNumberGroup Group { get; set; }
 }
