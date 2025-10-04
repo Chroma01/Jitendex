@@ -24,48 +24,40 @@ namespace Jitendex.Import.KanjiVG.Readers;
 
 internal partial class ComponentReader
 {
-    private const string TextAttributeName = "kvg:element";
-    private const string VariantAttributeName = "kvg:variant";
-    private const string PartialAttributeName = "kvg:partial";
-    private const string OriginalAttributeName = "kvg:original";
-    private const string PartAttributeName = "kvg:part";
-    private const string NumberAttributeName = "kvg:number";
-    private const string TradFormAttributeName = "kvg:tradForm";
-    private const string RadicalFormAttributeName = "kvg:radicalForm";
-    private const string PositionAttributeName = "kvg:position";
-    private const string RadicalAttributeName = "kvg:radical";
-    private const string PhonAttributeName = "kvg:phon";
-
     private readonly ILogger<ComponentReader> _logger;
+    private readonly ComponentAttributesReader _attributesReader;
     private readonly StrokeReader _strokeReader;
 
-    public ComponentReader(ILogger<ComponentReader> logger, StrokeReader strokeReader)
+    public ComponentReader(ILogger<ComponentReader> logger, ComponentAttributesReader attributesReader, StrokeReader strokeReader)
     {
         _logger = logger;
+        _attributesReader = attributesReader;
         _strokeReader = strokeReader;
     }
 
     public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {
+        var attributes = _attributesReader.Read(xmlReader, group);
+
         var component = new Component
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
             VariantTypeName = group.Entry.VariantTypeName,
-            Id = GetStringAttribute(xmlReader, "id"),
+            Id = attributes.Id,
             GroupId = group.Id,
             ParentId = null,
             Order = group.Components.Count + 1,
-            Text = xmlReader.GetAttribute(TextAttributeName),
-            Variant = GetBooleanAttribute(xmlReader, VariantAttributeName),
-            Partial = GetBooleanAttribute(xmlReader, PartialAttributeName),
-            Original = xmlReader.GetAttribute(OriginalAttributeName),
-            Part = GetNullableIntegerAttribute(xmlReader, PartAttributeName),
-            Number = GetNullableIntegerAttribute(xmlReader, NumberAttributeName),
-            TradForm = GetBooleanAttribute(xmlReader, TradFormAttributeName),
-            RadicalForm = GetBooleanAttribute(xmlReader, RadicalFormAttributeName),
-            Position = xmlReader.GetAttribute(PositionAttributeName),
-            Radical = xmlReader.GetAttribute(RadicalAttributeName),
-            Phon = xmlReader.GetAttribute(PhonAttributeName),
+            Text = attributes.Text,
+            Variant = attributes.Variant,
+            Partial = attributes.Partial,
+            Original = attributes.Original,
+            Part = attributes.Part,
+            Number = attributes.Number,
+            TradForm = attributes.TradForm,
+            RadicalForm = attributes.RadicalForm,
+            Position = attributes.Position,
+            Radical = attributes.Radical,
+            Phon = attributes.Phon,
             Group = group,
             Parent = null,
         };
@@ -92,25 +84,27 @@ internal partial class ComponentReader
 
     private async Task ReadAsync(XmlReader xmlReader, Component parent)
     {
+        var attributes = _attributesReader.Read(xmlReader, parent.Group);
+
         var component = new Component
         {
             UnicodeScalarValue = parent.UnicodeScalarValue,
             VariantTypeName = parent.VariantTypeName,
-            Id = GetStringAttribute(xmlReader, "id"),
+            Id = attributes.Id,
             GroupId = parent.GroupId,
             ParentId = parent.Id,
             Order = parent.Children.Count + 1,
-            Text = xmlReader.GetAttribute(TextAttributeName),
-            Variant = GetBooleanAttribute(xmlReader, VariantAttributeName),
-            Partial = GetBooleanAttribute(xmlReader, PartialAttributeName),
-            Original = xmlReader.GetAttribute(OriginalAttributeName),
-            Part = GetNullableIntegerAttribute(xmlReader, PartAttributeName),
-            Number = GetNullableIntegerAttribute(xmlReader, NumberAttributeName),
-            TradForm = GetBooleanAttribute(xmlReader, TradFormAttributeName),
-            RadicalForm = GetBooleanAttribute(xmlReader, RadicalFormAttributeName),
-            Position = xmlReader.GetAttribute(PositionAttributeName),
-            Radical = xmlReader.GetAttribute(RadicalAttributeName),
-            Phon = xmlReader.GetAttribute(PhonAttributeName),
+            Text = attributes.Text,
+            Variant = attributes.Variant,
+            Partial = attributes.Partial,
+            Original = attributes.Original,
+            Part = attributes.Part,
+            Number = attributes.Number,
+            TradForm = attributes.TradForm,
+            RadicalForm = attributes.RadicalForm,
+            Position = attributes.Position,
+            Radical = attributes.Radical,
+            Phon = attributes.Phon,
             Group = parent.Group,
             Parent = parent,
         };
@@ -135,56 +129,6 @@ internal partial class ComponentReader
         parent.Children.Add(component);
     }
 
-    private string GetStringAttribute(XmlReader xmlReader, string name)
-    {
-        var attribute = xmlReader.GetAttribute(name);
-        if (attribute is not null)
-        {
-            return attribute;
-        }
-        else
-        {
-            LogMissingAttribute(name, xmlReader.Name);
-            return Guid.NewGuid().ToString();
-        }
-    }
-
-    private int? GetNullableIntegerAttribute(XmlReader xmlReader, string name)
-    {
-        var attribute = xmlReader.GetAttribute(name);
-        if (attribute is null)
-        {
-            return null;
-        }
-        else if (int.TryParse(attribute, out int value))
-        {
-            return value;
-        }
-        else
-        {
-            LogUnparsableText(name, xmlReader.Name);
-            return null;
-        }
-    }
-
-    private bool GetBooleanAttribute(XmlReader xmlReader, string name)
-    {
-        var attribute = xmlReader.GetAttribute(name);
-        if (attribute is null)
-        {
-            return false;
-        }
-        else if (bool.TryParse(attribute, out bool value))
-        {
-            return value;
-        }
-        else
-        {
-            LogUnparsableText(name, xmlReader.Name);
-            return false;
-        }
-    }
-
     private async Task ReadChildElementAsync(XmlReader xmlReader, Component component)
     {
         switch (xmlReader.Name)
@@ -192,7 +136,7 @@ internal partial class ComponentReader
             case "g":
                 await ReadAsync(xmlReader, component);
                 break;
-            case Stroke.XmlTagName:
+            case "path":
                 _strokeReader.Read(xmlReader, component);
                 break;
             default:
@@ -204,12 +148,4 @@ internal partial class ComponentReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected component child name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
     private partial void LogUnexpectedComponentName(string name, string fileName, string parentId);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Attribute `{AttributeName}` for element `{Name}` not found")]
-    private partial void LogMissingAttribute(string attributeName, string name);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Attribute `{AttributeName}` for element `{Name}` cannot be parsed")]
-    private partial void LogUnparsableText(string attributeName, string name);
 }

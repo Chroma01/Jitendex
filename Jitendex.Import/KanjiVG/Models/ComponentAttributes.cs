@@ -17,23 +17,22 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Import.KanjiVG.Models;
 
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
-public class Stroke
+[NotMapped]
+public class ComponentAttributes
 {
-    public required int UnicodeScalarValue { get; set; }
-    public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
-
-    public required string ComponentId { get; set; }
-    public required int Order { get; set; }
-
-    public string? Type { get; set; }
-    public required string PathData { get; set; }
-
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ComponentId)}")]
-    public required Component Component { get; set; }
+    public string? Text { get; set; }
+    public bool Variant { get; set; }
+    public bool Partial { get; set; }
+    public string? Original { get; set; }
+    public int? Part { get; set; }
+    public int? Number { get; set; }
+    public bool TradForm { get; set; }
+    public bool RadicalForm { get; set; }
+    public string? Position { get; set; }
+    public string? Radical { get; set; }
+    public string? Phon { get; set; }
 }

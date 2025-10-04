@@ -43,8 +43,9 @@ internal static class KanjiVGServiceProvider
         .AddTransient<EntriesReader>()
         .AddTransient<EntryReader>()
 
-        // Stroke Paths
+        // Stroke Path Components
         .AddTransient<ComponentGroupReader>()
+        .AddTransient<ComponentAttributesReader>()
         .AddTransient<ComponentReader>()
         .AddTransient<StrokeReader>()
 
