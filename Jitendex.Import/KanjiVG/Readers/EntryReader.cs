@@ -77,13 +77,9 @@ internal partial class EntryReader
             return (default, string.Empty);
         }
 
-        string variantTypeName = string.IsNullOrEmpty(match.Groups[2].Value)
-            ? string.Empty
-            : match.Groups[2].Value;
-
         if (int.TryParse(match.Groups[1].Value, NumberStyles.AllowHexSpecifier, provider: null, out int value))
         {
-            return (value, variantTypeName);
+            return (value, match.Groups[2].Value);
         }
         else
         {
