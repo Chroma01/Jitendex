@@ -61,6 +61,8 @@ internal partial class EntryReader
                     await ReadChildElementAsync(xmlReader, entry);
                     break;
                 case XmlNodeType.Text:
+                    var text = await xmlReader.GetValueAsync();
+                    LogUnexpectedTextNode(fileName, text);
                     break;
                 case XmlNodeType.DocumentType:
                     break;
@@ -141,6 +143,10 @@ internal partial class EntryReader
 
     [GeneratedRegex(pattern: @"^(.+?)(?:-(.+?))?\.svg$", RegexOptions.None)]
     private static partial Regex FileNameRegex();
+
+    [LoggerMessage(LogLevel.Warning,
+    "{File}: Unexpected XML text node `{Text}`")]
+    public partial void LogUnexpectedTextNode(string file, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`")]

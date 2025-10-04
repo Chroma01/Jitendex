@@ -113,7 +113,7 @@ internal partial class ComponentAttributesReader
         else
         {
             LogUnparsableText(attributeName, attributeValue, group.Entry.FileName());
-            return false;
+            return default;
         }
     }
 

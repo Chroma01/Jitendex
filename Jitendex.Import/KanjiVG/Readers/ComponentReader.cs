@@ -71,7 +71,8 @@ internal partial class ComponentReader
                     await ReadChildElementAsync(xmlReader, component);
                     break;
                 case XmlNodeType.Text:
-                    // TODO: Log
+                    var text = await xmlReader.GetValueAsync();
+                    LogUnexpectedTextNode(group.Entry.FileName(), text);
                     break;
                 case XmlNodeType.EndElement:
                     exit = xmlReader.Name == "g";
@@ -118,7 +119,8 @@ internal partial class ComponentReader
                     await ReadChildElementAsync(xmlReader, component);
                     break;
                 case XmlNodeType.Text:
-                    // TODO: Log
+                    var text = await xmlReader.GetValueAsync();
+                    LogUnexpectedTextNode(parent.Group.Entry.FileName(), text);
                     break;
                 case XmlNodeType.EndElement:
                     exit = xmlReader.Name == "g";
@@ -144,6 +146,10 @@ internal partial class ComponentReader
                 break;
         }
     }
+
+    [LoggerMessage(LogLevel.Warning,
+    "{File}: Unexpected XML text node `{Text}`")]
+    public partial void LogUnexpectedTextNode(string file, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected component child name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
