@@ -28,7 +28,7 @@ public class ElementGroup
     public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
-    public string? Style { get; set; }
+    public required string? Style { get; set; }
     public List<Element> Elements { get; set; } = [];
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]

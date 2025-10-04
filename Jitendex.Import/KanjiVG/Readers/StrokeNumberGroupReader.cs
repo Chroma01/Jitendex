@@ -61,7 +61,14 @@ internal partial class StrokeNumberGroupReader
             }
         }
 
-        entry.StrokeNumberGroup = strokeNumberGroup;
+        if (entry.StrokeNumberGroup is null)
+        {
+            entry.StrokeNumberGroup = strokeNumberGroup;
+        }
+        else
+        {
+            LogMultipleGroups(entry.FileName());
+        }
     }
 
     private async Task ReadElementAsync(XmlReader xmlReader, StrokeNumberGroup strokeNumberGroup)
@@ -80,4 +87,8 @@ internal partial class StrokeNumberGroupReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
     private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
+
+    [LoggerMessage(LogLevel.Warning,
+    "File `{FileName}` contains multiple stroke number groups")]
+    private partial void LogMultipleGroups(string fileName);
 }

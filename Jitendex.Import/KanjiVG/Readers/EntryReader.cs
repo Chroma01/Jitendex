@@ -49,6 +49,8 @@ internal partial class EntryReader
         {
             UnicodeScalarValue = unicodeScalarValue,
             VariantTypeName = variantTypeName,
+            ElementGroup = null!,
+            StrokeNumberGroup = null!,
         };
 
         while (await xmlReader.ReadAsync())
@@ -63,6 +65,19 @@ internal partial class EntryReader
                 case XmlNodeType.DocumentType:
                     break;
             }
+        }
+
+        if (entry.ElementGroup is null || entry.StrokeNumberGroup is null)
+        {
+            if (entry.ElementGroup is null)
+            {
+                LogMissingGroup(nameof(entry.ElementGroup), fileName);
+            }
+            if (entry.StrokeNumberGroup is null)
+            {
+                LogMissingGroup(nameof(entry.StrokeNumberGroup), fileName);
+            }
+            return null;
         }
 
         return entry;
@@ -130,6 +145,10 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`")]
     private partial void LogUnexpectedElementName(string name, string fileName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "No `{GroupName}` group found in file `{FileName}`")]
+    private partial void LogMissingGroup(string groupName, string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "Group element in file `{FileName}` is missing an ID attribute")]

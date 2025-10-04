@@ -33,11 +33,11 @@ public class Element
     public required int Order { get; set; }
 
     public required string? Text { get; set; }
-    public required bool Variant { get; set; } // Boolean?
-    public required bool Partial { get; set; } // Boolean?
+    public required bool Variant { get; set; }
+    public required bool Partial { get; set; }
     public required string? Original { get; set; }
-    public required int? Part { get; set; } // Int?
-    public required int? Number { get; set; } // Int?
+    public required int? Part { get; set; }
+    public required int? Number { get; set; }
     public required bool TradForm { get; set; }
     public required bool RadicalForm { get; set; }
     public required string? Position { get; set; }

@@ -28,8 +28,8 @@ public class Entry
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
 
-    public ElementGroup ElementGroup { get; set; } = null!;
-    public StrokeNumberGroup StrokeNumberGroup { get; set; } = null!;
+    public required ElementGroup ElementGroup { get; set; }
+    public required StrokeNumberGroup StrokeNumberGroup { get; set; }
 
     public string FileName() =>
         UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
