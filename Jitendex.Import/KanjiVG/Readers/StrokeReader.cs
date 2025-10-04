@@ -47,14 +47,14 @@ internal partial class StrokeReader
 
         if (!xmlReader.IsEmptyElement)
         {
-            // TODO: Log
+            LogNonEmptyElement(stroke.Id, element.Group.Entry.FileName());
         }
 
         element.Strokes.Add(stroke);
     }
 
 
-    private static string GetAttribute(XmlReader xmlReader, string name)
+    private string GetAttribute(XmlReader xmlReader, string name)
     {
         var id = xmlReader.GetAttribute(name);
         if (id is not null)
@@ -63,7 +63,7 @@ internal partial class StrokeReader
         }
         else
         {
-            // TODO: Log
+            LogMissingAttribute(name, xmlReader.Name);
             return Guid.NewGuid().ToString();
         }
     }
@@ -71,4 +71,12 @@ internal partial class StrokeReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
     private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Stroke ID `{Id}` in file `{FileName}` is non-empty")]
+    private partial void LogNonEmptyElement(string id, string fileName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Attribute `{AttributeName}` for element `{Name}` not found")]
+    private partial void LogMissingAttribute(string attributeName, string name);
 }
