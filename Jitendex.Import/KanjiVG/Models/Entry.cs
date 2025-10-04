@@ -28,7 +28,7 @@ public class Entry
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
 
-    public required ElementGroup ElementGroup { get; set; }
+    public required ComponentGroup ComponentGroup { get; set; }
     public required StrokeNumberGroup StrokeNumberGroup { get; set; }
 
     public string FileName() =>

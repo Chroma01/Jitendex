@@ -28,14 +28,14 @@ public class Stroke
     public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
-    public required string ElementId { get; set; }
+    public required string ComponentId { get; set; }
     public required int Order { get; set; }
 
     public string? Type { get; set; }
     public required string PathData { get; set; }
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ElementId)}")]
-    public required Element Element { get; set; }
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ComponentId)}")]
+    public required Component Component { get; set; }
 
     internal const string XmlTagName = "path";
 }

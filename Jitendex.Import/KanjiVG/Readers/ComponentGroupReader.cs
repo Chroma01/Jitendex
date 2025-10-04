@@ -22,20 +22,20 @@ using Jitendex.Import.KanjiVG.Models;
 
 namespace Jitendex.Import.KanjiVG.Readers;
 
-internal partial class ElementGroupReader
+internal partial class ComponentGroupReader
 {
-    private readonly ILogger<ElementGroupReader> _logger;
-    private readonly ElementReader _elementReader;
+    private readonly ILogger<ComponentGroupReader> _logger;
+    private readonly ComponentReader _componentReader;
 
-    public ElementGroupReader(ILogger<ElementGroupReader> logger, ElementReader elementReader)
+    public ComponentGroupReader(ILogger<ComponentGroupReader> logger, ComponentReader componentReader)
     {
         _logger = logger;
-        _elementReader = elementReader;
+        _componentReader = componentReader;
     }
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {
-        var elementGroup = new ElementGroup
+        var group = new ComponentGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
@@ -50,7 +50,7 @@ internal partial class ElementGroupReader
             switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadElementAsync(xmlReader, elementGroup);
+                    await ReadChildElementAsync(xmlReader, group);
                     break;
                 case XmlNodeType.Text:
                     // TODO: Log
@@ -61,9 +61,9 @@ internal partial class ElementGroupReader
             }
         }
 
-        if (entry.ElementGroup is null)
+        if (entry.ComponentGroup is null)
         {
-            entry.ElementGroup = elementGroup;
+            entry.ComponentGroup = group;
         }
         else
         {
@@ -71,15 +71,15 @@ internal partial class ElementGroupReader
         }
     }
 
-    private async Task ReadElementAsync(XmlReader xmlReader, ElementGroup elementGroup)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, ComponentGroup group)
     {
         switch (xmlReader.Name)
         {
             case "g":
-                await _elementReader.ReadAsync(xmlReader, elementGroup);
+                await _componentReader.ReadAsync(xmlReader, group);
                 break;
             default:
-                LogUnexpectedElementName(xmlReader.Name, elementGroup.Entry.FileName(), elementGroup.Id);
+                LogUnexpectedElementName(xmlReader.Name, group.Entry.FileName(), group.Id);
                 break;
         }
     }
@@ -89,6 +89,6 @@ internal partial class ElementGroupReader
     private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
 
     [LoggerMessage(LogLevel.Warning,
-    "File `{FileName}` contains multiple stroke element groups")]
+    "File `{FileName}` contains multiple component groups")]
     private partial void LogMultipleGroups(string fileName);
 }

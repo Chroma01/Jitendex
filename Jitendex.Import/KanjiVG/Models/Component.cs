@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Import.KanjiVG.Models;
 
 [PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
-public class Element
+public class Component
 {
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
@@ -45,12 +45,12 @@ public class Element
     public required string? Phon { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(GroupId)}")]
-    public required ElementGroup Group { get; set; }
+    public required ComponentGroup Group { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ParentId)}")]
-    public required Element? Parent { get; set; }
+    public required Component? Parent { get; set; }
 
-    public List<Element> Children { get; set; } = [];
+    public List<Component> Children { get; set; } = [];
 
     public List<Stroke> Strokes { get; set; } = [];
 }

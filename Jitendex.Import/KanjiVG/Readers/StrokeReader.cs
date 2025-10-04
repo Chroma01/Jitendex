@@ -31,26 +31,26 @@ internal partial class StrokeReader
         _logger = logger;
     }
 
-    public void Read(XmlReader xmlReader, Element element)
+    public void Read(XmlReader xmlReader, Component component)
     {
         var stroke = new Stroke
         {
-            UnicodeScalarValue = element.UnicodeScalarValue,
-            VariantTypeName = element.VariantTypeName,
+            UnicodeScalarValue = component.UnicodeScalarValue,
+            VariantTypeName = component.VariantTypeName,
             Id = GetStringAttribute(xmlReader, "id"),
-            ElementId = element.Id,
-            Order = element.Strokes.Count + 1,
+            ComponentId = component.Id,
+            Order = component.Strokes.Count + 1,
             Type = xmlReader.GetAttribute("kvg:type"),
             PathData = GetStringAttribute(xmlReader, "d"),
-            Element = element,
+            Component = component,
         };
 
         if (!xmlReader.IsEmptyElement)
         {
-            LogNonEmptyElement(stroke.Id, element.Group.Entry.FileName());
+            LogNonEmptyElement(stroke.Id, component.Group.Entry.FileName());
         }
 
-        element.Strokes.Add(stroke);
+        component.Strokes.Add(stroke);
     }
 
 

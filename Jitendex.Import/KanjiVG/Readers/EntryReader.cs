@@ -27,13 +27,13 @@ namespace Jitendex.Import.KanjiVG.Readers;
 internal partial class EntryReader
 {
     private readonly ILogger<EntryReader> _logger;
-    private readonly ElementGroupReader _elementGroupReader;
+    private readonly ComponentGroupReader _componentGroupReader;
     private readonly StrokeNumberGroupReader _strokeNumberGroupReader;
 
-    public EntryReader(ILogger<EntryReader> logger, ElementGroupReader elementGroupReader, StrokeNumberGroupReader strokeNumberGroupReader)
+    public EntryReader(ILogger<EntryReader> logger, ComponentGroupReader componentGroupReader, StrokeNumberGroupReader strokeNumberGroupReader)
     {
         _logger = logger;
-        _elementGroupReader = elementGroupReader;
+        _componentGroupReader = componentGroupReader;
         _strokeNumberGroupReader = strokeNumberGroupReader;
     }
 
@@ -49,7 +49,7 @@ internal partial class EntryReader
         {
             UnicodeScalarValue = unicodeScalarValue,
             VariantTypeName = variantTypeName,
-            ElementGroup = null!,
+            ComponentGroup = null!,
             StrokeNumberGroup = null!,
         };
 
@@ -58,7 +58,7 @@ internal partial class EntryReader
             switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadElementAsync(xmlReader, entry);
+                    await ReadChildElementAsync(xmlReader, entry);
                     break;
                 case XmlNodeType.Text:
                     break;
@@ -67,11 +67,11 @@ internal partial class EntryReader
             }
         }
 
-        if (entry.ElementGroup is null || entry.StrokeNumberGroup is null)
+        if (entry.ComponentGroup is null || entry.StrokeNumberGroup is null)
         {
-            if (entry.ElementGroup is null)
+            if (entry.ComponentGroup is null)
             {
-                LogMissingGroup(nameof(entry.ElementGroup), fileName);
+                LogMissingGroup(nameof(entry.ComponentGroup), fileName);
             }
             if (entry.StrokeNumberGroup is null)
             {
@@ -103,7 +103,7 @@ internal partial class EntryReader
         }
     }
 
-    private async Task ReadElementAsync(XmlReader xmlReader, Entry entry)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Entry entry)
     {
         switch (xmlReader.Name)
         {
@@ -127,7 +127,7 @@ internal partial class EntryReader
         }
         else if (id.StartsWith("kvg:StrokePaths"))
         {
-            await _elementGroupReader.ReadAsync(xmlReader, entry);
+            await _componentGroupReader.ReadAsync(xmlReader, entry);
         }
         else if (id.StartsWith("kvg:StrokeNumbers"))
         {

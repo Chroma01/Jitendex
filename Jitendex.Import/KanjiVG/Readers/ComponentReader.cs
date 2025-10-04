@@ -22,7 +22,7 @@ using Jitendex.Import.KanjiVG.Models;
 
 namespace Jitendex.Import.KanjiVG.Readers;
 
-internal partial class ElementReader
+internal partial class ComponentReader
 {
     private const string TextAttributeName = "kvg:element";
     private const string VariantAttributeName = "kvg:variant";
@@ -36,25 +36,25 @@ internal partial class ElementReader
     private const string RadicalAttributeName = "kvg:radical";
     private const string PhonAttributeName = "kvg:phon";
 
-    private readonly ILogger<ElementReader> _logger;
+    private readonly ILogger<ComponentReader> _logger;
     private readonly StrokeReader _strokeReader;
 
-    public ElementReader(ILogger<ElementReader> logger, StrokeReader strokeReader)
+    public ComponentReader(ILogger<ComponentReader> logger, StrokeReader strokeReader)
     {
         _logger = logger;
         _strokeReader = strokeReader;
     }
 
-    public async Task ReadAsync(XmlReader xmlReader, ElementGroup elementGroup)
+    public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {
-        var element = new Element
+        var component = new Component
         {
-            UnicodeScalarValue = elementGroup.Entry.UnicodeScalarValue,
-            VariantTypeName = elementGroup.Entry.VariantTypeName,
+            UnicodeScalarValue = group.Entry.UnicodeScalarValue,
+            VariantTypeName = group.Entry.VariantTypeName,
             Id = GetStringAttribute(xmlReader, "id"),
-            GroupId = elementGroup.Id,
+            GroupId = group.Id,
             ParentId = null,
-            Order = elementGroup.Elements.Count + 1,
+            Order = group.Components.Count + 1,
             Text = xmlReader.GetAttribute(TextAttributeName),
             Variant = GetBooleanAttribute(xmlReader, VariantAttributeName),
             Partial = GetBooleanAttribute(xmlReader, PartialAttributeName),
@@ -66,7 +66,7 @@ internal partial class ElementReader
             Position = xmlReader.GetAttribute(PositionAttributeName),
             Radical = xmlReader.GetAttribute(RadicalAttributeName),
             Phon = xmlReader.GetAttribute(PhonAttributeName),
-            Group = elementGroup,
+            Group = group,
             Parent = null,
         };
 
@@ -76,7 +76,7 @@ internal partial class ElementReader
             switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadXmlElementAsync(xmlReader, element);
+                    await ReadChildElementAsync(xmlReader, component);
                     break;
                 case XmlNodeType.Text:
                     // TODO: Log
@@ -87,19 +87,19 @@ internal partial class ElementReader
             }
         }
 
-        elementGroup.Elements.Add(element);
+        group.Components.Add(component);
     }
 
-    private async Task ReadAsync(XmlReader xmlReader, Element parentElement)
+    private async Task ReadAsync(XmlReader xmlReader, Component parent)
     {
-        var element = new Element
+        var component = new Component
         {
-            UnicodeScalarValue = parentElement.UnicodeScalarValue,
-            VariantTypeName = parentElement.VariantTypeName,
+            UnicodeScalarValue = parent.UnicodeScalarValue,
+            VariantTypeName = parent.VariantTypeName,
             Id = GetStringAttribute(xmlReader, "id"),
-            GroupId = parentElement.GroupId,
-            ParentId = parentElement.Id,
-            Order = parentElement.Children.Count + 1,
+            GroupId = parent.GroupId,
+            ParentId = parent.Id,
+            Order = parent.Children.Count + 1,
             Text = xmlReader.GetAttribute(TextAttributeName),
             Variant = GetBooleanAttribute(xmlReader, VariantAttributeName),
             Partial = GetBooleanAttribute(xmlReader, PartialAttributeName),
@@ -111,8 +111,8 @@ internal partial class ElementReader
             Position = xmlReader.GetAttribute(PositionAttributeName),
             Radical = xmlReader.GetAttribute(RadicalAttributeName),
             Phon = xmlReader.GetAttribute(PhonAttributeName),
-            Group = parentElement.Group,
-            Parent = parentElement,
+            Group = parent.Group,
+            Parent = parent,
         };
 
         bool exit = false;
@@ -121,7 +121,7 @@ internal partial class ElementReader
             switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadXmlElementAsync(xmlReader, element);
+                    await ReadChildElementAsync(xmlReader, component);
                     break;
                 case XmlNodeType.Text:
                     // TODO: Log
@@ -132,7 +132,7 @@ internal partial class ElementReader
             }
         }
 
-        parentElement.Children.Add(element);
+        parent.Children.Add(component);
     }
 
     private string GetStringAttribute(XmlReader xmlReader, string name)
@@ -185,25 +185,25 @@ internal partial class ElementReader
         }
     }
 
-    private async Task ReadXmlElementAsync(XmlReader xmlReader, Element element)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Component component)
     {
         switch (xmlReader.Name)
         {
             case "g":
-                await ReadAsync(xmlReader, element);
+                await ReadAsync(xmlReader, component);
                 break;
             case Stroke.XmlTagName:
-                _strokeReader.Read(xmlReader, element);
+                _strokeReader.Read(xmlReader, component);
                 break;
             default:
-                LogUnexpectedElementName(xmlReader.Name, element.Group.Entry.FileName(), element.Id);
+                LogUnexpectedComponentName(xmlReader.Name, component.Group.Entry.FileName(), component.Id);
                 break;
         }
     }
 
     [LoggerMessage(LogLevel.Warning,
-    "Unexpected element name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
-    private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
+    "Unexpected component child name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
+    private partial void LogUnexpectedComponentName(string name, string fileName, string parentId);
 
     [LoggerMessage(LogLevel.Warning,
     "Attribute `{AttributeName}` for element `{Name}` not found")]
