@@ -50,10 +50,10 @@ internal static class KanjiVGServiceProvider
         .AddTransient<StrokeReader>()
 
         // Stroke Numbers
-        .AddTransient<StrokeNumberGroupReader>()      
+        .AddTransient<StrokeNumberGroupReader>()
         .AddTransient<StrokeNumberReader>()
 
-        // Build and return the Jmdict service.
+        // Build and return the KanjiVG service.
         .AddTransient<KanjiVGReader>()
         .BuildServiceProvider()
         .GetRequiredService<KanjiVGReader>();
