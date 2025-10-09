@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Kanjidic2.Models;
+using Jitendex.Kanjidic2.Models;
 
-namespace Jitendex.Import.Kanjidic2.Readers;
+namespace Jitendex.Kanjidic2.Readers;
 
 internal partial class EntriesReader
 {

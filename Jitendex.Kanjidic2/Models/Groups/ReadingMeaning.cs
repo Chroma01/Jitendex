@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.Import.Kanjidic2.Models.EntryElements;
+using Jitendex.Kanjidic2.Models.EntryElements;
 
-namespace Jitendex.Import.Kanjidic2.Models.Groups;
+namespace Jitendex.Kanjidic2.Models.Groups;
 
 [NotMapped]
 internal class ReadingMeaning

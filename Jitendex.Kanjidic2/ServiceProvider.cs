@@ -18,11 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Jitendex.Import.Kanjidic2.Readers;
-using Jitendex.Import.Kanjidic2.Readers.GroupReaders;
+using Jitendex.Kanjidic2.Readers;
+using Jitendex.Kanjidic2.Readers.GroupReaders;
 using System.Xml;
 
-namespace Jitendex.Import.Kanjidic2;
+namespace Jitendex.Kanjidic2;
 
 internal record FilePaths(string XmlFile);
 

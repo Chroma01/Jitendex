@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Jitendex.Import.Kanjidic2.Models;
+namespace Jitendex.Kanjidic2.Models;
 
 internal interface ICorruptable
 {

@@ -19,10 +19,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using Jitendex.Import.Kanjidic2.Models.Groups;
-using Jitendex.Import.Kanjidic2.Models.EntryElements;
+using Jitendex.Kanjidic2.Models.Groups;
+using Jitendex.Kanjidic2.Models.EntryElements;
 
-namespace Jitendex.Import.Kanjidic2.Models;
+namespace Jitendex.Kanjidic2.Models;
 
 [Table("Entry")]
 public class Entry : ICorruptable

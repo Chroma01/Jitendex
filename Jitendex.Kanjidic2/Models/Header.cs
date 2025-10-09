@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Jitendex.Import.Kanjidic2.Models;
+namespace Jitendex.Kanjidic2.Models;
 
 [Table(nameof(Header))]
 public class Header

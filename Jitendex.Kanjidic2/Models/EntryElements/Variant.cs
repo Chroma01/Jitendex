@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Import.Kanjidic2.Models.EntryElements;
+namespace Jitendex.Kanjidic2.Models.EntryElements;
 
 [PrimaryKey(nameof(Character), nameof(Order))]
 public class Variant

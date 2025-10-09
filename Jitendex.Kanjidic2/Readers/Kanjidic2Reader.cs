@@ -16,9 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Import.Kanjidic2.Models;
+using Jitendex.Kanjidic2.Models;
 
-namespace Jitendex.Import.Kanjidic2.Readers;
+namespace Jitendex.Kanjidic2.Readers;
 
 internal class Kanjidic2Reader
 {

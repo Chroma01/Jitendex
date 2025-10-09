@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.Import.Kanjidic2.Readers;
+namespace Jitendex.Kanjidic2.Readers;
 
 internal static partial class Log
 {

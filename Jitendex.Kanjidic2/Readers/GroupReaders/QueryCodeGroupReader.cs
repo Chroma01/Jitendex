@@ -18,11 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Kanjidic2.Models;
-using Jitendex.Import.Kanjidic2.Models.Groups;
-using Jitendex.Import.Kanjidic2.Models.EntryElements;
+using Jitendex.Kanjidic2.Models;
+using Jitendex.Kanjidic2.Models.Groups;
+using Jitendex.Kanjidic2.Models.EntryElements;
 
-namespace Jitendex.Import.Kanjidic2.Readers.GroupReaders;
+namespace Jitendex.Kanjidic2.Readers.GroupReaders;
 
 internal partial class QueryCodeGroupReader
 {
