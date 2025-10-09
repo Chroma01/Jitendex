@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Jitendex.Import.Kanjidic2.Readers;
 using Jitendex.Import.Kanjidic2.Readers.GroupReaders;
+using System.Xml;
 
 namespace Jitendex.Import.Kanjidic2;
 
@@ -27,7 +28,7 @@ internal record FilePaths(string XmlFile);
 
 internal static class Kanjidic2ServiceProvider
 {
-    public static Kanjidic2Reader GetService(FilePaths paths) => new ServiceCollection()
+    public static Kanjidic2Reader GetReader(FilePaths paths) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -37,12 +38,7 @@ internal static class Kanjidic2ServiceProvider
             }))
 
         // Global XML file reader.
-        .AddTransient<Resources>()
-        .AddSingleton(provider =>
-        {
-            var resources = provider.GetRequiredService<Resources>();
-            return resources.CreateXmlReader(paths.XmlFile);
-        })
+        .AddSingleton(provider => CreateXmlReader(paths.XmlFile))
 
         // Global document types.
         .AddSingleton<DocumentTypes>()
@@ -67,4 +63,18 @@ internal static class Kanjidic2ServiceProvider
         .AddTransient<Kanjidic2Reader>()
         .BuildServiceProvider()
         .GetRequiredService<Kanjidic2Reader>();
+
+
+    private static XmlReader CreateXmlReader(string path)
+    {
+        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var readerSettings = new XmlReaderSettings
+        {
+            Async = true,
+            DtdProcessing = DtdProcessing.Parse,
+            MaxCharactersFromEntities = long.MaxValue,
+            MaxCharactersInDocument = long.MaxValue,
+        };
+        return XmlReader.Create(fileStream, readerSettings);
+    }
 }

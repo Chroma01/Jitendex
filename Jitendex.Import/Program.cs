@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Diagnostics;
-using Jitendex.Import.Kanjidic2;
 using Jitendex.Import.KanjiVG;
 
 namespace Jitendex.Import;
@@ -31,28 +30,11 @@ public class Program
 
         var tasks = new Task[]
         {
-            RunKanjidic2(),
             RunKanjiVG(),
         };
         Task.WaitAll(tasks);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
-    }
-
-    private static async Task RunKanjidic2()
-    {
-        var kanjidic2Paths = new Kanjidic2.FilePaths
-        (
-            XmlFile: Path.Combine("Resources", "edrdg", "kanjidic2.xml")
-        );
-
-        var service = Kanjidic2ServiceProvider.GetService(kanjidic2Paths);
-        var kanjidic2 = await service.ReadKanjidic2Async();
-
-        var db = new Kanjidic2Context();
-        await BuildDb.InitializeAsync(db);
-        await db.Entries.AddRangeAsync(kanjidic2.Entries);
-        await db.SaveChangesAsync();
     }
 
     private static async Task RunKanjiVG()

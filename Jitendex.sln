@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Furigana.Test", "J
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.JMdict", "Jitendex.JMdict\Jitendex.JMdict.csproj", "{C906C968-0614-4A7F-8634-A045123716B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Kanjidic2", "Jitendex.Kanjidic2\Jitendex.Kanjidic2.csproj", "{05B24CF1-A002-41E1-8BC1-D9F112315BD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{C906C968-0614-4A7F-8634-A045123716B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C906C968-0614-4A7F-8634-A045123716B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C906C968-0614-4A7F-8634-A045123716B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
