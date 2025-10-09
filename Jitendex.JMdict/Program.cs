@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Diagnostics;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict;
@@ -49,13 +48,13 @@ public class Program
         var parseResult = rootCommand.Parse(args);
         if (parseResult.Errors.Count == 0)
         {
-            var jmdictFile = parseResult.GetValue(jmdictFileArgument);
-            var xrefFile = parseResult.GetValue(xrefsFileArgument);
+            var jmdictFile = parseResult.GetValue(jmdictFileArgument)!;
+            var xrefFile = parseResult.GetValue(xrefsFileArgument)!;
             await RunJmdict(jmdictFile, xrefFile);
         }
         else
         {
-            foreach (ParseError parseError in parseResult.Errors)
+            foreach (var parseError in parseResult.Errors)
             {
                 Console.Error.WriteLine(parseError.Message);
             }
