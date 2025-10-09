@@ -17,13 +17,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Diagnostics;
-using System.IO;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Import.Jmdict;
 
-namespace Jitendex.Import;
+namespace Jitendex.JMdict;
 
 public class Program
 {

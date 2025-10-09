@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Import.Jmdict.Models;
+using Jitendex.JMdict.Models;
 
-namespace Jitendex.Import.Jmdict;
+namespace Jitendex.JMdict;
 
 public class JmdictContext : DbContext
 {

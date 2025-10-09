@@ -18,12 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Jmdict.Models;
-using Jitendex.Import.Jmdict.Models.EntryElements;
-using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
-using Jitendex.Import.Jmdict.Readers.DocumentTypes;
+using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Readers.DocumentTypes;
 
-namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
+namespace Jitendex.JMdict.Readers.EntryElementReaders.ReadingElementReaders;
 
 internal class RPriorityReader
 {

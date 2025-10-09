@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Import.Jmdict.Models;
+namespace Jitendex.JMdict.Models;
 
 [PrimaryKey(nameof(TypeName), nameof(OriginKey))]
 public class ExampleSource

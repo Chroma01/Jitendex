@@ -16,10 +16,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Import.Jmdict.Models;
+using Jitendex.JMdict.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.Import.Jmdict.Readers.DocumentTypes;
+namespace Jitendex.JMdict.Readers.DocumentTypes;
 
 internal partial class KeywordCache(ILogger<KeywordCache> logger)
 {

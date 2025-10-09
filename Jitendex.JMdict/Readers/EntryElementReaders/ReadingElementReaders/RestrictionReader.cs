@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Jmdict.Models.EntryElements;
-using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
+namespace Jitendex.JMdict.Readers.EntryElementReaders.ReadingElementReaders;
 
 internal partial class RestrictionReader
 {
@@ -51,7 +51,7 @@ internal partial class RestrictionReader
         {
             LogHiddenRestriction(reading.EntryId, reading.Order, kanjiFormText);
             reading.Entry.IsCorrupt = true;
-            return;   
+            return;
         }
 
         var restriction = new Restriction

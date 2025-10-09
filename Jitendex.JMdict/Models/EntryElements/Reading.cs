@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Import.Jmdict.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.Import.Jmdict.Models.EntryElements;
+namespace Jitendex.JMdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(Order))]
 public class Reading

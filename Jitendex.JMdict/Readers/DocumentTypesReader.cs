@@ -19,10 +19,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Jmdict.Models;
-using Jitendex.Import.Jmdict.Readers.DocumentTypes;
+using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Readers.DocumentTypes;
 
-namespace Jitendex.Import.Jmdict.Readers;
+namespace Jitendex.JMdict.Readers;
 
 internal partial class DocumentTypesReader
 {

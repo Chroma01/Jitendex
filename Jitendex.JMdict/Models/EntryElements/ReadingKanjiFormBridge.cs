@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Import.Jmdict.Models.EntryElements;
+namespace Jitendex.JMdict.Models.EntryElements;
 
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(KanjiFormOrder))]
 public class ReadingKanjiFormBridge

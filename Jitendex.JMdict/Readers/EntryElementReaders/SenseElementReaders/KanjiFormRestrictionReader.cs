@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Jmdict.Models.EntryElements;
-using Jitendex.Import.Jmdict.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
+namespace Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
 internal partial class KanjiFormRestrictionReader
 {

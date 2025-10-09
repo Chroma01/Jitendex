@@ -19,14 +19,14 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
-using Jitendex.Import.Jmdict.Readers;
-using Jitendex.Import.Jmdict.Readers.DocumentTypes;
-using Jitendex.Import.Jmdict.Readers.EntryElementReaders;
-using Jitendex.Import.Jmdict.Readers.EntryElementReaders.KanjiFormElementReaders;
-using Jitendex.Import.Jmdict.Readers.EntryElementReaders.ReadingElementReaders;
-using Jitendex.Import.Jmdict.Readers.EntryElementReaders.SenseElementReaders;
+using Jitendex.JMdict.Readers;
+using Jitendex.JMdict.Readers.DocumentTypes;
+using Jitendex.JMdict.Readers.EntryElementReaders;
+using Jitendex.JMdict.Readers.EntryElementReaders.KanjiFormElementReaders;
+using Jitendex.JMdict.Readers.EntryElementReaders.ReadingElementReaders;
+using Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
-namespace Jitendex.Import.Jmdict;
+namespace Jitendex.JMdict;
 
 internal record FilePaths(string XmlFile, string XRefCache);
 

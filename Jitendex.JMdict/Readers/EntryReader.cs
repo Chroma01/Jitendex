@@ -18,12 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Jmdict.Models;
-using Jitendex.Import.Jmdict.Models.EntryElements;
-using Jitendex.Import.Jmdict.Readers.DocumentTypes;
-using Jitendex.Import.Jmdict.Readers.EntryElementReaders;
+using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Readers.DocumentTypes;
+using Jitendex.JMdict.Readers.EntryElementReaders;
 
-namespace Jitendex.Import.Jmdict.Readers;
+namespace Jitendex.JMdict.Readers;
 
 internal partial class EntryReader
 {

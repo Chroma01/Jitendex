@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.Import.Jmdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements;
 
-namespace Jitendex.Import.Jmdict.Models;
+namespace Jitendex.JMdict.Models;
 
 [Table(nameof(Entry))]
 public class Entry : ICorruptable

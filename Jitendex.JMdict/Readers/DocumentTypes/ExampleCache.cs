@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.Jmdict.Models;
+using Jitendex.JMdict.Models;
 
-namespace Jitendex.Import.Jmdict.Readers.DocumentTypes;
+namespace Jitendex.JMdict.Readers.DocumentTypes;
 
 internal partial class ExampleCache
 {

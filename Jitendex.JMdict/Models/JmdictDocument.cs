@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Jitendex.Import.Jmdict.Models;
+namespace Jitendex.JMdict.Models;
 
 [NotMapped]
 public class JmdictDocument
