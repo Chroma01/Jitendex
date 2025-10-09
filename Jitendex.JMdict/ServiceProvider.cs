@@ -16,6 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
+using System.Text.Json;
+using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,11 +31,43 @@ using Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
 namespace Jitendex.JMdict;
 
-internal record FilePaths(string XmlFile, string XRefCache);
+internal record FilePaths
+{
+    public required string Jmdict { get; init; }
+    public required string XRefCache { get; init; }
+}
 
 internal static class JmdictServiceProvider
 {
-    public static JmdictReader GetService(FilePaths paths) => new ServiceCollection()
+    public static async Task<JmdictReader> GetServiceAsync(FilePaths paths)
+    {
+        var xmlReader = CreateXmlReader(paths.Jmdict);
+        var cachedIds = await LoadCachedIds(paths.XRefCache);
+
+        return GetService(xmlReader, cachedIds);
+    }
+
+    private static XmlReader CreateXmlReader(string path)
+    {
+        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var readerSettings = new XmlReaderSettings
+        {
+            Async = true,
+            DtdProcessing = DtdProcessing.Parse,
+            MaxCharactersFromEntities = long.MaxValue,
+            MaxCharactersInDocument = long.MaxValue,
+        };
+        return XmlReader.Create(fileStream, readerSettings);
+    }
+
+    private static async Task<FrozenDictionary<string, int>> LoadCachedIds(string path)
+    {
+        await using var stream = File.OpenRead(path);
+        var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
+        return dictionary.ToFrozenDictionary();
+    }
+
+    private static JmdictReader GetService(XmlReader xmlReader, FrozenDictionary<string, int> cachedIds) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -42,12 +77,7 @@ internal static class JmdictServiceProvider
             }))
 
         // Global XML file reader.
-        .AddTransient<Resources>()
-        .AddSingleton(provider =>
-        {
-            var resources = provider.GetRequiredService<Resources>();
-            return resources.CreateXmlReader(paths.XmlFile);
-        })
+        .AddSingleton<XmlReader>(provider => xmlReader)
 
         // Global document types.
         .AddSingleton<CorpusCache>()
@@ -86,13 +116,8 @@ internal static class JmdictServiceProvider
         .AddTransient<ReadingRestrictionReader>()
 
         // Post-processing of entries.
-        .AddTransient<ReferenceSequencer>(provider =>
-        {
-            var logger = provider.GetRequiredService<ILogger<ReferenceSequencer>>();
-            var resources = provider.GetRequiredService<Resources>();
-            var cachedIds = resources.LoadJsonDictionary<int>(paths.XRefCache);
-            return new(logger, cachedIds);
-        })
+        .AddSingleton(provider => cachedIds)
+        .AddTransient<ReferenceSequencer>()
 
         // Build and return the Jmdict service.
         .AddTransient<JmdictReader>()

@@ -67,12 +67,12 @@ public class Program
     private static async Task RunJmdict(FileInfo JmdictFile, FileInfo XrefSequences)
     {
         var jmdictPaths = new FilePaths
-        (
-            XmlFile: JmdictFile.FullName,
-            XRefCache: XrefSequences.FullName
-        );
+        {
+            Jmdict = JmdictFile.FullName,
+            XRefCache = XrefSequences.FullName,
+        };
 
-        var service = JmdictServiceProvider.GetService(jmdictPaths);
+        var service = await JmdictServiceProvider.GetServiceAsync(jmdictPaths);
         var jmdict = await service.ReadJmdictAsync();
 
         var db = new JmdictContext();

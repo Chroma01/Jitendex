@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Models;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
@@ -26,9 +27,9 @@ namespace Jitendex.JMdict.Readers;
 internal partial class ReferenceSequencer
 {
     private readonly ILogger<ReferenceSequencer> _logger;
-    private readonly Dictionary<string, int> _disambiguationCache;
+    private readonly FrozenDictionary<string, int> _disambiguationCache;
 
-    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, Dictionary<string, int> disambiguationCache) =>
+    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, FrozenDictionary<string, int> disambiguationCache) =>
         (_logger, _disambiguationCache) =
         (@logger, @disambiguationCache);
 
