@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -8,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Furigana", "Jitendex.Furigana\Jitendex.Furigana.csproj", "{EC818159-168A-4ECD-8200-D6CC89EA6502}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Furigana.Test", "Jitendex.Furigana.Test\Jitendex.Furigana.Test.csproj", "{7FEA625F-F4F9-49C9-94A4-571DE0933C71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.JMdict", "Jitendex.JMdict\Jitendex.JMdict.csproj", "{C906C968-0614-4A7F-8634-A045123716B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +32,9 @@ Global
 		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FEA625F-F4F9-49C9-94A4-571DE0933C71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C906C968-0614-4A7F-8634-A045123716B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C906C968-0614-4A7F-8634-A045123716B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C906C968-0614-4A7F-8634-A045123716B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C906C968-0614-4A7F-8634-A045123716B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
