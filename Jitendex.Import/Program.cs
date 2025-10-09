@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Diagnostics;
-using Jitendex.Import.Jmdict;
 using Jitendex.Import.Kanjidic2;
 using Jitendex.Import.KanjiVG;
 
@@ -33,7 +32,6 @@ public class Program
         var tasks = new Task[]
         {
             RunKanjidic2(),
-            RunJmdict(),
             RunKanjiVG(),
         };
         Task.WaitAll(tasks);
@@ -54,23 +52,6 @@ public class Program
         var db = new Kanjidic2Context();
         await BuildDb.InitializeAsync(db);
         await db.Entries.AddRangeAsync(kanjidic2.Entries);
-        await db.SaveChangesAsync();
-    }
-
-    private static async Task RunJmdict()
-    {
-        var jmdictPaths = new Jmdict.FilePaths
-        (
-            XmlFile: Path.Combine("Resources", "edrdg", "JMdict_e_examp"),
-            XRefCache: Path.Combine("Resources", "jmdict", "cross_reference_sequences.json")
-        );
-
-        var service = JmdictServiceProvider.GetService(jmdictPaths);
-        var jmdict = await service.ReadJmdictAsync();
-
-        var db = new JmdictContext();
-        await BuildDb.InitializeAsync(db);
-        await db.Entries.AddRangeAsync(jmdict.Entries);
         await db.SaveChangesAsync();
     }
 
