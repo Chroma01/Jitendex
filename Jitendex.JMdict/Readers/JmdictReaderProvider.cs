@@ -22,29 +22,28 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
-using Jitendex.JMdict.Readers;
 using Jitendex.JMdict.Readers.DocumentTypes;
 using Jitendex.JMdict.Readers.EntryElementReaders;
 using Jitendex.JMdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 using Jitendex.JMdict.Readers.EntryElementReaders.ReadingElementReaders;
 using Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
-namespace Jitendex.JMdict;
+namespace Jitendex.JMdict.Readers;
 
 internal record FilePaths
 {
     public required string Jmdict { get; init; }
-    public required string XRefCache { get; init; }
+    public required string XrefIds { get; init; }
 }
 
-internal static class JmdictServiceProvider
+internal static class JmdictReaderProvider
 {
-    public static async Task<JmdictReader> GetServiceAsync(FilePaths paths)
+    public static async Task<JmdictReader> GetReaderAsync(FilePaths paths)
     {
         var xmlReader = CreateXmlReader(paths.Jmdict);
-        var cachedIds = await LoadCachedIds(paths.XRefCache);
+        var xrefIds = await LoadXrefIds(paths.XrefIds);
 
-        return GetService(xmlReader, cachedIds);
+        return GetReader(xmlReader, xrefIds);
     }
 
     private static XmlReader CreateXmlReader(string path)
@@ -60,14 +59,14 @@ internal static class JmdictServiceProvider
         return XmlReader.Create(fileStream, readerSettings);
     }
 
-    private static async Task<FrozenDictionary<string, int>> LoadCachedIds(string path)
+    private static async Task<FrozenDictionary<string, int>> LoadXrefIds(string path)
     {
         await using var stream = File.OpenRead(path);
         var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
         return dictionary.ToFrozenDictionary();
     }
 
-    private static JmdictReader GetService(XmlReader xmlReader, FrozenDictionary<string, int> cachedIds) => new ServiceCollection()
+    private static JmdictReader GetReader(XmlReader xmlReader, FrozenDictionary<string, int> xrefIds) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -116,7 +115,7 @@ internal static class JmdictServiceProvider
         .AddTransient<ReadingRestrictionReader>()
 
         // Post-processing of entries.
-        .AddSingleton(provider => cachedIds)
+        .AddSingleton(provider => xrefIds)
         .AddTransient<ReferenceSequencer>()
 
         // Build and return the Jmdict service.

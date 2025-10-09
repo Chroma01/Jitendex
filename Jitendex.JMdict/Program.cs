@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Diagnostics;
 using System.CommandLine;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.JMdict.Readers;
 
 namespace Jitendex.JMdict;
 
@@ -34,24 +35,24 @@ public class Program
             Description = "Path to JMdict XML file",
         };
 
-        var xrefsFileArgument = new Argument<FileInfo>("xref-sequences")
+        var xrefIdsFileArgument = new Argument<FileInfo>("xref-ids")
         {
-            Description = "Path to JSON file containing cross-reference sequence values",
+            Description = "Path to JSON file containing cross-reference keys and corresponding entry ID values",
         };
 
         var description = $"{nameof(Jitendex)}.{nameof(JMdict)}: Import a JMdict XML document";
         var rootCommand = new RootCommand(description)
         {
             jmdictFileArgument,
-            xrefsFileArgument,
+            xrefIdsFileArgument,
         };
 
         var parseResult = rootCommand.Parse(args);
         if (parseResult.Errors.Count == 0)
         {
             var jmdictFile = parseResult.GetValue(jmdictFileArgument)!;
-            var xrefFile = parseResult.GetValue(xrefsFileArgument)!;
-            await RunJmdict(jmdictFile, xrefFile);
+            var xrefIdsFile = parseResult.GetValue(xrefIdsFileArgument)!;
+            await RunJmdict(jmdictFile, xrefIdsFile);
         }
         else
         {
@@ -64,16 +65,16 @@ public class Program
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
 
-    private static async Task RunJmdict(FileInfo JmdictFile, FileInfo XrefSequences)
+    private static async Task RunJmdict(FileInfo jmdictFile, FileInfo xrefIdsFile)
     {
         var jmdictPaths = new FilePaths
         {
-            Jmdict = JmdictFile.FullName,
-            XRefCache = XrefSequences.FullName,
+            Jmdict = jmdictFile.FullName,
+            XrefIds = xrefIdsFile.FullName,
         };
 
-        var service = await JmdictServiceProvider.GetServiceAsync(jmdictPaths);
-        var jmdict = await service.ReadJmdictAsync();
+        var reader = await JmdictReaderProvider.GetReaderAsync(jmdictPaths);
+        var jmdict = await reader.ReadJmdictAsync();
 
         var db = new JmdictContext();
         await InitializeAsync(db);
