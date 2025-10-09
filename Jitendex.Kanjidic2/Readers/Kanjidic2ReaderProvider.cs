@@ -16,17 +16,19 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Jitendex.Kanjidic2.Readers;
 using Jitendex.Kanjidic2.Readers.GroupReaders;
-using System.Xml;
 
-namespace Jitendex.Kanjidic2;
+namespace Jitendex.Kanjidic2.Readers;
 
-internal record FilePaths(string XmlFile);
+internal record FilePaths
+{
+    public required string XmlFile { get; init; }
+}
 
-internal static class Kanjidic2ServiceProvider
+internal static class Kanjidic2ReaderProvider
 {
     public static Kanjidic2Reader GetReader(FilePaths paths) => new ServiceCollection()
         .AddLogging(builder =>

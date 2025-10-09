@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Diagnostics;
 using System.CommandLine;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.Kanjidic2.Readers;
 
 namespace Jitendex.Kanjidic2;
 
@@ -57,11 +58,11 @@ public class Program
     private static async Task RunKanjidic2(FileInfo kanjidic2File)
     {
         var kanjidic2Paths = new FilePaths
-        (
-            XmlFile: kanjidic2File.FullName
-        );
+        {
+            XmlFile = kanjidic2File.FullName,
+        };
 
-        var reader = Kanjidic2ServiceProvider.GetReader(kanjidic2Paths);
+        var reader = Kanjidic2ReaderProvider.GetReader(kanjidic2Paths);
         var kanjidic2 = await reader.ReadKanjidic2Async();
 
         var db = new Kanjidic2Context();
