@@ -31,15 +31,16 @@ public class Program
 
         var jmdictFileArgument = new Argument<FileInfo>("jmdict-file")
         {
-            Description = "JMdict XML file",
+            Description = "Path to JMdict XML file",
         };
 
         var xrefsFileArgument = new Argument<FileInfo>("xref-sequences")
         {
-            Description = "JSON file containing cross-reference sequence values",
+            Description = "Path to JSON file containing cross-reference sequence values",
         };
 
-        var rootCommand = new RootCommand("Sample app for System.CommandLine")
+        var description = $"{nameof(Jitendex)}.{nameof(JMdict)}: Import a JMdict XML document";
+        var rootCommand = new RootCommand(description)
         {
             jmdictFileArgument,
             xrefsFileArgument,
