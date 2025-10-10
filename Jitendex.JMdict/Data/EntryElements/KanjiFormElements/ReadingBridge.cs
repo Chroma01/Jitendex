@@ -41,7 +41,7 @@ internal static class ReadingBridgeData
         ( {P1} ,  {P2} ,  {P3} );
     """;
 
-    public static async Task InsertReadingsBridges(this JmdictContext db, List<ReadingKanjiFormBridge> bridges)
+    public static async Task InsertReadingBridges(this JmdictContext db, List<ReadingKanjiFormBridge> bridges)
     {
         foreach (var bridge in bridges)
         {

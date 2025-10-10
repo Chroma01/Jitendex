@@ -55,7 +55,7 @@ internal static class KanjiFormData
             await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
 
             // Child elements
-            await db.InsertReadingsBridges(kanjiForm.ReadingBridges);
+            await db.InsertReadingBridges(kanjiForm.ReadingBridges);
             await db.InsertKanjiFormInfo(kanjiForm.Infos);
             await db.InsertKanjiFormPriority(kanjiForm.Priorities);
         }
