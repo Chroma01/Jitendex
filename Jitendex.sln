@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.JMdict", "Jitendex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Kanjidic2", "Jitendex.Kanjidic2\Jitendex.Kanjidic2.csproj", "{05B24CF1-A002-41E1-8BC1-D9F112315BD1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.KanjiVG", "Jitendex.KanjiVG\Jitendex.KanjiVG.csproj", "{DCD74F66-3765-4245-8A26-5434E241F5DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05B24CF1-A002-41E1-8BC1-D9F112315BD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD74F66-3765-4245-8A26-5434E241F5DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD74F66-3765-4245-8A26-5434E241F5DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD74F66-3765-4245-8A26-5434E241F5DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD74F66-3765-4245-8A26-5434E241F5DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

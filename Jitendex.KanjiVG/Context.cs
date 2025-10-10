@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2025 Stephen Kraus
 
 This file is part of Jitendex.
@@ -16,17 +16,28 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Import.KanjiVG.Models;
 
-namespace Jitendex.Import;
+namespace Jitendex.Import.KanjiVG;
 
-public class Program
+public class KanjiVGContext : DbContext
 {
-    public static void Main()
-    {
-        var sw = new Stopwatch();
-        sw.Start();
+    public DbSet<Entry> Entries { get; set; } = null!;
 
-        Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
+    public string DbPath { get; }
+
+    public KanjiVGContext()
+    {
+        var folder = Environment.SpecialFolder.LocalApplicationData;
+        var path = Environment.GetFolderPath(folder);
+        var dbFolder = Path.Join(path, "Jitendex");
+        Directory.CreateDirectory(dbFolder);
+        DbPath = Path.Join(dbFolder, "kanjivg.db");
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        options.UseSqlite($"Data Source={DbPath}");
     }
 }
