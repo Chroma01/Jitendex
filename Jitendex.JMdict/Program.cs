@@ -18,7 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Diagnostics;
 using System.CommandLine;
-using Microsoft.EntityFrameworkCore;
+using Jitendex.JMdict.Data;
+using Jitendex.JMdict.Models;
 using Jitendex.JMdict.Readers;
 
 namespace Jitendex.JMdict;
@@ -40,32 +41,32 @@ public class Program
             Description = "Path to JSON file containing cross-reference keys and corresponding entry ID values",
         };
 
-        var description = $"{nameof(Jitendex)}.{nameof(JMdict)}: Import a JMdict XML document";
-        var rootCommand = new RootCommand(description)
+        var rootCommand = new RootCommand("Jitendex.JMdict: Import a JMdict XML document")
         {
             jmdictFileArgument,
             xrefIdsFileArgument,
         };
 
         var parseResult = rootCommand.Parse(args);
-        if (parseResult.Errors.Count == 0)
-        {
-            var jmdictFile = parseResult.GetValue(jmdictFileArgument)!;
-            var xrefIdsFile = parseResult.GetValue(xrefIdsFileArgument)!;
-            await RunJmdict(jmdictFile, xrefIdsFile);
-        }
-        else
+        if (parseResult.Errors.Count > 0)
         {
             foreach (var parseError in parseResult.Errors)
             {
                 Console.Error.WriteLine(parseError.Message);
             }
+            return;
         }
+
+        var jmdictFile = parseResult.GetValue(jmdictFileArgument)!;
+        var xrefIdsFile = parseResult.GetValue(xrefIdsFileArgument)!;
+
+        var jmdict = await GetJmdictAsync(jmdictFile, xrefIdsFile);
+        await Import.ImportDocumentAsync(jmdict);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
 
-    private static async Task RunJmdict(FileInfo jmdictFile, FileInfo xrefIdsFile)
+    public static async Task<JmdictDocument> GetJmdictAsync(FileInfo jmdictFile, FileInfo xrefIdsFile)
     {
         var jmdictPaths = new FilePaths
         {
@@ -75,29 +76,6 @@ public class Program
 
         var reader = await JmdictReaderProvider.GetReaderAsync(jmdictPaths);
         var jmdict = await reader.ReadJmdictAsync();
-
-        var db = new JmdictContext();
-        await InitializeAsync(db);
-        await db.Entries.AddRangeAsync(jmdict.Entries);
-        await db.SaveChangesAsync();
-    }
-
-    private async static Task InitializeAsync(DbContext db)
-    {
-        // Delete and recreate database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
-
-        // For faster importing, write data to memory
-        // rather than to the disk during initial load.
-        await using var connection = db.Database.GetDbConnection();
-        await connection.OpenAsync();
-        await using var command = connection.CreateCommand();
-        command.CommandText = @"
-            PRAGMA synchronous = OFF;
-            PRAGMA journal_mode = MEMORY;
-            PRAGMA temp_store = MEMORY;
-            PRAGMA cache_size = -200000;";
-        await command.ExecuteNonQueryAsync();
+        return jmdict;
     }
 }
