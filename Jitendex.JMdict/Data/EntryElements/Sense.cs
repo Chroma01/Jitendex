@@ -59,8 +59,12 @@ internal static class SenseData
             await db.InsertDialects(sense.Dialects);
             await db.InsertExamples(sense.Examples);
             await db.InsertFields(sense.Fields);
+            await db.InsertGlosses(sense.Glosses);
+            await db.InsertKanjiFormRestrictions(sense.KanjiFormRestrictions);
+            await db.InsertLanguageSources(sense.LanguageSources);
             await db.InsertMiscs(sense.Miscs);
             await db.InsertPartsOfSpeech(sense.PartsOfSpeech);
+            await db.InsertReadingRestrictions(sense.ReadingRestrictions);
         }
     }
 }
