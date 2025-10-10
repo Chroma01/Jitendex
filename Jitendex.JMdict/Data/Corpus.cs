@@ -24,9 +24,11 @@ namespace Jitendex.JMdict.Data;
 
 internal static class CorpusData
 {
+    // Column names
     private const string C1 = nameof(Corpus.Id);
     private const string C2 = nameof(Corpus.Name);
 
+    // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
 

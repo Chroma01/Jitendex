@@ -24,11 +24,13 @@ namespace Jitendex.JMdict.Data;
 
 internal static class ExampleSourceData
 {
+    // Column names
     private const string C1 = nameof(ExampleSource.TypeName);
     private const string C2 = nameof(ExampleSource.OriginKey);
     private const string C3 = nameof(ExampleSource.Text);
     private const string C4 = nameof(ExampleSource.Translation);
 
+    // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";

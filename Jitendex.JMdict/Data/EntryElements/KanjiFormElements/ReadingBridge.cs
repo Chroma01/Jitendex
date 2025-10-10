@@ -24,10 +24,12 @@ namespace Jitendex.JMdict.Data.EntryElements.KanjiFormElements;
 
 internal static class ReadingBridgeData
 {
+    // Column names
     private const string C1 = nameof(ReadingKanjiFormBridge.EntryId);
     private const string C2 = nameof(ReadingKanjiFormBridge.ReadingOrder);
     private const string C3 = nameof(ReadingKanjiFormBridge.KanjiFormOrder);
 
+    // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";

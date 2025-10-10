@@ -24,10 +24,12 @@ namespace Jitendex.JMdict.Data;
 
 internal static class KeywordData
 {
+    // Column names
     private const string C1 = nameof(IKeyword.Name);
     private const string C2 = nameof(IKeyword.Description);
     private const string C3 = nameof(IKeyword.IsCorrupt);
 
+    // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
