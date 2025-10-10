@@ -25,7 +25,7 @@ internal static class Import
 {
     private const string ImportPragmaCommandText =
         """
-        PRAGMA synchronous = OFF;
+        PRAGMA synchronous = FALSE;
         PRAGMA journal_mode = MEMORY;
         PRAGMA temp_store = MEMORY;
         PRAGMA cache_size = -200000;
@@ -46,6 +46,11 @@ internal static class Import
         // For faster importing, write data to memory rather than to the disk.
         await db.Database.ExecuteSqlRawAsync(ImportPragmaCommandText);
 
+        // Entries contain references to other entries, so the foreign key
+        // constraints generally won't be satisfied until all entries are loaded.
+        using var transaction = await connection.BeginTransactionAsync();
+        await db.Database.ExecuteSqlRawAsync("PRAGMA defer_foreign_keys = TRUE;");
+
         // Begin inserting data.
         await db.InsertCorporaAsync(jmdictDocument.Corpora);
         await db.InsertKeywordsAsync(jmdictDocument.CrossReferenceTypes);
@@ -62,6 +67,8 @@ internal static class Import
         await db.InsertKeywordsAsync(jmdictDocument.ReadingInfoTags);
         await db.InsertExampleSourcesAsync(jmdictDocument.ExampleSources);
         await db.InsertEntries(jmdictDocument.Entries);
+
+        await transaction.CommitAsync();
 
         // Write database to the disk.
         await db.SaveChangesAsync();

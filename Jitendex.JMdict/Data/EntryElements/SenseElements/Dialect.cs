@@ -18,46 +18,43 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data.EntryElements.SenseElements;
-using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements;
+namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
 
-internal static class SenseData
+internal static class DialectData
 {
     // Column names
-    private const string C1 = nameof(Sense.EntryId);
-    private const string C2 = nameof(Sense.Order);
-    private const string C3 = nameof(Sense.Note);
+    private const string C1 = nameof(Dialect.EntryId);
+    private const string C2 = nameof(Dialect.SenseOrder);
+    private const string C3 = nameof(Dialect.Order);
+    private const string C4 = nameof(Dialect.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
+    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Sense)}"
-        ("{C1}", "{C2}", "{C3}") VALUES
-        ( {P1} ,  {P2} ,  {P3} );
+        INSERT INTO "{nameof(Dialect)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertSenses(this JmdictContext db, List<Sense> senses)
+    public static async Task InsertDialects(this JmdictContext db, List<Dialect> dialects)
     {
-        foreach (var sense in senses)
+        foreach (var dialect in dialects)
         {
             var parameters = new SqliteParameter[]
             {
-                new(P1, sense.EntryId),
-                new(P2, sense.Order),
-                new(P3, sense.Note is null ? DBNull.Value : sense.Note),
+                new(P1, dialect.EntryId),
+                new(P2, dialect.SenseOrder),
+                new(P3, dialect.Order),
+                new(P4, dialect.TagName),
             };
             await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
-
-            // Child elements
-            await db.InsertCrossReferences(sense.CrossReferences);
-            await db.InsertDialects(sense.Dialects);
-            await db.InsertExamples(sense.Examples);
         }
     }
 }
