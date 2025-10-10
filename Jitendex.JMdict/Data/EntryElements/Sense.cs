@@ -58,6 +58,9 @@ internal static class SenseData
             await db.InsertCrossReferences(sense.CrossReferences);
             await db.InsertDialects(sense.Dialects);
             await db.InsertExamples(sense.Examples);
+            await db.InsertFields(sense.Fields);
+            await db.InsertMiscs(sense.Miscs);
+            await db.InsertPartsOfSpeech(sense.PartsOfSpeech);
         }
     }
 }

@@ -72,5 +72,8 @@ internal static class Import
 
         // Write database to the disk.
         await db.SaveChangesAsync();
+
+        // Rebuild the database compactly.
+        await db.Database.ExecuteSqlRawAsync("VACUUM;");
     }
 }
