@@ -23,26 +23,28 @@ namespace Jitendex.JMdict.Data;
 
 internal static class Import
 {
+    private const string ImportPragmaCommandText = @"
+        PRAGMA synchronous = OFF;
+        PRAGMA journal_mode = MEMORY;
+        PRAGMA temp_store = MEMORY;
+        PRAGMA cache_size = -200000;";
+
     public static async Task ImportDocumentAsync(JmdictDocument jmdictDocument)
     {
-        var db = new JmdictContext();
+        await using var db = new JmdictContext();
 
-        // Delete and recreate database file.
+        // Delete and recreate the database file.
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
 
-        // For faster importing, write data to memory
-        // rather than to the disk during initial load.
+        // Keep a single connection open for all following commands.
         await using var connection = db.Database.GetDbConnection();
         await connection.OpenAsync();
-        await using var command = connection.CreateCommand();
-        command.CommandText = @"
-            PRAGMA synchronous = OFF;
-            PRAGMA journal_mode = MEMORY;
-            PRAGMA temp_store = MEMORY;
-            PRAGMA cache_size = -200000;";
-        await command.ExecuteNonQueryAsync();
 
+        // For faster importing, write data to memory rather than to the disk.
+        await db.Database.ExecuteSqlRawAsync(ImportPragmaCommandText);
+
+        // Begin inserting data.
         await db.InsertCorporaAsync(jmdictDocument.Corpora);
         await db.InsertKeywordsAsync(jmdictDocument.CrossReferenceTypes);
         await db.InsertKeywordsAsync(jmdictDocument.DialectTags);
@@ -59,6 +61,7 @@ internal static class Import
         await db.InsertExampleSourcesAsync(jmdictDocument.ExampleSources);
         await db.InsertEntries(jmdictDocument.Entries);
 
+        // Write database to the disk.
         await db.SaveChangesAsync();
     }
 }
