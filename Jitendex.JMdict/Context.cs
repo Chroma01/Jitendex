@@ -85,9 +85,8 @@ internal static class CommandTextExtensions
             return commandText;
         }
 
-        return
-            commandText[..endCreateTableIndex] +
-            _withoutRowId +
-            commandText[(endCreateTableIndex + _endCreateTable.Length)..];
+        return commandText[..endCreateTableIndex]
+            + _withoutRowId
+            + commandText[(endCreateTableIndex + _endCreateTable.Length)..];
     }
 }
