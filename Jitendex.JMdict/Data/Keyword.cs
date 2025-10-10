@@ -37,11 +37,11 @@ internal static class KeywordData
     public static async Task InsertKeywordsAsync<T>(this JmdictContext db, List<T> keywordList) where T : IKeyword
     {
         var sql =
-        $"""
+            $"""
             INSERT INTO "{typeof(T).Name}"
             ("{C1}", "{C2}", "{C3}") VALUES
             ( {P1} ,  {P2} ,  {P3} );
-        """;
+            """;
 
         foreach (var keyword in keywordList)
         {

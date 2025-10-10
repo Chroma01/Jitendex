@@ -37,11 +37,11 @@ internal static class KanjiFormPriorityData
     private const string P4 = $"@{C4}";
 
     private const string InsertSql =
-    $"""
+        $"""
         INSERT INTO "{nameof(KanjiFormPriority)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
-    """;
+        """;
 
     public static async Task InsertKanjiFormPriority(this JmdictContext db, List<KanjiFormPriority> priorities)
     {

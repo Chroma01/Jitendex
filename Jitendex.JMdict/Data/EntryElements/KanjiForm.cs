@@ -36,11 +36,11 @@ internal static class KanjiFormData
     private const string P3 = $"@{C3}";
 
     private const string InsertSql =
-    $"""
+        $"""
         INSERT INTO "{nameof(KanjiForm)}"
         ("{C1}", "{C2}", "{C3}") VALUES
         ( {P1} ,  {P2} ,  {P3} );
-    """;
+        """;
 
     public static async Task InsertKanjiForms(this JmdictContext db, List<KanjiForm> kanjiForms)
     {

@@ -35,11 +35,11 @@ internal static class ReadingBridgeData
     private const string P3 = $"@{C3}";
 
     private const string InsertSql =
-    $"""
+        $"""
         INSERT INTO "{nameof(ReadingKanjiFormBridge)}"
         ("{C1}", "{C2}", "{C3}") VALUES
         ( {P1} ,  {P2} ,  {P3} );
-    """;
+        """;
 
     public static async Task InsertReadingBridges(this JmdictContext db, List<ReadingKanjiFormBridge> bridges)
     {

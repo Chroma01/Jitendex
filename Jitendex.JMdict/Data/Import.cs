@@ -23,11 +23,13 @@ namespace Jitendex.JMdict.Data;
 
 internal static class Import
 {
-    private const string ImportPragmaCommandText = @"
+    private const string ImportPragmaCommandText =
+        """
         PRAGMA synchronous = OFF;
         PRAGMA journal_mode = MEMORY;
         PRAGMA temp_store = MEMORY;
-        PRAGMA cache_size = -200000;";
+        PRAGMA cache_size = -200000;
+        """;
 
     public static async Task ImportDocumentAsync(JmdictDocument jmdictDocument)
     {

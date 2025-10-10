@@ -33,11 +33,11 @@ internal static class CorpusData
     private const string P2 = $"@{C2}";
 
     private const string InsertSql =
-    $"""
+        $"""
         INSERT INTO "{nameof(Corpus)}"
         ("{C1}", "{C2}") VALUES
         ( {P1} ,  {P2} );
-    """;
+        """;
 
     public static async Task InsertCorporaAsync(this JmdictContext db, List<Corpus> corpora)
     {
