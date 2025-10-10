@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Jitendex.JMdict.Models;
 
 namespace Jitendex.JMdict;
@@ -36,8 +37,57 @@ public class JmdictContext : DbContext
         DbPath = Path.Join(dbFolder, "jmdict.db");
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    protected override void OnConfiguring(DbContextOptionsBuilder options) => options
+        .UseSqlite($"Data Source={DbPath}")
+        .ReplaceService<IRelationalCommandBuilderFactory, JmdictRelationalCommandBuilderFactory>();
+}
+
+internal class JmdictRelationalCommandBuilderFactory : RelationalCommandBuilderFactory
+{
+    public JmdictRelationalCommandBuilderFactory(RelationalCommandBuilderDependencies dependencies) : base(dependencies) { }
+    public override IRelationalCommandBuilder Create() => new JmdictRelationalCommandBuilder(Dependencies);
+}
+
+internal class JmdictRelationalCommandBuilder : RelationalCommandBuilder
+{
+    public JmdictRelationalCommandBuilder(RelationalCommandBuilderDependencies dependencies) : base(dependencies) { }
+    public override IRelationalCommand Build() => new RelationalCommand
+    (
+        Dependencies,
+        base.ToString().WithoutRowId(),
+        Parameters
+    );
+}
+
+internal static class CommandTextExtensions
+{
+    private const string _beginCreateTable = "CREATE TABLE";
+    private const string _endCreateTable = ");";
+    private const string _withoutRowId = ") WITHOUT ROWID;";
+    private const string _autoincrement = "AUTOINCREMENT";
+
+    public static string WithoutRowId(this string commandText)
     {
-        options.UseSqlite($"Data Source={DbPath}");
+        if (!commandText.StartsWith(_beginCreateTable, StringComparison.Ordinal))
+        {
+            return commandText;
+        }
+
+        if (commandText.Contains(_autoincrement, StringComparison.Ordinal))
+        {
+            return commandText;
+        }
+
+        int endCreateTableIndex = commandText.IndexOf(_endCreateTable, StringComparison.Ordinal);
+
+        if (endCreateTableIndex < 0)
+        {
+            return commandText;
+        }
+
+        return
+            commandText[..endCreateTableIndex] +
+            _withoutRowId +
+            commandText[(endCreateTableIndex + _endCreateTable.Length)..];
     }
 }
