@@ -21,7 +21,7 @@ using System.IO.Compression;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.Import.KanjiVG.Readers;
+namespace Jitendex.KanjiVG.Readers;
 
 internal class KanjiFiles
 {

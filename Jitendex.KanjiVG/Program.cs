@@ -20,7 +20,7 @@ using System.Diagnostics;
 using System.CommandLine;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Import.KanjiVG;
+namespace Jitendex.KanjiVG;
 
 public class Program
 {

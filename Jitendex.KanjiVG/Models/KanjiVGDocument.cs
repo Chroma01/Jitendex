@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Jitendex.Import.KanjiVG.Models;
+namespace Jitendex.KanjiVG.Models;
 
 [NotMapped]
 public class KanjiVGDocument

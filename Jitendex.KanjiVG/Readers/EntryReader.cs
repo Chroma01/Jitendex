@@ -20,9 +20,9 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.KanjiVG.Models;
+using Jitendex.KanjiVG.Models;
 
-namespace Jitendex.Import.KanjiVG.Readers;
+namespace Jitendex.KanjiVG.Readers;
 
 internal partial class EntryReader
 {

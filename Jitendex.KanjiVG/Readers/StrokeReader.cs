@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Import.KanjiVG.Models;
+using Jitendex.KanjiVG.Models;
 using Attributes = (string Id, string? Type, string PathData);
 
-namespace Jitendex.Import.KanjiVG.Readers;
+namespace Jitendex.KanjiVG.Readers;
 
 internal partial class StrokeReader
 {

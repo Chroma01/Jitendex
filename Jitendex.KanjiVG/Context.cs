@@ -17,9 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Import.KanjiVG.Models;
+using Jitendex.KanjiVG.Models;
 
-namespace Jitendex.Import.KanjiVG;
+namespace Jitendex.KanjiVG;
 
 public class KanjiVGContext : DbContext
 {

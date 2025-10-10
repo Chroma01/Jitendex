@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Jitendex.Import.KanjiVG.Readers;
+using Jitendex.KanjiVG.Readers;
 
-namespace Jitendex.Import.KanjiVG;
+namespace Jitendex.KanjiVG;
 
 internal record FilePaths(string SvgArchive);
 

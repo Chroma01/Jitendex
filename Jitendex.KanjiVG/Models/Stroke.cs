@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Import.KanjiVG.Models;
+namespace Jitendex.KanjiVG.Models;
 
 [PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
 public class Stroke
