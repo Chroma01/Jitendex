@@ -47,17 +47,22 @@ internal static class GlossData
 
     public static async Task InsertGlosses(this JmdictContext db, List<Gloss> glosses)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var gloss in glosses)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, gloss.EntryId),
                 new(P2, gloss.SenseOrder),
                 new(P3, gloss.Order),
                 new(P4, gloss.TypeName is null ? DBNull.Value : gloss.TypeName),
                 new(P5, gloss.Text),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

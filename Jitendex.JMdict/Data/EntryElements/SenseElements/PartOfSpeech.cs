@@ -45,16 +45,21 @@ internal static class PartOfSpeechData
 
     public static async Task InsertPartsOfSpeech(this JmdictContext db, List<PartOfSpeech> partsOfSpeech)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var partOfSpeech in partsOfSpeech)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, partOfSpeech.EntryId),
                 new(P2, partOfSpeech.SenseOrder),
                 new(P3, partOfSpeech.Order),
                 new(P4, partOfSpeech.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

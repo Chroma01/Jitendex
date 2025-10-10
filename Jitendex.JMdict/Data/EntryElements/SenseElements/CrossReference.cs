@@ -53,9 +53,12 @@ internal static class CrossReferenceData
 
     public static async Task InsertCrossReferences(this JmdictContext db, List<CrossReference> crossReferences)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var crossReference in crossReferences)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, crossReference.EntryId),
                 new(P2, crossReference.SenseOrder),
@@ -65,8 +68,10 @@ internal static class CrossReferenceData
                 new(P6, crossReference.RefSenseOrder),
                 new(P7, crossReference.RefReadingOrder),
                 new(P8, crossReference.RefKanjiFormOrder is null ? DBNull.Value : crossReference.RefKanjiFormOrder),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

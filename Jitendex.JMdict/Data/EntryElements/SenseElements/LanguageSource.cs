@@ -51,9 +51,12 @@ internal static class LanguageSourceData
 
     public static async Task InsertLanguageSources(this JmdictContext db, List<LanguageSource> languageSources)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var languageSource in languageSources)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, languageSource.EntryId),
                 new(P2, languageSource.SenseOrder),
@@ -62,8 +65,10 @@ internal static class LanguageSourceData
                 new(P5, languageSource.LanguageCode),
                 new(P6, languageSource.TypeName),
                 new(P7, languageSource.IsWasei),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

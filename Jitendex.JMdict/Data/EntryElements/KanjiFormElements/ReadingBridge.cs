@@ -43,15 +43,20 @@ internal static class ReadingBridgeData
 
     public static async Task InsertReadingBridges(this JmdictContext db, List<ReadingKanjiFormBridge> bridges)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var bridge in bridges)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, bridge.EntryId),
                 new(P2, bridge.ReadingOrder),
                 new(P3, bridge.KanjiFormOrder),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

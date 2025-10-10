@@ -45,16 +45,21 @@ internal static class ExampleSourceData
 
     public static async Task InsertExampleSourcesAsync(this JmdictContext db, List<ExampleSource> exampleSources)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var exampleSource in exampleSources)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, exampleSource.TypeName),
                 new(P2, exampleSource.OriginKey),
                 new(P3, exampleSource.Text),
                 new(P4, exampleSource.Translation),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

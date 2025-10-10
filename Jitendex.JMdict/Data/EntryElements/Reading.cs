@@ -20,6 +20,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Data.EntryElements.ReadingElements;
 using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.JMdict.Data.EntryElements;
 
@@ -44,19 +45,34 @@ internal static class ReadingData
 
     public static async Task InsertReadings(this JmdictContext db, List<Reading> readings)
     {
-        foreach (var reading in readings)
-        {
-            var parameters = new SqliteParameter[]
-            {
-                new(P1, reading.EntryId),
-                new(P2, reading.Order),
-                new(P3, reading.Text),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+        var allInfos = new List<ReadingInfo>();
+        var allPriorities = new List<ReadingPriority>();
 
-            // Child elements
-            await db.InsertReadingInfo(reading.Infos);
-            await db.InsertReadingPriority(reading.Priorities);
+        await using (var command = db.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = InsertSql;
+
+            foreach (var reading in readings)
+            {
+                command.Parameters.AddRange(new SqliteParameter[]
+                {
+                    new(P1, reading.EntryId),
+                    new(P2, reading.Order),
+                    new(P3, reading.Text),
+                });
+
+                var commandExecution = command.ExecuteNonQueryAsync();
+
+                allInfos.AddRange(reading.Infos);
+                allPriorities.AddRange(reading.Priorities);
+
+                await commandExecution;
+                command.Parameters.Clear();
+            }
         }
+
+        // Child elements
+        await db.InsertReadingInfo(allInfos);
+        await db.InsertReadingPriority(allPriorities);
     }
 }

@@ -45,16 +45,21 @@ internal static class DialectData
 
     public static async Task InsertDialects(this JmdictContext db, List<Dialect> dialects)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var dialect in dialects)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, dialect.EntryId),
                 new(P2, dialect.SenseOrder),
                 new(P3, dialect.Order),
                 new(P4, dialect.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

@@ -20,6 +20,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Data.EntryElements.KanjiFormElements;
 using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.JMdict.Data.EntryElements;
 
@@ -44,20 +45,35 @@ internal static class KanjiFormData
 
     public static async Task InsertKanjiForms(this JmdictContext db, List<KanjiForm> kanjiForms)
     {
-        foreach (var kanjiForm in kanjiForms)
-        {
-            var parameters = new SqliteParameter[]
-            {
-                new(P1, kanjiForm.EntryId),
-                new(P2, kanjiForm.Order),
-                new(P3, kanjiForm.Text),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+        var allBridges = new List<ReadingKanjiFormBridge>();
+        var allInfos = new List<KanjiFormInfo>();
+        var allPriorities = new List<KanjiFormPriority>();
 
-            // Child elements
-            await db.InsertReadingBridges(kanjiForm.ReadingBridges);
-            await db.InsertKanjiFormInfo(kanjiForm.Infos);
-            await db.InsertKanjiFormPriority(kanjiForm.Priorities);
+        await using (var command = db.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = InsertSql;
+
+            foreach (var kanjiForm in kanjiForms)
+            {
+                command.Parameters.AddRange(new SqliteParameter[]
+                {
+                    new(P1, kanjiForm.EntryId),
+                    new(P2, kanjiForm.Order),
+                    new(P3, kanjiForm.Text),
+                });
+
+                await command.ExecuteNonQueryAsync();
+                command.Parameters.Clear();
+
+                allBridges.AddRange(kanjiForm.ReadingBridges);
+                allInfos.AddRange(kanjiForm.Infos);
+                allPriorities.AddRange(kanjiForm.Priorities);
+            }
         }
+
+        // Child elements
+        await db.InsertReadingBridges(allBridges);
+        await db.InsertKanjiFormInfo(allInfos);
+        await db.InsertKanjiFormPriority(allPriorities);
     }
 }

@@ -45,16 +45,21 @@ internal static class MiscData
 
     public static async Task InsertMiscs(this JmdictContext db, List<Misc> miscs)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var misc in miscs)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, misc.EntryId),
                 new(P2, misc.SenseOrder),
                 new(P3, misc.Order),
                 new(P4, misc.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

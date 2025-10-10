@@ -45,16 +45,21 @@ internal static class FieldData
 
     public static async Task InsertFields(this JmdictContext db, List<Field> fields)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var field in fields)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, field.EntryId),
                 new(P2, field.SenseOrder),
                 new(P3, field.Order),
                 new(P4, field.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

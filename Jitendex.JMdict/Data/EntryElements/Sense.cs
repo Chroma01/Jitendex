@@ -20,6 +20,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Data.EntryElements.SenseElements;
 using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Data.EntryElements;
 
@@ -44,27 +45,58 @@ internal static class SenseData
 
     public static async Task InsertSenses(this JmdictContext db, List<Sense> senses)
     {
-        foreach (var sense in senses)
-        {
-            var parameters = new SqliteParameter[]
-            {
-                new(P1, sense.EntryId),
-                new(P2, sense.Order),
-                new(P3, sense.Note is null ? DBNull.Value : sense.Note),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+        var allCrossReferences = new List<CrossReference>();
+        var allDialects = new List<Dialect>();
+        var allExamples = new List<Example>();
+        var allFields = new List<Field>();
+        var allGlosses = new List<Gloss>();
+        var allKanjiFormRestrictions = new List<KanjiFormRestriction>();
+        var allLanguageSources = new List<LanguageSource>();
+        var allMiscs = new List<Misc>();
+        var allPartsOfSpeech = new List<PartOfSpeech>();
+        var allReadingRestrictions = new List<ReadingRestriction>();
 
-            // Child elements
-            await db.InsertCrossReferences(sense.CrossReferences);
-            await db.InsertDialects(sense.Dialects);
-            await db.InsertExamples(sense.Examples);
-            await db.InsertFields(sense.Fields);
-            await db.InsertGlosses(sense.Glosses);
-            await db.InsertKanjiFormRestrictions(sense.KanjiFormRestrictions);
-            await db.InsertLanguageSources(sense.LanguageSources);
-            await db.InsertMiscs(sense.Miscs);
-            await db.InsertPartsOfSpeech(sense.PartsOfSpeech);
-            await db.InsertReadingRestrictions(sense.ReadingRestrictions);
+        await using (var command = db.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = InsertSql;
+
+            foreach (var sense in senses)
+            {
+                command.Parameters.AddRange(new SqliteParameter[]
+                {
+                    new(P1, sense.EntryId),
+                    new(P2, sense.Order),
+                    new(P3, sense.Note is null ? DBNull.Value : sense.Note),
+                });
+
+                var commandExecution = command.ExecuteNonQueryAsync();
+
+                allCrossReferences.AddRange(sense.CrossReferences);
+                allDialects.AddRange(sense.Dialects);
+                allExamples.AddRange(sense.Examples);
+                allFields.AddRange(sense.Fields);
+                allGlosses.AddRange(sense.Glosses);
+                allKanjiFormRestrictions.AddRange(sense.KanjiFormRestrictions);
+                allLanguageSources.AddRange(sense.LanguageSources);
+                allMiscs.AddRange(sense.Miscs);
+                allPartsOfSpeech.AddRange(sense.PartsOfSpeech);
+                allReadingRestrictions.AddRange(sense.ReadingRestrictions);
+
+                await commandExecution;
+                command.Parameters.Clear();
+            }
         }
+
+        // Child elements
+        await db.InsertCrossReferences(allCrossReferences);
+        await db.InsertDialects(allDialects);
+        await db.InsertExamples(allExamples);
+        await db.InsertFields(allFields);
+        await db.InsertGlosses(allGlosses);
+        await db.InsertKanjiFormRestrictions(allKanjiFormRestrictions);
+        await db.InsertLanguageSources(allLanguageSources);
+        await db.InsertMiscs(allMiscs);
+        await db.InsertPartsOfSpeech(allPartsOfSpeech);
+        await db.InsertReadingRestrictions(allReadingRestrictions);
     }
 }

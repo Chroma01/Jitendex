@@ -45,16 +45,21 @@ internal static class ReadingPriorityData
 
     public static async Task InsertReadingPriority(this JmdictContext db, List<ReadingPriority> priorities)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var priority in priorities)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, priority.EntryId),
                 new(P2, priority.ReadingOrder),
                 new(P3, priority.Order),
                 new(P4, priority.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

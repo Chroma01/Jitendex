@@ -45,16 +45,21 @@ internal static class ReadingInfoData
 
     public static async Task InsertReadingInfo(this JmdictContext db, List<ReadingInfo> infos)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var info in infos)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, info.EntryId),
                 new(P2, info.ReadingOrder),
                 new(P3, info.Order),
                 new(P4, info.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

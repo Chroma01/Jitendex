@@ -36,7 +36,8 @@ internal static class KeywordData
 
     public static async Task InsertKeywordsAsync<T>(this JmdictContext db, List<T> keywordList) where T : IKeyword
     {
-        var sql =
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText =
             $"""
             INSERT INTO "{typeof(T).Name}"
             ("{C1}", "{C2}", "{C3}") VALUES
@@ -45,13 +46,15 @@ internal static class KeywordData
 
         foreach (var keyword in keywordList)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, keyword.Name),
                 new(P2, keyword.Description),
                 new(P3, keyword.IsCorrupt),
-            };
-            await db.Database.ExecuteSqlRawAsync(sql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

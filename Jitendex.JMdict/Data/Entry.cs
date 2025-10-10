@@ -20,6 +20,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Data.EntryElements;
 using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Models.EntryElements;
 
 namespace Jitendex.JMdict.Data;
 
@@ -44,18 +45,37 @@ internal static class EntryData
 
     public static async Task InsertEntries(this JmdictContext db, List<Entry> entries)
     {
-        foreach (var entry in entries)
+        var allReadings = new List<Reading>();
+        var allKanjiForms = new List<KanjiForm>();
+        var allSenses = new List<Sense>();
+
+        await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
-            var parameters = new SqliteParameter[]
+            command.CommandText = InsertSql;
+
+            foreach (var entry in entries)
             {
-                new(P1, entry.Id),
-                new(P2, entry.CorpusId),
-                new(P3, entry.IsCorrupt),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
-            await db.InsertReadings(entry.Readings);
-            await db.InsertKanjiForms(entry.KanjiForms);
-            await db.InsertSenses(entry.Senses);
+                command.Parameters.AddRange(new SqliteParameter[]
+                {
+                    new(P1, entry.Id),
+                    new(P2, entry.CorpusId),
+                    new(P3, entry.IsCorrupt),
+                });
+
+                var commandExecution = command.ExecuteNonQueryAsync();
+
+                allReadings.AddRange(entry.Readings);
+                allKanjiForms.AddRange(entry.KanjiForms);
+                allSenses.AddRange(entry.Senses);
+
+                await commandExecution;
+                command.Parameters.Clear();
+            }
         }
+
+        // Child elements
+        await db.InsertReadings(allReadings);
+        await db.InsertKanjiForms(allKanjiForms);
+        await db.InsertSenses(allSenses);
     }
 }

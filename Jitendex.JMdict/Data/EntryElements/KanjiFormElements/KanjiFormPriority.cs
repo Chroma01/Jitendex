@@ -45,16 +45,21 @@ internal static class KanjiFormPriorityData
 
     public static async Task InsertKanjiFormPriority(this JmdictContext db, List<KanjiFormPriority> priorities)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var priority in priorities)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, priority.EntryId),
                 new(P2, priority.KanjiFormOrder),
                 new(P3, priority.Order),
                 new(P4, priority.TagName),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

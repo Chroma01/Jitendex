@@ -41,14 +41,19 @@ internal static class CorpusData
 
     public static async Task InsertCorporaAsync(this JmdictContext db, List<Corpus> corpora)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var corpus in corpora)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, corpus.Id),
                 new(P2, corpus.Name),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

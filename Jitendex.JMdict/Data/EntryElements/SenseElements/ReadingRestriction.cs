@@ -45,16 +45,21 @@ internal static class ReadingRestrictionData
 
     public static async Task InsertReadingRestrictions(this JmdictContext db, List<ReadingRestriction> readingRestrictions)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var readingRestriction in readingRestrictions)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, readingRestriction.EntryId),
                 new(P2, readingRestriction.SenseOrder),
                 new(P3, readingRestriction.Order),
                 new(P4, readingRestriction.ReadingOrder),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }

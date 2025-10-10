@@ -45,16 +45,21 @@ internal static class KanjiFormRestrictionData
 
     public static async Task InsertKanjiFormRestrictions(this JmdictContext db, List<KanjiFormRestriction> kanjiFormRestrictions)
     {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
+
         foreach (var kanjiFormRestriction in kanjiFormRestrictions)
         {
-            var parameters = new SqliteParameter[]
+            command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, kanjiFormRestriction.EntryId),
                 new(P2, kanjiFormRestriction.SenseOrder),
                 new(P3, kanjiFormRestriction.Order),
                 new(P4, kanjiFormRestriction.KanjiFormOrder),
-            };
-            await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
+            });
+
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
     }
 }
