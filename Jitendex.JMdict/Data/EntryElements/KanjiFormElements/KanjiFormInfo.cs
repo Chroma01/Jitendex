@@ -18,46 +18,43 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data.EntryElements.KanjiFormElements;
-using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
 
-namespace Jitendex.JMdict.Data.EntryElements;
+namespace Jitendex.JMdict.Data.EntryElements.KanjiFormElements;
 
-internal static class KanjiFormData
+internal static class KanjiFormInfoData
 {
     // Column names
-    private const string C1 = nameof(KanjiForm.EntryId);
-    private const string C2 = nameof(KanjiForm.Order);
-    private const string C3 = nameof(KanjiForm.Text);
+    private const string C1 = nameof(KanjiFormInfo.EntryId);
+    private const string C2 = nameof(KanjiFormInfo.KanjiFormOrder);
+    private const string C3 = nameof(KanjiFormInfo.Order);
+    private const string C4 = nameof(KanjiFormInfo.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
+    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
     $"""
-        INSERT INTO "{nameof(KanjiForm)}"
-        ("{C1}", "{C2}", "{C3}") VALUES
-        ( {P1} ,  {P2} ,  {P3} );
+        INSERT INTO "{nameof(KanjiFormInfo)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
     """;
 
-    public static async Task InsertKanjiForms(this JmdictContext db, List<KanjiForm> kanjiForms)
+    public static async Task InsertKanjiFormInfo(this JmdictContext db, List<KanjiFormInfo> infos)
     {
-        foreach (var kanjiForm in kanjiForms)
+        foreach (var info in infos)
         {
             var parameters = new SqliteParameter[]
             {
-                new(P1, kanjiForm.EntryId),
-                new(P2, kanjiForm.Order),
-                new(P3, kanjiForm.Text),
+                new(P1, info.EntryId),
+                new(P2, info.KanjiFormOrder),
+                new(P3, info.Order),
+                new(P4, info.TagName),
             };
             await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
-
-            // Child elements
-            await db.InsertReadingsBridges(kanjiForm.ReadingBridges);
-            await db.InsertKanjiFormInfo(kanjiForm.Infos);
-            await db.InsertKanjiFormPriority(kanjiForm.Priorities);
         }
     }
 }
