@@ -41,8 +41,8 @@ public class Program
         var parseResult = rootCommand.Parse(args);
         if (parseResult.Errors.Count == 0)
         {
-            var jmdictFile = parseResult.GetValue(kanjidic2FileArgument)!;
-            await RunKanjidic2(jmdictFile);
+            var kanjidic2File = parseResult.GetValue(kanjidic2FileArgument)!;
+            await RunKanjidic2(kanjidic2File);
         }
         else
         {

@@ -27,7 +27,7 @@ internal class KanjiFiles
 {
     private readonly ILogger<KanjiFiles> _logger;
     private readonly FilePaths _filePaths;
-    private readonly XmlReaderSettings _xmlReaderSettings = new XmlReaderSettings
+    private readonly XmlReaderSettings _xmlReaderSettings = new()
     {
         Async = true,
         DtdProcessing = DtdProcessing.Parse,
