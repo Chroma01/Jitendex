@@ -25,12 +25,10 @@ namespace Jitendex.KanjiVG.Readers;
 internal partial class StrokeNumberReader
 {
     private readonly ILogger<StrokeNumberReader> _logger;
-    private readonly StrokeReader _strokeReader;
 
-    public StrokeNumberReader(ILogger<StrokeNumberReader> logger, StrokeReader strokeReader)
+    public StrokeNumberReader(ILogger<StrokeNumberReader> logger)
     {
         _logger = logger;
-        _strokeReader = strokeReader;
     }
 
     public async Task ReadAsync(XmlReader xmlReader, StrokeNumberGroup group)

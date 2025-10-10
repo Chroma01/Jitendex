@@ -28,12 +28,9 @@ internal partial class ComponentReader
     private readonly ComponentAttributesReader _attributesReader;
     private readonly StrokeReader _strokeReader;
 
-    public ComponentReader(ILogger<ComponentReader> logger, ComponentAttributesReader attributesReader, StrokeReader strokeReader)
-    {
-        _logger = logger;
-        _attributesReader = attributesReader;
-        _strokeReader = strokeReader;
-    }
+    public ComponentReader(ILogger<ComponentReader> logger, ComponentAttributesReader attributesReader, StrokeReader strokeReader) =>
+        (_logger, _attributesReader, _strokeReader) =
+        (@logger, @attributesReader, @strokeReader);
 
     public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {

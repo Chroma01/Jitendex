@@ -16,16 +16,19 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers;
 
 internal partial class KanjiVGReader
 {
+    private readonly ILogger<KanjiVGReader> _logger;
     private readonly EntriesReader _entriesReader;
 
-    public KanjiVGReader(EntriesReader entriesReader) =>
-        (_entriesReader) = (@entriesReader);
+    public KanjiVGReader(ILogger<KanjiVGReader> logger, EntriesReader entriesReader) =>
+        (_logger, _entriesReader) =
+        (@logger, @entriesReader);
 
     public async Task<KanjiVGDocument> ReadKanjiVGAsync()
     {

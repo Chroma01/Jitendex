@@ -27,11 +27,9 @@ internal partial class StrokeNumberGroupReader
     private readonly ILogger<StrokeNumberGroupReader> _logger;
     private readonly StrokeNumberReader _strokeNumberReader;
 
-    public StrokeNumberGroupReader(ILogger<StrokeNumberGroupReader> logger, StrokeNumberReader strokeNumberReader)
-    {
-        _logger = logger;
-        _strokeNumberReader = strokeNumberReader;
-    }
+    public StrokeNumberGroupReader(ILogger<StrokeNumberGroupReader> logger, StrokeNumberReader strokeNumberReader) =>
+        (_logger, _strokeNumberReader) =
+        (@logger, @strokeNumberReader);
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {

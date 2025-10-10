@@ -27,11 +27,9 @@ internal partial class ComponentGroupReader
     private readonly ILogger<ComponentGroupReader> _logger;
     private readonly ComponentReader _componentReader;
 
-    public ComponentGroupReader(ILogger<ComponentGroupReader> logger, ComponentReader componentReader)
-    {
-        _logger = logger;
-        _componentReader = componentReader;
-    }
+    public ComponentGroupReader(ILogger<ComponentGroupReader> logger, ComponentReader componentReader) =>
+        (_logger, _componentReader) =
+        (@logger, @componentReader);
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {

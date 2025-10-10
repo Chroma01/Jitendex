@@ -30,12 +30,9 @@ internal partial class EntryReader
     private readonly ComponentGroupReader _componentGroupReader;
     private readonly StrokeNumberGroupReader _strokeNumberGroupReader;
 
-    public EntryReader(ILogger<EntryReader> logger, ComponentGroupReader componentGroupReader, StrokeNumberGroupReader strokeNumberGroupReader)
-    {
-        _logger = logger;
-        _componentGroupReader = componentGroupReader;
-        _strokeNumberGroupReader = strokeNumberGroupReader;
-    }
+    public EntryReader(ILogger<EntryReader> logger, ComponentGroupReader componentGroupReader, StrokeNumberGroupReader strokeNumberGroupReader) =>
+        (_logger, _componentGroupReader, _strokeNumberGroupReader) =
+        (@logger, @componentGroupReader, @strokeNumberGroupReader);
 
     public async Task<Entry?> ReadAsync(string fileName, XmlReader xmlReader)
     {
