@@ -18,45 +18,43 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data.EntryElements.ReadingElements;
-using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.JMdict.Data.EntryElements;
+namespace Jitendex.JMdict.Data.EntryElements.ReadingElements;
 
-internal static class ReadingData
+internal static class ReadingPriorityData
 {
     // Column names
-    private const string C1 = nameof(Reading.EntryId);
-    private const string C2 = nameof(Reading.Order);
-    private const string C3 = nameof(Reading.Text);
+    private const string C1 = nameof(ReadingPriority.EntryId);
+    private const string C2 = nameof(ReadingPriority.ReadingOrder);
+    private const string C3 = nameof(ReadingPriority.Order);
+    private const string C4 = nameof(ReadingPriority.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
+    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
     $"""
-        INSERT INTO "{nameof(Reading)}"
-        ("{C1}", "{C2}", "{C3}") VALUES
-        ( {P1} ,  {P2} ,  {P3} );
+        INSERT INTO "{nameof(ReadingPriority)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
     """;
 
-    public static async Task InsertReadings(this JmdictContext db, List<Reading> readings)
+    public static async Task InsertReadingPriority(this JmdictContext db, List<ReadingPriority> priorities)
     {
-        foreach (var reading in readings)
+        foreach (var priority in priorities)
         {
             var parameters = new SqliteParameter[]
             {
-                new(P1, reading.EntryId),
-                new(P2, reading.Order),
-                new(P3, reading.Text),
+                new(P1, priority.EntryId),
+                new(P2, priority.ReadingOrder),
+                new(P3, priority.Order),
+                new(P4, priority.TagName),
             };
             await db.Database.ExecuteSqlRawAsync(InsertSql, parameters);
-
-            // Child elements
-            await db.InsertReadingInfo(reading.Infos);
-            await db.InsertReadingPriority(reading.Priorities);
         }
     }
 }
