@@ -27,6 +27,7 @@ internal partial class CrossReferenceIds
 {
     private readonly ILogger<CrossReferenceIds> _logger;
     private readonly JmdictFiles _files;
+    private ReadOnlyDictionary<string, int>? _xrefToId = null;
 
     public CrossReferenceIds(ILogger<CrossReferenceIds> logger, JmdictFiles files) =>
         (_logger, _files) =
@@ -36,11 +37,19 @@ internal partial class CrossReferenceIds
     {
         await using var stream = File.OpenRead(_files.XrefIds.FullName);
         var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
-        return dictionary.AsReadOnly();
+        _xrefToId = dictionary.AsReadOnly();
+        return _xrefToId;
     }
 
     public async Task WriteAsync(Dictionary<string, object> dictionary)
     {
+        foreach (var xref in _xrefToId?.Keys.AsEnumerable() ?? [])
+        {
+            if (!dictionary.ContainsKey(xref))
+            {
+                LogUnusedKey(xref, _files.XrefIds.Name);
+            }
+        }
         await using var stream = File.OpenWrite
         (
             _files.XrefIds.FullName.EndsWith(".json")
@@ -59,4 +68,8 @@ internal partial class CrossReferenceIds
             }
         );
     }
+
+    [LoggerMessage(LogLevel.Information,
+    "Key `{key}` in file `{File}` was not used by the reference sequencer")]
+    private partial void LogUnusedKey(string key, string file);
 }
