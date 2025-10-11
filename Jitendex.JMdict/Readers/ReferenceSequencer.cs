@@ -16,7 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Models;
 using Jitendex.JMdict.Models.EntryElements;
@@ -46,6 +47,7 @@ internal partial class ReferenceSequencer
     public async Task FixCrossReferencesAsync(List<Entry> entries)
     {
         var loadTask = _crossReferenceIds.LoadAsync();
+
         var referenceTextToEntries = ReferenceTextToEntries(entries);
 
         var allCrossReferences = entries
@@ -85,9 +87,9 @@ internal partial class ReferenceSequencer
 
     private Entry GetReferencedEntry(
         in List<Entry> entries,
-        in FrozenDictionary<ReferenceText, List<Entry>> referenceTextToEntries,
+        in ReadOnlyDictionary<ReferenceText, ImmutableArray<Entry>> referenceTextToEntries,
         in ReferenceText key,
-        in FrozenDictionary<string, int> disambiguationCache,
+        in ReadOnlyDictionary<string, int> disambiguationCache,
         in RawCrossReference xref)
     {
         var (id, corpusId, senseNumber) = (
@@ -96,7 +98,7 @@ internal partial class ReferenceSequencer
             xref.RefSenseOrder);
 
         var possibleTargetEntries =
-            referenceTextToEntries.TryGetValue(key, out List<Entry>? keyEntries)
+            referenceTextToEntries.TryGetValue(key, out ImmutableArray<Entry> keyEntries)
             ? keyEntries.Where(e
                     => e.Id != id                      // Entries cannot reference themselves.
                     && e.CorpusId == corpusId          // Assume references are within same corpus.
@@ -145,16 +147,20 @@ internal partial class ReferenceSequencer
         }
     }
 
-    private static FrozenDictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(in List<Entry> entries)
+    /// <remarks>
+    /// For JMdict dated 2025-10-11, there were 709,038 distinct possible reference texts.
+    /// The corresponding entry arrays had an average length of 1.046.
+    /// </remarks>
+    private static ReadOnlyDictionary<ReferenceText, ImmutableArray<Entry>> ReferenceTextToEntries(in List<Entry> entries)
     {
-        var dict = new Dictionary<ReferenceText, List<Entry>>();
+        var dict = new Dictionary<ReferenceText, ImmutableArray<Entry>>();
         foreach (var entry in entries)
         {
             foreach (var referenceText in ReferenceTexts(entry))
             {
-                if (dict.TryGetValue(referenceText, out List<Entry>? values))
+                if (dict.TryGetValue(referenceText, out ImmutableArray<Entry> values))
                 {
-                    values.Add(entry);
+                    dict[referenceText] = values.Add(entry);
                 }
                 else
                 {
@@ -162,7 +168,7 @@ internal partial class ReferenceSequencer
                 }
             }
         }
-        return dict.ToFrozenDictionary();
+        return dict.AsReadOnly();
     }
 
     private static IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
@@ -193,7 +199,7 @@ internal partial class ReferenceSequencer
     private Entry FindTargetEntry(
         in List<Entry> possibleTargetEntries,
         in RawCrossReference xref,
-        in FrozenDictionary<string, int> disambiguationCache)
+        in ReadOnlyDictionary<string, int> disambiguationCache)
     {
         var cacheKey = xref.RawKey();
 

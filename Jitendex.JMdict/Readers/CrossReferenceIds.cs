@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
+using System.Collections.ObjectModel;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -32,11 +32,11 @@ internal partial class CrossReferenceIds
         (_logger, _files) =
         (@logger, @files);
 
-    public async Task<FrozenDictionary<string, int>> LoadAsync()
+    public async Task<ReadOnlyDictionary<string, int>> LoadAsync()
     {
         await using var stream = File.OpenRead(_files.XrefIds.FullName);
         var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
-        return dictionary.ToFrozenDictionary();
+        return dictionary.AsReadOnly();
     }
 
     public async Task WriteAsync(Dictionary<string, object> dictionary)
