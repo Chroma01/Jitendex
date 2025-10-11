@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Diagnostics;
 using System.CommandLine;
-using Jitendex.JMdict.Models;
 
 namespace Jitendex.JMdict;
 
@@ -55,25 +54,17 @@ public class Program
             return;
         }
 
-        var jmdictFile = parseResult.GetValue(jmdictFileArgument)!;
-        var xrefIdsFile = parseResult.GetValue(xrefIdsFileArgument)!;
+        var files = new JmdictFiles
+        {
+            Jmdict = parseResult.GetValue(jmdictFileArgument)!,
+            XrefIds = parseResult.GetValue(xrefIdsFileArgument)!,
+        };
 
-        var jmdict = await GetJmdictAsync(jmdictFile, xrefIdsFile);
+        var reader = await JmdictReaderProvider.GetReaderAsync(files);
+        var jmdict = await reader.ReadJmdictAsync();
+
         await DatabaseInitializer.WriteToNewDatabase(jmdict);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
-    }
-
-    public static async Task<JmdictDocument> GetJmdictAsync(FileInfo jmdictFile, FileInfo xrefIdsFile)
-    {
-        var jmdictPaths = new FilePaths
-        {
-            Jmdict = jmdictFile.FullName,
-            XrefIds = xrefIdsFile.FullName,
-        };
-
-        var reader = await JmdictReaderProvider.GetReaderAsync(jmdictPaths);
-        var jmdict = await reader.ReadJmdictAsync();
-        return jmdict;
     }
 }

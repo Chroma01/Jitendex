@@ -31,25 +31,25 @@ using Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
 namespace Jitendex.JMdict;
 
-internal record FilePaths
+internal record JmdictFiles
 {
-    public required string Jmdict { get; init; }
-    public required string XrefIds { get; init; }
+    public required FileInfo Jmdict { get; init; }
+    public required FileInfo XrefIds { get; init; }
 }
 
 internal static class JmdictReaderProvider
 {
-    public static async Task<JmdictReader> GetReaderAsync(FilePaths paths)
+    public static async Task<JmdictReader> GetReaderAsync(JmdictFiles files)
     {
-        var xmlReader = CreateXmlReader(paths.Jmdict);
-        var xrefIds = await LoadXrefIds(paths.XrefIds);
+        var xmlReader = CreateXmlReader(files.Jmdict);
+        var xrefIds = await LoadXrefIds(files.XrefIds);
 
         return GetReader(xmlReader, xrefIds);
     }
 
-    private static XmlReader CreateXmlReader(string path)
+    private static XmlReader CreateXmlReader(FileInfo file)
     {
-        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var readerSettings = new XmlReaderSettings
         {
             Async = true,
@@ -60,9 +60,9 @@ internal static class JmdictReaderProvider
         return XmlReader.Create(fileStream, readerSettings);
     }
 
-    private static async Task<FrozenDictionary<string, int>> LoadXrefIds(string path)
+    private static async Task<FrozenDictionary<string, int>> LoadXrefIds(FileInfo file)
     {
-        await using var stream = File.OpenRead(path);
+        await using var stream = File.OpenRead(file.FullName);
         var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
         return dictionary.ToFrozenDictionary();
     }
