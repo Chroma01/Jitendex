@@ -46,7 +46,7 @@ internal static class DatabaseInitializer
 
         // Using a transaction decreases the runtime by 10 seconds.
         // Using multiple smaller transactions doesn't seem to improve upon that.
-        using var transaction = await db.Database.BeginTransactionAsync();
+        await using var transaction = await db.Database.BeginTransactionAsync();
 
         // Begin inserting data.
         await db.InsertCorporaAsync(jmdictDocument.Corpora);
