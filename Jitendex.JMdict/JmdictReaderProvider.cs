@@ -39,35 +39,7 @@ internal record JmdictFiles
 
 internal static class JmdictReaderProvider
 {
-    public static async Task<JmdictReader> GetReaderAsync(JmdictFiles files)
-    {
-        var xmlReader = CreateXmlReader(files.Jmdict);
-        var xrefIds = await LoadXrefIds(files.XrefIds);
-
-        return GetReader(xmlReader, xrefIds);
-    }
-
-    private static XmlReader CreateXmlReader(FileInfo file)
-    {
-        var fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        var readerSettings = new XmlReaderSettings
-        {
-            Async = true,
-            DtdProcessing = DtdProcessing.Parse,
-            MaxCharactersFromEntities = long.MaxValue,
-            MaxCharactersInDocument = long.MaxValue,
-        };
-        return XmlReader.Create(fileStream, readerSettings);
-    }
-
-    private static async Task<FrozenDictionary<string, int>> LoadXrefIds(FileInfo file)
-    {
-        await using var stream = File.OpenRead(file.FullName);
-        var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
-        return dictionary.ToFrozenDictionary();
-    }
-
-    private static JmdictReader GetReader(XmlReader xmlReader, FrozenDictionary<string, int> xrefIds) => new ServiceCollection()
+    public static JmdictReader GetReader(JmdictFiles files) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -77,7 +49,18 @@ internal static class JmdictReaderProvider
             }))
 
         // Global XML file reader.
-        .AddSingleton<XmlReader>(provider => xmlReader)
+        .AddSingleton<XmlReader>(provider =>
+        {
+            var fileStream = new FileStream(files.Jmdict.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var readerSettings = new XmlReaderSettings
+            {
+                Async = true,
+                DtdProcessing = DtdProcessing.Parse,
+                MaxCharactersFromEntities = long.MaxValue,
+                MaxCharactersInDocument = long.MaxValue,
+            };
+            return XmlReader.Create(fileStream, readerSettings);
+        })
 
         // Global document types.
         .AddSingleton<CorpusCache>()
@@ -116,7 +99,8 @@ internal static class JmdictReaderProvider
         .AddTransient<ReadingRestrictionReader>()
 
         // Post-processing of entries.
-        .AddSingleton(provider => xrefIds)
+        .AddTransient<JmdictFiles>(provider => files)
+        .AddTransient<CrossReferenceIds>()
         .AddTransient<ReferenceSequencer>()
 
         // Build and return the Jmdict service.

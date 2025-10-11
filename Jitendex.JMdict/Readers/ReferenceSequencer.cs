@@ -19,19 +19,20 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Frozen;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Models;
-using Jitendex.JMdict.Models.EntryElements.SenseElements;
 using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Readers;
 
 internal partial class ReferenceSequencer
 {
     private readonly ILogger<ReferenceSequencer> _logger;
-    private readonly FrozenDictionary<string, int> _disambiguationCache;
+    private readonly CrossReferenceIds _crossReferenceIds;
+    private readonly Dictionary<string, object> _usedDisambiguations = [];
 
-    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, FrozenDictionary<string, int> disambiguationCache) =>
-        (_logger, _disambiguationCache) =
-        (@logger, @disambiguationCache);
+    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, CrossReferenceIds crossReferenceIds) =>
+        (_logger, _crossReferenceIds) =
+        (@logger, @crossReferenceIds);
 
     private readonly record struct ReferenceText(string Text1, string? Text2)
     {
@@ -42,13 +43,16 @@ internal partial class ReferenceSequencer
 
     private readonly record struct SpellingId(int ReadingOrder, int? KanjiFormOrder);
 
-    public void FixCrossReferences(List<Entry> entries)
+    public async Task FixCrossReferencesAsync(List<Entry> entries)
     {
+        var loadTask = _crossReferenceIds.LoadAsync();
         var referenceTextToEntries = ReferenceTextToEntries(entries);
 
         var allCrossReferences = entries
             .SelectMany(static entry => entry.Senses)
             .SelectMany(static sense => sense.RawCrossReferences);
+
+        var disambiguationCache = await loadTask;
 
         foreach (var xref in allCrossReferences)
         {
@@ -63,9 +67,22 @@ internal partial class ReferenceSequencer
                     .ToList()
                 : [];
 
-            var targetEntry = FindTargetEntry(possibleTargetEntries, xref) ?? entries.Last();
+            if (possibleTargetEntries is [])
+            {
+                LogImpossibleReference(xref.RawKey());
+                xref.Sense.Entry.IsCorrupt = true;
+                possibleTargetEntries = [entries.Last()];
+            }
 
-            var refSense = targetEntry.Senses.Where(s => s.Order == xref.RefSenseOrder).First();
+            var targetEntry = possibleTargetEntries.Count == 1
+                ? possibleTargetEntries.First()
+                : FindTargetEntry(possibleTargetEntries, xref, disambiguationCache);
+
+            var refSense = targetEntry
+                .Senses
+                .Where(sense => sense.Order == xref.RefSenseOrder)
+                .First();
+
             Reading refReading;
             KanjiForm? refKanjiForm;
 
@@ -103,9 +120,11 @@ internal partial class ReferenceSequencer
             xref.Sense.CrossReferences.Add(newXref);
             refSense.ReverseCrossReferences.Add(newXref);
         }
+
+        await _crossReferenceIds.WriteAsync(_usedDisambiguations);
     }
 
-    private static Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
+    private static FrozenDictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
     {
         var dict = new Dictionary<ReferenceText, List<Entry>>();
         foreach (var entry in entries)
@@ -122,7 +141,7 @@ internal partial class ReferenceSequencer
                 }
             }
         }
-        return dict;
+        return dict.ToFrozenDictionary();
     }
 
     private static IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
@@ -146,40 +165,45 @@ internal partial class ReferenceSequencer
         }
     }
 
-    private Entry? FindTargetEntry(List<Entry> possibleTargetEntries, RawCrossReference xref)
+    /// <summary>
+    /// If there are multiple target entries, then the reference is ambiguous.
+    /// The correct entry ID must be recorded in the cache.
+    /// </summary>
+    private Entry FindTargetEntry (
+        List<Entry> possibleTargetEntries,
+        RawCrossReference xref,
+        FrozenDictionary<string, int> disambiguationCache)
     {
-        if (possibleTargetEntries.Count == 1)
-            return possibleTargetEntries.First();
-
-        // If there are multiple target entries, then the reference is ambiguous.
-        // The correct entry ID must be recorded in the cache.
         var cacheKey = xref.RawKey();
-        if (_disambiguationCache.TryGetValue(cacheKey, out int targetEntryId))
-        {
-            var targetEntry = possibleTargetEntries
-                .Where(e => e.Id == targetEntryId)
-                .FirstOrDefault();
 
-            if (targetEntry is not null)
-                return targetEntry;
-            else
-                LogInvalidCacheId(cacheKey, targetEntryId);
+        var targetEntry =
+            disambiguationCache.TryGetValue(cacheKey, out int targetEntryId)
+            ? possibleTargetEntries
+                .Where(e => e.Id == targetEntryId)
+                .FirstOrDefault()
+            : null;
+
+        if (targetEntry is not null)
+        {
+            _usedDisambiguations[cacheKey] = targetEntry.Id;
+            return targetEntry;
         }
 
         xref.Sense.Entry.IsCorrupt = true;
 
-        if (possibleTargetEntries.Count == 0)
-        {
-            LogImpossibleReference(cacheKey);
-            return null;
-        }
+        var possibleTargetEntryIds = possibleTargetEntries
+            .Select(static e => e.Id)
+            .ToArray();
+
+        _usedDisambiguations[cacheKey] = possibleTargetEntryIds;
 
         LogAmbiguousReference
         (
             cacheKey,
-            possibleTargetEntries.Count,
-            possibleTargetEntries.Select(static e => e.Id).ToArray()
+            possibleTargetEntryIds.Length,
+            possibleTargetEntryIds
         );
+
         return possibleTargetEntries.First();
     }
 
@@ -224,10 +248,6 @@ internal partial class ReferenceSequencer
     [LoggerMessage(LogLevel.Warning,
     "Reference `{CacheKey}` could refer to {Count} possible entries: {EntryIds}")]
     private partial void LogAmbiguousReference(string cacheKey, int count, int[] entryIds);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Cached ID `{TargetEntryId}` is invalid for reference `{CacheKey}`")]
-    private partial void LogInvalidCacheId(string cacheKey, int targetEntryId);
 
     [LoggerMessage(LogLevel.Warning,
     "Reference `{CacheKey}` refers to an entry that does not exist.")]

@@ -60,7 +60,7 @@ public class Program
             XrefIds = parseResult.GetValue(xrefIdsFileArgument)!,
         };
 
-        var reader = await JmdictReaderProvider.GetReaderAsync(files);
+        var reader = JmdictReaderProvider.GetReader(files);
         var jmdict = await reader.ReadJmdictAsync();
 
         await DatabaseInitializer.WriteToNewDatabase(jmdict);

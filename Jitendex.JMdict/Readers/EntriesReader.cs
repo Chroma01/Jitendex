@@ -55,7 +55,7 @@ internal partial class EntriesReader
         }
 
         // Post-processing of all entries.
-        _referenceSequencer.FixCrossReferences(entries);
+        await _referenceSequencer.FixCrossReferencesAsync(entries);
 
         return entries;
     }
