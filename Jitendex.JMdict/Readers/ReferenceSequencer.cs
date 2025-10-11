@@ -57,49 +57,9 @@ internal partial class ReferenceSequencer
         foreach (var xref in allCrossReferences)
         {
             var key = new ReferenceText(xref.RefText1, xref.RefText2);
-
-            var possibleTargetEntries =
-                referenceTextToEntries.TryGetValue(key, out List<Entry>? keyEntries)
-                ? keyEntries.Where(e
-                        => e.Id != xref.EntryId                    // Entries cannot reference themselves.
-                        && e.CorpusId == xref.Sense.Entry.CorpusId // Assume references are within same corpus.
-                        && e.Senses.Count >= xref.RefSenseOrder)   // Referenced entry must contain the referenced sense number.
-                    .ToList()
-                : [];
-
-            if (possibleTargetEntries is [])
-            {
-                LogImpossibleReference(xref.RawKey());
-                xref.Sense.Entry.IsCorrupt = true;
-                possibleTargetEntries = [entries.Last()];
-            }
-
-            var targetEntry = possibleTargetEntries.Count == 1
-                ? possibleTargetEntries.First()
-                : FindTargetEntry(possibleTargetEntries, xref, disambiguationCache);
-
-            var refSense = targetEntry
-                .Senses
-                .Where(sense => sense.Order == xref.RefSenseOrder)
-                .First();
-
-            Reading refReading;
-            KanjiForm? refKanjiForm;
-
-            if (ValidSpellings(targetEntry).TryGetValue(key, out SpellingId id))
-            {
-                refReading = targetEntry.Readings.Where(r => r.Order == id.ReadingOrder).First();
-                refKanjiForm = targetEntry.KanjiForms.Where(k => k.Order == id.KanjiFormOrder).FirstOrDefault();
-            }
-            else
-            {
-                refReading = targetEntry.Readings.Where(r => !r.IsHidden()).First();
-                refKanjiForm = refReading.KanjiFormBridges.FirstOrDefault()?.KanjiForm;
-
-                LogInvalidSpelling(key.ToString(), xref.EntryId, targetEntry.Id);
-                xref.Sense.Entry.IsCorrupt = true;
-            }
-
+            var refEntry = GetReferencedEntry(entries, referenceTextToEntries, key, disambiguationCache, xref);
+            var refSense = GetReferencedSense(refEntry, xref.RefSenseOrder);
+            var (refReading, refKanjiForm) = GetReferencedReadingKanjiForm(refEntry, xref, key);
             var newXref = new CrossReference
             {
                 EntryId = xref.EntryId,
@@ -108,7 +68,7 @@ internal partial class ReferenceSequencer
                 TypeName = xref.TypeName,
                 Sense = xref.Sense,
                 Type = xref.Type,
-                RefEntryId = targetEntry.Id,
+                RefEntryId = refEntry.Id,
                 RefSenseOrder = xref.RefSenseOrder,
                 RefReadingOrder = refReading.Order,
                 RefKanjiFormOrder = refKanjiForm?.Order,
@@ -116,7 +76,6 @@ internal partial class ReferenceSequencer
                 RefReading = refReading,
                 RefKanjiForm = refKanjiForm,
             };
-
             xref.Sense.CrossReferences.Add(newXref);
             refSense.ReverseCrossReferences.Add(newXref);
         }
@@ -124,7 +83,69 @@ internal partial class ReferenceSequencer
         await _crossReferenceIds.WriteAsync(_usedDisambiguations);
     }
 
-    private static FrozenDictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
+    private Entry GetReferencedEntry(
+        in List<Entry> entries,
+        in FrozenDictionary<ReferenceText, List<Entry>> referenceTextToEntries,
+        in ReferenceText key,
+        in FrozenDictionary<string, int> disambiguationCache,
+        in RawCrossReference xref)
+    {
+        var (id, corpusId, senseNumber) = (
+            xref.EntryId,
+            xref.Sense.Entry.CorpusId,
+            xref.RefSenseOrder);
+
+        var possibleTargetEntries =
+            referenceTextToEntries.TryGetValue(key, out List<Entry>? keyEntries)
+            ? keyEntries.Where(e
+                    => e.Id != id                      // Entries cannot reference themselves.
+                    && e.CorpusId == corpusId          // Assume references are within same corpus.
+                    && e.Senses.Count >= senseNumber)  // Referenced entry must contain the referenced sense number.
+                .ToList()
+            : [];
+
+        if (possibleTargetEntries is [])
+        {
+            LogImpossibleReference(xref.RawKey());
+            xref.Sense.Entry.IsCorrupt = true;
+            possibleTargetEntries = [entries.Last()];
+        }
+
+        return possibleTargetEntries.Count == 1
+            ? possibleTargetEntries.First()
+            : FindTargetEntry(possibleTargetEntries, xref, disambiguationCache);
+    }
+
+    private static Sense GetReferencedSense(in Entry entry, int refOrder) => entry
+        .Senses
+        .Where(sense => sense.Order == refOrder)
+        .First();
+
+    private (Reading, KanjiForm?) GetReferencedReadingKanjiForm(
+        in Entry entry,
+        in RawCrossReference xref,
+        in ReferenceText key)
+    {
+        if (ValidSpellings(entry).TryGetValue(key, out SpellingId id))
+        {
+            var refReading = entry.Readings.Where(r => r.Order == id.ReadingOrder).First();
+            var refKanjiForm = id.KanjiFormOrder is not null
+                ? entry.KanjiForms.Where(k => k.Order == id.KanjiFormOrder).First()
+                : null;
+            return (refReading, refKanjiForm);
+        }
+        else
+        {
+            LogInvalidSpelling(key.ToString(), xref.EntryId, entry.Id);
+            xref.Sense.Entry.IsCorrupt = true;
+
+            var refReading = entry.Readings.Where(r => !r.IsHidden()).First();
+            var refKanjiForm = refReading.KanjiFormBridges.FirstOrDefault()?.KanjiForm;
+            return (refReading, refKanjiForm);
+        }
+    }
+
+    private static FrozenDictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(in List<Entry> entries)
     {
         var dict = new Dictionary<ReferenceText, List<Entry>>();
         foreach (var entry in entries)
@@ -169,10 +190,10 @@ internal partial class ReferenceSequencer
     /// If there are multiple target entries, then the reference is ambiguous.
     /// The correct entry ID must be recorded in the cache.
     /// </summary>
-    private Entry FindTargetEntry (
-        List<Entry> possibleTargetEntries,
-        RawCrossReference xref,
-        FrozenDictionary<string, int> disambiguationCache)
+    private Entry FindTargetEntry(
+        in List<Entry> possibleTargetEntries,
+        in RawCrossReference xref,
+        in FrozenDictionary<string, int> disambiguationCache)
     {
         var cacheKey = xref.RawKey();
 
@@ -207,7 +228,7 @@ internal partial class ReferenceSequencer
         return possibleTargetEntries.First();
     }
 
-    private static Dictionary<ReferenceText, SpellingId> ValidSpellings(Entry entry)
+    private static Dictionary<ReferenceText, SpellingId> ValidSpellings(in Entry entry)
     {
         var map = new Dictionary<ReferenceText, SpellingId>();
         ReferenceText referenceText;
