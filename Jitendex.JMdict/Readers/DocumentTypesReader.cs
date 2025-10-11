@@ -128,6 +128,7 @@ internal partial class DocumentTypesReader
     // Gloss types
     private static readonly Dictionary<string, string> GlossTypeEntities = new()
     {
+        [""] = "regular",
         ["tm"] = "trademark",
         ["lit"] = "literal",
         ["fig"] = "figurative",

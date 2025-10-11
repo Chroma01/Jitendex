@@ -57,7 +57,7 @@ internal static class GlossData
                 new(P1, gloss.EntryId),
                 new(P2, gloss.SenseOrder),
                 new(P3, gloss.Order),
-                new(P4, gloss.TypeName is null ? DBNull.Value : gloss.TypeName),
+                new(P4, gloss.TypeName),
                 new(P5, gloss.Text),
             });
 

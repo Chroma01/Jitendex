@@ -28,14 +28,14 @@ public class Gloss
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
 
-    public required string? TypeName { get; set; }
+    public required string TypeName { get; set; }
     public required string Text { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public required Sense Sense { get; set; }
 
     [ForeignKey(nameof(TypeName))]
-    public required GlossType? Type { get; set; }
+    public required GlossType Type { get; set; }
 
     [NotMapped]
     internal string? Language { get; set; }

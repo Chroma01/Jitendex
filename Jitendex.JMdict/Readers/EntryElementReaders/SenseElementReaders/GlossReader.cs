@@ -37,17 +37,12 @@ internal partial class GlossReader
 
     public async Task ReadAsync(Sense sense)
     {
-        var typeName = _xmlReader.GetAttribute("g_type");
-        GlossType? type;
+        var typeName = _xmlReader.GetAttribute("g_type") ?? string.Empty;
+        var type = _keywordCache.GetByName<GlossType>(typeName);
 
-        if (typeName is not null)
+        if (type.IsCorrupt)
         {
-            type = _keywordCache.GetByName<GlossType>(typeName);
-            if (type.IsCorrupt) sense.Entry.IsCorrupt = true;
-        }
-        else
-        {
-            type = null;
+            sense.Entry.IsCorrupt = true;
         }
 
         var gloss = new Gloss
