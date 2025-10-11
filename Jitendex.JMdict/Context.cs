@@ -81,32 +81,28 @@ internal class JmdictRelationalCommandBuilder : RelationalCommandBuilder
 
 internal static class CommandTextExtensions
 {
-    private const string _beginCreateTable = "CREATE TABLE";
-    private const string _endCreateTable = ");";
-    private const string _withoutRowId = ") WITHOUT ROWID;";
-    private const string _autoincrement = "AUTOINCREMENT";
-
     public static string WithoutRowId(this string commandText)
     {
-        if (!commandText.StartsWith(_beginCreateTable, StringComparison.Ordinal))
+        if (!commandText.StartsWith("CREATE TABLE", StringComparison.Ordinal))
         {
             return commandText;
         }
 
-        if (commandText.Contains(_autoincrement, StringComparison.Ordinal))
+        if (commandText.Contains("AUTOINCREMENT", StringComparison.Ordinal))
         {
             return commandText;
         }
 
-        int endCreateTableIndex = commandText.IndexOf(_endCreateTable, StringComparison.Ordinal);
+        int endCreateTableIndex = commandText.IndexOf(");", StringComparison.Ordinal);
 
         if (endCreateTableIndex < 0)
         {
             return commandText;
         }
 
-        return commandText[..endCreateTableIndex]
-            + _withoutRowId
-            + commandText[(endCreateTableIndex + _endCreateTable.Length)..];
+        // Insert " WITHOUT ROWID" between the ")" and the ";"
+        return commandText[..(endCreateTableIndex + 1)]
+            + " WITHOUT ROWID"
+            + commandText[(endCreateTableIndex + 1)..];
     }
 }
