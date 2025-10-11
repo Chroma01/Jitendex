@@ -43,7 +43,9 @@ internal partial class CrossReferenceIds
     {
         await using var stream = File.OpenWrite
         (
-            _files.XrefIds.FullName.Replace(".json", ".new.json")
+            _files.XrefIds.FullName.EndsWith(".json")
+                ? _files.XrefIds.FullName[..^5] + ".new.json"
+                : _files.XrefIds.FullName + ".new"
         );
         await JsonSerializer.SerializeAsync<Dictionary<string, object>>
         (
