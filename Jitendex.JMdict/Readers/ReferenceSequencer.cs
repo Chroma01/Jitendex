@@ -33,13 +33,14 @@ internal partial class ReferenceSequencer
         (_logger, _disambiguationCache) =
         (@logger, @disambiguationCache);
 
-    private record ReferenceText(string Text1, string? Text2)
+    private readonly record struct ReferenceText(string Text1, string? Text2)
     {
-        public override string ToString() =>
-            Text2 is null ? Text1 : $"{Text1}【{Text2}】";
+        public override string ToString() => Text2 is not null
+            ? $"{Text1}【{Text2}】"
+            : Text1;
     }
 
-    private record SpellingId(int ReadingOrder, int? KanjiFormOrder);
+    private readonly record struct SpellingId(int ReadingOrder, int? KanjiFormOrder);
 
     public void FixCrossReferences(List<Entry> entries)
     {
@@ -52,21 +53,15 @@ internal partial class ReferenceSequencer
         foreach (var xref in allCrossReferences)
         {
             var key = new ReferenceText(xref.RefText1, xref.RefText2);
-            List<Entry> possibleTargetEntries;
 
-            if (referenceTextToEntries.TryGetValue(key, out List<Entry>? keyEntries))
-            {
-                possibleTargetEntries = keyEntries
-                    .Where(e =>
-                        e.Id != xref.EntryId &&  // Entries cannot reference themselves.
-                        e.CorpusId == xref.Sense.Entry.CorpusId &&  // Assume references are within same corpus.
-                        e.Senses.Count >= xref.RefSenseOrder)  // Referenced entry must contain the referenced sense number.
-                    .ToList();
-            }
-            else
-            {
-                possibleTargetEntries = [];
-            }
+            var possibleTargetEntries =
+                referenceTextToEntries.TryGetValue(key, out List<Entry>? keyEntries)
+                ? keyEntries.Where(e
+                        => e.Id != xref.EntryId                    // Entries cannot reference themselves.
+                        && e.CorpusId == xref.Sense.Entry.CorpusId // Assume references are within same corpus.
+                        && e.Senses.Count >= xref.RefSenseOrder)   // Referenced entry must contain the referenced sense number.
+                    .ToList()
+                : [];
 
             var targetEntry = FindTargetEntry(possibleTargetEntries, xref) ?? entries.Last();
 
@@ -74,7 +69,7 @@ internal partial class ReferenceSequencer
             Reading refReading;
             KanjiForm? refKanjiForm;
 
-            if (ValidSpellings(targetEntry).TryGetValue(key, out SpellingId? id))
+            if (ValidSpellings(targetEntry).TryGetValue(key, out SpellingId id))
             {
                 refReading = targetEntry.Readings.Where(r => r.Order == id.ReadingOrder).First();
                 refKanjiForm = targetEntry.KanjiForms.Where(k => k.Order == id.KanjiFormOrder).FirstOrDefault();
@@ -112,22 +107,22 @@ internal partial class ReferenceSequencer
 
     private static Dictionary<ReferenceText, List<Entry>> ReferenceTextToEntries(List<Entry> entries)
     {
-        var map = new Dictionary<ReferenceText, List<Entry>>();
+        var dict = new Dictionary<ReferenceText, List<Entry>>();
         foreach (var entry in entries)
         {
             foreach (var referenceText in ReferenceTexts(entry))
             {
-                if (map.TryGetValue(referenceText, out List<Entry>? values))
+                if (dict.TryGetValue(referenceText, out List<Entry>? values))
                 {
                     values.Add(entry);
                 }
                 else
                 {
-                    map[referenceText] = [entry];
+                    dict[referenceText] = [entry];
                 }
             }
         }
-        return map;
+        return dict;
     }
 
     private static IEnumerable<ReferenceText> ReferenceTexts(Entry entry)
@@ -183,7 +178,7 @@ internal partial class ReferenceSequencer
         (
             cacheKey,
             possibleTargetEntries.Count,
-            possibleTargetEntries.Select(e => e.Id).ToArray()
+            possibleTargetEntries.Select(static e => e.Id).ToArray()
         );
         return possibleTargetEntries.First();
     }
@@ -193,7 +188,7 @@ internal partial class ReferenceSequencer
         var map = new Dictionary<ReferenceText, SpellingId>();
         ReferenceText referenceText;
 
-        foreach (var kanjiForm in entry.KanjiForms.Where(k => !k.IsHidden()))
+        foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
         {
             foreach (var bridge in kanjiForm.ReadingBridges)
             {
@@ -214,7 +209,7 @@ internal partial class ReferenceSequencer
 
         // It is also possible for references to only show the reading,
         // even if valid kanji forms are available.
-        foreach (var reading in entry.Readings.Where(r => !r.IsHidden()))
+        foreach (var reading in entry.Readings.Where(static r => !r.IsHidden()))
         {
             referenceText = new ReferenceText(reading.Text, null);
             map[referenceText] = new SpellingId(reading.Order, null);
