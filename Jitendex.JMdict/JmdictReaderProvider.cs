@@ -22,13 +22,14 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
+using Jitendex.JMdict.Readers;
 using Jitendex.JMdict.Readers.DocumentTypes;
 using Jitendex.JMdict.Readers.EntryElementReaders;
 using Jitendex.JMdict.Readers.EntryElementReaders.KanjiFormElementReaders;
 using Jitendex.JMdict.Readers.EntryElementReaders.ReadingElementReaders;
 using Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
-namespace Jitendex.JMdict.Readers;
+namespace Jitendex.JMdict;
 
 internal record FilePaths
 {

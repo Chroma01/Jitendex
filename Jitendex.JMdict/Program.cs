@@ -18,9 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Diagnostics;
 using System.CommandLine;
-using Jitendex.JMdict.Data;
 using Jitendex.JMdict.Models;
-using Jitendex.JMdict.Readers;
 
 namespace Jitendex.JMdict;
 
@@ -61,7 +59,7 @@ public class Program
         var xrefIdsFile = parseResult.GetValue(xrefIdsFileArgument)!;
 
         var jmdict = await GetJmdictAsync(jmdictFile, xrefIdsFile);
-        await Import.ImportDocumentAsync(jmdict);
+        await DatabaseInitializer.WriteToNewDatabase(jmdict);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }

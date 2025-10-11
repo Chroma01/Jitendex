@@ -17,22 +17,14 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
+using Jitendex.JMdict.Data;
 using Jitendex.JMdict.Models;
 
-namespace Jitendex.JMdict.Data;
+namespace Jitendex.JMdict;
 
-internal static class Import
+internal static class DatabaseInitializer
 {
-    private const string ImportPragmaCommandText =
-        """
-        PRAGMA synchronous = FALSE;
-        PRAGMA journal_mode = FALSE;
-        PRAGMA temp_store = MEMORY;
-        PRAGMA cache_size = -200000;
-        PRAGMA locking_mode = EXCLUSIVE;
-        """;
-
-    public static async Task ImportDocumentAsync(JmdictDocument jmdictDocument)
+    public static async Task WriteToNewDatabase(JmdictDocument jmdictDocument)
     {
         await using var db = new JmdictContext();
 
@@ -41,7 +33,16 @@ internal static class Import
         await db.Database.EnsureCreatedAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync(ImportPragmaCommandText);
+        await db.Database.ExecuteSqlRawAsync
+        (
+            """
+            PRAGMA synchronous = FALSE;
+            PRAGMA journal_mode = FALSE;
+            PRAGMA temp_store = MEMORY;
+            PRAGMA cache_size = -200000;
+            PRAGMA locking_mode = EXCLUSIVE;
+            """
+        );
 
         // Using a transaction decreases the runtime by 10 seconds.
         // Using multiple smaller transactions doesn't seem to improve upon that.
