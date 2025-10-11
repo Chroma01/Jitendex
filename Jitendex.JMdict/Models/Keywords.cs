@@ -17,10 +17,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.JMdict.Models;
 
+[Table(nameof(ReadingInfoTag))]
 public class ReadingInfoTag : IKeyword
 {
     [Key]
@@ -29,6 +31,7 @@ public class ReadingInfoTag : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(KanjiFormInfoTag))]
 public class KanjiFormInfoTag : IKeyword
 {
     [Key]
@@ -37,6 +40,7 @@ public class KanjiFormInfoTag : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(PartOfSpeechTag))]
 public class PartOfSpeechTag : IKeyword
 {
     [Key]
@@ -45,6 +49,7 @@ public class PartOfSpeechTag : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(FieldTag))]
 public class FieldTag : IKeyword
 {
     [Key]
@@ -53,6 +58,7 @@ public class FieldTag : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(MiscTag))]
 public class MiscTag : IKeyword
 {
     [Key]
@@ -61,6 +67,7 @@ public class MiscTag : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(DialectTag))]
 public class DialectTag : IKeyword
 {
     [Key]
@@ -69,6 +76,7 @@ public class DialectTag : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(GlossType))]
 public class GlossType : IKeyword
 {
     [Key]
@@ -77,6 +85,7 @@ public class GlossType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(CrossReferenceType))]
 public class CrossReferenceType : IKeyword
 {
     [Key]
@@ -85,6 +94,7 @@ public class CrossReferenceType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(LanguageSourceType))]
 public class LanguageSourceType : IKeyword
 {
     [Key]
@@ -93,6 +103,7 @@ public class LanguageSourceType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(ExampleSourceType))]
 public class ExampleSourceType : IKeyword
 {
     [Key]
@@ -101,6 +112,7 @@ public class ExampleSourceType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(PriorityTag))]
 public class PriorityTag : IKeyword
 {
     [Key]
@@ -119,6 +131,7 @@ public class PriorityTag : IKeyword
     };
 }
 
+[Table(nameof(Language))]
 public class Language : IKeyword
 {
     [Key]

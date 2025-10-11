@@ -25,14 +25,34 @@ namespace Jitendex.JMdict;
 public class JmdictContext : DbContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
+    public DbSet<Corpus> Corpora { get; set; } = null!;
+
+    public DbSet<PriorityTag> PriorityTags { get; set; } = null!;
+    public DbSet<ReadingInfoTag> ReadingInfoTags { get; set; } = null!;
+    public DbSet<KanjiFormInfoTag> KanjiFormInfoTags { get; set; } = null!;
+
+    public DbSet<PartOfSpeechTag> PartOfSpeechTags { get; set; } = null!;
+    public DbSet<FieldTag> FieldTags { get; set; } = null!;
+    public DbSet<MiscTag> MiscTags { get; set; } = null!;
+    public DbSet<DialectTag> DialectTags { get; set; } = null!;
+
+    public DbSet<GlossType> GlossTypes { get; set; } = null!;
+    public DbSet<CrossReferenceType> CrossReferenceTypes { get; set; } = null!;
+    public DbSet<LanguageSourceType> LanguageSourceTypes { get; set; } = null!;
+    public DbSet<Language> Languages { get; set; } = null!;
+
+    public DbSet<ExampleSourceType> ExampleSourceTypes { get; set; } = null!;
+    public DbSet<ExampleSource> ExampleSources { get; set; } = null!;
 
     public string DbPath { get; }
 
     public JmdictContext()
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        var dbFolder = Path.Join(path, "Jitendex");
+        var dbFolder = Path.Join
+        (
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Jitendex"
+        );
         Directory.CreateDirectory(dbFolder);
         DbPath = Path.Join(dbFolder, "jmdict.db");
     }

@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Models;
 
+[Table(nameof(ExampleSource))]
 [PrimaryKey(nameof(TypeName), nameof(OriginKey))]
 public class ExampleSource
 {

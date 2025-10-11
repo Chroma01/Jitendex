@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Jitendex.JMdict.Models;
 
 public enum CorpusId
@@ -26,6 +28,7 @@ public enum CorpusId
     Metadata,
 }
 
+[Table(nameof(Corpus))]
 public class Corpus
 {
     public required CorpusId Id { get; set; }
