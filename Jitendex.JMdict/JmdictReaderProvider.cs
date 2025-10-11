@@ -34,7 +34,7 @@ namespace Jitendex.JMdict;
 internal record JmdictFiles
 {
     public required FileInfo Jmdict { get; init; }
-    public required FileInfo XrefIds { get; init; }
+    public required FileInfo? XrefIds { get; init; }
 }
 
 internal static class JmdictReaderProvider

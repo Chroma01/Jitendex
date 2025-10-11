@@ -33,15 +33,16 @@ public class Program
             Description = "Path to JMdict XML file",
         };
 
-        var xrefIdsFileArgument = new Argument<FileInfo>("xref-ids")
+        var xrefIdsFileOption = new Option<FileInfo>("--xref-ids")
         {
             Description = "Path to JSON file containing cross-reference keys and corresponding entry ID values",
+            Required = false,
         };
 
         var rootCommand = new RootCommand("Jitendex.JMdict: Import a JMdict XML document")
         {
             jmdictFileArgument,
-            xrefIdsFileArgument,
+            xrefIdsFileOption,
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -56,8 +57,8 @@ public class Program
 
         var files = new JmdictFiles
         {
-            Jmdict = parseResult.GetValue(jmdictFileArgument)!,
-            XrefIds = parseResult.GetValue(xrefIdsFileArgument)!,
+            Jmdict = parseResult.GetRequiredValue(jmdictFileArgument),
+            XrefIds = parseResult.GetValue(xrefIdsFileOption),
         };
 
         var reader = JmdictReaderProvider.GetReader(files);

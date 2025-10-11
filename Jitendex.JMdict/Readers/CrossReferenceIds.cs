@@ -35,6 +35,10 @@ internal partial class CrossReferenceIds
 
     public async Task<ReadOnlyDictionary<string, int>> LoadAsync()
     {
+        if (_files.XrefIds is null)
+        {
+            return new Dictionary<string, int>().AsReadOnly();
+        }
         await using var stream = File.OpenRead(_files.XrefIds.FullName);
         var dictionary = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream) ?? [];
         _xrefToId = dictionary.AsReadOnly();
@@ -43,6 +47,11 @@ internal partial class CrossReferenceIds
 
     public async Task WriteAsync(Dictionary<string, object> dictionary)
     {
+        if (_files.XrefIds is null)
+        {
+            return;
+        }
+
         foreach (var xref in _xrefToId?.Keys.AsEnumerable() ?? [])
         {
             if (!dictionary.ContainsKey(xref))
@@ -50,12 +59,14 @@ internal partial class CrossReferenceIds
                 LogUnusedKey(xref, _files.XrefIds.Name);
             }
         }
+
         await using var stream = File.OpenWrite
         (
             _files.XrefIds.FullName.EndsWith(".json")
                 ? _files.XrefIds.FullName[..^5] + ".new.json"
                 : _files.XrefIds.FullName + ".new"
         );
+
         await JsonSerializer.SerializeAsync<Dictionary<string, object>>
         (
             stream,
