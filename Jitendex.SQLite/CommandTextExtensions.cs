@@ -43,8 +43,6 @@ internal static class CommandTextExtensions
         }
 
         // Insert " WITHOUT ROWID" between the ")" and the ";"
-        return commandText[..(endCreateTableIndex + 1)]
-            + " WITHOUT ROWID"
-            + commandText[(endCreateTableIndex + 1)..];
+        return commandText.Insert(endCreateTableIndex + 1, " WITHOUT ROWID");
     }
 }
