@@ -67,18 +67,15 @@ internal partial class CrossReferenceIds
                 : _files.XrefIds.FullName + ".new"
         );
 
-        await JsonSerializer.SerializeAsync<Dictionary<string, object>>
-        (
-            stream,
-            dictionary,
-            new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IndentSize = 4,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            }
-        );
+        await JsonSerializer.SerializeAsync(stream, dictionary, _options);
     }
+
+    private static readonly JsonSerializerOptions _options = new()
+    {
+        WriteIndented = true,
+        IndentSize = 4,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
 
     [LoggerMessage(LogLevel.Information,
     "Key `{key}` in file `{File}` was not used by the reference sequencer")]
