@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Diagnostics;
 using System.CommandLine;
 
 namespace Jitendex.JMdict;
@@ -25,9 +24,6 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        var sw = new Stopwatch();
-        sw.Start();
-
         var jmdictFileArgument = new Argument<FileInfo>("jmdict-file")
         {
             Description = "Path to Brotli-compressed JMdict XML file",
@@ -65,7 +61,5 @@ public class Program
         var jmdict = await reader.ReadJmdictAsync();
 
         await DatabaseInitializer.WriteAsync(jmdict);
-
-        Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
 }
