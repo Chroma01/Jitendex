@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Kanjidic2;
 
@@ -45,43 +44,14 @@ public class Program
             return;
         }
 
-        var kanjidic2File = parseResult.GetRequiredValue(kanjidic2FileArgument);
-        await RunKanjidic2(kanjidic2File);
-    }
-
-    private static async Task RunKanjidic2(FileInfo kanjidic2File)
-    {
         var files = new Files
         {
-            Kanjidic2XmlBr = kanjidic2File,
+            Kanjidic2 = parseResult.GetRequiredValue(kanjidic2FileArgument)
         };
 
         var reader = ReaderProvider.GetReader(files);
         var kanjidic2 = await reader.ReadAsync();
 
-        var db = new Context();
-        await InitializeAsync(db);
-        await db.Entries.AddRangeAsync(kanjidic2.Entries);
-        await db.SaveChangesAsync();
-    }
-
-    private async static Task InitializeAsync(Context db)
-    {
-        // Delete and recreate database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
-
-        // For faster importing, write data to memory
-        // rather than to the disk during initial load.
-        await using var connection = db.Database.GetDbConnection();
-        await connection.OpenAsync();
-        await using var command = connection.CreateCommand();
-        command.CommandText = @"
-            PRAGMA synchronous = OFF;
-            PRAGMA journal_mode = MEMORY;
-            PRAGMA temp_store = MEMORY;
-            PRAGMA cache_size = -200000;";
-        await command.ExecuteNonQueryAsync();
+        await DatabaseInitializer.WriteAsync(kanjidic2);
     }
 }
-

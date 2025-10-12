@@ -27,7 +27,7 @@ namespace Jitendex.Kanjidic2;
 
 internal record Files
 {
-    public required FileInfo Kanjidic2XmlBr { get; init; }
+    public required FileInfo Kanjidic2 { get; init; }
 }
 
 internal static class ReaderProvider
@@ -43,7 +43,7 @@ internal static class ReaderProvider
 
         // Global XML file reader.
         .AddSingleton(provider =>
-            CreateXmlReader(files.Kanjidic2XmlBr.FullName))
+            CreateXmlReader(files.Kanjidic2.FullName))
 
         // Global document types.
         .AddSingleton<DocumentTypes>()
