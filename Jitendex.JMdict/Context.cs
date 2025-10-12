@@ -17,13 +17,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Jitendex.JMdict.Models;
 using Jitendex.SQLite;
 
 namespace Jitendex.JMdict;
 
-public class Context : DbContext
+public class Context : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
     public DbSet<Corpus> Corpora { get; set; } = null!;
@@ -45,20 +44,5 @@ public class Context : DbContext
     public DbSet<ExampleSourceType> ExampleSourceTypes { get; set; } = null!;
     public DbSet<ExampleSource> ExampleSources { get; set; } = null!;
 
-    public string DbPath { get; }
-
-    public Context()
-    {
-        var dbFolder = Path.Join
-        (
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Jitendex"
-        );
-        Directory.CreateDirectory(dbFolder);
-        DbPath = Path.Join(dbFolder, "jmdict.db");
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder options) => options
-        .UseSqlite($"Data Source={DbPath}")
-        .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
+    public Context() : base("jmdict.db") { }
 }

@@ -16,15 +16,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Jitendex.SQLite;
 
-internal class SqliteRelationalCommandBuilderFactory : RelationalCommandBuilderFactory
+public abstract class SqliteContext : DbContext
 {
-    public SqliteRelationalCommandBuilderFactory(
-        RelationalCommandBuilderDependencies dependencies) : base(dependencies) { }
+    public string DbPath { get; }
 
-    public override IRelationalCommandBuilder Create() =>
-        new SqliteRelationalCommandBuilder(Dependencies);
+    public SqliteContext(string dbFilename)
+    {
+        var dbFolder = Path.Join
+        (
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Jitendex"
+        );
+        Directory.CreateDirectory(dbFolder);
+        DbPath = Path.Join(dbFolder, dbFilename);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options) => options
+        .UseSqlite($"Data Source={DbPath}")
+        .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
 }
