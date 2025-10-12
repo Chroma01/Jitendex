@@ -30,7 +30,7 @@ public class Program
 
         var jmdictFileArgument = new Argument<FileInfo>("jmdict-file")
         {
-            Description = "Path to JMdict XML file",
+            Description = "Path to Brotli-compressed JMdict XML file",
         };
 
         var xrefIdsFileOption = new Option<FileInfo>("--xref-ids")

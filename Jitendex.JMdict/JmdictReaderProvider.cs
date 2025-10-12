@@ -16,8 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
-using System.Text.Json;
+using System.IO.Compression;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,7 +50,6 @@ internal static class JmdictReaderProvider
         // Global XML file reader.
         .AddSingleton<XmlReader>(provider =>
         {
-            var fileStream = new FileStream(files.Jmdict.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
             var readerSettings = new XmlReaderSettings
             {
                 Async = true,
@@ -59,7 +57,9 @@ internal static class JmdictReaderProvider
                 MaxCharactersFromEntities = long.MaxValue,
                 MaxCharactersInDocument = long.MaxValue,
             };
-            return XmlReader.Create(fileStream, readerSettings);
+            FileStream f = new(files.Jmdict.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            BrotliStream b = new(f, CompressionMode.Decompress);
+            return XmlReader.Create(b, readerSettings);
         })
 
         // Global document types.
