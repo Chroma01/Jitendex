@@ -25,7 +25,7 @@ internal partial class ExampleCache
 {
     private readonly ILogger<ExampleCache> _logger;
     private readonly KeywordCache _keywordCache;
-    private readonly Dictionary<(string, int), ExampleSource> _cache = [];
+    private readonly Dictionary<(string, int), ExampleSource> _cache = new(50_000);
 
     public ExampleCache(ILogger<ExampleCache> logger, KeywordCache keywordCache) =>
         (_logger, _keywordCache) =

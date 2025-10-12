@@ -25,7 +25,7 @@ internal partial class CorpusCache(ILogger<CorpusCache> logger)
 {
     public IEnumerable<Corpus> Corpora { get => _cache.Values; }
 
-    private readonly Dictionary<CorpusId, Corpus> _cache = [];
+    private readonly Dictionary<CorpusId, Corpus> _cache = new(4);
 
     public Corpus GetCorpus(Entry entry)
     {
