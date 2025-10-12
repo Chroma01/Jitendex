@@ -34,7 +34,14 @@ internal partial class EntryReader
     private readonly ReadingReader _readingReader;
     private readonly SenseReader _senseReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CorpusCache corpusCache, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader) =>
+    public EntryReader(
+        ILogger<EntryReader> logger,
+        XmlReader xmlReader,
+        CorpusCache corpusCache,
+        KanjiFormReader kanjiFormReader,
+        ReadingReader readingReader,
+        SenseReader senseReader
+    ) =>
         (_logger, _xmlReader, _corpusCache, _kanjiFormReader, _readingReader, _senseReader) =
         (@logger, @xmlReader, @corpusCache, @kanjiFormReader, @readingReader, @senseReader);
 

@@ -30,7 +30,12 @@ internal partial class JmdictReader
     private readonly KeywordCache _keywordCache;
     private readonly ExampleCache _exampleCache;
 
-    public JmdictReader(DocumentTypesReader documentTypesReader, EntriesReader entriesReader, CorpusCache corpusCache, KeywordCache keywordCache, ExampleCache exampleCache) =>
+    public JmdictReader(
+        DocumentTypesReader documentTypesReader,
+        EntriesReader entriesReader,
+        CorpusCache corpusCache,
+        KeywordCache keywordCache,
+        ExampleCache exampleCache) =>
         (_documentTypesReader, _entriesReader, _corpusCache, _keywordCache, _exampleCache) =
         (@documentTypesReader, @entriesReader, @corpusCache, @keywordCache, @exampleCache);
 

@@ -31,7 +31,9 @@ internal partial class ReferenceSequencer
     private readonly CrossReferenceIds _crossReferenceIds;
     private readonly Dictionary<string, object> _usedDisambiguations = [];
 
-    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, CrossReferenceIds crossReferenceIds) =>
+    public ReferenceSequencer(
+        ILogger<ReferenceSequencer> logger,
+        CrossReferenceIds crossReferenceIds) =>
         (_logger, _crossReferenceIds) =
         (@logger, @crossReferenceIds);
 
