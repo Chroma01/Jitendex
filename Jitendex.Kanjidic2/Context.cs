@@ -18,26 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Models;
+using Jitendex.SQLite;
 
 namespace Jitendex.Kanjidic2;
 
-public class Kanjidic2Context : DbContext
+public class Context : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
-
-    public string DbPath { get; }
-
-    public Kanjidic2Context()
-    {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        var dbFolder = Path.Join(path, "Jitendex");
-        Directory.CreateDirectory(dbFolder);
-        DbPath = Path.Join(dbFolder, "kanjidic2.db");
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
-        options.UseSqlite($"Data Source={DbPath}");
-    }
+    public Context() : base("kanjidic2.db") { }
 }

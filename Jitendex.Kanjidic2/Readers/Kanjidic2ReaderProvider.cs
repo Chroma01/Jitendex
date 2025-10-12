@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.IO.Compression;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -69,7 +70,6 @@ internal static class Kanjidic2ReaderProvider
 
     private static XmlReader CreateXmlReader(string path)
     {
-        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         var readerSettings = new XmlReaderSettings
         {
             Async = true,
@@ -77,6 +77,8 @@ internal static class Kanjidic2ReaderProvider
             MaxCharactersFromEntities = long.MaxValue,
             MaxCharactersInDocument = long.MaxValue,
         };
-        return XmlReader.Create(fileStream, readerSettings);
+        FileStream f = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        BrotliStream b = new(f, CompressionMode.Decompress);
+        return XmlReader.Create(b, readerSettings);
     }
 }

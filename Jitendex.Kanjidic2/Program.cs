@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Diagnostics;
 using System.CommandLine;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Readers;
@@ -27,9 +26,6 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        var sw = new Stopwatch();
-        sw.Start();
-
         var kanjidic2FileArgument = new Argument<FileInfo>("kanjidic2-file")
         {
             Description = "Path to Kanjidic2 XML file",
@@ -52,8 +48,6 @@ public class Program
 
         var kanjidic2File = parseResult.GetRequiredValue(kanjidic2FileArgument);
         await RunKanjidic2(kanjidic2File);
-
-        Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
 
     private static async Task RunKanjidic2(FileInfo kanjidic2File)
@@ -66,13 +60,13 @@ public class Program
         var reader = Kanjidic2ReaderProvider.GetReader(kanjidic2Paths);
         var kanjidic2 = await reader.ReadKanjidic2Async();
 
-        var db = new Kanjidic2Context();
+        var db = new Context();
         await InitializeAsync(db);
         await db.Entries.AddRangeAsync(kanjidic2.Entries);
         await db.SaveChangesAsync();
     }
 
-    private async static Task InitializeAsync(DbContext db)
+    private async static Task InitializeAsync(Context db)
     {
         // Delete and recreate database file.
         await db.Database.EnsureDeletedAsync();
