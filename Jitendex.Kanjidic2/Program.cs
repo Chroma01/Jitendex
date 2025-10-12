@@ -35,22 +35,23 @@ public class Program
             Description = "Path to Kanjidic2 XML file",
         };
 
-        var description = $"{nameof(Jitendex)}.{nameof(Kanjidic2)}: Import a Kanjidic2 XML document";
-        var rootCommand = new RootCommand(description) { kanjidic2FileArgument };
+        var rootCommand = new RootCommand("Jitendex.Kanjidic2: Import a Kanjidic2 XML document")
+        {
+            kanjidic2FileArgument
+        };
 
         var parseResult = rootCommand.Parse(args);
-        if (parseResult.Errors.Count == 0)
-        {
-            var kanjidic2File = parseResult.GetValue(kanjidic2FileArgument)!;
-            await RunKanjidic2(kanjidic2File);
-        }
-        else
+        if (parseResult.Errors.Count > 0)
         {
             foreach (var parseError in parseResult.Errors)
             {
                 Console.Error.WriteLine(parseError.Message);
             }
+            return;
         }
+
+        var kanjidic2File = parseResult.GetRequiredValue(kanjidic2FileArgument);
+        await RunKanjidic2(kanjidic2File);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }

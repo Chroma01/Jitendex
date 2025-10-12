@@ -34,22 +34,23 @@ public class Program
             Description = "Path to a compressed (Brotli) tar of KanjiVG files",
         };
 
-        var description = $"{nameof(Jitendex)}.{nameof(KanjiVG)}: Import KanjiVG data";
-        var rootCommand = new RootCommand(description) { kanjivgFileArgument };
+        var rootCommand = new RootCommand("Jitendex.KanjiVG: Import KanjiVG data")
+        {
+            kanjivgFileArgument
+        };
 
         var parseResult = rootCommand.Parse(args);
-        if (parseResult.Errors.Count == 0)
-        {
-            var kanjivgFile = parseResult.GetValue(kanjivgFileArgument)!;
-            await RunKanjiVG(kanjivgFile);
-        }
-        else
+        if (parseResult.Errors.Count > 0)
         {
             foreach (var parseError in parseResult.Errors)
             {
                 Console.Error.WriteLine(parseError.Message);
             }
+            return;
         }
+
+        var kanjivgFile = parseResult.GetRequiredValue(kanjivgFileArgument);
+        await RunKanjiVG(kanjivgFile);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
