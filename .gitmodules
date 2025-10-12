@@ -1,3 +1,9 @@
-[submodule "Jitendex.Import/Resources"]
-	path = Jitendex.Import/Resources
-	url = https://github.com/stephenmk/jitendex-data-sources
+[submodule "Data/jitendex-data"]
+	path = Data/jitendex-data
+	url = https://github.com/stephenmk/jitendex-data
+[submodule "Data/edrdg-dictionary-archive"]
+	path = Data/edrdg-dictionary-archive
+	url = https://github.com/stephenmk/edrdg-dictionary-archive
+[submodule "Data/kanjivg"]
+	path = Data/kanjivg
+	url = https://github.com/stephenmk/kanjivg
