@@ -25,5 +25,12 @@ namespace Jitendex.Kanjidic2;
 public class Context : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
+    public DbSet<CodepointType> CodepointTypes { get; set; } = null!;
+    public DbSet<DictionaryType> DictionaryTypes { get; set; } = null!;
+    public DbSet<QueryCodeType> QueryCodeTypes { get; set; } = null!;
+    public DbSet<MisclassificationType> MisclassificationTypes { get; set; } = null!;
+    public DbSet<RadicalType> RadicalTypes { get; set; } = null!;
+    public DbSet<ReadingType> ReadingType { get; set; } = null!;
+    public DbSet<VariantType> VariantTypes { get; set; } = null!;
     public Context() : base("kanjidic2.db") { }
 }

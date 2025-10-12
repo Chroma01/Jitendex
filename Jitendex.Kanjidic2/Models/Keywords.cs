@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.Kanjidic2.Models;
@@ -32,6 +33,7 @@ internal interface IKeyword : ICorruptable
     string Description { get; set; }
 }
 
+[Table(nameof(CodepointType))]
 public class CodepointType : IKeyword
 {
     [Key]
@@ -40,6 +42,7 @@ public class CodepointType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(DictionaryType))]
 public class DictionaryType : IKeyword
 {
     [Key]
@@ -48,6 +51,7 @@ public class DictionaryType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(QueryCodeType))]
 public class QueryCodeType : IKeyword
 {
     [Key]
@@ -56,6 +60,7 @@ public class QueryCodeType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(MisclassificationType))]
 public class MisclassificationType : IKeyword
 {
     [Key]
@@ -64,6 +69,7 @@ public class MisclassificationType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(RadicalType))]
 public class RadicalType : IKeyword
 {
     [Key]
@@ -72,6 +78,7 @@ public class RadicalType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(ReadingType))]
 public class ReadingType : IKeyword
 {
     [Key]
@@ -80,6 +87,7 @@ public class ReadingType : IKeyword
     public bool IsCorrupt { get; set; }
 }
 
+[Table(nameof(VariantType))]
 public class VariantType : IKeyword
 {
     [Key]
