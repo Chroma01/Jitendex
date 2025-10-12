@@ -18,18 +18,18 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data.EntryElements;
-using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Database.EntryElements.KanjiFormElements;
 using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
 
-namespace Jitendex.JMdict.Data;
+namespace Jitendex.JMdict.Database.EntryElements;
 
-internal static class EntryData
+internal static class KanjiFormData
 {
     // Column names
-    private const string C1 = nameof(Entry.Id);
-    private const string C2 = nameof(Entry.CorpusId);
-    private const string C3 = nameof(Entry.IsCorrupt);
+    private const string C1 = nameof(KanjiForm.EntryId);
+    private const string C2 = nameof(KanjiForm.Order);
+    private const string C3 = nameof(KanjiForm.Text);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,35 +38,33 @@ internal static class EntryData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Entry)}"
+        INSERT INTO "{nameof(KanjiForm)}"
         ("{C1}", "{C2}", "{C3}") VALUES
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertEntries(this JmdictContext db, List<Entry> entries)
+    public static async Task InsertKanjiForms(this JmdictContext db, List<KanjiForm> kanjiForms)
     {
-        var allReadings = new List<Reading>(entries.Count * 2);
-        var allKanjiForms = new List<KanjiForm>(entries.Count * 2);
-        var allSenses = new List<Sense>(entries.Count * 2);
+        var allInfos = new List<KanjiFormInfo>(kanjiForms.Count / 10);
+        var allPriorities = new List<KanjiFormPriority>(kanjiForms.Count / 3);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
             command.CommandText = InsertSql;
 
-            foreach (var entry in entries)
+            foreach (var kanjiForm in kanjiForms)
             {
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
-                    new(P1, entry.Id),
-                    new(P2, entry.CorpusId),
-                    new(P3, entry.IsCorrupt),
+                    new(P1, kanjiForm.EntryId),
+                    new(P2, kanjiForm.Order),
+                    new(P3, kanjiForm.Text),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();
 
-                allReadings.AddRange(entry.Readings);
-                allKanjiForms.AddRange(entry.KanjiForms);
-                allSenses.AddRange(entry.Senses);
+                allInfos.AddRange(kanjiForm.Infos);
+                allPriorities.AddRange(kanjiForm.Priorities);
 
                 await commandExecution;
                 command.Parameters.Clear();
@@ -74,8 +72,8 @@ internal static class EntryData
         }
 
         // Child elements
-        await db.InsertReadings(allReadings);
-        await db.InsertKanjiForms(allKanjiForms);
-        await db.InsertSenses(allSenses);
+        await db.InsertKanjiFormReadingJoins(kanjiForms);
+        await db.InsertKanjiFormInfo(allInfos);
+        await db.InsertKanjiFormPriority(allPriorities);
     }
 }

@@ -20,42 +20,45 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
-internal static class KanjiFormRestrictionData
+internal static class GlossData
 {
     // Column names
-    private const string C1 = nameof(KanjiFormRestriction.EntryId);
-    private const string C2 = nameof(KanjiFormRestriction.SenseOrder);
-    private const string C3 = nameof(KanjiFormRestriction.Order);
-    private const string C4 = nameof(KanjiFormRestriction.KanjiFormOrder);
+    private const string C1 = nameof(Gloss.EntryId);
+    private const string C2 = nameof(Gloss.SenseOrder);
+    private const string C3 = nameof(Gloss.Order);
+    private const string C4 = nameof(Gloss.TypeName);
+    private const string C5 = nameof(Gloss.Text);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
     private const string P4 = $"@{C4}";
+    private const string P5 = $"@{C5}";
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(KanjiFormRestriction)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
+        INSERT INTO "{nameof(Gloss)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} );
         """;
 
-    public static async Task InsertKanjiFormRestrictions(this JmdictContext db, List<KanjiFormRestriction> kanjiFormRestrictions)
+    public static async Task InsertGlosses(this JmdictContext db, List<Gloss> glosses)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var kanjiFormRestriction in kanjiFormRestrictions)
+        foreach (var gloss in glosses)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, kanjiFormRestriction.EntryId),
-                new(P2, kanjiFormRestriction.SenseOrder),
-                new(P3, kanjiFormRestriction.Order),
-                new(P4, kanjiFormRestriction.KanjiFormOrder),
+                new(P1, gloss.EntryId),
+                new(P2, gloss.SenseOrder),
+                new(P3, gloss.Order),
+                new(P4, gloss.TypeName),
+                new(P5, gloss.Text),
             });
 
             await command.ExecuteNonQueryAsync();

@@ -20,45 +20,42 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
-internal static class GlossData
+internal static class PartOfSpeechData
 {
     // Column names
-    private const string C1 = nameof(Gloss.EntryId);
-    private const string C2 = nameof(Gloss.SenseOrder);
-    private const string C3 = nameof(Gloss.Order);
-    private const string C4 = nameof(Gloss.TypeName);
-    private const string C5 = nameof(Gloss.Text);
+    private const string C1 = nameof(PartOfSpeech.EntryId);
+    private const string C2 = nameof(PartOfSpeech.SenseOrder);
+    private const string C3 = nameof(PartOfSpeech.Order);
+    private const string C4 = nameof(PartOfSpeech.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
     private const string P4 = $"@{C4}";
-    private const string P5 = $"@{C5}";
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Gloss)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} );
+        INSERT INTO "{nameof(PartOfSpeech)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertGlosses(this JmdictContext db, List<Gloss> glosses)
+    public static async Task InsertPartsOfSpeech(this JmdictContext db, List<PartOfSpeech> partsOfSpeech)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var gloss in glosses)
+        foreach (var partOfSpeech in partsOfSpeech)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, gloss.EntryId),
-                new(P2, gloss.SenseOrder),
-                new(P3, gloss.Order),
-                new(P4, gloss.TypeName),
-                new(P5, gloss.Text),
+                new(P1, partOfSpeech.EntryId),
+                new(P2, partOfSpeech.SenseOrder),
+                new(P3, partOfSpeech.Order),
+                new(P4, partOfSpeech.TagName),
             });
 
             await command.ExecuteNonQueryAsync();

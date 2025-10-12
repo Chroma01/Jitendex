@@ -18,17 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.ReadingElements;
+namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
-internal static class ReadingPriorityData
+internal static class KanjiFormRestrictionData
 {
     // Column names
-    private const string C1 = nameof(ReadingPriority.EntryId);
-    private const string C2 = nameof(ReadingPriority.ReadingOrder);
-    private const string C3 = nameof(ReadingPriority.Order);
-    private const string C4 = nameof(ReadingPriority.TagName);
+    private const string C1 = nameof(KanjiFormRestriction.EntryId);
+    private const string C2 = nameof(KanjiFormRestriction.SenseOrder);
+    private const string C3 = nameof(KanjiFormRestriction.Order);
+    private const string C4 = nameof(KanjiFormRestriction.KanjiFormOrder);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,24 +38,24 @@ internal static class ReadingPriorityData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(ReadingPriority)}"
+        INSERT INTO "{nameof(KanjiFormRestriction)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertReadingPriority(this JmdictContext db, List<ReadingPriority> priorities)
+    public static async Task InsertKanjiFormRestrictions(this JmdictContext db, List<KanjiFormRestriction> kanjiFormRestrictions)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var priority in priorities)
+        foreach (var kanjiFormRestriction in kanjiFormRestrictions)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, priority.EntryId),
-                new(P2, priority.ReadingOrder),
-                new(P3, priority.Order),
-                new(P4, priority.TagName),
+                new(P1, kanjiFormRestriction.EntryId),
+                new(P2, kanjiFormRestriction.SenseOrder),
+                new(P3, kanjiFormRestriction.Order),
+                new(P4, kanjiFormRestriction.KanjiFormOrder),
             });
 
             await command.ExecuteNonQueryAsync();

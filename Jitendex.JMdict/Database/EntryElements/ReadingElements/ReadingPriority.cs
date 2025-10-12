@@ -18,38 +18,44 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.JMdict.Data;
+namespace Jitendex.JMdict.Database.EntryElements.ReadingElements;
 
-internal static class CorpusData
+internal static class ReadingPriorityData
 {
     // Column names
-    private const string C1 = nameof(Corpus.Id);
-    private const string C2 = nameof(Corpus.Name);
+    private const string C1 = nameof(ReadingPriority.EntryId);
+    private const string C2 = nameof(ReadingPriority.ReadingOrder);
+    private const string C3 = nameof(ReadingPriority.Order);
+    private const string C4 = nameof(ReadingPriority.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
+    private const string P3 = $"@{C3}";
+    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Corpus)}"
-        ("{C1}", "{C2}") VALUES
-        ( {P1} ,  {P2} );
+        INSERT INTO "{nameof(ReadingPriority)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertCorporaAsync(this JmdictContext db, List<Corpus> corpora)
+    public static async Task InsertReadingPriority(this JmdictContext db, List<ReadingPriority> priorities)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var corpus in corpora)
+        foreach (var priority in priorities)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, corpus.Id),
-                new(P2, corpus.Name),
+                new(P1, priority.EntryId),
+                new(P2, priority.ReadingOrder),
+                new(P3, priority.Order),
+                new(P4, priority.TagName),
             });
 
             await command.ExecuteNonQueryAsync();

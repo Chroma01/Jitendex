@@ -20,37 +20,42 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models;
 
-namespace Jitendex.JMdict.Data;
+namespace Jitendex.JMdict.Database;
 
-internal static class KeywordData
+internal static class ExampleSourceData
 {
     // Column names
-    private const string C1 = nameof(IKeyword.Name);
-    private const string C2 = nameof(IKeyword.Description);
-    private const string C3 = nameof(IKeyword.IsCorrupt);
+    private const string C1 = nameof(ExampleSource.TypeName);
+    private const string C2 = nameof(ExampleSource.OriginKey);
+    private const string C3 = nameof(ExampleSource.Text);
+    private const string C4 = nameof(ExampleSource.Translation);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
+    private const string P4 = $"@{C4}";
 
-    public static async Task InsertKeywordsAsync<T>(this JmdictContext db, List<T> keywordList) where T : IKeyword
+    private const string InsertSql =
+        $"""
+        INSERT INTO "{nameof(ExampleSource)}"
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
+        """;
+
+    public static async Task InsertExampleSourcesAsync(this JmdictContext db, List<ExampleSource> exampleSources)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
-        command.CommandText =
-            $"""
-            INSERT INTO "{typeof(T).Name}"
-            ("{C1}", "{C2}", "{C3}") VALUES
-            ( {P1} ,  {P2} ,  {P3} );
-            """;
+        command.CommandText = InsertSql;
 
-        foreach (var keyword in keywordList)
+        foreach (var exampleSource in exampleSources)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, keyword.Name),
-                new(P2, keyword.Description),
-                new(P3, keyword.IsCorrupt),
+                new(P1, exampleSource.TypeName),
+                new(P2, exampleSource.OriginKey),
+                new(P3, exampleSource.Text),
+                new(P4, exampleSource.Translation),
             });
 
             await command.ExecuteNonQueryAsync();

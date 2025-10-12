@@ -18,44 +18,38 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
+using Jitendex.JMdict.Models;
 
-namespace Jitendex.JMdict.Data.EntryElements.KanjiFormElements;
+namespace Jitendex.JMdict.Database;
 
-internal static class KanjiFormPriorityData
+internal static class CorpusData
 {
     // Column names
-    private const string C1 = nameof(KanjiFormPriority.EntryId);
-    private const string C2 = nameof(KanjiFormPriority.KanjiFormOrder);
-    private const string C3 = nameof(KanjiFormPriority.Order);
-    private const string C4 = nameof(KanjiFormPriority.TagName);
+    private const string C1 = nameof(Corpus.Id);
+    private const string C2 = nameof(Corpus.Name);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
-    private const string P3 = $"@{C3}";
-    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(KanjiFormPriority)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
+        INSERT INTO "{nameof(Corpus)}"
+        ("{C1}", "{C2}") VALUES
+        ( {P1} ,  {P2} );
         """;
 
-    public static async Task InsertKanjiFormPriority(this JmdictContext db, List<KanjiFormPriority> priorities)
+    public static async Task InsertCorporaAsync(this JmdictContext db, List<Corpus> corpora)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var priority in priorities)
+        foreach (var corpus in corpora)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, priority.EntryId),
-                new(P2, priority.KanjiFormOrder),
-                new(P3, priority.Order),
-                new(P4, priority.TagName),
+                new(P1, corpus.Id),
+                new(P2, corpus.Name),
             });
 
             await command.ExecuteNonQueryAsync();

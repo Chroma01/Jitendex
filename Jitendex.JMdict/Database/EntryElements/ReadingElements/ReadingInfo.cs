@@ -18,17 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
+using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.KanjiFormElements;
+namespace Jitendex.JMdict.Database.EntryElements.ReadingElements;
 
-internal static class KanjiFormInfoData
+internal static class ReadingInfoData
 {
     // Column names
-    private const string C1 = nameof(KanjiFormInfo.EntryId);
-    private const string C2 = nameof(KanjiFormInfo.KanjiFormOrder);
-    private const string C3 = nameof(KanjiFormInfo.Order);
-    private const string C4 = nameof(KanjiFormInfo.TagName);
+    private const string C1 = nameof(ReadingInfo.EntryId);
+    private const string C2 = nameof(ReadingInfo.ReadingOrder);
+    private const string C3 = nameof(ReadingInfo.Order);
+    private const string C4 = nameof(ReadingInfo.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,12 +38,12 @@ internal static class KanjiFormInfoData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(KanjiFormInfo)}"
+        INSERT INTO "{nameof(ReadingInfo)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertKanjiFormInfo(this JmdictContext db, List<KanjiFormInfo> infos)
+    public static async Task InsertReadingInfo(this JmdictContext db, List<ReadingInfo> infos)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
@@ -53,7 +53,7 @@ internal static class KanjiFormInfoData
             command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, info.EntryId),
-                new(P2, info.KanjiFormOrder),
+                new(P2, info.ReadingOrder),
                 new(P3, info.Order),
                 new(P4, info.TagName),
             });

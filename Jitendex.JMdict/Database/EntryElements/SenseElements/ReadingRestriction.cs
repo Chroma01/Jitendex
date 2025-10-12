@@ -20,15 +20,15 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
-internal static class PartOfSpeechData
+internal static class ReadingRestrictionData
 {
     // Column names
-    private const string C1 = nameof(PartOfSpeech.EntryId);
-    private const string C2 = nameof(PartOfSpeech.SenseOrder);
-    private const string C3 = nameof(PartOfSpeech.Order);
-    private const string C4 = nameof(PartOfSpeech.TagName);
+    private const string C1 = nameof(ReadingRestriction.EntryId);
+    private const string C2 = nameof(ReadingRestriction.SenseOrder);
+    private const string C3 = nameof(ReadingRestriction.Order);
+    private const string C4 = nameof(ReadingRestriction.ReadingOrder);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,24 +38,24 @@ internal static class PartOfSpeechData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(PartOfSpeech)}"
+        INSERT INTO "{nameof(ReadingRestriction)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertPartsOfSpeech(this JmdictContext db, List<PartOfSpeech> partsOfSpeech)
+    public static async Task InsertReadingRestrictions(this JmdictContext db, List<ReadingRestriction> readingRestrictions)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var partOfSpeech in partsOfSpeech)
+        foreach (var readingRestriction in readingRestrictions)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, partOfSpeech.EntryId),
-                new(P2, partOfSpeech.SenseOrder),
-                new(P3, partOfSpeech.Order),
-                new(P4, partOfSpeech.TagName),
+                new(P1, readingRestriction.EntryId),
+                new(P2, readingRestriction.SenseOrder),
+                new(P3, readingRestriction.Order),
+                new(P4, readingRestriction.ReadingOrder),
             });
 
             await command.ExecuteNonQueryAsync();

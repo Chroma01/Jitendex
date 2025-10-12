@@ -17,7 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data;
+using Jitendex.JMdict.Database;
 using Jitendex.JMdict.Models;
 
 namespace Jitendex.JMdict;

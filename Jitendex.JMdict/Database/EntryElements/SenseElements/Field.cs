@@ -18,17 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data;
+namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
-internal static class ExampleSourceData
+internal static class FieldData
 {
     // Column names
-    private const string C1 = nameof(ExampleSource.TypeName);
-    private const string C2 = nameof(ExampleSource.OriginKey);
-    private const string C3 = nameof(ExampleSource.Text);
-    private const string C4 = nameof(ExampleSource.Translation);
+    private const string C1 = nameof(Field.EntryId);
+    private const string C2 = nameof(Field.SenseOrder);
+    private const string C3 = nameof(Field.Order);
+    private const string C4 = nameof(Field.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,24 +38,24 @@ internal static class ExampleSourceData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(ExampleSource)}"
+        INSERT INTO "{nameof(Field)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertExampleSourcesAsync(this JmdictContext db, List<ExampleSource> exampleSources)
+    public static async Task InsertFields(this JmdictContext db, List<Field> fields)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var exampleSource in exampleSources)
+        foreach (var field in fields)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, exampleSource.TypeName),
-                new(P2, exampleSource.OriginKey),
-                new(P3, exampleSource.Text),
-                new(P4, exampleSource.Translation),
+                new(P1, field.EntryId),
+                new(P2, field.SenseOrder),
+                new(P3, field.Order),
+                new(P4, field.TagName),
             });
 
             await command.ExecuteNonQueryAsync();

@@ -18,18 +18,18 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data.EntryElements.ReadingElements;
+using Jitendex.JMdict.Database.EntryElements;
+using Jitendex.JMdict.Models;
 using Jitendex.JMdict.Models.EntryElements;
-using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
-namespace Jitendex.JMdict.Data.EntryElements;
+namespace Jitendex.JMdict.Database;
 
-internal static class ReadingData
+internal static class EntryData
 {
     // Column names
-    private const string C1 = nameof(Reading.EntryId);
-    private const string C2 = nameof(Reading.Order);
-    private const string C3 = nameof(Reading.Text);
+    private const string C1 = nameof(Entry.Id);
+    private const string C2 = nameof(Entry.CorpusId);
+    private const string C3 = nameof(Entry.IsCorrupt);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,33 +38,35 @@ internal static class ReadingData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Reading)}"
+        INSERT INTO "{nameof(Entry)}"
         ("{C1}", "{C2}", "{C3}") VALUES
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertReadings(this JmdictContext db, List<Reading> readings)
+    public static async Task InsertEntries(this JmdictContext db, List<Entry> entries)
     {
-        var allInfos = new List<ReadingInfo>(readings.Count / 10);
-        var allPriorities = new List<ReadingPriority>(readings.Count / 3);
+        var allReadings = new List<Reading>(entries.Count * 2);
+        var allKanjiForms = new List<KanjiForm>(entries.Count * 2);
+        var allSenses = new List<Sense>(entries.Count * 2);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
             command.CommandText = InsertSql;
 
-            foreach (var reading in readings)
+            foreach (var entry in entries)
             {
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
-                    new(P1, reading.EntryId),
-                    new(P2, reading.Order),
-                    new(P3, reading.Text),
+                    new(P1, entry.Id),
+                    new(P2, entry.CorpusId),
+                    new(P3, entry.IsCorrupt),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();
 
-                allInfos.AddRange(reading.Infos);
-                allPriorities.AddRange(reading.Priorities);
+                allReadings.AddRange(entry.Readings);
+                allKanjiForms.AddRange(entry.KanjiForms);
+                allSenses.AddRange(entry.Senses);
 
                 await commandExecution;
                 command.Parameters.Clear();
@@ -72,7 +74,8 @@ internal static class ReadingData
         }
 
         // Child elements
-        await db.InsertReadingInfo(allInfos);
-        await db.InsertReadingPriority(allPriorities);
+        await db.InsertReadings(allReadings);
+        await db.InsertKanjiForms(allKanjiForms);
+        await db.InsertSenses(allSenses);
     }
 }

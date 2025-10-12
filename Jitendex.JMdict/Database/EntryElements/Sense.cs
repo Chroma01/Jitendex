@@ -18,11 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Data.EntryElements.SenseElements;
+using Jitendex.JMdict.Database.EntryElements.SenseElements;
 using Jitendex.JMdict.Models.EntryElements;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements;
+namespace Jitendex.JMdict.Database.EntryElements;
 
 internal static class SenseData
 {

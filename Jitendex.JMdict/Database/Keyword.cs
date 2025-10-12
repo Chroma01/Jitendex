@@ -18,44 +18,39 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Models;
 
-namespace Jitendex.JMdict.Data.EntryElements.ReadingElements;
+namespace Jitendex.JMdict.Database;
 
-internal static class ReadingInfoData
+internal static class KeywordData
 {
     // Column names
-    private const string C1 = nameof(ReadingInfo.EntryId);
-    private const string C2 = nameof(ReadingInfo.ReadingOrder);
-    private const string C3 = nameof(ReadingInfo.Order);
-    private const string C4 = nameof(ReadingInfo.TagName);
+    private const string C1 = nameof(IKeyword.Name);
+    private const string C2 = nameof(IKeyword.Description);
+    private const string C3 = nameof(IKeyword.IsCorrupt);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
-    private const string P4 = $"@{C4}";
 
-    private const string InsertSql =
-        $"""
-        INSERT INTO "{nameof(ReadingInfo)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
-        """;
-
-    public static async Task InsertReadingInfo(this JmdictContext db, List<ReadingInfo> infos)
+    public static async Task InsertKeywordsAsync<T>(this JmdictContext db, List<T> keywordList) where T : IKeyword
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
-        command.CommandText = InsertSql;
+        command.CommandText =
+            $"""
+            INSERT INTO "{typeof(T).Name}"
+            ("{C1}", "{C2}", "{C3}") VALUES
+            ( {P1} ,  {P2} ,  {P3} );
+            """;
 
-        foreach (var info in infos)
+        foreach (var keyword in keywordList)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, info.EntryId),
-                new(P2, info.ReadingOrder),
-                new(P3, info.Order),
-                new(P4, info.TagName),
+                new(P1, keyword.Name),
+                new(P2, keyword.Description),
+                new(P3, keyword.IsCorrupt),
             });
 
             await command.ExecuteNonQueryAsync();

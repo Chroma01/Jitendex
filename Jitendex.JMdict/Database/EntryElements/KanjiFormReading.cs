@@ -18,17 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Models.EntryElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements;
 
-internal static class ReadingRestrictionData
+internal static class KanjiFormReadingData
 {
     // Column names
-    private const string C1 = nameof(ReadingRestriction.EntryId);
-    private const string C2 = nameof(ReadingRestriction.SenseOrder);
-    private const string C3 = nameof(ReadingRestriction.Order);
-    private const string C4 = nameof(ReadingRestriction.ReadingOrder);
+    private const string C1 = nameof(Reading.KanjiForms) + nameof(Reading.EntryId);
+    private const string C2 = nameof(Reading.KanjiForms) + nameof(Reading.Order);
+    private const string C3 = nameof(KanjiForm.Readings) + nameof(KanjiForm.EntryId);
+    private const string C4 = nameof(KanjiForm.Readings) + nameof(KanjiForm.Order);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,28 +38,31 @@ internal static class ReadingRestrictionData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(ReadingRestriction)}"
+        INSERT INTO "{nameof(KanjiForm)}{nameof(Reading)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertReadingRestrictions(this JmdictContext db, List<ReadingRestriction> readingRestrictions)
+    public static async Task InsertKanjiFormReadingJoins(this JmdictContext db, List<KanjiForm> kanjiForms)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var readingRestriction in readingRestrictions)
+        foreach (var kanjiForm in kanjiForms)
         {
-            command.Parameters.AddRange(new SqliteParameter[]
+            foreach (var reading in kanjiForm.Readings)
             {
-                new(P1, readingRestriction.EntryId),
-                new(P2, readingRestriction.SenseOrder),
-                new(P3, readingRestriction.Order),
-                new(P4, readingRestriction.ReadingOrder),
-            });
+                command.Parameters.AddRange(new SqliteParameter[]
+                {
+                    new(P1, kanjiForm.EntryId),
+                    new(P2, kanjiForm.Order),
+                    new(P3, reading.EntryId),
+                    new(P4, reading.Order),
+                });
 
-            await command.ExecuteNonQueryAsync();
-            command.Parameters.Clear();
+                await command.ExecuteNonQueryAsync();
+                command.Parameters.Clear();
+            }
         }
     }
 }

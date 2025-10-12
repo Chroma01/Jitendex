@@ -20,15 +20,15 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
-internal static class MiscData
+internal static class DialectData
 {
     // Column names
-    private const string C1 = nameof(Misc.EntryId);
-    private const string C2 = nameof(Misc.SenseOrder);
-    private const string C3 = nameof(Misc.Order);
-    private const string C4 = nameof(Misc.TagName);
+    private const string C1 = nameof(Dialect.EntryId);
+    private const string C2 = nameof(Dialect.SenseOrder);
+    private const string C3 = nameof(Dialect.Order);
+    private const string C4 = nameof(Dialect.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,24 +38,24 @@ internal static class MiscData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Misc)}"
+        INSERT INTO "{nameof(Dialect)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertMiscs(this JmdictContext db, List<Misc> miscs)
+    public static async Task InsertDialects(this JmdictContext db, List<Dialect> dialects)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var misc in miscs)
+        foreach (var dialect in dialects)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, misc.EntryId),
-                new(P2, misc.SenseOrder),
-                new(P3, misc.Order),
-                new(P4, misc.TagName),
+                new(P1, dialect.EntryId),
+                new(P2, dialect.SenseOrder),
+                new(P3, dialect.Order),
+                new(P4, dialect.TagName),
             });
 
             await command.ExecuteNonQueryAsync();

@@ -18,17 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements.KanjiFormElements;
 
-internal static class FieldData
+internal static class KanjiFormPriorityData
 {
     // Column names
-    private const string C1 = nameof(Field.EntryId);
-    private const string C2 = nameof(Field.SenseOrder);
-    private const string C3 = nameof(Field.Order);
-    private const string C4 = nameof(Field.TagName);
+    private const string C1 = nameof(KanjiFormPriority.EntryId);
+    private const string C2 = nameof(KanjiFormPriority.KanjiFormOrder);
+    private const string C3 = nameof(KanjiFormPriority.Order);
+    private const string C4 = nameof(KanjiFormPriority.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,24 +38,24 @@ internal static class FieldData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Field)}"
+        INSERT INTO "{nameof(KanjiFormPriority)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertFields(this JmdictContext db, List<Field> fields)
+    public static async Task InsertKanjiFormPriority(this JmdictContext db, List<KanjiFormPriority> priorities)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var field in fields)
+        foreach (var priority in priorities)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, field.EntryId),
-                new(P2, field.SenseOrder),
-                new(P3, field.Order),
-                new(P4, field.TagName),
+                new(P1, priority.EntryId),
+                new(P2, priority.KanjiFormOrder),
+                new(P3, priority.Order),
+                new(P4, priority.TagName),
             });
 
             await command.ExecuteNonQueryAsync();

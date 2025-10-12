@@ -18,17 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
 
-namespace Jitendex.JMdict.Data.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Database.EntryElements.KanjiFormElements;
 
-internal static class DialectData
+internal static class KanjiFormInfoData
 {
     // Column names
-    private const string C1 = nameof(Dialect.EntryId);
-    private const string C2 = nameof(Dialect.SenseOrder);
-    private const string C3 = nameof(Dialect.Order);
-    private const string C4 = nameof(Dialect.TagName);
+    private const string C1 = nameof(KanjiFormInfo.EntryId);
+    private const string C2 = nameof(KanjiFormInfo.KanjiFormOrder);
+    private const string C3 = nameof(KanjiFormInfo.Order);
+    private const string C4 = nameof(KanjiFormInfo.TagName);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -38,24 +38,24 @@ internal static class DialectData
 
     private const string InsertSql =
         $"""
-        INSERT INTO "{nameof(Dialect)}"
+        INSERT INTO "{nameof(KanjiFormInfo)}"
         ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertDialects(this JmdictContext db, List<Dialect> dialects)
+    public static async Task InsertKanjiFormInfo(this JmdictContext db, List<KanjiFormInfo> infos)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var dialect in dialects)
+        foreach (var info in infos)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, dialect.EntryId),
-                new(P2, dialect.SenseOrder),
-                new(P3, dialect.Order),
-                new(P4, dialect.TagName),
+                new(P1, info.EntryId),
+                new(P2, info.KanjiFormOrder),
+                new(P3, info.Order),
+                new(P4, info.TagName),
             });
 
             await command.ExecuteNonQueryAsync();
