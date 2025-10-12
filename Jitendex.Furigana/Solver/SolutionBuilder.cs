@@ -76,7 +76,7 @@ internal class SolutionBuilder
     /// </summary>
     private ImmutableArray<SolutionPart> NormalizedParts()
     {
-        var parts = new List<SolutionPart>();
+        var parts = new List<SolutionPart>(_parts.Count);
         var mergedTexts = new StringBuilder();
         foreach (var part in _parts)
         {

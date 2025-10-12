@@ -62,7 +62,11 @@ internal class IterationSolver
         }
     }
 
-    private List<SolutionBuilder> IterateSolutions(ISolutionPartsGenerator solutionPartsGenerator, Entry entry, KanjiFormSlice kanjiFormSlice, List<SolutionBuilder> solutions)
+    private List<SolutionBuilder> IterateSolutions(
+        ISolutionPartsGenerator solutionPartsGenerator,
+        Entry entry,
+        KanjiFormSlice kanjiFormSlice,
+        List<SolutionBuilder> solutions)
     {
         var newSolutions = new List<SolutionBuilder>();
 

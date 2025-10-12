@@ -138,13 +138,13 @@ internal partial class EntryReader
         entry.CorpusId = corpus.Id;
     }
 
-    private void PostProcess(Entry entry)
+    private void PostProcess(in Entry entry)
     {
         BridgeReadingsAndKanjiForms(entry);
         CheckForKanjiFormOrphans(entry);
     }
 
-    private static void BridgeReadingsAndKanjiForms(Entry entry)
+    private static void BridgeReadingsAndKanjiForms(in Entry entry)
     {
         foreach (var reading in entry.Readings)
         {
@@ -155,17 +155,16 @@ internal partial class EntryReader
 
             foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
             {
-                if (reading.Restrictions.Count > 0 && !reading.Restrictions.Any(r => r.KanjiFormOrder == kanjiForm.Order))
+                if (reading.Restrictions.Count == 0 || reading.Restrictions.Any(r => r.KanjiFormOrder == kanjiForm.Order))
                 {
-                    continue;
+                    reading.KanjiForms.Add(kanjiForm);
+                    kanjiForm.Readings.Add(reading);
                 }
-                reading.KanjiForms.Add(kanjiForm);
-                kanjiForm.Readings.Add(reading);
             }
         }
     }
 
-    private void CheckForKanjiFormOrphans(Entry entry)
+    private void CheckForKanjiFormOrphans(in Entry entry)
     {
         foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
         {
