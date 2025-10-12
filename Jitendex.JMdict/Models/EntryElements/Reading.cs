@@ -29,9 +29,9 @@ public class Reading
     public required int Order { get; set; }
     public required string Text { get; set; }
 
-    public List<ReadingInfo> Infos { get; set; } = [];
-    public List<ReadingPriority> Priorities { get; set; } = [];
-    public List<ReadingKanjiFormBridge> KanjiFormBridges { get; set; } = [];
+    public List<ReadingInfo> Infos { get; } = [];
+    public List<ReadingPriority> Priorities { get; } = [];
+    public List<KanjiForm> KanjiForms { get; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public required Entry Entry { get; set; }
@@ -39,7 +39,7 @@ public class Reading
     [NotMapped]
     internal bool NoKanji { get; set; } = false;
     [NotMapped]
-    internal List<Restriction> Restrictions { get; set; } = [];
+    internal List<Restriction> Restrictions { get; } = [];
 
     internal const string XmlTagName = "r_ele";
     internal const string Text_XmlTagName = "reb";

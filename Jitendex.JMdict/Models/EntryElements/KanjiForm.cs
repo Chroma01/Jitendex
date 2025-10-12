@@ -28,9 +28,10 @@ public class KanjiForm
     public required int EntryId { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
-    public List<KanjiFormInfo> Infos { get; set; } = [];
-    public List<KanjiFormPriority> Priorities { get; set; } = [];
-    public List<ReadingKanjiFormBridge> ReadingBridges { get; set; } = [];
+
+    public List<KanjiFormInfo> Infos { get; } = [];
+    public List<KanjiFormPriority> Priorities { get; } = [];
+    public List<Reading> Readings { get; } = [];
 
     [ForeignKey(nameof(EntryId))]
     public required Entry Entry { get; set; }

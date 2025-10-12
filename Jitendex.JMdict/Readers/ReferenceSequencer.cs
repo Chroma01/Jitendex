@@ -142,7 +142,7 @@ internal partial class ReferenceSequencer
             xref.Sense.Entry.IsCorrupt = true;
 
             var refReading = entry.Readings.Where(r => !r.IsHidden()).First();
-            var refKanjiForm = refReading.KanjiFormBridges.FirstOrDefault()?.KanjiForm;
+            var refKanjiForm = refReading.KanjiForms.FirstOrDefault();
             return (refReading, refKanjiForm);
         }
     }
@@ -241,10 +241,10 @@ internal partial class ReferenceSequencer
 
         foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
         {
-            foreach (var bridge in kanjiForm.ReadingBridges)
+            foreach (var reading in kanjiForm.Readings)
             {
-                referenceText = new ReferenceText(kanjiForm.Text, bridge.Reading.Text);
-                map[referenceText] = new SpellingId(bridge.Reading.Order, kanjiForm.Order);
+                referenceText = new ReferenceText(kanjiForm.Text, reading.Text);
+                map[referenceText] = new SpellingId(reading.Order, kanjiForm.Order);
             }
 
             // Sometimes references in Jmdict display only the kanji form without
@@ -253,7 +253,7 @@ internal partial class ReferenceSequencer
 
             map[referenceText] = new SpellingId
             (
-                kanjiForm.ReadingBridges.First().Reading.Order,
+                kanjiForm.Readings.First().Order,
                 kanjiForm.Order
             );
         }

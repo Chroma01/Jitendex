@@ -153,22 +153,14 @@ internal partial class EntryReader
                 continue;
             }
 
-            foreach (var kanjiForm in entry.KanjiForms)
+            foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
             {
-                if (kanjiForm.IsHidden())
-                    continue;
                 if (reading.Restrictions.Count > 0 && !reading.Restrictions.Any(r => r.KanjiFormOrder == kanjiForm.Order))
-                    continue;
-                var bridge = new ReadingKanjiFormBridge
                 {
-                    EntryId = entry.Id,
-                    ReadingOrder = reading.Order,
-                    KanjiFormOrder = kanjiForm.Order,
-                    Reading = reading,
-                    KanjiForm = kanjiForm,
-                };
-                reading.KanjiFormBridges.Add(bridge);
-                kanjiForm.ReadingBridges.Add(bridge);
+                    continue;
+                }
+                reading.KanjiForms.Add(kanjiForm);
+                kanjiForm.Readings.Add(reading);
             }
         }
     }
@@ -177,23 +169,14 @@ internal partial class EntryReader
     {
         foreach (var kanjiForm in entry.KanjiForms.Where(static k => !k.IsHidden()))
         {
-            if (kanjiForm.ReadingBridges.Count == 0)
+            if (kanjiForm.Readings.Count == 0)
             {
                 LogOrphanKanjiForm(kanjiForm.EntryId, kanjiForm.Text);
                 entry.IsCorrupt = true;
 
                 var defaultReading = entry.Readings.Where(static r => !r.IsHidden()).First();
-                var bridge = new ReadingKanjiFormBridge
-                {
-                    EntryId = entry.Id,
-                    ReadingOrder = defaultReading.Order,
-                    KanjiFormOrder = kanjiForm.Order,
-                    Reading = defaultReading,
-                    KanjiForm = kanjiForm,
-                };
-
-                defaultReading.KanjiFormBridges.Add(bridge);
-                kanjiForm.ReadingBridges.Add(bridge);
+                defaultReading.KanjiForms.Add(kanjiForm);
+                kanjiForm.Readings.Add(defaultReading);
             }
         }
     }
