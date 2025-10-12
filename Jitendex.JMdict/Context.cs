@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Jitendex.JMdict.Models;
+using Jitendex.SQLite;
 
 namespace Jitendex.JMdict;
 
@@ -59,50 +60,5 @@ public class Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) => options
         .UseSqlite($"Data Source={DbPath}")
-        .ReplaceService<IRelationalCommandBuilderFactory, JmdictRelationalCommandBuilderFactory>();
-}
-
-internal class JmdictRelationalCommandBuilderFactory : RelationalCommandBuilderFactory
-{
-    public JmdictRelationalCommandBuilderFactory(RelationalCommandBuilderDependencies dependencies) : base(dependencies) { }
-    public override IRelationalCommandBuilder Create() => new JmdictRelationalCommandBuilder(Dependencies);
-}
-
-internal class JmdictRelationalCommandBuilder : RelationalCommandBuilder
-{
-    public JmdictRelationalCommandBuilder(RelationalCommandBuilderDependencies dependencies) : base(dependencies) { }
-    public override IRelationalCommand Build() => new RelationalCommand
-    (
-        Dependencies,
-        base.ToString().WithoutRowId(),
-        Parameters
-    );
-}
-
-internal static class CommandTextExtensions
-{
-    public static string WithoutRowId(this string commandText)
-    {
-        if (!commandText.StartsWith("CREATE TABLE", StringComparison.Ordinal))
-        {
-            return commandText;
-        }
-
-        if (commandText.Contains("AUTOINCREMENT", StringComparison.Ordinal))
-        {
-            return commandText;
-        }
-
-        int endCreateTableIndex = commandText.IndexOf(");", StringComparison.Ordinal);
-
-        if (endCreateTableIndex < 0)
-        {
-            return commandText;
-        }
-
-        // Insert " WITHOUT ROWID" between the ")" and the ";"
-        return commandText[..(endCreateTableIndex + 1)]
-            + " WITHOUT ROWID"
-            + commandText[(endCreateTableIndex + 1)..];
-    }
+        .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
 }
