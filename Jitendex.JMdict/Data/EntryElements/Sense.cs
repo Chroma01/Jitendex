@@ -45,16 +45,16 @@ internal static class SenseData
 
     public static async Task InsertSenses(this JmdictContext db, List<Sense> senses)
     {
-        var allCrossReferences = new List<CrossReference>();
-        var allDialects = new List<Dialect>();
-        var allExamples = new List<Example>();
-        var allFields = new List<Field>();
-        var allGlosses = new List<Gloss>();
-        var allKanjiFormRestrictions = new List<KanjiFormRestriction>();
-        var allLanguageSources = new List<LanguageSource>();
-        var allMiscs = new List<Misc>();
-        var allPartsOfSpeech = new List<PartOfSpeech>();
-        var allReadingRestrictions = new List<ReadingRestriction>();
+        var allCrossReferences = new List<CrossReference>(senses.Count / 5);
+        var allDialects = new List<Dialect>(senses.Count / 100);
+        var allExamples = new List<Example>(senses.Count / 5);
+        var allFields = new List<Field>(senses.Count / 5);
+        var allGlosses = new List<Gloss>(senses.Count * 2);
+        var allKanjiFormRestrictions = new List<KanjiFormRestriction>(senses.Count / 100);
+        var allLanguageSources = new List<LanguageSource>(senses.Count / 20);
+        var allMiscs = new List<Misc>(senses.Count / 3);
+        var allPartsOfSpeech = new List<PartOfSpeech>(senses.Count * 2);
+        var allReadingRestrictions = new List<ReadingRestriction>(senses.Count / 100);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {

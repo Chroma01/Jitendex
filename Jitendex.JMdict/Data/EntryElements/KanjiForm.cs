@@ -45,8 +45,8 @@ internal static class KanjiFormData
 
     public static async Task InsertKanjiForms(this JmdictContext db, List<KanjiForm> kanjiForms)
     {
-        var allInfos = new List<KanjiFormInfo>();
-        var allPriorities = new List<KanjiFormPriority>();
+        var allInfos = new List<KanjiFormInfo>(kanjiForms.Count / 10);
+        var allPriorities = new List<KanjiFormPriority>(kanjiForms.Count / 3);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
@@ -61,11 +61,13 @@ internal static class KanjiFormData
                     new(P3, kanjiForm.Text),
                 });
 
-                await command.ExecuteNonQueryAsync();
-                command.Parameters.Clear();
+                var commandExecution = command.ExecuteNonQueryAsync();
 
                 allInfos.AddRange(kanjiForm.Infos);
                 allPriorities.AddRange(kanjiForm.Priorities);
+
+                await commandExecution;
+                command.Parameters.Clear();
             }
         }
 

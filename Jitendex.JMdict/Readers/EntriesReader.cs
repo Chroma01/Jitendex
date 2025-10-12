@@ -35,7 +35,7 @@ internal partial class EntriesReader
 
     public async Task<List<Entry>> ReadAsync()
     {
-        var entries = new List<Entry>();
+        var entries = new List<Entry>(300_000);
 
         while (await _xmlReader.ReadAsync())
         {

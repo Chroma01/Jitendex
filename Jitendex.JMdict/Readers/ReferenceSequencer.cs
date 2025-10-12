@@ -153,7 +153,7 @@ internal partial class ReferenceSequencer
     /// </remarks>
     private static ReadOnlyDictionary<ReferenceText, ImmutableArray<Entry>> ReferenceTextToEntries(in List<Entry> entries)
     {
-        var dict = new Dictionary<ReferenceText, ImmutableArray<Entry>>();
+        var dict = new Dictionary<ReferenceText, ImmutableArray<Entry>>(entries.Count * 4);
         foreach (var entry in entries)
         {
             foreach (var referenceText in ReferenceTexts(entry))

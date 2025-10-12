@@ -45,8 +45,8 @@ internal static class ReadingData
 
     public static async Task InsertReadings(this JmdictContext db, List<Reading> readings)
     {
-        var allInfos = new List<ReadingInfo>();
-        var allPriorities = new List<ReadingPriority>();
+        var allInfos = new List<ReadingInfo>(readings.Count / 10);
+        var allPriorities = new List<ReadingPriority>(readings.Count / 3);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {

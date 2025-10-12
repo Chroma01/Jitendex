@@ -45,9 +45,9 @@ internal static class EntryData
 
     public static async Task InsertEntries(this JmdictContext db, List<Entry> entries)
     {
-        var allReadings = new List<Reading>();
-        var allKanjiForms = new List<KanjiForm>();
-        var allSenses = new List<Sense>();
+        var allReadings = new List<Reading>(entries.Count * 2);
+        var allKanjiForms = new List<KanjiForm>(entries.Count * 2);
+        var allSenses = new List<Sense>(entries.Count * 2);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
