@@ -27,7 +27,7 @@ namespace Jitendex.Kanjidic2.Database;
 internal static class EntryData
 {
     // Column names
-    private const string C1 = nameof(Entry.Character);
+    private const string C1 = nameof(Entry.UnicodeScalarValue);
     private const string C2 = nameof(Entry.Grade);
     private const string C3 = nameof(Entry.Frequency);
     private const string C4 = nameof(Entry.JlptLevel);
@@ -72,7 +72,7 @@ internal static class EntryData
             {
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
-                    new(P1, entry.Character),
+                    new(P1, entry.UnicodeScalarValue),
                     new(P2, entry.Grade is null ? DBNull.Value : entry.Grade),
                     new(P3, entry.Frequency is null ? DBNull.Value : entry.Frequency),
                     new(P4, entry.JlptLevel is null ? DBNull.Value : entry.JlptLevel),

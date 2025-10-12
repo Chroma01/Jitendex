@@ -26,11 +26,11 @@ namespace Jitendex.Kanjidic2.Models.Groups;
 internal class ReadingMeaningGroup
 {
     [Key]
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public ReadingMeaning? ReadingMeaning { get; set; }
     public List<Nanori> Nanoris { get; set; } = [];
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "reading_meaning";

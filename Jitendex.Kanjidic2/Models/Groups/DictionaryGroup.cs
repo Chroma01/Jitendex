@@ -26,10 +26,10 @@ namespace Jitendex.Kanjidic2.Models.Groups;
 internal class DictionaryGroup
 {
     [Key]
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public List<Dictionary> Dictionaries { get; set; } = [];
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "dic_number";

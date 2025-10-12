@@ -21,17 +21,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Kanjidic2.Models.EntryElements;
 
-[PrimaryKey(nameof(Character), nameof(Order))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(Order))]
 public class Dictionary
 {
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public required int Order { get; set; }
     public required string Text { get; set; }
     public required string TypeName { get; set; }
     public int? Volume { get; set; }
     public int? Page { get; set; }
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public required Entry Entry { get; set; }
 
     [ForeignKey(nameof(TypeName))]

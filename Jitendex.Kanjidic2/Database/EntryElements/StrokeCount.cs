@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class StrokeCountData
 {
     // Column names
-    private const string C1 = nameof(StrokeCount.Character);
+    private const string C1 = nameof(StrokeCount.UnicodeScalarValue);
     private const string C2 = nameof(StrokeCount.Order);
     private const string C3 = nameof(StrokeCount.Value);
 
@@ -50,7 +50,7 @@ internal static class StrokeCountData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, strokeCount.Character),
+                new(P1, strokeCount.UnicodeScalarValue),
                 new(P2, strokeCount.Order),
                 new(P3, strokeCount.Value),
             });

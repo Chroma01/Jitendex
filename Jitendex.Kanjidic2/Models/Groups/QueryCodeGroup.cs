@@ -26,10 +26,10 @@ namespace Jitendex.Kanjidic2.Models.Groups;
 internal class QueryCodeGroup
 {
     [Key]
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public List<QueryCode> QueryCodes { get; set; } = [];
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "query_code";

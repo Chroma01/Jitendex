@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -38,7 +39,7 @@ internal partial class QueryCodeGroupReader
     {
         var group = new QueryCodeGroup
         {
-            Character = entry.Character,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
             Entry = entry,
         };
 
@@ -52,7 +53,7 @@ internal partial class QueryCodeGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, QueryCodeGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), QueryCodeGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -71,7 +72,7 @@ internal partial class QueryCodeGroupReader
                 await ReadQueryCode(group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, QueryCodeGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, QueryCodeGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
@@ -83,13 +84,13 @@ internal partial class QueryCodeGroupReader
         var type = _docTypes.GetByName<QueryCodeType>(typeName);
 
         var misclassification = _xmlReader.GetAttribute("skip_misclass");
-        var misclassificationType = misclassification is not null ?
-            _docTypes.GetByName<MisclassificationType>(misclassification) :
-            null;
+        var misclassificationType = misclassification is not null
+            ? _docTypes.GetByName<MisclassificationType>(misclassification)
+            : null;
 
         var queryCode = new QueryCode
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.QueryCodes.Count + 1,
             TypeName = type.Name,
             Misclassification = misclassification,
@@ -107,7 +108,7 @@ internal partial class QueryCodeGroupReader
         var typeName = _xmlReader.GetAttribute("qc_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(group.Character);
+            LogMissingTypeName(group.Entry.ToRune());
             group.Entry.IsCorrupt = true;
         }
         return typeName;
@@ -115,5 +116,5 @@ internal partial class QueryCodeGroupReader
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a query code type attribute")]
-    private partial void LogMissingTypeName(string character);
+    private partial void LogMissingTypeName(Rune character);
 }

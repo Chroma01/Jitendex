@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class RadicalData
 {
     // Column names
-    private const string C1 = nameof(Radical.Character);
+    private const string C1 = nameof(Radical.UnicodeScalarValue);
     private const string C2 = nameof(Radical.Order);
     private const string C3 = nameof(Radical.Number);
     private const string C4 = nameof(Radical.TypeName);
@@ -52,7 +52,7 @@ internal static class RadicalData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, radical.Character),
+                new(P1, radical.UnicodeScalarValue),
                 new(P2, radical.Order),
                 new(P3, radical.Number),
                 new(P4, radical.TypeName),

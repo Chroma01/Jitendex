@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Jitendex.Kanjidic2.Readers;
@@ -24,13 +25,13 @@ internal static partial class Log
 {
     [LoggerMessage(LogLevel.Warning,
     "`{Character}`: Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
-    public static partial void UnexpectedChildElement(ILogger logger, string character, string tagName, string parentTagName);
+    public static partial void UnexpectedChildElement(ILogger logger, Rune character, string tagName, string parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "`{Character}`: Unexpected XML text node found in element <{TagName}>: `{Text}`")]
-    public static partial void UnexpectedTextNode(ILogger logger, string character, string tagName, string text);
+    public static partial void UnexpectedTextNode(ILogger logger, Rune character, string tagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{Character}` <{ParentTagName}> contains more than one <{TagName}> element with value `{Text}`")]
-    public static partial void Duplicate(ILogger logger, string character, string parentTagName, string text, string tagName);
+    public static partial void Duplicate(ILogger logger, Rune character, string parentTagName, string text, string tagName);
 }

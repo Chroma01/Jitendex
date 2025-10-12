@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -38,7 +39,7 @@ internal partial class CodepointGroupReader
     {
         var group = new CodepointGroup
         {
-            Character = entry.Character,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
             Entry = entry,
         };
 
@@ -52,7 +53,7 @@ internal partial class CodepointGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, CodepointGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), CodepointGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -71,7 +72,7 @@ internal partial class CodepointGroupReader
                 await ReadCodepoint(group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, CodepointGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, CodepointGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
@@ -84,13 +85,13 @@ internal partial class CodepointGroupReader
 
         if (group.Codepoints.Any(c => c.TypeName == type.Name))
         {
-            Log.Duplicate(_logger, group.Character, CodepointGroup.XmlTagName, type.Name, Codepoint.XmlTagName);
+            Log.Duplicate(_logger, group.Entry.ToRune(), CodepointGroup.XmlTagName, type.Name, Codepoint.XmlTagName);
             group.Entry.IsCorrupt = true;
         }
 
         var codepoint = new Codepoint
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.Codepoints.Count + 1,
             TypeName = type.Name,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
@@ -106,7 +107,7 @@ internal partial class CodepointGroupReader
         var typeName = _xmlReader.GetAttribute("cp_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(group.Character);
+            LogMissingTypeName(group.Entry.ToRune());
             group.Entry.IsCorrupt = true;
         }
         return typeName;
@@ -114,5 +115,5 @@ internal partial class CodepointGroupReader
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a codepoint type attribute")]
-    private partial void LogMissingTypeName(string character);
+    private partial void LogMissingTypeName(Rune character);
 }

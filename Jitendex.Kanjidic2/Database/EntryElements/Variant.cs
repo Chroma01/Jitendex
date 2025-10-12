@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class VariantData
 {
     // Column names
-    private const string C1 = nameof(Variant.Character);
+    private const string C1 = nameof(Variant.UnicodeScalarValue);
     private const string C2 = nameof(Variant.Order);
     private const string C3 = nameof(Variant.Text);
     private const string C4 = nameof(Variant.TypeName);
@@ -52,7 +52,7 @@ internal static class VariantData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, variant.Character),
+                new(P1, variant.UnicodeScalarValue),
                 new(P2, variant.Order),
                 new(P3, variant.Text),
                 new(P4, variant.TypeName),

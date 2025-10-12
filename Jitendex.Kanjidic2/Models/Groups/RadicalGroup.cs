@@ -26,10 +26,10 @@ namespace Jitendex.Kanjidic2.Models.Groups;
 internal class RadicalGroup
 {
     [Key]
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public List<Radical> Radicals { get; set; } = [];
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "radical";

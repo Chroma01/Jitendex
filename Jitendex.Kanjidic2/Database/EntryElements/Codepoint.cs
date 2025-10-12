@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class CodepointData
 {
     // Column names
-    private const string C1 = nameof(Codepoint.Character);
+    private const string C1 = nameof(Codepoint.UnicodeScalarValue);
     private const string C2 = nameof(Codepoint.Order);
     private const string C3 = nameof(Codepoint.Text);
     private const string C4 = nameof(Codepoint.TypeName);
@@ -52,7 +52,7 @@ internal static class CodepointData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, codepoint.Character),
+                new(P1, codepoint.UnicodeScalarValue),
                 new(P2, codepoint.Order),
                 new(P3, codepoint.Text),
                 new(P4, codepoint.TypeName),

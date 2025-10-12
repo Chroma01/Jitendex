@@ -21,14 +21,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Kanjidic2.Models.EntryElements;
 
-[PrimaryKey(nameof(Character), nameof(Order))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(Order))]
 public class StrokeCount
 {
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public required int Order { get; set; }
     public required int Value { get; set; }
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public required Entry Entry { get; set; }
 
     internal const string XmlTagName = "stroke_count";

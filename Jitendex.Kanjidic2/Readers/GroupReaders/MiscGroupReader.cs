@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -42,7 +43,7 @@ internal partial class MiscGroupReader
     {
         var group = new MiscGroup
         {
-            Character = entry.Character,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
             Entry = entry,
         };
 
@@ -56,7 +57,7 @@ internal partial class MiscGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, MiscGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), MiscGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -90,7 +91,7 @@ internal partial class MiscGroupReader
                 await ReadRadicalName(group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, MiscGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, MiscGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
@@ -105,7 +106,7 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Character, GradeXmlTagName, text);
+            LogNonNumeric(group.Entry.ToRune(), GradeXmlTagName, text);
             group.Entry.IsCorrupt = true;
         }
     }
@@ -119,7 +120,7 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Character, FrequencyXmlTagName, text);
+            LogNonNumeric(group.Entry.ToRune(), FrequencyXmlTagName, text);
             group.Entry.IsCorrupt = true;
         }
     }
@@ -133,7 +134,7 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Character, JlptXmlTagName, text);
+            LogNonNumeric(group.Entry.ToRune(), JlptXmlTagName, text);
             group.Entry.IsCorrupt = true;
         }
     }
@@ -148,13 +149,13 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Character, StrokeCount.XmlTagName, text);
+            LogNonNumeric(group.Entry.ToRune(), StrokeCount.XmlTagName, text);
             group.Entry.IsCorrupt = true;
             return;
         }
         var strokeCount = new StrokeCount
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.StrokeCounts.Count + 1,
             Value = value,
             Entry = group.Entry,
@@ -167,13 +168,13 @@ internal partial class MiscGroupReader
         var typeName = _xmlReader.GetAttribute("var_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(group.Character);
+            LogMissingTypeName(group.Entry.ToRune());
             group.Entry.IsCorrupt = true;
         }
         var type = _docTypes.GetByName<VariantType>(typeName);
         var variant = new Variant
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.Variants.Count + 1,
             TypeName = type.Name,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
@@ -187,7 +188,7 @@ internal partial class MiscGroupReader
     {
         var radicalName = new RadicalName
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.RadicalNames.Count + 1,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
@@ -197,9 +198,9 @@ internal partial class MiscGroupReader
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` contains a non-numeric <{TagName}> value : `{Text}")]
-    private partial void LogNonNumeric(string character, string tagName, string text);
+    private partial void LogNonNumeric(Rune character, string tagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a variant type attribute")]
-    private partial void LogMissingTypeName(string character);
+    private partial void LogMissingTypeName(Rune character);
 }

@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -38,7 +39,7 @@ internal partial class DictionaryGroupReader
     {
         var group = new DictionaryGroup
         {
-            Character = entry.Character,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
             Entry = entry,
         };
 
@@ -52,7 +53,7 @@ internal partial class DictionaryGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, DictionaryGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), DictionaryGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -71,7 +72,7 @@ internal partial class DictionaryGroupReader
                 await ReadDictionary(group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, DictionaryGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, DictionaryGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
@@ -84,7 +85,7 @@ internal partial class DictionaryGroupReader
 
         var dictionary = new Dictionary
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.Dictionaries.Count + 1,
             TypeName = type.Name,
             Volume = GetDictionaryVolume(group),
@@ -101,7 +102,7 @@ internal partial class DictionaryGroupReader
         var typeName = _xmlReader.GetAttribute("dr_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(group.Character);
+            LogMissingTypeName(group.Entry.ToRune());
             group.Entry.IsCorrupt = true;
         }
         return typeName;
@@ -121,7 +122,7 @@ internal partial class DictionaryGroupReader
         }
         else
         {
-            LogNonNumericVolume(group.Character, volume);
+            LogNonNumericVolume(group.Entry.ToRune(), volume);
             group.Entry.IsCorrupt = true;
             return null;
         }
@@ -141,7 +142,7 @@ internal partial class DictionaryGroupReader
         }
         else
         {
-            LogNonNumericPage(group.Character, page);
+            LogNonNumericPage(group.Entry.ToRune(), page);
             group.Entry.IsCorrupt = true;
             return null;
         }
@@ -149,13 +150,13 @@ internal partial class DictionaryGroupReader
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a dictionary type attribute")]
-    private partial void LogMissingTypeName(string character);
+    private partial void LogMissingTypeName(Rune character);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a dictionary volume attribute that is non-numeric: `{Volume}`")]
-    private partial void LogNonNumericVolume(string character, string volume);
+    private partial void LogNonNumericVolume(Rune character, string volume);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a dictionary page attribute that is non-numeric: `{Page}`")]
-    private partial void LogNonNumericPage(string character, string page);
+    private partial void LogNonNumericPage(Rune character, string page);
 }

@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models.Groups;
@@ -38,7 +39,7 @@ internal partial class ReadingMeaningReader
     {
         var readingMeaning = new ReadingMeaning
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Entry = group.Entry,
         };
 
@@ -52,7 +53,7 @@ internal partial class ReadingMeaningReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, group.Entry.Character, ReadingMeaning.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, group.Entry.ToRune(), ReadingMeaning.XmlTagName, text);
                     group.Entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -74,7 +75,7 @@ internal partial class ReadingMeaningReader
                 await ReadMeaning(readingMeaning);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, readingMeaning.Entry.Character, _xmlReader.Name, ReadingMeaning.XmlTagName);
+                Log.UnexpectedChildElement(_logger, readingMeaning.Entry.ToRune(), _xmlReader.Name, ReadingMeaning.XmlTagName);
                 readingMeaning.Entry.IsCorrupt = true;
                 break;
         }
@@ -87,7 +88,7 @@ internal partial class ReadingMeaningReader
 
         var reading = new Reading
         {
-            Character = readingMeaning.Character,
+            UnicodeScalarValue = readingMeaning.UnicodeScalarValue,
             Order = readingMeaning.Readings.Count + 1,
             TypeName = type.Name,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
@@ -97,7 +98,7 @@ internal partial class ReadingMeaningReader
 
         if (readingMeaning.Readings.Any(r => r.Text == reading.Text && r.TypeName == type.Name))
         {
-            Log.Duplicate(_logger, readingMeaning.Character, ReadingMeaning.XmlTagName, type.Name, Reading.XmlTagName);
+            Log.Duplicate(_logger, readingMeaning.Entry.ToRune(), ReadingMeaning.XmlTagName, type.Name, Reading.XmlTagName);
             readingMeaning.Entry.IsCorrupt = true;
         }
 
@@ -109,7 +110,7 @@ internal partial class ReadingMeaningReader
         var typeName = _xmlReader.GetAttribute("r_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(readingMeaning.Character);
+            LogMissingTypeName(readingMeaning.Entry.ToRune());
             readingMeaning.Entry.IsCorrupt = true;
         }
         return typeName;
@@ -119,7 +120,7 @@ internal partial class ReadingMeaningReader
     {
         var meaning = new Meaning
         {
-            Character = readingMeaning.Character,
+            UnicodeScalarValue = readingMeaning.UnicodeScalarValue,
             Order = readingMeaning.Meanings.Count + 1,
             Language = _xmlReader.GetAttribute("m_lang") ?? "en",
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
@@ -143,7 +144,7 @@ internal partial class ReadingMeaningReader
 
         if (readingMeaning.Meanings.Any(m => m.Text == meaning.Text))
         {
-            Log.Duplicate(_logger, readingMeaning.Character, ReadingMeaning.XmlTagName, meaning.Text, Meaning.XmlTagName);
+            Log.Duplicate(_logger, readingMeaning.Entry.ToRune(), ReadingMeaning.XmlTagName, meaning.Text, Meaning.XmlTagName);
             readingMeaning.Entry.IsCorrupt = true;
         }
 
@@ -152,5 +153,5 @@ internal partial class ReadingMeaningReader
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a reading type attribute")]
-    private partial void LogMissingTypeName(string character);
+    private partial void LogMissingTypeName(Rune character);
 }

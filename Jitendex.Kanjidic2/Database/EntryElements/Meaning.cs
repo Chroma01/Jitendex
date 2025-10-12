@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class MeaningData
 {
     // Column names
-    private const string C1 = nameof(Meaning.Character);
+    private const string C1 = nameof(Meaning.UnicodeScalarValue);
     private const string C2 = nameof(Meaning.Order);
     private const string C3 = nameof(Meaning.Text);
 
@@ -50,7 +50,7 @@ internal static class MeaningData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, meaning.Character),
+                new(P1, meaning.UnicodeScalarValue),
                 new(P2, meaning.Order),
                 new(P3, meaning.Text),
             });

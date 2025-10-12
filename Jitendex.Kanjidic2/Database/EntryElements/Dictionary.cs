@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class DictionaryData
 {
     // Column names
-    private const string C1 = nameof(Dictionary.Character);
+    private const string C1 = nameof(Dictionary.UnicodeScalarValue);
     private const string C2 = nameof(Dictionary.Order);
     private const string C3 = nameof(Dictionary.Text);
     private const string C4 = nameof(Dictionary.TypeName);
@@ -56,7 +56,7 @@ internal static class DictionaryData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, dictionary.Character),
+                new(P1, dictionary.UnicodeScalarValue),
                 new(P2, dictionary.Order),
                 new(P3, dictionary.Text),
                 new(P4, dictionary.TypeName),

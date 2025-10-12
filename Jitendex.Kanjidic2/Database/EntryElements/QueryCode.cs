@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class QueryCodeData
 {
     // Column names
-    private const string C1 = nameof(QueryCode.Character);
+    private const string C1 = nameof(QueryCode.UnicodeScalarValue);
     private const string C2 = nameof(QueryCode.Order);
     private const string C3 = nameof(QueryCode.Text);
     private const string C4 = nameof(QueryCode.TypeName);
@@ -54,7 +54,7 @@ internal static class QueryCodeData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, queryCode.Character),
+                new(P1, queryCode.UnicodeScalarValue),
                 new(P2, queryCode.Order),
                 new(P3, queryCode.Text),
                 new(P4, queryCode.TypeName),

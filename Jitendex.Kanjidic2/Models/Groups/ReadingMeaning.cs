@@ -24,13 +24,13 @@ namespace Jitendex.Kanjidic2.Models.Groups;
 [NotMapped]
 internal class ReadingMeaning
 {
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public List<Reading> Readings { get; set; } = [];
     public List<Meaning> Meanings { get; set; } = [];
     public bool IsKokuji = false;
     public bool IsGhost = false;
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "rmgroup";

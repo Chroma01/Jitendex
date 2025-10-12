@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -38,7 +39,7 @@ internal partial class ReadingMeaningGroupReader
     {
         var group = new ReadingMeaningGroup
         {
-            Character = entry.Character,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
             ReadingMeaning = null,
             Entry = entry,
         };
@@ -53,7 +54,7 @@ internal partial class ReadingMeaningGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, ReadingMeaningGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), ReadingMeaningGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -72,7 +73,7 @@ internal partial class ReadingMeaningGroupReader
                 if (group.ReadingMeaning != null)
                 {
                     group.Entry.IsCorrupt = true;
-                    LogUnexpectedGroup(group.Character, ReadingMeaning.XmlTagName);
+                    LogUnexpectedGroup(group.Entry.ToRune(), ReadingMeaning.XmlTagName);
                 }
                 group.ReadingMeaning = await _readingMeaningReader.ReadAsync(group);
                 break;
@@ -80,7 +81,7 @@ internal partial class ReadingMeaningGroupReader
                 await ReadNanori(group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
@@ -90,7 +91,7 @@ internal partial class ReadingMeaningGroupReader
     {
         var nanori = new Nanori
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.Nanoris.Count + 1,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
             Entry = group.Entry,
@@ -98,7 +99,7 @@ internal partial class ReadingMeaningGroupReader
 
         if (group.Nanoris.Any(n => n.Text == nanori.Text))
         {
-            Log.Duplicate(_logger, group.Character, ReadingMeaningGroup.XmlTagName, nanori.Text, Nanori.XmlTagName);
+            Log.Duplicate(_logger, group.Entry.ToRune(), ReadingMeaningGroup.XmlTagName, nanori.Text, Nanori.XmlTagName);
             group.Entry.IsCorrupt = true;
         }
 
@@ -107,5 +108,5 @@ internal partial class ReadingMeaningGroupReader
 
     [LoggerMessage(LogLevel.Warning,
     "Entry for character `{Character}` has more than one <{XmlTagName}> child element.")]
-    private partial void LogUnexpectedGroup(string character, string xmlTagName);
+    private partial void LogUnexpectedGroup(Rune character, string xmlTagName);
 }

@@ -28,7 +28,7 @@ namespace Jitendex.Kanjidic2.Models;
 public class Entry : ICorruptable
 {
     [Key]
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
 
     // Codepoint Group
     public List<Codepoint> Codepoints { get; set; } = [];
@@ -72,7 +72,7 @@ public class Entry : ICorruptable
 
     public bool IsCorrupt { get; set; }
 
-    public Rune ToRune() => Character.EnumerateRunes().First();
+    public Rune ToRune() => new(UnicodeScalarValue);
 
     internal const string XmlTagName = "character";
     internal const string Character_XmlTagName = "literal";

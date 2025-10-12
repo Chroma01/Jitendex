@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -35,7 +36,15 @@ internal partial class EntryReader
     private readonly RadicalGroupReader _radicalGroupReader;
     private readonly ReadingMeaningGroupReader _readingMeaningGroupReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) =>
+    public EntryReader(
+        ILogger<EntryReader> logger,
+        XmlReader xmlReader,
+        CodepointGroupReader codepointGroupReader,
+        DictionaryGroupReader dictionaryGroupReader,
+        MiscGroupReader miscGroupReader,
+        QueryCodeGroupReader queryCodeGroupReader,
+        RadicalGroupReader radicalGroupReader,
+        ReadingMeaningGroupReader readingMeaningGroupReader) =>
         (_logger, _xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
         (@logger, @xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
 
@@ -43,7 +52,7 @@ internal partial class EntryReader
     {
         var entry = new Entry
         {
-            Character = null!,
+            UnicodeScalarValue = default,
         };
 
         var exit = false;
@@ -56,7 +65,7 @@ internal partial class EntryReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, Entry.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), Entry.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -65,7 +74,7 @@ internal partial class EntryReader
             }
         }
 
-        if (entry.Character is not null)
+        if (entry.UnicodeScalarValue != default)
         {
             entries.Add(entry);
         }
@@ -77,7 +86,7 @@ internal partial class EntryReader
 
     private async Task ReadChildElementAsync(Entry entry)
     {
-        if (_xmlReader.Name != Entry.Character_XmlTagName && entry.Character is null)
+        if (_xmlReader.Name != Entry.Character_XmlTagName && entry.UnicodeScalarValue == default)
         {
             entry.IsCorrupt = true;
             LogPrematureElement(_xmlReader.Name);
@@ -93,7 +102,7 @@ internal partial class EntryReader
                 if (entry.CodepointGroup is not null)
                 {
                     entry.IsCorrupt = true;
-                    LogUnexpectedGroup(entry.Character, CodepointGroup.XmlTagName);
+                    LogUnexpectedGroup(entry.ToRune(), CodepointGroup.XmlTagName);
                 }
                 entry.CodepointGroup = await _codepointGroupReader.ReadAsync(entry);
                 entry.Codepoints = entry.CodepointGroup.Codepoints;
@@ -102,7 +111,7 @@ internal partial class EntryReader
                 if (entry.DictionaryGroup is not null)
                 {
                     entry.IsCorrupt = true;
-                    LogUnexpectedGroup(entry.Character, DictionaryGroup.XmlTagName);
+                    LogUnexpectedGroup(entry.ToRune(), DictionaryGroup.XmlTagName);
                 }
                 entry.DictionaryGroup = await _dictionaryGroupReader.ReadAsync(entry);
                 entry.Dictionaries = entry.DictionaryGroup.Dictionaries;
@@ -111,7 +120,7 @@ internal partial class EntryReader
                 if (entry.MiscGroup is not null)
                 {
                     entry.IsCorrupt = true;
-                    LogUnexpectedGroup(entry.Character, MiscGroup.XmlTagName);
+                    LogUnexpectedGroup(entry.ToRune(), MiscGroup.XmlTagName);
                 }
                 entry.MiscGroup = await _miscGroupReader.ReadAsync(entry);
                 entry.Grade = entry.MiscGroup.Grade;
@@ -125,7 +134,7 @@ internal partial class EntryReader
                 if (entry.QueryCodeGroup is not null)
                 {
                     entry.IsCorrupt = true;
-                    LogUnexpectedGroup(entry.Character, QueryCodeGroup.XmlTagName);
+                    LogUnexpectedGroup(entry.ToRune(), QueryCodeGroup.XmlTagName);
                 }
                 entry.QueryCodeGroup = await _queryCodeGroupReader.ReadAsync(entry);
                 entry.QueryCodes = entry.QueryCodeGroup.QueryCodes;
@@ -134,7 +143,7 @@ internal partial class EntryReader
                 if (entry.RadicalGroup is not null)
                 {
                     entry.IsCorrupt = true;
-                    LogUnexpectedGroup(entry.Character, RadicalGroup.XmlTagName);
+                    LogUnexpectedGroup(entry.ToRune(), RadicalGroup.XmlTagName);
                 }
                 entry.RadicalGroup = await _radicalGroupReader.ReadAsync(entry);
                 entry.Radicals = entry.RadicalGroup.Radicals;
@@ -143,7 +152,7 @@ internal partial class EntryReader
                 if (entry.ReadingMeaningGroup is not null)
                 {
                     entry.IsCorrupt = true;
-                    LogUnexpectedGroup(entry.Character, ReadingMeaningGroup.XmlTagName);
+                    LogUnexpectedGroup(entry.ToRune(), ReadingMeaningGroup.XmlTagName);
                 }
                 entry.ReadingMeaningGroup = await _readingMeaningGroupReader.ReadAsync(entry);
                 entry.Readings = entry.ReadingMeaningGroup.ReadingMeaning?.Readings ?? [];
@@ -153,7 +162,7 @@ internal partial class EntryReader
                 entry.Nanoris = entry.ReadingMeaningGroup.Nanoris;
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.Character, _xmlReader.Name, Entry.XmlTagName);
+                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, Entry.XmlTagName);
                 entry.IsCorrupt = true;
                 break;
         }
@@ -161,21 +170,27 @@ internal partial class EntryReader
 
     private async Task ReadCharacterAsync(Entry entry)
     {
-        if (entry.Character is not null)
+        if (entry.UnicodeScalarValue != default)
         {
-            LogUnexpectedGroup(entry.Character, Entry.Character_XmlTagName);
+            LogUnexpectedGroup(entry.ToRune(), Entry.Character_XmlTagName);
         }
 
-        entry.Character = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await _xmlReader.ReadElementContentAsStringAsync();
 
-        if (string.IsNullOrWhiteSpace(entry.Character))
+        if (string.IsNullOrWhiteSpace(text))
         {
             LogEmptyElement(Entry.Character_XmlTagName);
+            return;
         }
-        else if (entry.Character.EnumerateRunes().Count() > 1)
+
+        var runes = text.EnumerateRunes();
+
+        if (runes.Count() > 1)
         {
-            LogMultipleCharacters(Entry.Character_XmlTagName, entry.Character);
+            LogMultipleCharacters(Entry.Character_XmlTagName, text);
         }
+
+        entry.UnicodeScalarValue = runes.First().Value;
     }
 
     [LoggerMessage(LogLevel.Error,
@@ -192,7 +207,7 @@ internal partial class EntryReader
 
     [LoggerMessage(LogLevel.Warning,
     "Entry for character `{Character}` has more than one <{XmlTagName}> child element")]
-    private partial void LogUnexpectedGroup(string character, string xmlTagName);
+    private partial void LogUnexpectedGroup(Rune character, string xmlTagName);
 
     [LoggerMessage(LogLevel.Error,
     "Entry contains no <{XmlTagName}> element; no primary key can be assigned")]

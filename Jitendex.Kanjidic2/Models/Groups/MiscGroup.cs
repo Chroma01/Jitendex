@@ -26,7 +26,7 @@ namespace Jitendex.Kanjidic2.Models.Groups;
 internal class MiscGroup
 {
     [Key]
-    public required string Character { get; set; }
+    public required int UnicodeScalarValue { get; set; }
     public int? Grade { get; set; }
     public int? Frequency { get; set; }
     public int? JlptLevel { get; set; }
@@ -35,7 +35,7 @@ internal class MiscGroup
     public List<Variant> Variants { get; set; } = [];
     public List<RadicalName> RadicalNames { get; set; } = [];
 
-    [ForeignKey(nameof(Character))]
+    [ForeignKey(nameof(UnicodeScalarValue))]
     public virtual Entry Entry { get; set; } = null!;
 
     internal const string XmlTagName = "misc";

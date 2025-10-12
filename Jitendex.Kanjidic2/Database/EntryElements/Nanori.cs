@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class NanoriData
 {
     // Column names
-    private const string C1 = nameof(Nanori.Character);
+    private const string C1 = nameof(Nanori.UnicodeScalarValue);
     private const string C2 = nameof(Nanori.Order);
     private const string C3 = nameof(Nanori.Text);
 
@@ -50,7 +50,7 @@ internal static class NanoriData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, nanori.Character),
+                new(P1, nanori.UnicodeScalarValue),
                 new(P2, nanori.Order),
                 new(P3, nanori.Text),
             });

@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Database.EntryElements;
 internal static class ReadingData
 {
     // Column names
-    private const string C1 = nameof(Reading.Character);
+    private const string C1 = nameof(Reading.UnicodeScalarValue);
     private const string C2 = nameof(Reading.Order);
     private const string C3 = nameof(Reading.Text);
     private const string C4 = nameof(Reading.TypeName);
@@ -52,7 +52,7 @@ internal static class ReadingData
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, reading.Character),
+                new(P1, reading.UnicodeScalarValue),
                 new(P2, reading.Order),
                 new(P3, reading.Text),
                 new(P4, reading.TypeName),

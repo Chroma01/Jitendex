@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Models;
@@ -38,7 +39,7 @@ internal partial class RadicalGroupReader
     {
         var group = new RadicalGroup
         {
-            Character = entry.Character,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
             Entry = entry,
         };
 
@@ -52,7 +53,7 @@ internal partial class RadicalGroupReader
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.Character, RadicalGroup.XmlTagName, text);
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), RadicalGroup.XmlTagName, text);
                     entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
@@ -71,7 +72,7 @@ internal partial class RadicalGroupReader
                 await ReadRadical(group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.Character, _xmlReader.Name, RadicalGroup.XmlTagName);
+                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, RadicalGroup.XmlTagName);
                 group.Entry.IsCorrupt = true;
                 break;
         }
@@ -84,7 +85,7 @@ internal partial class RadicalGroupReader
 
         if (group.Radicals.Any(c => c.TypeName == type.Name))
         {
-            Log.Duplicate(_logger, group.Character, RadicalGroup.XmlTagName, type.Name, Radical.XmlTagName);
+            Log.Duplicate(_logger, group.Entry.ToRune(), RadicalGroup.XmlTagName, type.Name, Radical.XmlTagName);
             group.Entry.IsCorrupt = true;
         }
 
@@ -92,7 +93,7 @@ internal partial class RadicalGroupReader
 
         var radical = new Radical
         {
-            Character = group.Character,
+            UnicodeScalarValue = group.UnicodeScalarValue,
             Order = group.Radicals.Count + 1,
             TypeName = type.Name,
             Number = number,
@@ -108,7 +109,7 @@ internal partial class RadicalGroupReader
         var typeName = _xmlReader.GetAttribute("rad_type");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(group.Character);
+            LogMissingTypeName(group.Entry.ToRune());
             group.Entry.IsCorrupt = true;
         }
         return typeName;
@@ -123,7 +124,7 @@ internal partial class RadicalGroupReader
         }
         else
         {
-            LogNonNumericRadicalNumber(group.Character, text);
+            LogNonNumericRadicalNumber(group.Entry.ToRune(), text);
             group.Entry.IsCorrupt = true;
             return default;
         }
@@ -131,13 +132,13 @@ internal partial class RadicalGroupReader
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a radical type attribute")]
-    private partial void LogMissingTypeName(string character);
+    private partial void LogMissingTypeName(Rune character);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has an empty radical number <{TagName}> element")]
-    private partial void LogMissingRadicalNumber(string character, string tagName);
+    private partial void LogMissingRadicalNumber(Rune character, string tagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a radical number that is non-numeric: `{Text}`")]
-    private partial void LogNonNumericRadicalNumber(string character, string text);
+    private partial void LogNonNumericRadicalNumber(Rune character, string text);
 }
