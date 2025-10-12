@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Database;
 using Jitendex.JMdict.Models;
+using Jitendex.SQLite;
 
 namespace Jitendex.JMdict;
 
@@ -33,16 +34,7 @@ internal static class DatabaseInitializer
         await db.Database.EnsureCreatedAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync
-        (
-            """
-            PRAGMA synchronous = FALSE;
-            PRAGMA journal_mode = FALSE;
-            PRAGMA temp_store = MEMORY;
-            PRAGMA cache_size = -200000;
-            PRAGMA locking_mode = EXCLUSIVE;
-            """
-        );
+        await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
 
         // Using a transaction decreases the runtime by 10 seconds.
         // Using multiple smaller transactions doesn't seem to improve upon that.
