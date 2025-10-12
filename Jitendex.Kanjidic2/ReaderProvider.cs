@@ -20,18 +20,19 @@ using System.IO.Compression;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Jitendex.Kanjidic2.Readers;
 using Jitendex.Kanjidic2.Readers.GroupReaders;
 
-namespace Jitendex.Kanjidic2.Readers;
+namespace Jitendex.Kanjidic2;
 
-internal record FilePaths
+internal record Files
 {
-    public required string XmlFile { get; init; }
+    public required FileInfo Kanjidic2XmlBr { get; init; }
 }
 
-internal static class Kanjidic2ReaderProvider
+internal static class ReaderProvider
 {
-    public static Kanjidic2Reader GetReader(FilePaths paths) => new ServiceCollection()
+    public static Kanjidic2Reader GetReader(Files files) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -41,7 +42,8 @@ internal static class Kanjidic2ReaderProvider
             }))
 
         // Global XML file reader.
-        .AddSingleton(provider => CreateXmlReader(paths.XmlFile))
+        .AddSingleton(provider =>
+            CreateXmlReader(files.Kanjidic2XmlBr.FullName))
 
         // Global document types.
         .AddSingleton<DocumentTypes>()

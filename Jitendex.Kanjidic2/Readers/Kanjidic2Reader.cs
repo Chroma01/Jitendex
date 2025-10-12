@@ -30,7 +30,7 @@ internal class Kanjidic2Reader
         (_headerReader, _entriesReader, _docTypes) =
         (@headerReader, @entriesReader, @docTypes);
 
-    public async Task<Kanjidic2Document> ReadKanjidic2Async()
+    public async Task<Kanjidic2Document> ReadAsync()
     {
         var header = await _headerReader.ReadAsync();
         var entries = await _entriesReader.ReadAsync();

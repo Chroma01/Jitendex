@@ -58,7 +58,7 @@ public class Program
         };
 
         var reader = ReaderProvider.GetReader(files);
-        var jmdict = await reader.ReadJmdictAsync();
+        var jmdict = await reader.ReadAsync();
 
         await DatabaseInitializer.WriteAsync(jmdict);
     }

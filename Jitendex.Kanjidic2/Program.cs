@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.CommandLine;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Kanjidic2.Readers;
 
 namespace Jitendex.Kanjidic2;
 
@@ -28,7 +27,7 @@ public class Program
     {
         var kanjidic2FileArgument = new Argument<FileInfo>("kanjidic2-file")
         {
-            Description = "Path to Kanjidic2 XML file",
+            Description = "Path to Brotli-compressed Kanjidic2 XML file",
         };
 
         var rootCommand = new RootCommand("Jitendex.Kanjidic2: Import a Kanjidic2 XML document")
@@ -52,13 +51,13 @@ public class Program
 
     private static async Task RunKanjidic2(FileInfo kanjidic2File)
     {
-        var kanjidic2Paths = new FilePaths
+        var files = new Files
         {
-            XmlFile = kanjidic2File.FullName,
+            Kanjidic2XmlBr = kanjidic2File,
         };
 
-        var reader = Kanjidic2ReaderProvider.GetReader(kanjidic2Paths);
-        var kanjidic2 = await reader.ReadKanjidic2Async();
+        var reader = ReaderProvider.GetReader(files);
+        var kanjidic2 = await reader.ReadAsync();
 
         var db = new Context();
         await InitializeAsync(db);

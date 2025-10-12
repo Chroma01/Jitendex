@@ -39,7 +39,7 @@ internal partial class JmdictReader
         (_documentTypesReader, _entriesReader, _corpusCache, _keywordCache, _exampleCache) =
         (@documentTypesReader, @entriesReader, @corpusCache, @keywordCache, @exampleCache);
 
-    public async Task<JmdictDocument> ReadJmdictAsync()
+    public async Task<JmdictDocument> ReadAsync()
     {
         await _documentTypesReader.ReadAsync();
         var entries = await _entriesReader.ReadAsync();
