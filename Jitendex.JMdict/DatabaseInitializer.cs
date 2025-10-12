@@ -24,7 +24,7 @@ namespace Jitendex.JMdict;
 
 internal static class DatabaseInitializer
 {
-    public static async Task WriteToNewDatabase(JmdictDocument jmdictDocument)
+    public static async Task WriteAsync(JmdictDocument jmdict)
     {
         await using var db = new Context();
 
@@ -49,21 +49,21 @@ internal static class DatabaseInitializer
         await using var transaction = await db.Database.BeginTransactionAsync();
 
         // Begin inserting data.
-        await db.InsertCorporaAsync(jmdictDocument.Corpora);
-        await db.InsertKeywordsAsync(jmdictDocument.CrossReferenceTypes);
-        await db.InsertKeywordsAsync(jmdictDocument.DialectTags);
-        await db.InsertKeywordsAsync(jmdictDocument.ExampleSourceTypes);
-        await db.InsertKeywordsAsync(jmdictDocument.FieldTags);
-        await db.InsertKeywordsAsync(jmdictDocument.GlossTypes);
-        await db.InsertKeywordsAsync(jmdictDocument.KanjiFormInfoTags);
-        await db.InsertKeywordsAsync(jmdictDocument.Languages);
-        await db.InsertKeywordsAsync(jmdictDocument.LanguageSourceTypes);
-        await db.InsertKeywordsAsync(jmdictDocument.MiscTags);
-        await db.InsertKeywordsAsync(jmdictDocument.PartOfSpeechTags);
-        await db.InsertKeywordsAsync(jmdictDocument.PriorityTags);
-        await db.InsertKeywordsAsync(jmdictDocument.ReadingInfoTags);
-        await db.InsertExampleSourcesAsync(jmdictDocument.ExampleSources);
-        await db.InsertEntries(jmdictDocument.Entries);
+        await db.InsertCorporaAsync(jmdict.Corpora);
+        await db.InsertKeywordsAsync(jmdict.CrossReferenceTypes);
+        await db.InsertKeywordsAsync(jmdict.DialectTags);
+        await db.InsertKeywordsAsync(jmdict.ExampleSourceTypes);
+        await db.InsertKeywordsAsync(jmdict.FieldTags);
+        await db.InsertKeywordsAsync(jmdict.GlossTypes);
+        await db.InsertKeywordsAsync(jmdict.KanjiFormInfoTags);
+        await db.InsertKeywordsAsync(jmdict.Languages);
+        await db.InsertKeywordsAsync(jmdict.LanguageSourceTypes);
+        await db.InsertKeywordsAsync(jmdict.MiscTags);
+        await db.InsertKeywordsAsync(jmdict.PartOfSpeechTags);
+        await db.InsertKeywordsAsync(jmdict.PriorityTags);
+        await db.InsertKeywordsAsync(jmdict.ReadingInfoTags);
+        await db.InsertExampleSourcesAsync(jmdict.ExampleSources);
+        await db.InsertEntries(jmdict.Entries);
 
         await transaction.CommitAsync();
 

@@ -64,7 +64,7 @@ public class Program
         var reader = ReaderProvider.GetReader(files);
         var jmdict = await reader.ReadJmdictAsync();
 
-        await DatabaseInitializer.WriteToNewDatabase(jmdict);
+        await DatabaseInitializer.WriteAsync(jmdict);
 
         Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
