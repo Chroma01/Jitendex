@@ -43,7 +43,7 @@ internal static class ReadingData
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertReadings(this JmdictContext db, List<Reading> readings)
+    public static async Task InsertReadings(this Context db, List<Reading> readings)
     {
         var allInfos = new List<ReadingInfo>(readings.Count / 10);
         var allPriorities = new List<ReadingPriority>(readings.Count / 3);

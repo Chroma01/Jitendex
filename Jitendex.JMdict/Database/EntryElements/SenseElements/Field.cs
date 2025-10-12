@@ -43,7 +43,7 @@ internal static class FieldData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertFields(this JmdictContext db, List<Field> fields)
+    public static async Task InsertFields(this Context db, List<Field> fields)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

@@ -45,7 +45,7 @@ internal static class GlossData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} );
         """;
 
-    public static async Task InsertGlosses(this JmdictContext db, List<Gloss> glosses)
+    public static async Task InsertGlosses(this Context db, List<Gloss> glosses)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

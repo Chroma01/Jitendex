@@ -43,7 +43,7 @@ internal static class KanjiFormRestrictionData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertKanjiFormRestrictions(this JmdictContext db, List<KanjiFormRestriction> kanjiFormRestrictions)
+    public static async Task InsertKanjiFormRestrictions(this Context db, List<KanjiFormRestriction> kanjiFormRestrictions)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

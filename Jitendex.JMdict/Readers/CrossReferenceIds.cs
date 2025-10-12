@@ -26,10 +26,10 @@ namespace Jitendex.JMdict.Readers;
 internal partial class CrossReferenceIds
 {
     private readonly ILogger<CrossReferenceIds> _logger;
-    private readonly JmdictFiles _files;
+    private readonly Files _files;
     private ReadOnlyDictionary<string, int>? _xrefToId = null;
 
-    public CrossReferenceIds(ILogger<CrossReferenceIds> logger, JmdictFiles files) =>
+    public CrossReferenceIds(ILogger<CrossReferenceIds> logger, Files files) =>
         (_logger, _files) =
         (@logger, @files);
 

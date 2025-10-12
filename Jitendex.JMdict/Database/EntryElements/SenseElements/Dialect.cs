@@ -43,7 +43,7 @@ internal static class DialectData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertDialects(this JmdictContext db, List<Dialect> dialects)
+    public static async Task InsertDialects(this Context db, List<Dialect> dialects)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

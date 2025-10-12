@@ -43,7 +43,7 @@ internal static class ReadingInfoData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertReadingInfo(this JmdictContext db, List<ReadingInfo> infos)
+    public static async Task InsertReadingInfo(this Context db, List<ReadingInfo> infos)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

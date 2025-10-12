@@ -26,7 +26,7 @@ internal static class DatabaseInitializer
 {
     public static async Task WriteToNewDatabase(JmdictDocument jmdictDocument)
     {
-        await using var db = new JmdictContext();
+        await using var db = new Context();
 
         // Delete and recreate the database file.
         await db.Database.EnsureDeletedAsync();

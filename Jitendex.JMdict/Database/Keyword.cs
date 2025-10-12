@@ -34,7 +34,7 @@ internal static class KeywordData
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
 
-    public static async Task InsertKeywordsAsync<T>(this JmdictContext db, List<T> keywordList) where T : IKeyword
+    public static async Task InsertKeywordsAsync<T>(this Context db, List<T> keywordList) where T : IKeyword
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText =

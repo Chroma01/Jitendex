@@ -47,7 +47,7 @@ internal static class ExampleData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} );
         """;
 
-    public static async Task InsertExamples(this JmdictContext db, List<Example> examples)
+    public static async Task InsertExamples(this Context db, List<Example> examples)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

@@ -43,7 +43,7 @@ internal static class MiscData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertMiscs(this JmdictContext db, List<Misc> miscs)
+    public static async Task InsertMiscs(this Context db, List<Misc> miscs)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

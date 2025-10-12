@@ -51,7 +51,7 @@ internal static class CrossReferenceData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} ,  {P8} );
         """;
 
-    public static async Task InsertCrossReferences(this JmdictContext db, List<CrossReference> crossReferences)
+    public static async Task InsertCrossReferences(this Context db, List<CrossReference> crossReferences)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

@@ -39,7 +39,7 @@ internal static class CorpusData
         ( {P1} ,  {P2} );
         """;
 
-    public static async Task InsertCorporaAsync(this JmdictContext db, List<Corpus> corpora)
+    public static async Task InsertCorporaAsync(this Context db, List<Corpus> corpora)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

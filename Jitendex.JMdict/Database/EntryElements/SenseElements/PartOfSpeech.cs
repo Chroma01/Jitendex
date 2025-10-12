@@ -43,7 +43,7 @@ internal static class PartOfSpeechData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertPartsOfSpeech(this JmdictContext db, List<PartOfSpeech> partsOfSpeech)
+    public static async Task InsertPartsOfSpeech(this Context db, List<PartOfSpeech> partsOfSpeech)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

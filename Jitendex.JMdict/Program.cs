@@ -55,13 +55,13 @@ public class Program
             return;
         }
 
-        var files = new JmdictFiles
+        var files = new Files
         {
             Jmdict = parseResult.GetRequiredValue(jmdictFileArgument),
             XrefIds = parseResult.GetValue(xrefIdsFileOption),
         };
 
-        var reader = JmdictReaderProvider.GetReader(files);
+        var reader = ReaderProvider.GetReader(files);
         var jmdict = await reader.ReadJmdictAsync();
 
         await DatabaseInitializer.WriteToNewDatabase(jmdict);

@@ -43,7 +43,7 @@ internal static class EntryData
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertEntries(this JmdictContext db, List<Entry> entries)
+    public static async Task InsertEntries(this Context db, List<Entry> entries)
     {
         var allReadings = new List<Reading>(entries.Count * 2);
         var allKanjiForms = new List<KanjiForm>(entries.Count * 2);

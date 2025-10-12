@@ -43,7 +43,7 @@ internal static class KanjiFormPriorityData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertKanjiFormPriority(this JmdictContext db, List<KanjiFormPriority> priorities)
+    public static async Task InsertKanjiFormPriority(this Context db, List<KanjiFormPriority> priorities)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

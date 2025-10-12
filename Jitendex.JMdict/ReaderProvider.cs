@@ -30,15 +30,15 @@ using Jitendex.JMdict.Readers.EntryElementReaders.SenseElementReaders;
 
 namespace Jitendex.JMdict;
 
-internal record JmdictFiles
+internal record Files
 {
     public required FileInfo Jmdict { get; init; }
     public required FileInfo? XrefIds { get; init; }
 }
 
-internal static class JmdictReaderProvider
+internal static class ReaderProvider
 {
-    public static JmdictReader GetReader(JmdictFiles files) => new ServiceCollection()
+    public static JmdictReader GetReader(Files files) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -99,7 +99,7 @@ internal static class JmdictReaderProvider
         .AddTransient<ReadingRestrictionReader>()
 
         // Post-processing of entries.
-        .AddTransient<JmdictFiles>(provider => files)
+        .AddTransient<Files>(provider => files)
         .AddTransient<CrossReferenceIds>()
         .AddTransient<ReferenceSequencer>()
 

@@ -22,7 +22,7 @@ using Jitendex.JMdict.Models;
 
 namespace Jitendex.JMdict;
 
-public class JmdictContext : DbContext
+public class Context : DbContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
     public DbSet<Corpus> Corpora { get; set; } = null!;
@@ -46,7 +46,7 @@ public class JmdictContext : DbContext
 
     public string DbPath { get; }
 
-    public JmdictContext()
+    public Context()
     {
         var dbFolder = Path.Join
         (

@@ -43,7 +43,7 @@ internal static class SenseData
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertSenses(this JmdictContext db, List<Sense> senses)
+    public static async Task InsertSenses(this Context db, List<Sense> senses)
     {
         var allCrossReferences = new List<CrossReference>(senses.Count / 5);
         var allDialects = new List<Dialect>(senses.Count / 100);

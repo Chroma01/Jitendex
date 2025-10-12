@@ -43,7 +43,7 @@ internal static class KanjiFormReadingData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
-    public static async Task InsertKanjiFormReadingJoins(this JmdictContext db, List<KanjiForm> kanjiForms)
+    public static async Task InsertKanjiFormReadingJoins(this Context db, List<KanjiForm> kanjiForms)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;

@@ -49,7 +49,7 @@ internal static class LanguageSourceData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} );
         """;
 
-    public static async Task InsertLanguageSources(this JmdictContext db, List<LanguageSource> languageSources)
+    public static async Task InsertLanguageSources(this Context db, List<LanguageSource> languageSources)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
