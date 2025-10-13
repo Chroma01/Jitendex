@@ -33,6 +33,6 @@ public class ComponentAttributes
     public bool IsTradForm { get; set; }
     public bool IsRadicalForm { get; set; }
     public string Position { get; set; } = string.Empty;
-    public string? Radical { get; set; }
+    public string Radical { get; set; } = string.Empty;
     public string? Phon { get; set; }
 }

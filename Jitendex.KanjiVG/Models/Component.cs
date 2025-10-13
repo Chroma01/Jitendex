@@ -40,7 +40,7 @@ public class Component
     public required bool IsTradForm { get; set; }
     public required bool IsRadicalForm { get; set; }
     public required int PositionId { get; set; }
-    public required string? Radical { get; set; }
+    public required int RadicalId { get; set; }
     public required string? Phon { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}")]
@@ -51,6 +51,9 @@ public class Component
 
     [ForeignKey(nameof(PositionId))]
     public required ComponentPosition Position { get; set; }
+
+    [ForeignKey(nameof(RadicalId))]
+    public required ComponentRadical Radical { get; set; }
 
     public List<Component> Children { get; set; } = [];
 

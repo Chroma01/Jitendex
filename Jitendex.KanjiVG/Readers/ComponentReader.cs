@@ -29,19 +29,22 @@ internal partial class ComponentReader
     private readonly ComponentAttributesReader _attributesReader;
     private readonly StrokeReader _strokeReader;
     private readonly ComponentPositionCache _positionCache;
+    private readonly ComponentRadicalCache _radicalCache;
 
     public ComponentReader(
         ILogger<ComponentReader> logger,
         ComponentAttributesReader attributesReader,
         StrokeReader strokeReader,
-        ComponentPositionCache positionCache) =>
-        (_logger, _attributesReader, _strokeReader, _positionCache) =
-        (@logger, @attributesReader, @strokeReader, @positionCache);
+        ComponentPositionCache positionCache,
+        ComponentRadicalCache radicalCache) =>
+        (_logger, _attributesReader, _strokeReader, _positionCache, _radicalCache) =
+        (@logger, @attributesReader, @strokeReader, @positionCache, @radicalCache);
 
     public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {
         var attributes = _attributesReader.Read(xmlReader, group);
         var position = _positionCache.Get(attributes.Position);
+        var radical = _radicalCache.Get(attributes.Radical);
 
         var component = new Component
         {
@@ -59,15 +62,17 @@ internal partial class ComponentReader
             IsTradForm = attributes.IsTradForm,
             IsRadicalForm = attributes.IsRadicalForm,
             PositionId = position.Id,
-            Radical = attributes.Radical,
+            RadicalId = radical.Id,
             Phon = attributes.Phon,
             Group = group,
             Parent = null,
             Position = position,
+            Radical = radical,
         };
 
         group.Components.Add(component);
         position.Components.Add(component);
+        radical.Components.Add(component);
 
         if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
         {
@@ -97,6 +102,7 @@ internal partial class ComponentReader
     {
         var attributes = _attributesReader.Read(xmlReader, parent.Group);
         var position = _positionCache.Get(attributes.Position);
+        var radical = _radicalCache.Get(attributes.Radical);
 
         var component = new Component
         {
@@ -114,15 +120,17 @@ internal partial class ComponentReader
             IsTradForm = attributes.IsTradForm,
             IsRadicalForm = attributes.IsRadicalForm,
             PositionId = position.Id,
-            Radical = attributes.Radical,
+            RadicalId = radical.Id,
             Phon = attributes.Phon,
             Group = parent.Group,
             Parent = parent,
             Position = position,
+            Radical = radical,
         };
 
         parent.Children.Add(component);
         position.Components.Add(component);
+        radical.Components.Add(component);
 
         if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
         {

@@ -30,6 +30,7 @@ internal partial class KanjiVGReader
     private readonly ComponentGroupStyleCache _componentGroupStyleCache;
     private readonly StrokeNumberGroupStyleCache _strokeNumberGroupStyleCache;
     private readonly ComponentPositionCache _positionCache;
+    private readonly ComponentRadicalCache _radicalCache;
     private readonly StrokeTypeCache _strokeTypeCache;
 
     public KanjiVGReader(
@@ -39,9 +40,10 @@ internal partial class KanjiVGReader
         ComponentGroupStyleCache componentGroupStyleCache,
         StrokeNumberGroupStyleCache strokeNumberGroupStyleCache,
         ComponentPositionCache positionCache,
+        ComponentRadicalCache radicalCache,
         StrokeTypeCache strokeTypeCache) =>
-        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _positionCache, _strokeTypeCache) =
-        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @positionCache, @strokeTypeCache);
+        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _positionCache, _radicalCache, _strokeTypeCache) =
+        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @positionCache, @radicalCache, @strokeTypeCache);
 
     public async Task<KanjiVGDocument> ReadAsync()
     {
@@ -54,6 +56,7 @@ internal partial class KanjiVGReader
             ComponentGroupStyles = [.. _componentGroupStyleCache.Values],
             StrokeNumberGroupStyles = [.. _strokeNumberGroupStyleCache.Values],
             ComponentPositions = [.. _positionCache.Values],
+            ComponentRadicals = [.. _radicalCache.Values],
             StrokeTypes = [.. _strokeTypeCache.Values],
         };
 
