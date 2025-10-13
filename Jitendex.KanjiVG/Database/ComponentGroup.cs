@@ -41,26 +41,26 @@ internal static class ComponentGroupData
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertComponentGroupsAsync(this Context db, List<ComponentGroup> componentGroups)
+    public static async Task InsertComponentGroupsAsync(this Context db, List<ComponentGroup> groups)
     {
-        var allComponents = new List<Component>(componentGroups.Count * 8);
+        var allComponents = new List<Component>(groups.Count * 8);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
             command.CommandText = InsertSql;
 
-            foreach (var componentGroup in componentGroups)
+            foreach (var group in groups)
             {
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
-                    new(P1, componentGroup.UnicodeScalarValue),
-                    new(P2, componentGroup.VariantTypeId),
-                    new(P3, componentGroup.StyleId),
+                    new(P1, group.UnicodeScalarValue),
+                    new(P2, group.VariantTypeId),
+                    new(P3, group.StyleId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();
 
-                allComponents.AddRange(EnumerateComponents(componentGroup.Components));
+                allComponents.AddRange(EnumerateComponents(group.Components));
 
                 await commandExecution;
                 command.Parameters.Clear();

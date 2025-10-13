@@ -41,26 +41,26 @@ internal static class StrokeNumberGroupData
         ( {P1} ,  {P2} ,  {P3} );
         """;
 
-    public static async Task InsertStrokeNumberGroupsAsync(this Context db, List<StrokeNumberGroup> strokeNumberGroups)
+    public static async Task InsertStrokeNumberGroupsAsync(this Context db, List<StrokeNumberGroup> groups)
     {
-        var allStrokeNumbers = new List<StrokeNumber>(strokeNumberGroups.Count * 13);
+        var allStrokeNumbers = new List<StrokeNumber>(groups.Count * 13);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {
             command.CommandText = InsertSql;
 
-            foreach (var strokeNumberGroup in strokeNumberGroups)
+            foreach (var group in groups)
             {
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
-                    new(P1, strokeNumberGroup.UnicodeScalarValue),
-                    new(P2, strokeNumberGroup.VariantTypeId),
-                    new(P3, strokeNumberGroup.StyleId),
+                    new(P1, group.UnicodeScalarValue),
+                    new(P2, group.VariantTypeId),
+                    new(P3, group.StyleId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();
 
-                allStrokeNumbers.AddRange(strokeNumberGroup.StrokeNumbers);
+                allStrokeNumbers.AddRange(group.StrokeNumbers);
 
                 await commandExecution;
                 command.Parameters.Clear();
