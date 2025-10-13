@@ -32,7 +32,7 @@ public class ComponentAttributes
     public int? Number { get; set; }
     public bool TradForm { get; set; }
     public bool RadicalForm { get; set; }
-    public string? Position { get; set; }
+    public string Position { get; set; } = string.Empty;
     public string? Radical { get; set; }
     public string? Phon { get; set; }
 }

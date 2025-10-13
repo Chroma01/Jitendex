@@ -43,10 +43,11 @@ internal static class ReaderProvider
         .AddSingleton<Files>(provider => paths)
         .AddTransient<KanjiFiles>()
 
-        // Global metadata
+        // Global lookup types
         .AddSingleton<VariantTypeCache>()
         .AddSingleton<ComponentGroupStyleCache>()
         .AddSingleton<StrokeNumberGroupStyleCache>()
+        .AddSingleton<ComponentPositionCache>()
         .AddSingleton<StrokeTypeCache>()
 
         // Top-level readers.

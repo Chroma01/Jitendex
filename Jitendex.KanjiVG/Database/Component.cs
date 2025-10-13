@@ -39,7 +39,7 @@ internal static class ComponentData
     private const string C11 = nameof(Component.Number);
     private const string C12 = nameof(Component.TradForm);
     private const string C13 = nameof(Component.RadicalForm);
-    private const string C14 = nameof(Component.Position);
+    private const string C14 = nameof(Component.PositionId);
     private const string C15 = nameof(Component.Radical);
     private const string C16 = nameof(Component.Phon);
 
@@ -93,7 +93,7 @@ internal static class ComponentData
                     new(P11, component.Number.Nullable()),
                     new(P12, component.TradForm),
                     new(P13, component.RadicalForm),
-                    new(P14, component.Position.Nullable()),
+                    new(P14, component.PositionId),
                     new(P15, component.Radical.Nullable()),
                     new(P16, component.Phon.Nullable()),
                 });

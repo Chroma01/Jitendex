@@ -39,7 +39,7 @@ public class Component
     public required int? Number { get; set; }
     public required bool TradForm { get; set; }
     public required bool RadicalForm { get; set; }
-    public required string? Position { get; set; }
+    public required int PositionId { get; set; }
     public required string? Radical { get; set; }
     public required string? Phon { get; set; }
 
@@ -48,6 +48,9 @@ public class Component
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}, {nameof(ParentGlobalOrder)}")]
     public required Component? Parent { get; set; }
+
+    [ForeignKey(nameof(PositionId))]
+    public required ComponentPosition Position { get; set; }
 
     public List<Component> Children { get; set; } = [];
 

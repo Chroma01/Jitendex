@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
+using Jitendex.KanjiVG.Readers.Lookups;
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -27,14 +28,20 @@ internal partial class ComponentReader
     private readonly ILogger<ComponentReader> _logger;
     private readonly ComponentAttributesReader _attributesReader;
     private readonly StrokeReader _strokeReader;
+    private readonly ComponentPositionCache _positionCache;
 
-    public ComponentReader(ILogger<ComponentReader> logger, ComponentAttributesReader attributesReader, StrokeReader strokeReader) =>
-        (_logger, _attributesReader, _strokeReader) =
-        (@logger, @attributesReader, @strokeReader);
+    public ComponentReader(
+        ILogger<ComponentReader> logger,
+        ComponentAttributesReader attributesReader,
+        StrokeReader strokeReader,
+        ComponentPositionCache positionCache) =>
+        (_logger, _attributesReader, _strokeReader, _positionCache) =
+        (@logger, @attributesReader, @strokeReader, @positionCache);
 
     public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {
         var attributes = _attributesReader.Read(xmlReader, group);
+        var position = _positionCache.Get(attributes.Position);
 
         var component = new Component
         {
@@ -51,14 +58,16 @@ internal partial class ComponentReader
             Number = attributes.Number,
             TradForm = attributes.TradForm,
             RadicalForm = attributes.RadicalForm,
-            Position = attributes.Position,
+            PositionId = position.Id,
             Radical = attributes.Radical,
             Phon = attributes.Phon,
             Group = group,
             Parent = null,
+            Position = position,
         };
 
         group.Components.Add(component);
+        position.Components.Add(component);
 
         if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
         {
@@ -87,6 +96,7 @@ internal partial class ComponentReader
     private async Task ReadAsync(XmlReader xmlReader, Component parent)
     {
         var attributes = _attributesReader.Read(xmlReader, parent.Group);
+        var position = _positionCache.Get(attributes.Position);
 
         var component = new Component
         {
@@ -103,14 +113,16 @@ internal partial class ComponentReader
             Number = attributes.Number,
             TradForm = attributes.TradForm,
             RadicalForm = attributes.RadicalForm,
-            Position = attributes.Position,
+            PositionId = position.Id,
             Radical = attributes.Radical,
             Phon = attributes.Phon,
             Group = parent.Group,
             Parent = parent,
+            Position = position,
         };
 
         parent.Children.Add(component);
+        position.Components.Add(component);
 
         if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
         {
