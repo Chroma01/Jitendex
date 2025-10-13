@@ -68,7 +68,7 @@ internal partial class DocumentTypesReader
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdEntityRegex();
 
-    private static Dictionary<string, string> ParseEntities(string dtd)
+    private Dictionary<string, string> ParseEntities(string dtd)
     {
         var entityNameToDescription = new Dictionary<string, string>();
         foreach (Match match in DtdEntityRegex().Matches(dtd))
@@ -80,7 +80,7 @@ internal partial class DocumentTypesReader
             {
                 if (description != oldDescription)
                 {
-                    throw new Exception($"Keyword `{name}` has multiple descriptions in the Jmdict DTD");
+                    _logger.LogError("Keyword `{Name}` has multiple descriptions in the Jmdict DTD", name);
                 }
             }
             else
