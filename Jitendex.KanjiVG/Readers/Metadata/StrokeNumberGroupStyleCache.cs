@@ -29,13 +29,13 @@ internal partial class StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyl
         Text = text,
     };
 
-    protected override bool IsKnownStyle(string style) => style switch
+    protected override bool IsKnownStyle(string text) => text switch
     {
         "font-size:8;fill:#808080" => true,
         _ => false
     };
 
     [LoggerMessage(LogLevel.Warning,
-    "File `{File}` contains a stroke number group with an unknown style attribute: `{Style}`")]
-    protected override partial void LogUnknownStyle(string file, string style);
+    "File `{File}` contains a stroke number group with an unknown style attribute: `{Text}`")]
+    protected override partial void LogUnknownStyle(string file, string text);
 }

@@ -45,6 +45,6 @@ internal abstract class GroupStyleCache<T> where T: IGroupStyle
     }
 
     protected abstract T NewGroup(int id, string text);
-    protected abstract bool IsKnownStyle(string style);
-    protected abstract void LogUnknownStyle(string file, string style);
+    protected abstract bool IsKnownStyle(string text);
+    protected abstract void LogUnknownStyle(string file, string text);
 }
