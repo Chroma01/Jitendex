@@ -25,13 +25,13 @@ public class ComponentAttributes
 {
     public required string Id { get; set; }
     public string? Text { get; set; }
-    public bool Variant { get; set; }
-    public bool Partial { get; set; }
+    public bool IsVariant { get; set; }
+    public bool IsPartial { get; set; }
     public string? Original { get; set; }
     public int? Part { get; set; }
     public int? Number { get; set; }
-    public bool TradForm { get; set; }
-    public bool RadicalForm { get; set; }
+    public bool IsTradForm { get; set; }
+    public bool IsRadicalForm { get; set; }
     public string Position { get; set; } = string.Empty;
     public string? Radical { get; set; }
     public string? Phon { get; set; }

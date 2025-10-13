@@ -32,13 +32,13 @@ internal static class ComponentData
     private const string C4 = nameof(Component.ParentGlobalOrder);
     private const string C5 = nameof(Component.LocalOrder);
     private const string C6 = nameof(Component.Text);
-    private const string C7 = nameof(Component.Variant);
-    private const string C8 = nameof(Component.Partial);
+    private const string C7 = nameof(Component.IsVariant);
+    private const string C8 = nameof(Component.IsPartial);
     private const string C9 = nameof(Component.Original);
     private const string C10 = nameof(Component.Part);
     private const string C11 = nameof(Component.Number);
-    private const string C12 = nameof(Component.TradForm);
-    private const string C13 = nameof(Component.RadicalForm);
+    private const string C12 = nameof(Component.IsTradForm);
+    private const string C13 = nameof(Component.IsRadicalForm);
     private const string C14 = nameof(Component.PositionId);
     private const string C15 = nameof(Component.Radical);
     private const string C16 = nameof(Component.Phon);
@@ -86,13 +86,13 @@ internal static class ComponentData
                     new(P4, component.ParentGlobalOrder.Nullable()),
                     new(P5, component.LocalOrder),
                     new(P6, component.Text.Nullable()),
-                    new(P7, component.Variant),
-                    new(P8, component.Partial),
+                    new(P7, component.IsVariant),
+                    new(P8, component.IsPartial),
                     new(P9, component.Original.Nullable()),
                     new(P10, component.Part.Nullable()),
                     new(P11, component.Number.Nullable()),
-                    new(P12, component.TradForm),
-                    new(P13, component.RadicalForm),
+                    new(P12, component.IsTradForm),
+                    new(P13, component.IsRadicalForm),
                     new(P14, component.PositionId),
                     new(P15, component.Radical.Nullable()),
                     new(P16, component.Phon.Nullable()),

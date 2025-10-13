@@ -52,10 +52,10 @@ internal partial class ComponentAttributesReader
                     attributes.Text = xmlReader.Value;
                     break;
                 case "kvg:variant":
-                    attributes.Variant = GetBoolean(xmlReader.Name, xmlReader.Value, group);
+                    attributes.IsVariant = GetBoolean(xmlReader.Name, xmlReader.Value, group);
                     break;
                 case "kvg:partial":
-                    attributes.Partial = GetBoolean(xmlReader.Name, xmlReader.Value, group);
+                    attributes.IsPartial = GetBoolean(xmlReader.Name, xmlReader.Value, group);
                     break;
                 case "kvg:original":
                     attributes.Original = xmlReader.Value;
@@ -67,10 +67,10 @@ internal partial class ComponentAttributesReader
                     attributes.Number = GetInt(xmlReader.Name, xmlReader.Value, group);
                     break;
                 case "kvg:tradForm":
-                    attributes.TradForm = GetBoolean(xmlReader.Name, xmlReader.Value, group);
+                    attributes.IsTradForm = GetBoolean(xmlReader.Name, xmlReader.Value, group);
                     break;
                 case "kvg:radicalForm":
-                    attributes.RadicalForm = GetBoolean(xmlReader.Name, xmlReader.Value, group);
+                    attributes.IsRadicalForm = GetBoolean(xmlReader.Name, xmlReader.Value, group);
                     break;
                 case "kvg:position":
                     attributes.Position = xmlReader.Value;

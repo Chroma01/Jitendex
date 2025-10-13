@@ -32,13 +32,13 @@ public class Component
     public required int LocalOrder { get; set; }
 
     public required string? Text { get; set; }
-    public required bool Variant { get; set; }
-    public required bool Partial { get; set; }
+    public required bool IsVariant { get; set; }
+    public required bool IsPartial { get; set; }
     public required string? Original { get; set; }
     public required int? Part { get; set; }
     public required int? Number { get; set; }
-    public required bool TradForm { get; set; }
-    public required bool RadicalForm { get; set; }
+    public required bool IsTradForm { get; set; }
+    public required bool IsRadicalForm { get; set; }
     public required int PositionId { get; set; }
     public required string? Radical { get; set; }
     public required string? Phon { get; set; }
