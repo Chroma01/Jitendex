@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 
@@ -23,18 +24,17 @@ namespace Jitendex.KanjiVG.Readers.Lookups;
 
 internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache> logger) : LookupCache<ComponentGroupStyle>
 {
-    protected override ComponentGroupStyle NewLookup(int id, string text) => new ComponentGroupStyle
+    protected override ComponentGroupStyle NewLookup(int id, string text) => new()
     {
         Id = id,
         Text = text,
     };
 
-    protected override bool IsKnownLookup(string text) => text switch
-    {
-        "fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" => true,
-        "fill:#000000;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" => true,
-        _ => false
-    };
+    protected override ImmutableArray<string> KnownLookups() =>
+    [
+        "fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;",
+        "fill:#000000;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;",
+    ];
 
     [LoggerMessage(LogLevel.Warning,
     "File `{File}` contains a component group with an unknown style attribute: `{Text}`")]

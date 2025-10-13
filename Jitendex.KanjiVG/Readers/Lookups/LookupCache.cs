@@ -16,28 +16,39 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers.Lookups;
 
-internal abstract class LookupCache<T> where T: ILookup
+internal abstract class LookupCache<T> where T : ILookup
 {
     private readonly Dictionary<string, T> _cache = [];
+    private readonly Dictionary<string, int> _textToId;
     public IEnumerable<T> Values() => _cache.Values;
+
+    public LookupCache()
+    {
+        _textToId = KnownLookups()
+            .Select(static (text, index) =>
+                new KeyValuePair<string, int>(text, index + 1))
+            .ToDictionary();
+    }
 
     public T Get(Entry entry, string text)
     {
-        if (!IsKnownLookup(text))
-        {
-            LogUnknownLookup(entry.FileName(), text);
-        }
-
         if (_cache.TryGetValue(text, out T? lookup))
         {
             return lookup;
         }
 
-        int id = _cache.Count + 1;
+        if (!_textToId.TryGetValue(text, out int id))
+        {
+            LogUnknownLookup(entry.FileName(), text);
+            id = _textToId.Count + 1;
+            _textToId[text] = id;
+        }
+
         lookup = NewLookup(id, text);
 
         _cache.Add(text, lookup);
@@ -45,6 +56,6 @@ internal abstract class LookupCache<T> where T: ILookup
     }
 
     protected abstract T NewLookup(int id, string text);
-    protected abstract bool IsKnownLookup(string text);
+    protected abstract ImmutableArray<string> KnownLookups();
     protected abstract void LogUnknownLookup(string file, string text);
 }

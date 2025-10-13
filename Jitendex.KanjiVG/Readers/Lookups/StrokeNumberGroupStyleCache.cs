@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 
@@ -23,17 +24,16 @@ namespace Jitendex.KanjiVG.Readers.Lookups;
 
 internal partial class StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyleCache> logger) : LookupCache<StrokeNumberGroupStyle>
 {
-    protected override StrokeNumberGroupStyle NewLookup(int id, string text) => new StrokeNumberGroupStyle
+    protected override StrokeNumberGroupStyle NewLookup(int id, string text) => new()
     {
         Id = id,
         Text = text,
     };
 
-    protected override bool IsKnownLookup(string text) => text switch
-    {
-        "font-size:8;fill:#808080" => true,
-        _ => false
-    };
+    protected override ImmutableArray<string> KnownLookups() =>
+    [
+        "font-size:8;fill:#808080",
+    ];
 
     [LoggerMessage(LogLevel.Warning,
     "File `{File}` contains a stroke number group with an unknown style attribute: `{Text}`")]
