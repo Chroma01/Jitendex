@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
+using Jitendex.SQLite;
 
 namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
@@ -61,7 +62,7 @@ internal static class LanguageSourceData
                 new(P1, languageSource.EntryId),
                 new(P2, languageSource.SenseOrder),
                 new(P3, languageSource.Order),
-                new(P4, languageSource.Text is null ? DBNull.Value : languageSource.Text),
+                new(P4, languageSource.Text.Nullable()),
                 new(P5, languageSource.LanguageCode),
                 new(P6, languageSource.TypeName),
                 new(P7, languageSource.IsWasei),

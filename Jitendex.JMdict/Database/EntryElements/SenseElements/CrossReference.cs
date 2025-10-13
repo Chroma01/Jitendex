@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
+using Jitendex.SQLite;
 
 namespace Jitendex.JMdict.Database.EntryElements.SenseElements;
 
@@ -67,7 +68,7 @@ internal static class CrossReferenceData
                 new(P5, crossReference.RefEntryId),
                 new(P6, crossReference.RefSenseOrder),
                 new(P7, crossReference.RefReadingOrder),
-                new(P8, crossReference.RefKanjiFormOrder is null ? DBNull.Value : crossReference.RefKanjiFormOrder),
+                new(P8, crossReference.RefKanjiFormOrder.Nullable()),
             });
 
             await command.ExecuteNonQueryAsync();

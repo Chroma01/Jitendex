@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Models.EntryElements;
+using Jitendex.SQLite;
 
 namespace Jitendex.Kanjidic2.Database.EntryElements;
 
@@ -58,7 +59,7 @@ internal static class QueryCodeData
                 new(P2, queryCode.Order),
                 new(P3, queryCode.Text),
                 new(P4, queryCode.TypeName),
-                new(P5, queryCode.Misclassification is null ? DBNull.Value : queryCode.Misclassification),
+                new(P5, queryCode.Misclassification.Nullable()),
             });
 
             await command.ExecuteNonQueryAsync();

@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.KanjiVG.Models;
+using Jitendex.SQLite;
 
 namespace Jitendex.KanjiVG.Database;
 
@@ -82,19 +83,19 @@ internal static class ComponentData
                     new(P1, component.UnicodeScalarValue),
                     new(P2, component.VariantTypeName),
                     new(P3, component.GlobalOrder),
-                    new(P4, component.ParentGlobalOrder is null ? DBNull.Value : component.ParentGlobalOrder),
+                    new(P4, component.ParentGlobalOrder.Nullable()),
                     new(P5, component.LocalOrder),
-                    new(P6, component.Text is null ? DBNull.Value : component.Text),
+                    new(P6, component.Text.Nullable()),
                     new(P7, component.Variant),
                     new(P8, component.Partial),
-                    new(P9, component.Original is null ? DBNull.Value : component.Original),
-                    new(P10, component.Part is null ? DBNull.Value : component.Part),
-                    new(P11, component.Number is null ? DBNull.Value : component.Number),
+                    new(P9, component.Original.Nullable()),
+                    new(P10, component.Part.Nullable()),
+                    new(P11, component.Number.Nullable()),
                     new(P12, component.TradForm),
                     new(P13, component.RadicalForm),
-                    new(P14, component.Position is null ? DBNull.Value : component.Position),
-                    new(P15, component.Radical is null ? DBNull.Value : component.Radical),
-                    new(P16, component.Phon is null ? DBNull.Value : component.Phon),
+                    new(P14, component.Position.Nullable()),
+                    new(P15, component.Radical.Nullable()),
+                    new(P16, component.Phon.Nullable()),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

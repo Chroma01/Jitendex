@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Database.EntryElements.SenseElements;
 using Jitendex.JMdict.Models.EntryElements;
 using Jitendex.JMdict.Models.EntryElements.SenseElements;
+using Jitendex.SQLite;
 
 namespace Jitendex.JMdict.Database.EntryElements;
 
@@ -66,7 +67,7 @@ internal static class SenseData
                 {
                     new(P1, sense.EntryId),
                     new(P2, sense.Order),
-                    new(P3, sense.Note is null ? DBNull.Value : sense.Note),
+                    new(P3, sense.Note.Nullable()),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

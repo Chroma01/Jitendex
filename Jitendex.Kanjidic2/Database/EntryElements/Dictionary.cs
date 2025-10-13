@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Models.EntryElements;
+using Jitendex.SQLite;
 
 namespace Jitendex.Kanjidic2.Database.EntryElements;
 
@@ -60,8 +61,8 @@ internal static class DictionaryData
                 new(P2, dictionary.Order),
                 new(P3, dictionary.Text),
                 new(P4, dictionary.TypeName),
-                new(P5, dictionary.Volume is null? DBNull.Value : dictionary.Volume),
-                new(P6, dictionary.Page is null? DBNull.Value : dictionary.Page),
+                new(P5, dictionary.Volume.Nullable()),
+                new(P6, dictionary.Page.Nullable()),
             });
 
             await command.ExecuteNonQueryAsync();

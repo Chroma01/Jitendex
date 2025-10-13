@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Database.EntryElements;
 using Jitendex.Kanjidic2.Models;
 using Jitendex.Kanjidic2.Models.EntryElements;
+using Jitendex.SQLite;
 
 namespace Jitendex.Kanjidic2.Database;
 
@@ -73,9 +74,9 @@ internal static class EntryData
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
                     new(P1, entry.UnicodeScalarValue),
-                    new(P2, entry.Grade is null ? DBNull.Value : entry.Grade),
-                    new(P3, entry.Frequency is null ? DBNull.Value : entry.Frequency),
-                    new(P4, entry.JlptLevel is null ? DBNull.Value : entry.JlptLevel),
+                    new(P2, entry.Grade.Nullable()),
+                    new(P3, entry.Frequency.Nullable()),
+                    new(P4, entry.JlptLevel.Nullable()),
                     new(P5, entry.IsKokuji),
                     new(P6, entry.IsGhost),
                     new(P7, entry.IsCorrupt),

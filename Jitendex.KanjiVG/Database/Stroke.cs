@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.KanjiVG.Models;
+using Jitendex.SQLite;
 
 namespace Jitendex.KanjiVG.Database;
 
@@ -63,7 +64,7 @@ internal static class StrokeData
                 new(P3, stroke.Id),
                 new(P4, stroke.ComponentGlobalOrder),
                 new(P5, stroke.Order),
-                new(P6, stroke.Type is null ? DBNull.Value : stroke.Type),
+                new(P6, stroke.Type.Nullable()),
                 new(P7, stroke.PathData),
             });
 
