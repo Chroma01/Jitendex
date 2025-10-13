@@ -27,8 +27,8 @@ public class ComponentGroup
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
+    public required string Style { get; set; }
 
-    public required string? Style { get; set; }
     public List<Component> Components { get; set; } = [];
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]

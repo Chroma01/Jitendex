@@ -33,7 +33,7 @@ internal partial class EntriesReader
 
     public async Task<List<Entry>> ReadAsync()
     {
-        var entries = new List<Entry>();
+        var entries = new List<Entry>(12_000);
 
         await foreach(var (fileName, xmlReader) in _kanjiFiles.EnumerateAsync())
         {

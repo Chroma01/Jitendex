@@ -72,10 +72,10 @@ internal partial class StrokeNumberGroupReader
         }
     }
 
-    private (string Id, string? Style) GetAttributes(XmlReader xmlReader, Entry entry)
+    private (string, string) GetAttributes(XmlReader xmlReader, Entry entry)
     {
         string id = null!;
-        string? style = null;
+        string style = null!;
 
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
@@ -105,8 +105,14 @@ internal partial class StrokeNumberGroupReader
 
         if (id is null)
         {
-            LogMissingId(entry.FileName());
+            LogMissingAttribute(entry.FileName(), "id");
             id = Guid.NewGuid().ToString();
+        }
+
+        if (style is null)
+        {
+            LogMissingAttribute(entry.FileName(), "style");
+            style = string.Empty;
         }
 
         return (id, style);
@@ -126,12 +132,12 @@ internal partial class StrokeNumberGroupReader
     }
 
     [LoggerMessage(LogLevel.Warning,
-    "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
+    "Unknown stroke number group attribute name `{Name}` with value `{Value}` in file `{File}`")]
     private partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
-    "Cannot find component group ID attribute in file `{File}`")]
-    private partial void LogMissingId(string file);
+    "Cannot find stroke number group `{AttributeName}` attribute in file `{File}`")]
+    private partial void LogMissingAttribute(string file, string attributeName);
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]

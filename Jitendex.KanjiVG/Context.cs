@@ -22,8 +22,8 @@ using Jitendex.SQLite;
 
 namespace Jitendex.KanjiVG;
 
-public class KanjiVGContext : SqliteContext
+public class Context : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
-    public KanjiVGContext() : base("kanjivg.db") { }
+    public Context() : base("kanjivg.db") { }
 }

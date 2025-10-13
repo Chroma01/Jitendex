@@ -72,10 +72,10 @@ internal partial class ComponentGroupReader
         }
     }
 
-    private (string Id, string? Style) GetAttributes(XmlReader xmlReader, Entry entry)
+    private (string, string) GetAttributes(XmlReader xmlReader, Entry entry)
     {
         string id = null!;
-        string? style = null;
+        string style = null!;
 
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
@@ -105,8 +105,14 @@ internal partial class ComponentGroupReader
 
         if (id is null)
         {
-            LogMissingId(entry.FileName());
+            LogMissingAttribute(entry.FileName(), "id");
             id = Guid.NewGuid().ToString();
+        }
+
+        if (style is null)
+        {
+            LogMissingAttribute(entry.FileName(), "style");
+            style = string.Empty;
         }
 
         return (id, style);
@@ -142,6 +148,6 @@ internal partial class ComponentGroupReader
     private partial void LogMultipleGroups(string fileName);
 
     [LoggerMessage(LogLevel.Warning,
-    "Cannot find component group ID attribute in file `{File}`")]
-    private partial void LogMissingId(string file);
+    "Cannot find component group `{AttributeName}` attribute in file `{File}`")]
+    private partial void LogMissingAttribute(string file, string attributeName);
 }

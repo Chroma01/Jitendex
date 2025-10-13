@@ -54,9 +54,9 @@ internal partial class StrokeNumberReader
         group.StrokeNumbers.Add(strokeNumber);
     }
 
-    private string? GetTransformAttribute(XmlReader xmlReader, StrokeNumberGroup group)
+    private string GetTransformAttribute(XmlReader xmlReader, StrokeNumberGroup group)
     {
-        string? transform = null;
+        string transform = null!;
 
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
@@ -81,6 +81,12 @@ internal partial class StrokeNumberReader
             xmlReader.MoveToElement();
         }
 
+        if (transform is null)
+        {
+            LogMissingAttribute(group.Entry.FileName(), "transform");
+            transform = string.Empty;
+        }
+
         return transform;
     }
 
@@ -101,6 +107,10 @@ internal partial class StrokeNumberReader
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
     private partial void LogUnknownAttributeName(string name, string value, string file);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Cannot find stroke number `{AttributeName}` attribute in file `{File}`")]
+    private partial void LogMissingAttribute(string file, string attributeName);
 
     [LoggerMessage(LogLevel.Warning,
     "Stroke number text `{Text}` is not an integer")]
