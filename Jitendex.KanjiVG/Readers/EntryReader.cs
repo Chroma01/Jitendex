@@ -79,8 +79,6 @@ internal partial class EntryReader
             return null;
         }
 
-        CheckStrokeNumberCount(entry);
-
         return entry;
     }
 
@@ -139,16 +137,6 @@ internal partial class EntryReader
         }
     }
 
-    private void CheckStrokeNumberCount(Entry entry)
-    {
-        int componentStrokeCount = entry.ComponentGroup.StrokeCount();
-        int strokeNumberCount = entry.StrokeNumberGroup.StrokeNumbers.Count;
-        if (componentStrokeCount != strokeNumberCount)
-        {
-            LogStrokeCountMismatch(entry.FileName(), componentStrokeCount, strokeNumberCount);
-        }
-    }
-
     [GeneratedRegex(pattern: @"^(.+?)(?:-(.+?))?\.svg$", RegexOptions.None)]
     private static partial Regex FileNameRegex();
 
@@ -171,8 +159,4 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected group element ID `{Id}` in file `{FileName}`")]
     private partial void LogUnexpectedGroupIdPrefix(string id, string fileName);
-
-    [LoggerMessage(LogLevel.Warning,
-    "File `{File}` contains {ComponentStrokes} stroke paths and {StrokeNumbers} stroke numbers")]
-    private partial void LogStrokeCountMismatch(string file, int componentStrokes, int strokeNumbers);
 }

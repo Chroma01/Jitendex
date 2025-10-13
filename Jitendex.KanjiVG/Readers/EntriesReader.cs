@@ -40,10 +40,25 @@ internal partial class EntriesReader
             var entry = await _entryReader.ReadAsync(fileName, xmlReader);
             if (entry is not null)
             {
+                CheckStrokeNumberCount(entry);
                 entries.Add(entry);
             }
         }
 
         return entries;
     }
+
+    private void CheckStrokeNumberCount(Entry entry)
+    {
+        int componentStrokeCount = entry.ComponentGroup.StrokeCount();
+        int strokeNumberCount = entry.StrokeNumberGroup.StrokeNumbers.Count;
+        if (componentStrokeCount != strokeNumberCount)
+        {
+            LogStrokeCountMismatch(entry.FileName(), componentStrokeCount, strokeNumberCount);
+        }
+    }
+
+    [LoggerMessage(LogLevel.Warning,
+    "File `{File}` contains {ComponentStrokes} stroke paths and {StrokeNumbers} stroke numbers")]
+    private partial void LogStrokeCountMismatch(string file, int componentStrokes, int strokeNumbers);
 }
