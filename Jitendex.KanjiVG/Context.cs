@@ -25,5 +25,6 @@ namespace Jitendex.KanjiVG;
 public class Context : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
+    public DbSet<ComponentGroupStyle> ComponentGroupStyles { get; set; } = null!;
     public Context() : base("kanjivg.db") { }
 }

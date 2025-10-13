@@ -27,10 +27,13 @@ public class ComponentGroup
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
-    public required string Style { get; set; }
+    public required int StyleId { get; set; }
 
     public List<Component> Components { get; set; } = [];
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]
     public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(StyleId))]
+    public required ComponentGroupStyle Style { get; set; }
 }

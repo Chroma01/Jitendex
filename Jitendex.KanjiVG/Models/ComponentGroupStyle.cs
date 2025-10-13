@@ -20,9 +20,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.KanjiVG.Models;
 
-[NotMapped]
-public class KanjiVGDocument
+[Table(nameof(ComponentGroupStyle))]
+public class ComponentGroupStyle
 {
-    public required List<Entry> Entries { get; init; }
-    public required List<ComponentGroupStyle> ComponentGroupStyles { get; init; }
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+
+    public List<ComponentGroup> ComponentGroups { get; } = [];
 }

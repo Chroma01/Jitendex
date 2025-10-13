@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
+using Jitendex.KanjiVG.Readers.Metadata;
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -26,23 +27,31 @@ internal partial class ComponentGroupReader
 {
     private readonly ILogger<ComponentGroupReader> _logger;
     private readonly ComponentReader _componentReader;
+    private readonly ComponentGroupStyleCache _componentGroupStyleCache;
 
-    public ComponentGroupReader(ILogger<ComponentGroupReader> logger, ComponentReader componentReader) =>
-        (_logger, _componentReader) =
-        (@logger, @componentReader);
+    public ComponentGroupReader(
+        ILogger<ComponentGroupReader> logger,
+        ComponentReader componentReader,
+        ComponentGroupStyleCache componentGroupStyleCache) =>
+        (_logger, _componentReader, _componentGroupStyleCache) =
+        (@logger, @componentReader, @componentGroupStyleCache);
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {
-        var (id, style) = GetAttributes(xmlReader, entry);
+        var (id, styleText) = GetAttributes(xmlReader, entry);
+
+        var style = _componentGroupStyleCache.GetComponentGroupStyle(entry, styleText);
 
         var group = new ComponentGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
             Id = id,
-            Style = style,
+            StyleId = style.Id,
             Entry = entry,
+            Style = style
         };
+        style.ComponentGroups.Add(group);
 
         bool exit = false;
         while (!exit && await xmlReader.ReadAsync())

@@ -17,10 +17,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-// using Jitendex.KanjiVG.Database;
+using Jitendex.KanjiVG.Database;
 using Jitendex.KanjiVG.Models;
 using Jitendex.SQLite;
-using Jitendex.KanjiVG.Database;
 
 namespace Jitendex.KanjiVG;
 
@@ -40,6 +39,7 @@ internal static class DatabaseInitializer
         // Begin inserting data.
         await using (var transaction = await db.Database.BeginTransactionAsync())
         {
+            await db.InsertComponentGroupStylesAsync(kanjivg.ComponentGroupStyles);
             await db.InsertEntriesAsync(kanjivg.Entries);
             await transaction.CommitAsync();
         }

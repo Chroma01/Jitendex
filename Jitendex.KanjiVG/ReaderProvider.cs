@@ -18,7 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Jitendex.KanjiVG.Models;
 using Jitendex.KanjiVG.Readers;
+using Jitendex.KanjiVG.Readers.Metadata;
 
 namespace Jitendex.KanjiVG;
 
@@ -41,6 +43,9 @@ internal static class ReaderProvider
         // XML file resource.
         .AddSingleton<Files>(provider => paths)
         .AddTransient<KanjiFiles>()
+
+        // Global metadata
+        .AddSingleton<ComponentGroupStyleCache>()
 
         // Top-level readers.
         .AddTransient<EntriesReader>()

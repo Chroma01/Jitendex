@@ -55,4 +55,3 @@ public class Program
         await DatabaseInitializer.WriteAsync(kanjivg);
     }
 }
-

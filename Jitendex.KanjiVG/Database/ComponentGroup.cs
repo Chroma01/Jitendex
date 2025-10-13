@@ -29,7 +29,7 @@ internal static class ComponentGroupData
     private const string C1 = nameof(ComponentGroup.UnicodeScalarValue);
     private const string C2 = nameof(ComponentGroup.VariantTypeName);
     private const string C3 = nameof(ComponentGroup.Id);
-    private const string C4 = nameof(ComponentGroup.Style);
+    private const string C4 = nameof(ComponentGroup.StyleId);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -59,7 +59,7 @@ internal static class ComponentGroupData
                     new(P1, componentGroup.UnicodeScalarValue),
                     new(P2, componentGroup.VariantTypeName),
                     new(P3, componentGroup.Id),
-                    new(P4, componentGroup.Style),
+                    new(P4, componentGroup.StyleId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
+using Jitendex.KanjiVG.Readers.Metadata;
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -25,10 +26,14 @@ internal partial class KanjiVGReader
 {
     private readonly ILogger<KanjiVGReader> _logger;
     private readonly EntriesReader _entriesReader;
+    private readonly ComponentGroupStyleCache _componentGroupStyleCache;
 
-    public KanjiVGReader(ILogger<KanjiVGReader> logger, EntriesReader entriesReader) =>
-        (_logger, _entriesReader) =
-        (@logger, @entriesReader);
+    public KanjiVGReader(
+        ILogger<KanjiVGReader> logger,
+        EntriesReader entriesReader,
+        ComponentGroupStyleCache componentGroupStyleCache) =>
+        (_logger, _entriesReader, _componentGroupStyleCache) =
+        (@logger, @entriesReader, @componentGroupStyleCache);
 
     public async Task<KanjiVGDocument> ReadAsync()
     {
@@ -37,6 +42,7 @@ internal partial class KanjiVGReader
         var kanjiVG = new KanjiVGDocument
         {
             Entries = entries,
+            ComponentGroupStyles = [.. _componentGroupStyleCache.Values()],
         };
 
         return kanjiVG;
