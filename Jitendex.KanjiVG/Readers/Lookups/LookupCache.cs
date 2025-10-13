@@ -27,16 +27,23 @@ internal abstract class LookupCache<T> where T : ILookup
     private readonly ILogger _logger;
     private readonly Dictionary<string, int> _textToId;
     private readonly Dictionary<string, T> _cache;
+    private readonly bool _doLogUnknown;
     public IEnumerable<T> Values { get => _cache.Values; }
 
     public LookupCache(ILogger logger)
     {
         _logger = logger;
-        _textToId = KnownLookups()
+
+        var knownLookups = KnownLookups();
+
+        _textToId = knownLookups
             .Select(static (text, index) =>
                 new KeyValuePair<string, int>(text, index + 1))
             .ToDictionary();
+
         _cache = new(_textToId.Count);
+
+        _doLogUnknown = knownLookups.Length > 0;
     }
 
     public T Get(string text)
@@ -48,7 +55,7 @@ internal abstract class LookupCache<T> where T : ILookup
 
         if (!_textToId.TryGetValue(text, out int id))
         {
-            LogUnknownLookup(text);
+            if (_doLogUnknown) LogUnknownLookup(text);
             id = _textToId.Count + 1;
             _textToId[text] = id;
         }

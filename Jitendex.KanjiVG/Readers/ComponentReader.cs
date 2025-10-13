@@ -30,21 +30,24 @@ internal partial class ComponentReader
     private readonly StrokeReader _strokeReader;
     private readonly ComponentPositionCache _positionCache;
     private readonly ComponentRadicalCache _radicalCache;
+    private readonly ComponentPhonCache _phonCache;
 
     public ComponentReader(
         ILogger<ComponentReader> logger,
         ComponentAttributesReader attributesReader,
         StrokeReader strokeReader,
         ComponentPositionCache positionCache,
-        ComponentRadicalCache radicalCache) =>
-        (_logger, _attributesReader, _strokeReader, _positionCache, _radicalCache) =
-        (@logger, @attributesReader, @strokeReader, @positionCache, @radicalCache);
+        ComponentRadicalCache radicalCache,
+        ComponentPhonCache phonCache) =>
+        (_logger, _attributesReader, _strokeReader, _positionCache, _radicalCache, _phonCache) =
+        (@logger, @attributesReader, @strokeReader, @positionCache, @radicalCache, @phonCache);
 
     public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {
         var attributes = _attributesReader.Read(xmlReader, group);
         var position = _positionCache.Get(attributes.Position);
         var radical = _radicalCache.Get(attributes.Radical);
+        var phon = _phonCache.Get(attributes.Phon);
 
         var component = new Component
         {
@@ -63,16 +66,18 @@ internal partial class ComponentReader
             IsRadicalForm = attributes.IsRadicalForm,
             PositionId = position.Id,
             RadicalId = radical.Id,
-            Phon = attributes.Phon,
+            PhonId = phon.Id,
             Group = group,
             Parent = null,
             Position = position,
             Radical = radical,
+            Phon = phon,
         };
 
         group.Components.Add(component);
         position.Components.Add(component);
         radical.Components.Add(component);
+        phon.Components.Add(component);
 
         if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
         {
@@ -103,6 +108,7 @@ internal partial class ComponentReader
         var attributes = _attributesReader.Read(xmlReader, parent.Group);
         var position = _positionCache.Get(attributes.Position);
         var radical = _radicalCache.Get(attributes.Radical);
+        var phon = _phonCache.Get(attributes.Phon);
 
         var component = new Component
         {
@@ -121,16 +127,18 @@ internal partial class ComponentReader
             IsRadicalForm = attributes.IsRadicalForm,
             PositionId = position.Id,
             RadicalId = radical.Id,
-            Phon = attributes.Phon,
+            PhonId = phon.Id,
             Group = parent.Group,
             Parent = parent,
             Position = position,
             Radical = radical,
+            Phon = phon,
         };
 
         parent.Children.Add(component);
         position.Components.Add(component);
         radical.Components.Add(component);
+        phon.Components.Add(component);
 
         if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
         {

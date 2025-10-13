@@ -41,7 +41,7 @@ internal static class ComponentData
     private const string C13 = nameof(Component.IsRadicalForm);
     private const string C14 = nameof(Component.PositionId);
     private const string C15 = nameof(Component.RadicalId);
-    private const string C16 = nameof(Component.Phon);
+    private const string C16 = nameof(Component.PhonId);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -95,7 +95,7 @@ internal static class ComponentData
                     new(P13, component.IsRadicalForm),
                     new(P14, component.PositionId),
                     new(P15, component.RadicalId),
-                    new(P16, component.Phon.Nullable()),
+                    new(P16, component.PhonId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

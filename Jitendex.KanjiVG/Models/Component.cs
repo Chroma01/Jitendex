@@ -41,7 +41,7 @@ public class Component
     public required bool IsRadicalForm { get; set; }
     public required int PositionId { get; set; }
     public required int RadicalId { get; set; }
-    public required string? Phon { get; set; }
+    public required int PhonId { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}")]
     public required ComponentGroup Group { get; set; }
@@ -54,6 +54,9 @@ public class Component
 
     [ForeignKey(nameof(RadicalId))]
     public required ComponentRadical Radical { get; set; }
+
+    [ForeignKey(nameof(PhonId))]
+    public required ComponentPhon Phon { get; set; }
 
     public List<Component> Children { get; set; } = [];
 

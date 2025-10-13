@@ -29,5 +29,6 @@ public class KanjiVGDocument
     public required List<StrokeNumberGroupStyle> StrokeNumberGroupStyles { get; init; }
     public required List<ComponentPosition> ComponentPositions { get; init; }
     public required List<ComponentRadical> ComponentRadicals { get; init; }
+    public required List<ComponentPhon> ComponentPhons { get; init; }
     public required List<StrokeType> StrokeTypes { get; init; }
 }

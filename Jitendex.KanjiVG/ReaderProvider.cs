@@ -49,6 +49,7 @@ internal static class ReaderProvider
         .AddSingleton<StrokeNumberGroupStyleCache>()
         .AddSingleton<ComponentPositionCache>()
         .AddSingleton<ComponentRadicalCache>()
+        .AddSingleton<ComponentPhonCache>()
         .AddSingleton<StrokeTypeCache>()
 
         // Top-level readers.
