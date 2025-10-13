@@ -27,9 +27,8 @@ public class StrokeNumber
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
     public required int Number { get; set; }
-    public required string GroupId { get; set; }
     public required string Transform { get; set; }
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(GroupId)}")]
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]
     public required StrokeNumberGroup Group { get; set; }
 }

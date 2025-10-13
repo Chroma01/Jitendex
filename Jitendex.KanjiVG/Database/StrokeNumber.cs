@@ -28,21 +28,19 @@ internal static class StrokeNumberData
     private const string C1 = nameof(StrokeNumber.UnicodeScalarValue);
     private const string C2 = nameof(StrokeNumber.VariantTypeName);
     private const string C3 = nameof(StrokeNumber.Number);
-    private const string C4 = nameof(StrokeNumber.GroupId);
-    private const string C5 = nameof(StrokeNumber.Transform);
+    private const string C4 = nameof(StrokeNumber.Transform);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
     private const string P4 = $"@{C4}";
-    private const string P5 = $"@{C5}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(StrokeNumber)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} );
+        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
         """;
 
     public static async Task InsertStrokeNumbersAsync(this Context db, List<StrokeNumber> strokeNumbers)
@@ -57,8 +55,7 @@ internal static class StrokeNumberData
                 new(P1, strokeNumber.UnicodeScalarValue),
                 new(P2, strokeNumber.VariantTypeName),
                 new(P3, strokeNumber.Number),
-                new(P4, strokeNumber.GroupId),
-                new(P5, strokeNumber.Transform),
+                new(P4, strokeNumber.Transform),
             });
 
             await command.ExecuteNonQueryAsync();

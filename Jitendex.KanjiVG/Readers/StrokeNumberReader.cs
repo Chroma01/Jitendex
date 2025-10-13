@@ -39,7 +39,6 @@ internal partial class StrokeNumberReader
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
             VariantTypeName = group.Entry.VariantTypeName,
-            GroupId = group.Id,
             Transform = transform,
             Number = await GetNumberAsync(xmlReader),
             Group = group,

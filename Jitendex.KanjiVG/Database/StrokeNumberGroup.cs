@@ -27,20 +27,18 @@ internal static class StrokeNumberGroupData
     // Column names
     private const string C1 = nameof(StrokeNumberGroup.UnicodeScalarValue);
     private const string C2 = nameof(StrokeNumberGroup.VariantTypeName);
-    private const string C3 = nameof(StrokeNumberGroup.Id);
-    private const string C4 = nameof(StrokeNumberGroup.Style);
+    private const string C3 = nameof(StrokeNumberGroup.Style);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
-    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(StrokeNumberGroup)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
+        ("{C1}", "{C2}", "{C3}") VALUES
+        ( {P1} ,  {P2} ,  {P3} );
         """;
 
     public static async Task InsertStrokeNumberGroupsAsync(this Context db, List<StrokeNumberGroup> strokeNumberGroups)
@@ -57,8 +55,7 @@ internal static class StrokeNumberGroupData
                 {
                     new(P1, strokeNumberGroup.UnicodeScalarValue),
                     new(P2, strokeNumberGroup.VariantTypeName),
-                    new(P3, strokeNumberGroup.Id),
-                    new(P4, strokeNumberGroup.Style),
+                    new(P3, strokeNumberGroup.Style),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

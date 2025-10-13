@@ -35,14 +35,18 @@ internal partial class StrokeNumberGroupReader
     {
         var (id, style) = GetAttributes(xmlReader, entry);
 
-        var strokeNumberGroup = new StrokeNumberGroup
+        var group = new StrokeNumberGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
-            Id = id,
             Style = style,
             Entry = entry,
         };
+
+        if (!string.Equals(id, group.XmlIdAttribute(), StringComparison.Ordinal))
+        {
+            LogWrongId(entry.FileName(), id, group.XmlIdAttribute());
+        }
 
         bool exit = false;
         while (!exit && await xmlReader.ReadAsync())
@@ -50,7 +54,7 @@ internal partial class StrokeNumberGroupReader
             switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadElementAsync(xmlReader, strokeNumberGroup);
+                    await ReadElementAsync(xmlReader, group);
                     break;
                 case XmlNodeType.Text:
                     var text = await xmlReader.GetValueAsync();
@@ -64,7 +68,7 @@ internal partial class StrokeNumberGroupReader
 
         if (entry.StrokeNumberGroup is null)
         {
-            entry.StrokeNumberGroup = strokeNumberGroup;
+            entry.StrokeNumberGroup = group;
         }
         else
         {
@@ -118,15 +122,15 @@ internal partial class StrokeNumberGroupReader
         return (id, style);
     }
 
-    private async Task ReadElementAsync(XmlReader xmlReader, StrokeNumberGroup strokeNumberGroup)
+    private async Task ReadElementAsync(XmlReader xmlReader, StrokeNumberGroup group)
     {
         switch (xmlReader.Name)
         {
             case "text":
-                await _strokeNumberReader.ReadAsync(xmlReader, strokeNumberGroup);
+                await _strokeNumberReader.ReadAsync(xmlReader, group);
                 break;
             default:
-                LogUnexpectedElementName(xmlReader.Name, strokeNumberGroup.Entry.FileName(), strokeNumberGroup.Id);
+                LogUnexpectedElementName(xmlReader.Name, group.Entry.FileName(), group.XmlIdAttribute());
                 break;
         }
     }
@@ -150,4 +154,8 @@ internal partial class StrokeNumberGroupReader
     [LoggerMessage(LogLevel.Warning,
     "File `{FileName}` contains multiple stroke number groups")]
     private partial void LogMultipleGroups(string fileName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "{File}: Stroke number group ID `{Actual}` not equal to expected value `{Expected}`")]
+    private partial void LogWrongId(string file, string actual, string expected);
 }
