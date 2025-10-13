@@ -46,12 +46,16 @@ internal partial class ComponentGroupReader
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
-            Id = id,
             StyleId = style.Id,
             Entry = entry,
             Style = style
         };
         style.ComponentGroups.Add(group);
+
+        if (!string.Equals(id, group.XmlIdAttribute(), StringComparison.Ordinal))
+        {
+            LogWrongId(entry.FileName(), id, group.XmlIdAttribute());
+        }
 
         bool exit = false;
         while (!exit && await xmlReader.ReadAsync())
@@ -135,7 +139,7 @@ internal partial class ComponentGroupReader
                 await _componentReader.ReadAsync(xmlReader, group);
                 break;
             default:
-                LogUnexpectedElementName(xmlReader.Name, group.Entry.FileName(), group.Id);
+                LogUnexpectedElementName(xmlReader.Name, group.Entry.FileName(), group.XmlIdAttribute());
                 break;
         }
     }
@@ -159,4 +163,8 @@ internal partial class ComponentGroupReader
     [LoggerMessage(LogLevel.Warning,
     "Cannot find component group `{AttributeName}` attribute in file `{File}`")]
     private partial void LogMissingAttribute(string file, string attributeName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "{File}: Component group ID `{Actual}` not equal to expected value `{Expected}`")]
+    private partial void LogWrongId(string file, string actual, string expected);
 }

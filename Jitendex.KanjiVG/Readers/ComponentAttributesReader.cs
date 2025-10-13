@@ -97,7 +97,7 @@ internal partial class ComponentAttributesReader
 
         if (attributes.Id is null)
         {
-            LogMissingId(group.Entry.FileName(), group.Id);
+            LogMissingId(group.Entry.FileName(), group.XmlIdAttribute());
             attributes.Id = Guid.NewGuid().ToString();
         }
 

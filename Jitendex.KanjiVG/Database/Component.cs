@@ -28,20 +28,19 @@ internal static class ComponentData
     private const string C1 = nameof(Component.UnicodeScalarValue);
     private const string C2 = nameof(Component.VariantTypeName);
     private const string C3 = nameof(Component.Id);
-    private const string C4 = nameof(Component.GroupId);
-    private const string C5 = nameof(Component.ParentId);
-    private const string C6 = nameof(Component.Order);
-    private const string C7 = nameof(Component.Text);
-    private const string C8 = nameof(Component.Variant);
-    private const string C9 = nameof(Component.Partial);
-    private const string C10 = nameof(Component.Original);
-    private const string C11 = nameof(Component.Part);
-    private const string C12 = nameof(Component.Number);
-    private const string C13 = nameof(Component.TradForm);
-    private const string C14 = nameof(Component.RadicalForm);
-    private const string C15 = nameof(Component.Position);
-    private const string C16 = nameof(Component.Radical);
-    private const string C17 = nameof(Component.Phon);
+    private const string C4 = nameof(Component.ParentId);
+    private const string C5 = nameof(Component.Order);
+    private const string C6 = nameof(Component.Text);
+    private const string C7 = nameof(Component.Variant);
+    private const string C8 = nameof(Component.Partial);
+    private const string C9 = nameof(Component.Original);
+    private const string C10 = nameof(Component.Part);
+    private const string C11 = nameof(Component.Number);
+    private const string C12 = nameof(Component.TradForm);
+    private const string C13 = nameof(Component.RadicalForm);
+    private const string C14 = nameof(Component.Position);
+    private const string C15 = nameof(Component.Radical);
+    private const string C16 = nameof(Component.Phon);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -60,13 +59,12 @@ internal static class ComponentData
     private const string P14 = $"@{C14}";
     private const string P15 = $"@{C15}";
     private const string P16 = $"@{C16}";
-    private const string P17 = $"@{C17}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(Component)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}", "{C6}", "{C7}", "{C8}", "{C9}", "{C10}", "{C11}", "{C12}", "{C13}", "{C14}", "{C15}", "{C16}", "{C17}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} ,  {P8} ,  {P9} ,  {P10} ,  {P11} ,  {P12} ,  {P13} ,  {P14} ,  {P15} ,  {P16} ,  {P17} );
+        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}", "{C6}", "{C7}", "{C8}", "{C9}", "{C10}", "{C11}", "{C12}", "{C13}", "{C14}", "{C15}", "{C16}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} ,  {P8} ,  {P9} ,  {P10} ,  {P11} ,  {P12} ,  {P13} ,  {P14} ,  {P15} ,  {P16} );
         """;
 
     public static async Task InsertComponentsAsync(this Context db, List<Component> components)
@@ -84,20 +82,19 @@ internal static class ComponentData
                     new(P1, component.UnicodeScalarValue),
                     new(P2, component.VariantTypeName),
                     new(P3, component.Id),
-                    new(P4, component.GroupId),
-                    new(P5, component.ParentId is null ? DBNull.Value : component.ParentId),
-                    new(P6, component.Order),
-                    new(P7, component.Text is null ? DBNull.Value : component.Text),
-                    new(P8, component.Variant),
-                    new(P9, component.Partial),
-                    new(P10, component.Original is null ? DBNull.Value : component.Original),
-                    new(P11, component.Part is null ? DBNull.Value : component.Part),
-                    new(P12, component.Number is null ? DBNull.Value : component.Number),
-                    new(P13, component.TradForm),
-                    new(P14, component.RadicalForm),
-                    new(P15, component.Position is null ? DBNull.Value : component.Position),
-                    new(P16, component.Radical is null ? DBNull.Value : component.Radical),
-                    new(P17, component.Phon is null ? DBNull.Value : component.Phon),
+                    new(P4, component.ParentId is null ? DBNull.Value : component.ParentId),
+                    new(P5, component.Order),
+                    new(P6, component.Text is null ? DBNull.Value : component.Text),
+                    new(P7, component.Variant),
+                    new(P8, component.Partial),
+                    new(P9, component.Original is null ? DBNull.Value : component.Original),
+                    new(P10, component.Part is null ? DBNull.Value : component.Part),
+                    new(P11, component.Number is null ? DBNull.Value : component.Number),
+                    new(P12, component.TradForm),
+                    new(P13, component.RadicalForm),
+                    new(P14, component.Position is null ? DBNull.Value : component.Position),
+                    new(P15, component.Radical is null ? DBNull.Value : component.Radical),
+                    new(P16, component.Phon is null ? DBNull.Value : component.Phon),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

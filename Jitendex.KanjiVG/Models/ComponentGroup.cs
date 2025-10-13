@@ -21,12 +21,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.KanjiVG.Models;
 
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName))]
 public class ComponentGroup
 {
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
-    public required string Id { get; set; }
     public required int StyleId { get; set; }
 
     public List<Component> Components { get; set; } = [];
@@ -36,4 +35,8 @@ public class ComponentGroup
 
     [ForeignKey(nameof(StyleId))]
     public required ComponentGroupStyle Style { get; set; }
+
+    public string XmlIdAttribute() => "kvg:StrokePaths_"
+        + UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
+        + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}");
 }

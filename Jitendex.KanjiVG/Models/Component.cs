@@ -28,7 +28,6 @@ public class Component
     public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
-    public required string GroupId { get; set; }
     public required string? ParentId { get; set; }
     public required int Order { get; set; }
 
@@ -44,7 +43,7 @@ public class Component
     public required string? Radical { get; set; }
     public required string? Phon { get; set; }
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(GroupId)}")]
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]
     public required ComponentGroup Group { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ParentId)}")]

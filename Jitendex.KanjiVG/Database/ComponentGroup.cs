@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.KanjiVG.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace Jitendex.KanjiVG.Database;
 
@@ -28,20 +27,18 @@ internal static class ComponentGroupData
     // Column names
     private const string C1 = nameof(ComponentGroup.UnicodeScalarValue);
     private const string C2 = nameof(ComponentGroup.VariantTypeName);
-    private const string C3 = nameof(ComponentGroup.Id);
-    private const string C4 = nameof(ComponentGroup.StyleId);
+    private const string C3 = nameof(ComponentGroup.StyleId);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
     private const string P3 = $"@{C3}";
-    private const string P4 = $"@{C4}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(ComponentGroup)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} );
+        ("{C1}", "{C2}", "{C3}") VALUES
+        ( {P1} ,  {P2} ,  {P3} );
         """;
 
     public static async Task InsertComponentGroupsAsync(this Context db, List<ComponentGroup> componentGroups)
@@ -58,8 +55,7 @@ internal static class ComponentGroupData
                 {
                     new(P1, componentGroup.UnicodeScalarValue),
                     new(P2, componentGroup.VariantTypeName),
-                    new(P3, componentGroup.Id),
-                    new(P4, componentGroup.StyleId),
+                    new(P3, componentGroup.StyleId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();
