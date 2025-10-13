@@ -49,26 +49,20 @@ public class Program
             return;
         }
 
-        var kanjivgFile = parseResult.GetRequiredValue(kanjivgFileArgument);
-        await RunKanjiVG(kanjivgFile);
-
-        Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
-    }
-
-    private static async Task RunKanjiVG(FileInfo kanjivgFile)
-    {
-        var kanjivgPaths = new FilePaths
+        var files = new Files
         {
-            SvgArchive = kanjivgFile.FullName
+            SvgArchive = parseResult.GetRequiredValue(kanjivgFileArgument)
         };
 
-        var reader = KanjiVGReaderProvider.GetReader(kanjivgPaths);
-        var kanjivg = await reader.ReadKanjiVGAsync();
+        var reader = ReaderProvider.GetReader(files);
+        var kanjivg = await reader.ReadAsync();
 
         var db = new KanjiVGContext();
         await InitializeAsync(db);
         await db.Entries.AddRangeAsync(kanjivg.Entries);
         await db.SaveChangesAsync();
+
+        Console.WriteLine($"Finished in {double.Round(sw.Elapsed.TotalSeconds, 1)} seconds.");
     }
 
     private async static Task InitializeAsync(DbContext db)

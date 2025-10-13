@@ -30,7 +30,7 @@ internal partial class KanjiVGReader
         (_logger, _entriesReader) =
         (@logger, @entriesReader);
 
-    public async Task<KanjiVGDocument> ReadKanjiVGAsync()
+    public async Task<KanjiVGDocument> ReadAsync()
     {
         var entries = await _entriesReader.ReadAsync();
 

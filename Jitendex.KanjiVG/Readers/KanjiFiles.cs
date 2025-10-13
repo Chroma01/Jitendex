@@ -26,22 +26,14 @@ namespace Jitendex.KanjiVG.Readers;
 internal class KanjiFiles
 {
     private readonly ILogger<KanjiFiles> _logger;
-    private readonly FilePaths _filePaths;
-    private readonly XmlReaderSettings _xmlReaderSettings = new()
-    {
-        Async = true,
-        DtdProcessing = DtdProcessing.Parse,
-        MaxCharactersFromEntities = long.MaxValue,
-        MaxCharactersInDocument = long.MaxValue,
-    };
-
-    public KanjiFiles(ILogger<KanjiFiles> logger, FilePaths filePaths) =>
-        (_logger, _filePaths) =
-        (@logger, @filePaths);
+    private readonly Files _files;
+    public KanjiFiles(ILogger<KanjiFiles> logger, Files files) =>
+        (_logger, _files) =
+        (@logger, @files);
 
     public async IAsyncEnumerable<(string Name, XmlReader Reader)> EnumerateAsync()
     {
-        await using FileStream fs = new(_filePaths.SvgArchive, FileMode.Open, FileAccess.Read);
+        await using FileStream fs = new(_files.SvgArchive.FullName, FileMode.Open, FileAccess.Read);
         await using BrotliStream br = new(fs, CompressionMode.Decompress);
         await using TarReader tarReader = new(br);
 
@@ -56,4 +48,12 @@ internal class KanjiFiles
             yield return (entry.Name, xmlReader);
         }
     }
+
+    private readonly XmlReaderSettings _xmlReaderSettings = new()
+    {
+        Async = true,
+        DtdProcessing = DtdProcessing.Parse,
+        MaxCharactersFromEntities = long.MaxValue,
+        MaxCharactersInDocument = long.MaxValue,
+    };
 }

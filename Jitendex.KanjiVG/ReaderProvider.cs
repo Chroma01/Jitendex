@@ -22,14 +22,14 @@ using Jitendex.KanjiVG.Readers;
 
 namespace Jitendex.KanjiVG;
 
-internal record FilePaths
+internal record Files
 {
-    public required string SvgArchive { get; init; }
+    public required FileInfo SvgArchive { get; init; }
 }
 
-internal static class KanjiVGReaderProvider
+internal static class ReaderProvider
 {
-    public static KanjiVGReader GetReader(FilePaths paths) => new ServiceCollection()
+    public static KanjiVGReader GetReader(Files paths) => new ServiceCollection()
         .AddLogging(builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -39,7 +39,7 @@ internal static class KanjiVGReaderProvider
             }))
 
         // XML file resource.
-        .AddSingleton<FilePaths>(provider => paths)
+        .AddSingleton<Files>(provider => paths)
         .AddTransient<KanjiFiles>()
 
         // Top-level readers.
