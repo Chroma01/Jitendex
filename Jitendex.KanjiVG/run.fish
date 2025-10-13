@@ -31,6 +31,6 @@ if not test -e "$kanji_file_path"
 end
 
 time dotnet run \
-    --project $project_dir \
+    --project "$project_dir" \
     --configuration Release \
     -- "$kanji_file_path"
