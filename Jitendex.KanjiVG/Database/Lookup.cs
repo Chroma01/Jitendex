@@ -22,17 +22,17 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Database;
 
-internal static class GroupStyleData
+internal static class LookupData
 {
     // Column names
-    private const string C1 = nameof(IGroupStyle.Id);
-    private const string C2 = nameof(IGroupStyle.Text);
+    private const string C1 = nameof(ILookup.Id);
+    private const string C2 = nameof(ILookup.Text);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
 
-    public static async Task InsertGroupStylesAsync<T>(this Context db, IEnumerable<T> groupStyles) where T: IGroupStyle
+    public static async Task InsertLookupsAsync<T>(this Context db, IEnumerable<T> lookups) where T: ILookup
     {
         var InsertSql =
             $"""
@@ -44,12 +44,12 @@ internal static class GroupStyleData
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var groupStyle in groupStyles)
+        foreach (var lookup in lookups)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, groupStyle.Id),
-                new(P2, groupStyle.Text),
+                new(P1, lookup.Id),
+                new(P2, lookup.Text),
             });
 
             await command.ExecuteNonQueryAsync();

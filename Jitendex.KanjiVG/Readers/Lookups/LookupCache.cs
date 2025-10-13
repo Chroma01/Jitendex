@@ -20,31 +20,31 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers.Metadata;
 
-internal abstract class GroupStyleCache<T> where T: IGroupStyle
+internal abstract class LookupCache<T> where T: ILookup
 {
-    private readonly Dictionary<string, T> _cache = new();
+    private readonly Dictionary<string, T> _cache = [];
     public IEnumerable<T> Values() => _cache.Values;
 
-    public T GetGroupStyle(Entry entry, string text)
+    public T Get(Entry entry, string text)
     {
-        if (!IsKnownStyle(text))
+        if (!IsKnownLookup(text))
         {
-            LogUnknownStyle(entry.FileName(), text);
+            LogUnknownLookup(entry.FileName(), text);
         }
 
-        if (_cache.TryGetValue(text, out T? componentGroupStyle))
+        if (_cache.TryGetValue(text, out T? lookup))
         {
-            return componentGroupStyle;
+            return lookup;
         }
 
         int id = _cache.Count + 1;
-        componentGroupStyle = NewGroup(id, text);
+        lookup = NewLookup(id, text);
 
-        _cache.Add(text, componentGroupStyle);
-        return componentGroupStyle;
+        _cache.Add(text, lookup);
+        return lookup;
     }
 
-    protected abstract T NewGroup(int id, string text);
-    protected abstract bool IsKnownStyle(string text);
-    protected abstract void LogUnknownStyle(string file, string text);
+    protected abstract T NewLookup(int id, string text);
+    protected abstract bool IsKnownLookup(string text);
+    protected abstract void LogUnknownLookup(string file, string text);
 }

@@ -21,21 +21,22 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers.Metadata;
 
-internal partial class StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyleCache> logger) : GroupStyleCache<StrokeNumberGroupStyle>
+internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache> logger) : LookupCache<ComponentGroupStyle>
 {
-    protected override StrokeNumberGroupStyle NewGroup(int id, string text) => new StrokeNumberGroupStyle
+    protected override ComponentGroupStyle NewLookup(int id, string text) => new ComponentGroupStyle
     {
         Id = id,
         Text = text,
     };
 
-    protected override bool IsKnownStyle(string text) => text switch
+    protected override bool IsKnownLookup(string text) => text switch
     {
-        "font-size:8;fill:#808080" => true,
+        "fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" => true,
+        "fill:#000000;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" => true,
         _ => false
     };
 
     [LoggerMessage(LogLevel.Warning,
-    "File `{File}` contains a stroke number group with an unknown style attribute: `{Text}`")]
-    protected override partial void LogUnknownStyle(string file, string text);
+    "File `{File}` contains a component group with an unknown style attribute: `{Text}`")]
+    protected override partial void LogUnknownLookup(string file, string text);
 }

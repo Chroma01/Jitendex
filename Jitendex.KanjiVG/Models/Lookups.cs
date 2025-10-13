@@ -20,14 +20,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.KanjiVG.Models;
 
-public interface IGroupStyle
+public interface ILookup
 {
     public int Id { get; set; }
     public string Text { get; set; }
 }
 
 [Table(nameof(ComponentGroupStyle))]
-public class ComponentGroupStyle : IGroupStyle
+public class ComponentGroupStyle : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
@@ -36,7 +36,7 @@ public class ComponentGroupStyle : IGroupStyle
 }
 
 [Table(nameof(StrokeNumberGroupStyle))]
-public class StrokeNumberGroupStyle : IGroupStyle
+public class StrokeNumberGroupStyle : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
