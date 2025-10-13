@@ -46,6 +46,7 @@ internal static class ReaderProvider
 
         // Global metadata
         .AddSingleton<ComponentGroupStyleCache>()
+        .AddSingleton<StrokeNumberGroupStyleCache>()
 
         // Top-level readers.
         .AddTransient<EntriesReader>()

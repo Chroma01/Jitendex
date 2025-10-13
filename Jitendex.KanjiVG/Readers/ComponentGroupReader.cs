@@ -40,7 +40,7 @@ internal partial class ComponentGroupReader
     {
         var (id, styleText) = GetAttributes(xmlReader, entry);
 
-        var style = _componentGroupStyleCache.GetComponentGroupStyle(entry, styleText);
+        var style = _componentGroupStyleCache.GetGroupStyle(entry, styleText);
 
         var group = new ComponentGroup
         {
@@ -50,7 +50,7 @@ internal partial class ComponentGroupReader
             Entry = entry,
             Style = style
         };
-        style.ComponentGroups.Add(group);
+        style.Groups.Add(group);
 
         if (!string.Equals(id, group.XmlIdAttribute(), StringComparison.Ordinal))
         {

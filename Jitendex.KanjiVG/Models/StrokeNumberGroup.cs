@@ -26,12 +26,15 @@ public class StrokeNumberGroup
 {
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
-    public required string Style { get; set; }
+    public required int StyleId { get; set; }
 
     public List<StrokeNumber> StrokeNumbers { get; set; } = [];
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]
     public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(StyleId))]
+    public required StrokeNumberGroupStyle Style { get; set; }
 
     public string XmlIdAttribute() => "kvg:StrokeNumbers_"
         + UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()

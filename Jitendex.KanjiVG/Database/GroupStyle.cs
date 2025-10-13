@@ -22,34 +22,34 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Database;
 
-internal static class ComponentGroupStyleData
+internal static class GroupStyleData
 {
     // Column names
-    private const string C1 = nameof(ComponentGroupStyle.Id);
-    private const string C2 = nameof(ComponentGroupStyle.Text);
+    private const string C1 = nameof(IGroupStyle.Id);
+    private const string C2 = nameof(IGroupStyle.Text);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
 
-    private const string InsertSql =
-        $"""
-        INSERT INTO "{nameof(ComponentGroupStyle)}"
-        ("{C1}", "{C2}") VALUES
-        ( {P1} ,  {P2} );
-        """;
-
-    public static async Task InsertComponentGroupStylesAsync(this Context db, List<ComponentGroupStyle> componentGroupStyles)
+    public static async Task InsertGroupStylesAsync<T>(this Context db, IEnumerable<T> groupStyles) where T: IGroupStyle
     {
+        var InsertSql =
+            $"""
+            INSERT INTO "{typeof(T).Name}"
+            ("{C1}", "{C2}") VALUES
+            ( {P1} ,  {P2} );
+            """;
+
         await using var command = db.Database.GetDbConnection().CreateCommand();
         command.CommandText = InsertSql;
 
-        foreach (var componentGroupStyle in componentGroupStyles)
+        foreach (var groupStyle in groupStyles)
         {
             command.Parameters.AddRange(new SqliteParameter[]
             {
-                new(P1, componentGroupStyle.Id),
-                new(P2, componentGroupStyle.Text),
+                new(P1, groupStyle.Id),
+                new(P2, groupStyle.Text),
             });
 
             await command.ExecuteNonQueryAsync();

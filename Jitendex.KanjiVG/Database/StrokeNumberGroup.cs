@@ -27,7 +27,7 @@ internal static class StrokeNumberGroupData
     // Column names
     private const string C1 = nameof(StrokeNumberGroup.UnicodeScalarValue);
     private const string C2 = nameof(StrokeNumberGroup.VariantTypeName);
-    private const string C3 = nameof(StrokeNumberGroup.Style);
+    private const string C3 = nameof(StrokeNumberGroup.StyleId);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -55,7 +55,7 @@ internal static class StrokeNumberGroupData
                 {
                     new(P1, strokeNumberGroup.UnicodeScalarValue),
                     new(P2, strokeNumberGroup.VariantTypeName),
-                    new(P3, strokeNumberGroup.Style),
+                    new(P3, strokeNumberGroup.StyleId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

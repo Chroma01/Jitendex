@@ -21,9 +21,9 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers.Metadata;
 
-internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache> logger) : GroupStyleCache<ComponentGroupStyle>
+internal partial class StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyleCache> logger) : GroupStyleCache<StrokeNumberGroupStyle>
 {
-    protected override ComponentGroupStyle NewGroup(int id, string text) => new ComponentGroupStyle
+    protected override StrokeNumberGroupStyle NewGroup(int id, string text) => new StrokeNumberGroupStyle
     {
         Id = id,
         Text = text,
@@ -31,12 +31,11 @@ internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache
 
     protected override bool IsKnownStyle(string style) => style switch
     {
-        "fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" => true,
-        "fill:#000000;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" => true,
+        "font-size:8;fill:#808080" => true,
         _ => false
     };
 
     [LoggerMessage(LogLevel.Warning,
-    "File `{File}` contains a component group with an unknown style attribute: `{Style}`")]
+    "File `{File}` contains a stroke number group with an unknown style attribute: `{Style}`")]
     protected override partial void LogUnknownStyle(string file, string style);
 }

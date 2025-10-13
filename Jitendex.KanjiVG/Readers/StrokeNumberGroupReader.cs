@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
+using Jitendex.KanjiVG.Readers.Metadata;
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -26,22 +27,30 @@ internal partial class StrokeNumberGroupReader
 {
     private readonly ILogger<StrokeNumberGroupReader> _logger;
     private readonly StrokeNumberReader _strokeNumberReader;
+    private readonly StrokeNumberGroupStyleCache _strokeNumberGroupStyleCache;
 
-    public StrokeNumberGroupReader(ILogger<StrokeNumberGroupReader> logger, StrokeNumberReader strokeNumberReader) =>
-        (_logger, _strokeNumberReader) =
-        (@logger, @strokeNumberReader);
+    public StrokeNumberGroupReader(
+        ILogger<StrokeNumberGroupReader> logger,
+        StrokeNumberReader strokeNumberReader,
+        StrokeNumberGroupStyleCache strokeNumberGroupStyleCache) =>
+        (_logger, _strokeNumberReader, _strokeNumberGroupStyleCache) =
+        (@logger, @strokeNumberReader, @strokeNumberGroupStyleCache);
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {
-        var (id, style) = GetAttributes(xmlReader, entry);
+        var (id, styleText) = GetAttributes(xmlReader, entry);
+
+        var style = _strokeNumberGroupStyleCache.GetGroupStyle(entry, styleText);
 
         var group = new StrokeNumberGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
             VariantTypeName = entry.VariantTypeName,
-            Style = style,
+            StyleId = style.Id,
             Entry = entry,
+            Style = style,
         };
+        style.Groups.Add(group);
 
         if (!string.Equals(id, group.XmlIdAttribute(), StringComparison.Ordinal))
         {

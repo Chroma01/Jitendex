@@ -20,11 +20,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.KanjiVG.Models;
 
+public interface IGroupStyle
+{
+    public int Id { get; set; }
+    public string Text { get; set; }
+}
+
 [Table(nameof(ComponentGroupStyle))]
-public class ComponentGroupStyle
+public class ComponentGroupStyle : IGroupStyle
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
 
-    public List<ComponentGroup> ComponentGroups { get; } = [];
+    public List<ComponentGroup> Groups { get; } = [];
+}
+
+[Table(nameof(StrokeNumberGroupStyle))]
+public class StrokeNumberGroupStyle : IGroupStyle
+{
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+
+    public List<StrokeNumberGroup> Groups { get; } = [];
 }
