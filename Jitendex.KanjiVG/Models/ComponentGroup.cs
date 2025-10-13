@@ -39,4 +39,25 @@ public class ComponentGroup
     public string XmlIdAttribute() => "kvg:StrokePaths_"
         + UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
         + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}");
+
+    public int ComponentCount()
+    {
+        int count = 0;
+        foreach (var component in Components)
+        {
+            count++;
+            count += component.ChildComponentCount();
+        }
+        return count;
+    }
+
+    public int StrokeCount()
+    {
+        int count = 0;
+        foreach (var component in Components)
+        {
+            count += component.StrokeCount();
+        }
+        return count;
+    }
 }

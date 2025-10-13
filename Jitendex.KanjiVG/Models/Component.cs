@@ -52,4 +52,29 @@ public class Component
     public List<Component> Children { get; set; } = [];
 
     public List<Stroke> Strokes { get; set; } = [];
+
+    public int ChildComponentCount()
+    {
+        int count = 0;
+        foreach (var child in Children)
+        {
+            count++;
+            count += child.ChildComponentCount();
+        }
+        return count;
+    }
+
+    public int StrokeCount()
+    {
+        int count = 0;
+        foreach (var stroke in Strokes)
+        {
+            count++;
+        }
+        foreach (var child in Children)
+        {
+            count += child.StrokeCount();
+        }
+        return count;
+    }
 }
