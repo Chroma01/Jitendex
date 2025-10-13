@@ -39,6 +39,7 @@ internal static class DatabaseInitializer
         // Begin inserting data.
         await using (var transaction = await db.Database.BeginTransactionAsync())
         {
+            await db.InsertLookupsAsync<VariantType>(kanjivg.VariantTypes);
             await db.InsertLookupsAsync<ComponentGroupStyle>(kanjivg.ComponentGroupStyles);
             await db.InsertLookupsAsync<StrokeNumberGroupStyle>(kanjivg.StrokeNumberGroupStyles);
             await db.InsertEntriesAsync(kanjivg.Entries);

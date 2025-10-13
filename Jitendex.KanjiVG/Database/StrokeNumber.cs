@@ -26,7 +26,7 @@ internal static class StrokeNumberData
 {
     // Column names
     private const string C1 = nameof(StrokeNumber.UnicodeScalarValue);
-    private const string C2 = nameof(StrokeNumber.VariantTypeName);
+    private const string C2 = nameof(StrokeNumber.VariantTypeId);
     private const string C3 = nameof(StrokeNumber.Number);
     private const string C4 = nameof(StrokeNumber.Transform);
 
@@ -53,7 +53,7 @@ internal static class StrokeNumberData
             command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, strokeNumber.UnicodeScalarValue),
-                new(P2, strokeNumber.VariantTypeName),
+                new(P2, strokeNumber.VariantTypeId),
                 new(P3, strokeNumber.Number),
                 new(P4, strokeNumber.Transform),
             });

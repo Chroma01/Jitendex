@@ -24,6 +24,7 @@ namespace Jitendex.KanjiVG.Models;
 public class KanjiVGDocument
 {
     public required List<Entry> Entries { get; init; }
+    public required List<VariantType> VariantTypes { get; init; }
     public required List<ComponentGroupStyle> ComponentGroupStyles { get; init; }
     public required List<StrokeNumberGroupStyle> StrokeNumberGroupStyles { get; init; }
 }

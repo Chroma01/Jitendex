@@ -26,7 +26,7 @@ internal static class EntryData
 {
     // Column names
     private const string C1 = nameof(Entry.UnicodeScalarValue);
-    private const string C2 = nameof(Entry.VariantTypeName);
+    private const string C2 = nameof(Entry.VariantTypeId);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -53,7 +53,7 @@ internal static class EntryData
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
                     new(P1, entry.UnicodeScalarValue),
-                    new(P2, entry.VariantTypeName),
+                    new(P2, entry.VariantTypeId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

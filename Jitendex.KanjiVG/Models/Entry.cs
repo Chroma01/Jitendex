@@ -22,17 +22,21 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.KanjiVG.Models;
 
 [Table("Entry")]
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeId))]
 public class Entry
 {
     public required int UnicodeScalarValue { get; set; }
-    public required string VariantTypeName { get; set; }
+    public required int VariantTypeId { get; set; }
 
     public required ComponentGroup ComponentGroup { get; set; }
     public required StrokeNumberGroup StrokeNumberGroup { get; set; }
 
-    public string FileName() =>
+    [ForeignKey(nameof(VariantTypeId))]
+    public required VariantType VariantType { get; set; }
+
+    public string FileNameFormat() =>
         UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}")
-        + ".svg";
+        + VariantType.FileNameFormat();
+
+    public string FileName() => FileNameFormat() + ".svg";
 }

@@ -39,7 +39,7 @@ internal partial class StrokeReader
         var stroke = new Stroke
         {
             UnicodeScalarValue = component.UnicodeScalarValue,
-            VariantTypeName = component.VariantTypeName,
+            VariantTypeId = component.VariantTypeId,
             GlobalOrder = component.Group.StrokeCount() + 1,
             LocalOrder = component.Strokes.Count + 1,
             ComponentGlobalOrder = component.GlobalOrder,

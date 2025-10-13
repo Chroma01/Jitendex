@@ -26,7 +26,7 @@ internal static class ComponentGroupData
 {
     // Column names
     private const string C1 = nameof(ComponentGroup.UnicodeScalarValue);
-    private const string C2 = nameof(ComponentGroup.VariantTypeName);
+    private const string C2 = nameof(ComponentGroup.VariantTypeId);
     private const string C3 = nameof(ComponentGroup.StyleId);
 
     // Parameter names
@@ -54,7 +54,7 @@ internal static class ComponentGroupData
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
                     new(P1, componentGroup.UnicodeScalarValue),
-                    new(P2, componentGroup.VariantTypeName),
+                    new(P2, componentGroup.VariantTypeId),
                     new(P3, componentGroup.StyleId),
                 });
 

@@ -21,11 +21,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.KanjiVG.Models;
 
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(GlobalOrder))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeId), nameof(GlobalOrder))]
 public class Component
 {
     public required int UnicodeScalarValue { get; set; }
-    public required string VariantTypeName { get; set; }
+    public required int VariantTypeId { get; set; }
     public required int GlobalOrder { get; set; }
 
     public required int? ParentGlobalOrder { get; set; }
@@ -43,10 +43,10 @@ public class Component
     public required string? Radical { get; set; }
     public required string? Phon { get; set; }
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}")]
     public required ComponentGroup Group { get; set; }
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ParentGlobalOrder)}")]
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}, {nameof(ParentGlobalOrder)}")]
     public required Component? Parent { get; set; }
 
     public List<Component> Children { get; set; } = [];
@@ -54,8 +54,7 @@ public class Component
     public List<Stroke> Strokes { get; set; } = [];
 
     public string XmlIdAttribute() => "kvg:"
-        + UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}")
+        + Group.Entry.FileNameFormat()
         + (GlobalOrder == 1 ? "" : $"-g{GlobalOrder - 1}");
 
     public int ChildComponentCount()

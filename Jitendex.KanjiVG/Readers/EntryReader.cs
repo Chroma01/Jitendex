@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
+using Jitendex.KanjiVG.Readers.Lookups;
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -29,10 +30,15 @@ internal partial class EntryReader
     private readonly ILogger<EntryReader> _logger;
     private readonly ComponentGroupReader _componentGroupReader;
     private readonly StrokeNumberGroupReader _strokeNumberGroupReader;
+    private readonly VariantTypeCache _variantTypeCache;
 
-    public EntryReader(ILogger<EntryReader> logger, ComponentGroupReader componentGroupReader, StrokeNumberGroupReader strokeNumberGroupReader) =>
-        (_logger, _componentGroupReader, _strokeNumberGroupReader) =
-        (@logger, @componentGroupReader, @strokeNumberGroupReader);
+    public EntryReader(
+        ILogger<EntryReader> logger,
+        ComponentGroupReader componentGroupReader,
+        StrokeNumberGroupReader strokeNumberGroupReader,
+        VariantTypeCache variantTypeCache) =>
+        (_logger, _componentGroupReader, _strokeNumberGroupReader, _variantTypeCache) =
+        (@logger, @componentGroupReader, @strokeNumberGroupReader, @variantTypeCache);
 
     public async Task<Entry?> ReadAsync(string fileName, XmlReader xmlReader)
     {
@@ -42,12 +48,15 @@ internal partial class EntryReader
             return null;
         }
 
+        var variantType = _variantTypeCache.Get(variantTypeName);
+
         var entry = new Entry
         {
             UnicodeScalarValue = unicodeScalarValue,
-            VariantTypeName = variantTypeName,
+            VariantTypeId = variantType.Id,
             ComponentGroup = null!,
             StrokeNumberGroup = null!,
+            VariantType = variantType,
         };
 
         while (await xmlReader.ReadAsync())

@@ -39,7 +39,7 @@ internal partial class ComponentReader
         var component = new Component
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
-            VariantTypeName = group.Entry.VariantTypeName,
+            VariantTypeId = group.Entry.VariantTypeId,
             GlobalOrder = group.ComponentCount() + 1,
             ParentGlobalOrder = null,
             LocalOrder = group.Components.Count + 1,
@@ -91,7 +91,7 @@ internal partial class ComponentReader
         var component = new Component
         {
             UnicodeScalarValue = parent.UnicodeScalarValue,
-            VariantTypeName = parent.VariantTypeName,
+            VariantTypeId = parent.VariantTypeId,
             GlobalOrder = parent.Group.ComponentCount() + 1,
             ParentGlobalOrder = parent.GlobalOrder,
             LocalOrder = parent.Children.Count + 1,

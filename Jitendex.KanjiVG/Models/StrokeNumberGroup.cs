@@ -21,22 +21,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.KanjiVG.Models;
 
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeId))]
 public class StrokeNumberGroup
 {
     public required int UnicodeScalarValue { get; set; }
-    public required string VariantTypeName { get; set; }
+    public required int VariantTypeId { get; set; }
     public required int StyleId { get; set; }
 
     public List<StrokeNumber> StrokeNumbers { get; set; } = [];
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}")]
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}")]
     public required Entry Entry { get; set; }
 
     [ForeignKey(nameof(StyleId))]
     public required StrokeNumberGroupStyle Style { get; set; }
 
-    public string XmlIdAttribute() => "kvg:StrokeNumbers_"
-        + UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}");
+    public string XmlIdAttribute() =>
+        "kvg:StrokeNumbers_" + Entry.FileNameFormat();
 }

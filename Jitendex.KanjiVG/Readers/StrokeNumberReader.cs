@@ -38,7 +38,7 @@ internal partial class StrokeNumberReader
         var strokeNumber = new StrokeNumber
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
-            VariantTypeName = group.Entry.VariantTypeName,
+            VariantTypeId = group.Entry.VariantTypeId,
             Transform = transform,
             Number = await GetNumberAsync(xmlReader),
             Group = group,

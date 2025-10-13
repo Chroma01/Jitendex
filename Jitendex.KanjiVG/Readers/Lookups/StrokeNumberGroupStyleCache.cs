@@ -22,8 +22,10 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers.Lookups;
 
-internal partial class StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyleCache> logger) : LookupCache<StrokeNumberGroupStyle>
+internal partial class StrokeNumberGroupStyleCache : LookupCache<StrokeNumberGroupStyle>
 {
+    public StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyleCache> logger) : base(logger) { }
+
     protected override StrokeNumberGroupStyle NewLookup(int id, string text) => new()
     {
         Id = id,
@@ -34,8 +36,4 @@ internal partial class StrokeNumberGroupStyleCache(ILogger<StrokeNumberGroupStyl
     [
         "font-size:8;fill:#808080",
     ];
-
-    [LoggerMessage(LogLevel.Warning,
-    "File `{File}` contains a stroke number group with an unknown style attribute: `{Text}`")]
-    protected override partial void LogUnknownLookup(string file, string text);
 }

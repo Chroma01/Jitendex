@@ -44,6 +44,7 @@ internal static class ReaderProvider
         .AddTransient<KanjiFiles>()
 
         // Global metadata
+        .AddSingleton<VariantTypeCache>()
         .AddSingleton<ComponentGroupStyleCache>()
         .AddSingleton<StrokeNumberGroupStyleCache>()
 

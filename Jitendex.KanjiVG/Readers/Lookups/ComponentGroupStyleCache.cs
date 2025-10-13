@@ -22,8 +22,10 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers.Lookups;
 
-internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache> logger) : LookupCache<ComponentGroupStyle>
+internal partial class ComponentGroupStyleCache : LookupCache<ComponentGroupStyle>
 {
+    public ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache> logger) : base(logger) { }
+
     protected override ComponentGroupStyle NewLookup(int id, string text) => new()
     {
         Id = id,
@@ -35,8 +37,4 @@ internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache
         "fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;",
         "fill:#000000;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;",
     ];
-
-    [LoggerMessage(LogLevel.Warning,
-    "File `{File}` contains a component group with an unknown style attribute: `{Text}`")]
-    protected override partial void LogUnknownLookup(string file, string text);
 }

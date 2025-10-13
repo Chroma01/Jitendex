@@ -27,7 +27,7 @@ internal static class StrokeData
 {
     // Column names
     private const string C1 = nameof(Stroke.UnicodeScalarValue);
-    private const string C2 = nameof(Stroke.VariantTypeName);
+    private const string C2 = nameof(Stroke.VariantTypeId);
     private const string C3 = nameof(Stroke.GlobalOrder);
     private const string C4 = nameof(Stroke.LocalOrder);
     private const string C5 = nameof(Stroke.ComponentGlobalOrder);
@@ -60,7 +60,7 @@ internal static class StrokeData
             command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, stroke.UnicodeScalarValue),
-                new(P2, stroke.VariantTypeName),
+                new(P2, stroke.VariantTypeId),
                 new(P3, stroke.GlobalOrder),
                 new(P4, stroke.LocalOrder),
                 new(P5, stroke.ComponentGlobalOrder),

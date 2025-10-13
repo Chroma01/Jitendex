@@ -26,6 +26,19 @@ public interface ILookup
     public string Text { get; set; }
 }
 
+[Table(nameof(VariantType))]
+public class VariantType : ILookup
+{
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+
+    public List<Entry> Entries { get; } = [];
+
+    public string FileNameFormat() => Text == string.Empty
+        ? string.Empty
+        : $"-{Text}";
+}
+
 [Table(nameof(ComponentGroupStyle))]
 public class ComponentGroupStyle : ILookup
 {

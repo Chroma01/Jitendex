@@ -18,24 +18,27 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 using Jitendex.KanjiVG.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Jitendex.KanjiVG.Readers.Lookups;
 
 internal abstract class LookupCache<T> where T : ILookup
 {
-    private readonly Dictionary<string, T> _cache = [];
+    private readonly ILogger _logger;
     private readonly Dictionary<string, int> _textToId;
+    private readonly Dictionary<string, T> _cache = [];
     public IEnumerable<T> Values() => _cache.Values;
 
-    public LookupCache()
+    public LookupCache(ILogger logger)
     {
+        _logger = logger;
         _textToId = KnownLookups()
             .Select(static (text, index) =>
                 new KeyValuePair<string, int>(text, index + 1))
             .ToDictionary();
     }
 
-    public T Get(Entry entry, string text)
+    public T Get(string text)
     {
         if (_cache.TryGetValue(text, out T? lookup))
         {
@@ -44,7 +47,7 @@ internal abstract class LookupCache<T> where T : ILookup
 
         if (!_textToId.TryGetValue(text, out int id))
         {
-            LogUnknownLookup(entry.FileName(), text);
+            LogUnknownLookup(text);
             id = _textToId.Count + 1;
             _textToId[text] = id;
         }
@@ -55,7 +58,16 @@ internal abstract class LookupCache<T> where T : ILookup
         return lookup;
     }
 
+    private void LogUnknownLookup(string text)
+    {
+        _logger.LogWarning
+        (
+            "Type `{TypeName}` with value `{Text}` has never been seen before",
+            typeof(T).Name,
+            text
+        );
+    }
+
     protected abstract T NewLookup(int id, string text);
     protected abstract ImmutableArray<string> KnownLookups();
-    protected abstract void LogUnknownLookup(string file, string text);
 }

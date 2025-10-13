@@ -27,7 +27,7 @@ internal static class ComponentData
 {
     // Column names
     private const string C1 = nameof(Component.UnicodeScalarValue);
-    private const string C2 = nameof(Component.VariantTypeName);
+    private const string C2 = nameof(Component.VariantTypeId);
     private const string C3 = nameof(Component.GlobalOrder);
     private const string C4 = nameof(Component.ParentGlobalOrder);
     private const string C5 = nameof(Component.LocalOrder);
@@ -81,7 +81,7 @@ internal static class ComponentData
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
                     new(P1, component.UnicodeScalarValue),
-                    new(P2, component.VariantTypeName),
+                    new(P2, component.VariantTypeId),
                     new(P3, component.GlobalOrder),
                     new(P4, component.ParentGlobalOrder.Nullable()),
                     new(P5, component.LocalOrder),

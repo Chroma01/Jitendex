@@ -40,12 +40,12 @@ internal partial class StrokeNumberGroupReader
     {
         var (id, styleText) = GetAttributes(xmlReader, entry);
 
-        var style = _strokeNumberGroupStyleCache.Get(entry, styleText);
+        var style = _strokeNumberGroupStyleCache.Get(styleText);
 
         var group = new StrokeNumberGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
-            VariantTypeName = entry.VariantTypeName,
+            VariantTypeId = entry.VariantTypeId,
             StyleId = style.Id,
             Entry = entry,
             Style = style,
