@@ -31,14 +31,16 @@ internal partial class EntryReader
     private readonly ComponentGroupReader _componentGroupReader;
     private readonly StrokeNumberGroupReader _strokeNumberGroupReader;
     private readonly VariantTypeCache _variantTypeCache;
+    private readonly CommentCache _commentCache;
 
     public EntryReader(
         ILogger<EntryReader> logger,
         ComponentGroupReader componentGroupReader,
         StrokeNumberGroupReader strokeNumberGroupReader,
-        VariantTypeCache variantTypeCache) =>
-        (_logger, _componentGroupReader, _strokeNumberGroupReader, _variantTypeCache) =
-        (@logger, @componentGroupReader, @strokeNumberGroupReader, @variantTypeCache);
+        VariantTypeCache variantTypeCache,
+        CommentCache commentCache) =>
+        (_logger, _componentGroupReader, _strokeNumberGroupReader, _variantTypeCache, _commentCache) =
+        (@logger, @componentGroupReader, @strokeNumberGroupReader, @variantTypeCache, @commentCache);
 
     public async Task<Entry?> ReadAsync(string fileName, XmlReader xmlReader)
     {
@@ -54,9 +56,11 @@ internal partial class EntryReader
         {
             UnicodeScalarValue = unicodeScalarValue,
             VariantTypeId = variantType.Id,
+            CommentId = default,
             ComponentGroup = null!,
             StrokeNumberGroup = null!,
             VariantType = variantType,
+            Comment = null!,
         };
 
         variantType.Entries.Add(entry);
@@ -72,13 +76,20 @@ internal partial class EntryReader
                     var text = await xmlReader.GetValueAsync();
                     LogUnexpectedTextNode(fileName, text);
                     break;
+                case XmlNodeType.Comment:
+                    await ReadCommentAsync(xmlReader, entry);
+                    break;
                 case XmlNodeType.DocumentType:
                     break;
             }
         }
 
-        if (entry.ComponentGroup is null || entry.StrokeNumberGroup is null)
+        if (entry.Comment is null || entry.ComponentGroup is null || entry.StrokeNumberGroup is null)
         {
+            if (entry.Comment is null)
+            {
+                LogMissingGroup(nameof(entry.Comment), fileName);
+            }
             if (entry.ComponentGroup is null)
             {
                 LogMissingGroup(nameof(entry.ComponentGroup), fileName);
@@ -110,6 +121,18 @@ internal partial class EntryReader
             _logger.LogError("Hex code in filename {FileName} is invalid", fileName);
             return (default, string.Empty);
         }
+    }
+
+    private async Task ReadCommentAsync(XmlReader xmlReader, Entry entry)
+    {
+        if (entry.Comment is not null)
+        {
+            _logger.LogWarning("File `{File}` contains multiple header comments", entry.FileName());
+        }
+        var commentText = await xmlReader.GetValueAsync();
+        entry.Comment = _commentCache.Get(commentText);
+        entry.Comment.Entries.Add(entry);
+        entry.CommentId = entry.Comment.Id;
     }
 
     private async Task ReadChildElementAsync(XmlReader xmlReader, Entry entry)

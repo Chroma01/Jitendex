@@ -27,12 +27,15 @@ public class Entry
 {
     public required int UnicodeScalarValue { get; set; }
     public required int VariantTypeId { get; set; }
-
+    public required int CommentId { get; set; }
     public required ComponentGroup ComponentGroup { get; set; }
     public required StrokeNumberGroup StrokeNumberGroup { get; set; }
 
     [ForeignKey(nameof(VariantTypeId))]
     public required VariantType VariantType { get; set; }
+
+    [ForeignKey(nameof(CommentId))]
+    public required Comment Comment { get; set; }
 
     public string FileNameFormat() =>
         UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()

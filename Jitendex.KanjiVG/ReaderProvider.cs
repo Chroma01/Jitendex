@@ -45,6 +45,7 @@ internal static class ReaderProvider
 
         // Global lookup types
         .AddSingleton<VariantTypeCache>()
+        .AddSingleton<CommentCache>()
         .AddSingleton<ComponentGroupStyleCache>()
         .AddSingleton<StrokeNumberGroupStyleCache>()
         .AddSingleton<ComponentCharacterCache>()

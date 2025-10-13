@@ -26,6 +26,7 @@ public class Context : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
     public DbSet<VariantType> VariantTypes { get; set; } = null!;
+    public DbSet<Comment> Comments { get; set; } = null!;
     public DbSet<ComponentGroupStyle> ComponentGroupStyles { get; set; } = null!;
     public DbSet<StrokeNumberGroupStyle> StrokeNumberGroupStyles { get; set; } = null!;
     public DbSet<ComponentCharacter> ComponentCharacters { get; set; } = null!;

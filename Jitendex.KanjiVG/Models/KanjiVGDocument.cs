@@ -25,6 +25,7 @@ public class KanjiVGDocument
 {
     public required List<Entry> Entries { get; init; }
     public required List<VariantType> VariantTypes { get; init; }
+    public required List<Comment> Comments { get; init; }
     public required List<ComponentGroupStyle> ComponentGroupStyles { get; init; }
     public required List<StrokeNumberGroupStyle> StrokeNumberGroupStyles { get; init; }
     public required List<ComponentCharacter> ComponentCharacters { get; init; }

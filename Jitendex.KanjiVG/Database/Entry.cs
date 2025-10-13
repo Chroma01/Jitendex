@@ -27,16 +27,18 @@ internal static class EntryData
     // Column names
     private const string C1 = nameof(Entry.UnicodeScalarValue);
     private const string C2 = nameof(Entry.VariantTypeId);
+    private const string C3 = nameof(Entry.CommentId);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
+    private const string P3 = $"@{C3}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(Entry)}"
-        ("{C1}", "{C2}") VALUES
-        ( {P1} ,  {P2} );
+        ("{C1}", "{C2}", "{C3}") VALUES
+        ( {P1} ,  {P2} ,  {P3} );
         """;
 
     public static async Task InsertEntriesAsync(this Context db, List<Entry> entries)
@@ -54,6 +56,7 @@ internal static class EntryData
                 {
                     new(P1, entry.UnicodeScalarValue),
                     new(P2, entry.VariantTypeId),
+                    new(P3, entry.CommentId),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();

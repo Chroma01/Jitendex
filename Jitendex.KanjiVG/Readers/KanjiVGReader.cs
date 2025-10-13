@@ -27,6 +27,7 @@ internal partial class KanjiVGReader
     private readonly ILogger<KanjiVGReader> _logger;
     private readonly EntriesReader _entriesReader;
     private readonly VariantTypeCache _variantTypeCache;
+    private readonly CommentCache _commentCache;
     private readonly ComponentGroupStyleCache _componentGroupStyleCache;
     private readonly StrokeNumberGroupStyleCache _strokeNumberGroupStyleCache;
     private readonly ComponentCharacterCache _characterCache;
@@ -40,6 +41,7 @@ internal partial class KanjiVGReader
         ILogger<KanjiVGReader> logger,
         EntriesReader entriesReader,
         VariantTypeCache variantTypeCache,
+        CommentCache commentCache,
         ComponentGroupStyleCache componentGroupStyleCache,
         StrokeNumberGroupStyleCache strokeNumberGroupStyleCache,
         ComponentCharacterCache characterCache,
@@ -48,8 +50,8 @@ internal partial class KanjiVGReader
         ComponentRadicalCache radicalCache,
         ComponentPhonCache phonCache,
         StrokeTypeCache strokeTypeCache) =>
-        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _characterCache, _originalCache, _positionCache, _radicalCache, _phonCache, _strokeTypeCache) =
-        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @characterCache, @originalCache, @positionCache, @radicalCache, @phonCache, @strokeTypeCache);
+        (_logger, _entriesReader, _variantTypeCache, _commentCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _characterCache, _originalCache, _positionCache, _radicalCache, _phonCache, _strokeTypeCache) =
+        (@logger, @entriesReader, @variantTypeCache, @commentCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @characterCache, @originalCache, @positionCache, @radicalCache, @phonCache, @strokeTypeCache);
 
     public async Task<KanjiVGDocument> ReadAsync()
     {
@@ -59,6 +61,7 @@ internal partial class KanjiVGReader
         {
             Entries = entries,
             VariantTypes = [.. _variantTypeCache.Values],
+            Comments = [.. _commentCache.Values],
             ComponentGroupStyles = [.. _componentGroupStyleCache.Values],
             StrokeNumberGroupStyles = [.. _strokeNumberGroupStyleCache.Values],
             ComponentCharacters = [.. _characterCache.Values],

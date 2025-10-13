@@ -31,12 +31,18 @@ public class VariantType : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Entry> Entries { get; } = [];
-
     public string FileNameFormat() => Text == string.Empty
         ? string.Empty
         : $"-{Text}";
+}
+
+[Table(nameof(Comment))]
+public class Comment : ILookup
+{
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+    public List<Entry> Entries { get; } = [];
 }
 
 [Table(nameof(ComponentGroupStyle))]
@@ -44,7 +50,6 @@ public class ComponentGroupStyle : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<ComponentGroup> Groups { get; } = [];
 }
 
@@ -53,7 +58,6 @@ public class StrokeNumberGroupStyle : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<StrokeNumberGroup> Groups { get; } = [];
 }
 
@@ -62,7 +66,6 @@ public class ComponentCharacter : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Component> Components { get; } = [];
 }
 
@@ -71,7 +74,6 @@ public class ComponentOriginal : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Component> Components { get; } = [];
 }
 
@@ -80,7 +82,6 @@ public class ComponentPosition : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Component> Components { get; } = [];
 }
 
@@ -89,7 +90,6 @@ public class ComponentRadical : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Component> Components { get; } = [];
 }
 
@@ -98,7 +98,6 @@ public class ComponentPhon : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Component> Components { get; } = [];
 }
 
@@ -107,6 +106,5 @@ public class StrokeType : ILookup
 {
     public required int Id { get; set; }
     public required string Text { get; set; }
-
     public List<Stroke> Strokes { get; } = [];
 }
