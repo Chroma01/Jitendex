@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
-using Jitendex.KanjiVG.Readers.Metadata;
+using Jitendex.KanjiVG.Readers.Lookups;
 
 namespace Jitendex.KanjiVG.Readers;
 

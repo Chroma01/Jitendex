@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 
-namespace Jitendex.KanjiVG.Readers.Metadata;
+namespace Jitendex.KanjiVG.Readers.Lookups;
 
 internal partial class ComponentGroupStyleCache(ILogger<ComponentGroupStyleCache> logger) : LookupCache<ComponentGroupStyle>
 {

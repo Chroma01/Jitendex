@@ -18,9 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Jitendex.KanjiVG.Models;
 using Jitendex.KanjiVG.Readers;
-using Jitendex.KanjiVG.Readers.Metadata;
+using Jitendex.KanjiVG.Readers.Lookups;
 
 namespace Jitendex.KanjiVG;
 

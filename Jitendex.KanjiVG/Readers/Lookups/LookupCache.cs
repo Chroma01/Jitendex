@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.KanjiVG.Models;
 
-namespace Jitendex.KanjiVG.Readers.Metadata;
+namespace Jitendex.KanjiVG.Readers.Lookups;
 
 internal abstract class LookupCache<T> where T: ILookup
 {
