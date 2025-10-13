@@ -134,11 +134,11 @@ internal partial class EntryReader
         {
             LogMissingGroupId(entry.FileName());
         }
-        else if (id.StartsWith("kvg:StrokePaths"))
+        else if (id.StartsWith("kvg:StrokePaths", StringComparison.Ordinal))
         {
             await _componentGroupReader.ReadAsync(xmlReader, entry);
         }
-        else if (id.StartsWith("kvg:StrokeNumbers"))
+        else if (id.StartsWith("kvg:StrokeNumbers", StringComparison.Ordinal))
         {
             await _strokeNumberGroupReader.ReadAsync(xmlReader, entry);
         }

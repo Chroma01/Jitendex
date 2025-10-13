@@ -49,7 +49,7 @@ internal class KanjiFiles
         }
     }
 
-    private readonly XmlReaderSettings _xmlReaderSettings = new()
+    private static readonly XmlReaderSettings _xmlReaderSettings = new()
     {
         Async = true,
         DtdProcessing = DtdProcessing.Parse,
