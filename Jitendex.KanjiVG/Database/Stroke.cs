@@ -28,7 +28,7 @@ internal static class StrokeData
     private const string C1 = nameof(Stroke.UnicodeScalarValue);
     private const string C2 = nameof(Stroke.VariantTypeName);
     private const string C3 = nameof(Stroke.Id);
-    private const string C4 = nameof(Stroke.ComponentId);
+    private const string C4 = nameof(Stroke.ComponentGlobalOrder);
     private const string C5 = nameof(Stroke.Order);
     private const string C6 = nameof(Stroke.Type);
     private const string C7 = nameof(Stroke.PathData);
@@ -61,7 +61,7 @@ internal static class StrokeData
                 new(P1, stroke.UnicodeScalarValue),
                 new(P2, stroke.VariantTypeName),
                 new(P3, stroke.Id),
-                new(P4, stroke.ComponentId),
+                new(P4, stroke.ComponentGlobalOrder),
                 new(P5, stroke.Order),
                 new(P6, stroke.Type is null ? DBNull.Value : stroke.Type),
                 new(P7, stroke.PathData),

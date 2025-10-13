@@ -41,7 +41,7 @@ internal partial class StrokeReader
             UnicodeScalarValue = component.UnicodeScalarValue,
             VariantTypeName = component.VariantTypeName,
             Id = attributes.Id,
-            ComponentId = component.Id,
+            ComponentGlobalOrder = component.GlobalOrder,
             Order = component.Strokes.Count + 1,
             Type = attributes.Type,
             PathData = attributes.PathData,

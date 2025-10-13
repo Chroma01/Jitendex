@@ -27,9 +27,9 @@ internal static class ComponentData
     // Column names
     private const string C1 = nameof(Component.UnicodeScalarValue);
     private const string C2 = nameof(Component.VariantTypeName);
-    private const string C3 = nameof(Component.Id);
-    private const string C4 = nameof(Component.ParentId);
-    private const string C5 = nameof(Component.Order);
+    private const string C3 = nameof(Component.GlobalOrder);
+    private const string C4 = nameof(Component.ParentGlobalOrder);
+    private const string C5 = nameof(Component.LocalOrder);
     private const string C6 = nameof(Component.Text);
     private const string C7 = nameof(Component.Variant);
     private const string C8 = nameof(Component.Partial);
@@ -81,9 +81,9 @@ internal static class ComponentData
                 {
                     new(P1, component.UnicodeScalarValue),
                     new(P2, component.VariantTypeName),
-                    new(P3, component.Id),
-                    new(P4, component.ParentId is null ? DBNull.Value : component.ParentId),
-                    new(P5, component.Order),
+                    new(P3, component.GlobalOrder),
+                    new(P4, component.ParentGlobalOrder is null ? DBNull.Value : component.ParentGlobalOrder),
+                    new(P5, component.LocalOrder),
                     new(P6, component.Text is null ? DBNull.Value : component.Text),
                     new(P7, component.Variant),
                     new(P8, component.Partial),

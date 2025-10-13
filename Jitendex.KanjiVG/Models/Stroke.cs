@@ -28,12 +28,12 @@ public class Stroke
     public required string VariantTypeName { get; set; }
     public required string Id { get; set; }
 
-    public required string ComponentId { get; set; }
+    public required int ComponentGlobalOrder { get; set; }
     public required int Order { get; set; }
 
     public string? Type { get; set; }
     public required string PathData { get; set; }
 
-    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ComponentId)}")]
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ComponentGlobalOrder)}")]
     public required Component Component { get; set; }
 }

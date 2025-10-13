@@ -40,9 +40,9 @@ internal partial class ComponentReader
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
             VariantTypeName = group.Entry.VariantTypeName,
-            Id = attributes.Id,
-            ParentId = null,
-            Order = group.Components.Count + 1,
+            GlobalOrder = group.ComponentCount() + 1,
+            ParentGlobalOrder = null,
+            LocalOrder = group.Components.Count + 1,
             Text = attributes.Text,
             Variant = attributes.Variant,
             Partial = attributes.Partial,
@@ -57,6 +57,13 @@ internal partial class ComponentReader
             Group = group,
             Parent = null,
         };
+
+        group.Components.Add(component);
+
+        if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
+        {
+            LogWrongId(component.Group.Entry.FileName(), attributes.Id, component.XmlIdAttribute());
+        }
 
         bool exit = false;
         while (!exit && await xmlReader.ReadAsync())
@@ -75,8 +82,6 @@ internal partial class ComponentReader
                     break;
             }
         }
-
-        group.Components.Add(component);
     }
 
     private async Task ReadAsync(XmlReader xmlReader, Component parent)
@@ -87,9 +92,9 @@ internal partial class ComponentReader
         {
             UnicodeScalarValue = parent.UnicodeScalarValue,
             VariantTypeName = parent.VariantTypeName,
-            Id = attributes.Id,
-            ParentId = parent.Id,
-            Order = parent.Children.Count + 1,
+            GlobalOrder = parent.Group.ComponentCount() + 1,
+            ParentGlobalOrder = parent.GlobalOrder,
+            LocalOrder = parent.Children.Count + 1,
             Text = attributes.Text,
             Variant = attributes.Variant,
             Partial = attributes.Partial,
@@ -104,6 +109,13 @@ internal partial class ComponentReader
             Group = parent.Group,
             Parent = parent,
         };
+
+        parent.Children.Add(component);
+
+        if (!string.Equals(attributes.Id, component.XmlIdAttribute(), StringComparison.Ordinal))
+        {
+            LogWrongId(component.Group.Entry.FileName(), attributes.Id, component.XmlIdAttribute());
+        }
 
         bool exit = false;
         while (!exit && await xmlReader.ReadAsync())
@@ -122,8 +134,6 @@ internal partial class ComponentReader
                     break;
             }
         }
-
-        parent.Children.Add(component);
     }
 
     private async Task ReadChildElementAsync(XmlReader xmlReader, Component component)
@@ -137,7 +147,7 @@ internal partial class ComponentReader
                 _strokeReader.Read(xmlReader, component);
                 break;
             default:
-                LogUnexpectedComponentName(xmlReader.Name, component.Group.Entry.FileName(), component.Id);
+                LogUnexpectedComponentName(xmlReader.Name, component.Group.Entry.FileName(), component.XmlIdAttribute());
                 break;
         }
     }
@@ -149,4 +159,8 @@ internal partial class ComponentReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected component child name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
     private partial void LogUnexpectedComponentName(string name, string fileName, string parentId);
+
+    [LoggerMessage(LogLevel.Warning,
+    "{File}: Component ID `{Actual}` not equal to expected value `{Expected}`")]
+    private partial void LogWrongId(string file, string actual, string expected);
 }
