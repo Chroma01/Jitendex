@@ -21,19 +21,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.KanjiVG.Models;
 
-[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(Id))]
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(VariantTypeName), nameof(GlobalOrder))]
 public class Stroke
 {
     public required int UnicodeScalarValue { get; set; }
     public required string VariantTypeName { get; set; }
-    public required string Id { get; set; }
-
+    public required int GlobalOrder { get; set; }
+    public required int LocalOrder { get; set; }
     public required int ComponentGlobalOrder { get; set; }
-    public required int Order { get; set; }
 
     public string? Type { get; set; }
     public required string PathData { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeName)}, {nameof(ComponentGlobalOrder)}")]
     public required Component Component { get; set; }
+
+    public string XmlIdAttribute() => "kvg:"
+        + UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
+        + (VariantTypeName == string.Empty ? VariantTypeName : $"-{VariantTypeName}")
+        + $"-s{GlobalOrder}";
 }

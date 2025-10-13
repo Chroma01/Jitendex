@@ -40,20 +40,25 @@ internal partial class StrokeReader
         {
             UnicodeScalarValue = component.UnicodeScalarValue,
             VariantTypeName = component.VariantTypeName,
-            Id = attributes.Id,
+            GlobalOrder = component.Group.StrokeCount() + 1,
+            LocalOrder = component.Strokes.Count + 1,
             ComponentGlobalOrder = component.GlobalOrder,
-            Order = component.Strokes.Count + 1,
             Type = attributes.Type,
             PathData = attributes.PathData,
             Component = component,
         };
 
+        component.Strokes.Add(stroke);
+
         if (!xmlReader.IsEmptyElement)
         {
-            LogNonEmptyElement(stroke.Id, component.Group.Entry.FileName());
+            LogNonEmptyElement(stroke.XmlIdAttribute(), component.Group.Entry.FileName());
         }
 
-        component.Strokes.Add(stroke);
+        if (!string.Equals(attributes.Id, stroke.XmlIdAttribute(), StringComparison.Ordinal))
+        {
+            LogWrongId(stroke.XmlIdAttribute(), attributes.Id, stroke.XmlIdAttribute());
+        }
     }
 
     private Attributes GetAttributes(XmlReader xmlReader, Component component)
@@ -115,4 +120,8 @@ internal partial class StrokeReader
     [LoggerMessage(LogLevel.Warning,
     "Cannot find stroke attribute `{AttributeName}` in file `{File}`")]
     private partial void LogMissingAttribute(string attributeName, string file);
+
+    [LoggerMessage(LogLevel.Warning,
+    "{File}: Stroke ID `{Actual}` not equal to expected value `{Expected}`")]
+    private partial void LogWrongId(string file, string actual, string expected);
 }
