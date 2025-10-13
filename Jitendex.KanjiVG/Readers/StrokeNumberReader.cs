@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
@@ -33,13 +34,14 @@ internal partial class StrokeNumberReader
 
     public async Task ReadAsync(XmlReader xmlReader, StrokeNumberGroup group)
     {
-        var transform = GetTransformAttribute(xmlReader, group);
+        var translation = GetTranslation(xmlReader, group);
 
         var strokeNumber = new StrokeNumber
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
             VariantTypeId = group.Entry.VariantTypeId,
-            Transform = transform,
+            TranslateX = translation.X,
+            TranslateY = translation.Y,
             Number = await GetNumberAsync(xmlReader),
             Group = group,
         };
@@ -53,9 +55,37 @@ internal partial class StrokeNumberReader
         group.StrokeNumbers.Add(strokeNumber);
     }
 
+    private (string X, string Y) GetTranslation(XmlReader xmlReader, StrokeNumberGroup group)
+    {
+        var transform = GetTransformAttribute(xmlReader, group);
+
+        Match match = TransformRegex().Match(transform);
+
+        if (!match.Success)
+        {
+            LogMalformattedTransform(group.Entry.FileName(), transform);
+            return (string.Empty, string.Empty);
+        }
+
+        var translateX = match.Groups[1].Value;
+        var translateY = match.Groups[2].Value;
+
+        if (!decimal.TryParse(translateX, out decimal x))
+        {
+            LogMalformattedTranslation(group.Entry.FileName(), nameof(x), translateX);
+        }
+
+        if (!decimal.TryParse(translateY, out decimal y))
+        {
+            LogMalformattedTranslation(group.Entry.FileName(), nameof(y), translateY);
+        }
+
+        return (translateX, translateY);
+    }
+
     private string GetTransformAttribute(XmlReader xmlReader, StrokeNumberGroup group)
     {
-        string transform = null!;
+        string? transform = null;
 
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
@@ -103,6 +133,9 @@ internal partial class StrokeNumberReader
         }
     }
 
+    [GeneratedRegex(@"^matrix\(1 0 0 1 (-?[0-9.]+) (-?[0-9.]+)\)$", RegexOptions.None)]
+    private static partial Regex TransformRegex();
+
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
     private partial void LogUnknownAttributeName(string name, string value, string file);
@@ -118,4 +151,12 @@ internal partial class StrokeNumberReader
     [LoggerMessage(LogLevel.Warning,
     "In file `{FileName}`, stroke number `{Number}` is not equal to its order `{Order}`")]
     private partial void LogNumberOutOfOrder(string fileName, int number, int order);
+
+    [LoggerMessage(LogLevel.Warning,
+    "In file `{FileName}`, stroke number transform attribute `{Attribute}` is not in the expected format")]
+    private partial void LogMalformattedTransform(string fileName, string attribute);
+
+    [LoggerMessage(LogLevel.Warning,
+    "In file `{FileName}`, stroke number {Axis} translation `{Value}` is not a valid decimal number")]
+    private partial void LogMalformattedTranslation(string fileName, string axis, string value);
 }
