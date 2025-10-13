@@ -18,26 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Jitendex.KanjiVG.Models;
+using Jitendex.SQLite;
 
 namespace Jitendex.KanjiVG;
 
-public class KanjiVGContext : DbContext
+public class KanjiVGContext : SqliteContext
 {
     public DbSet<Entry> Entries { get; set; } = null!;
-
-    public string DbPath { get; }
-
-    public KanjiVGContext()
-    {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        var dbFolder = Path.Join(path, "Jitendex");
-        Directory.CreateDirectory(dbFolder);
-        DbPath = Path.Join(dbFolder, "kanjivg.db");
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
-        options.UseSqlite($"Data Source={DbPath}");
-    }
+    public KanjiVGContext() : base("kanjivg.db") { }
 }
