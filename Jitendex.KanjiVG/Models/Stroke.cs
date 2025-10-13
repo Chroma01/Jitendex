@@ -29,12 +29,14 @@ public class Stroke
     public required int GlobalOrder { get; set; }
     public required int LocalOrder { get; set; }
     public required int ComponentGlobalOrder { get; set; }
-
-    public string? Type { get; set; }
+    public required int TypeId { get; set; }
     public required string PathData { get; set; }
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}, {nameof(ComponentGlobalOrder)}")]
     public required Component Component { get; set; }
+
+    [ForeignKey(nameof(TypeId))]
+    public required StrokeType Type { get; set; }
 
     public string XmlIdAttribute() => "kvg:"
         + Component.Group.Entry.FileNameFormat()

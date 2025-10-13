@@ -59,6 +59,8 @@ internal partial class EntryReader
             VariantType = variantType,
         };
 
+        variantType.Entries.Add(entry);
+
         while (await xmlReader.ReadAsync())
         {
             switch (xmlReader.NodeType)

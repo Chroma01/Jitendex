@@ -56,3 +56,12 @@ public class StrokeNumberGroupStyle : ILookup
 
     public List<StrokeNumberGroup> Groups { get; } = [];
 }
+
+[Table(nameof(StrokeType))]
+public class StrokeType : ILookup
+{
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+
+    public List<Stroke> Strokes { get; } = [];
+}

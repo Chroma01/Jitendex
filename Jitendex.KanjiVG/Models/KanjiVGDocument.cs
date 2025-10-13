@@ -27,4 +27,5 @@ public class KanjiVGDocument
     public required List<VariantType> VariantTypes { get; init; }
     public required List<ComponentGroupStyle> ComponentGroupStyles { get; init; }
     public required List<StrokeNumberGroupStyle> StrokeNumberGroupStyles { get; init; }
+    public required List<StrokeType> StrokeTypes { get; init; }
 }

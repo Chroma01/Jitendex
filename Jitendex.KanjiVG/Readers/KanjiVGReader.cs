@@ -29,28 +29,31 @@ internal partial class KanjiVGReader
     private readonly VariantTypeCache _variantTypeCache;
     private readonly ComponentGroupStyleCache _componentGroupStyleCache;
     private readonly StrokeNumberGroupStyleCache _strokeNumberGroupStyleCache;
+    private readonly StrokeTypeCache _strokeTypeCache;
 
     public KanjiVGReader(
         ILogger<KanjiVGReader> logger,
         EntriesReader entriesReader,
         VariantTypeCache variantTypeCache,
         ComponentGroupStyleCache componentGroupStyleCache,
-        StrokeNumberGroupStyleCache strokeNumberGroupStyleCache) =>
-        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache) =
-        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache);
+        StrokeNumberGroupStyleCache strokeNumberGroupStyleCache,
+        StrokeTypeCache strokeTypeCache) =>
+        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _strokeTypeCache) =
+        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @strokeTypeCache);
 
     public async Task<KanjiVGDocument> ReadAsync()
     {
         var entries = await _entriesReader.ReadAsync();
 
-        var kanjiVG = new KanjiVGDocument
+        var kanjivg = new KanjiVGDocument
         {
             Entries = entries,
-            VariantTypes = [.. _variantTypeCache.Values()],
-            ComponentGroupStyles = [.. _componentGroupStyleCache.Values()],
-            StrokeNumberGroupStyles = [.. _strokeNumberGroupStyleCache.Values()],
+            VariantTypes = [.. _variantTypeCache.Values],
+            ComponentGroupStyles = [.. _componentGroupStyleCache.Values],
+            StrokeNumberGroupStyles = [.. _strokeNumberGroupStyleCache.Values],
+            StrokeTypes = [.. _strokeTypeCache.Values],
         };
 
-        return kanjiVG;
+        return kanjivg;
     }
 }

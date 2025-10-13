@@ -47,6 +47,7 @@ internal static class ReaderProvider
         .AddSingleton<VariantTypeCache>()
         .AddSingleton<ComponentGroupStyleCache>()
         .AddSingleton<StrokeNumberGroupStyleCache>()
+        .AddSingleton<StrokeTypeCache>()
 
         // Top-level readers.
         .AddTransient<EntriesReader>()

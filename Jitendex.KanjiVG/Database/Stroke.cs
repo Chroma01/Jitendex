@@ -31,7 +31,7 @@ internal static class StrokeData
     private const string C3 = nameof(Stroke.GlobalOrder);
     private const string C4 = nameof(Stroke.LocalOrder);
     private const string C5 = nameof(Stroke.ComponentGlobalOrder);
-    private const string C6 = nameof(Stroke.Type);
+    private const string C6 = nameof(Stroke.TypeId);
     private const string C7 = nameof(Stroke.PathData);
 
     // Parameter names
@@ -64,7 +64,7 @@ internal static class StrokeData
                 new(P3, stroke.GlobalOrder),
                 new(P4, stroke.LocalOrder),
                 new(P5, stroke.ComponentGlobalOrder),
-                new(P6, stroke.Type.Nullable()),
+                new(P6, stroke.TypeId),
                 new(P7, stroke.PathData),
             });
 

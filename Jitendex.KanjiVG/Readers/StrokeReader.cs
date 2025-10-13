@@ -19,22 +19,25 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
-using Attributes = (string Id, string? Type, string PathData);
+using Attributes = (string Id, string TypeText, string PathData);
+using Jitendex.KanjiVG.Readers.Lookups;
 
 namespace Jitendex.KanjiVG.Readers;
 
 internal partial class StrokeReader
 {
     private readonly ILogger<StrokeReader> _logger;
+    private readonly StrokeTypeCache _strokeTypeCache;
 
-    public StrokeReader(ILogger<StrokeReader> logger)
-    {
-        _logger = logger;
-    }
+    public StrokeReader(ILogger<StrokeReader> logger, StrokeTypeCache strokeTypeCache) =>
+        (_logger, _strokeTypeCache) =
+        (@logger, @strokeTypeCache);
 
     public void Read(XmlReader xmlReader, Component component)
     {
         var attributes = GetAttributes(xmlReader, component);
+
+        var type = _strokeTypeCache.Get(attributes.TypeText);
 
         var stroke = new Stroke
         {
@@ -43,11 +46,13 @@ internal partial class StrokeReader
             GlobalOrder = component.Group.StrokeCount() + 1,
             LocalOrder = component.Strokes.Count + 1,
             ComponentGlobalOrder = component.GlobalOrder,
-            Type = attributes.Type,
+            TypeId = type.Id,
             PathData = attributes.PathData,
             Component = component,
+            Type = type,
         };
 
+        type.Strokes.Add(stroke);
         component.Strokes.Add(stroke);
 
         if (!xmlReader.IsEmptyElement)
@@ -63,7 +68,7 @@ internal partial class StrokeReader
 
     private Attributes GetAttributes(XmlReader xmlReader, Component component)
     {
-        var attributes = new Attributes(null!, null, null!);
+        var attributes = new Attributes(null!, string.Empty, null!);
 
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
@@ -75,7 +80,7 @@ internal partial class StrokeReader
                     attributes.Id = xmlReader.Value;
                     break;
                 case "kvg:type":
-                    attributes.Type = xmlReader.Value;
+                    attributes.TypeText = xmlReader.Value;
                     break;
                 case "d":
                     attributes.PathData = xmlReader.Value;

@@ -26,8 +26,8 @@ internal abstract class LookupCache<T> where T : ILookup
 {
     private readonly ILogger _logger;
     private readonly Dictionary<string, int> _textToId;
-    private readonly Dictionary<string, T> _cache = [];
-    public IEnumerable<T> Values() => _cache.Values;
+    private readonly Dictionary<string, T> _cache;
+    public IEnumerable<T> Values { get => _cache.Values; }
 
     public LookupCache(ILogger logger)
     {
@@ -36,6 +36,7 @@ internal abstract class LookupCache<T> where T : ILookup
             .Select(static (text, index) =>
                 new KeyValuePair<string, int>(text, index + 1))
             .ToDictionary();
+        _cache = new(_textToId.Count);
     }
 
     public T Get(string text)
