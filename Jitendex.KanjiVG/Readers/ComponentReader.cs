@@ -28,6 +28,8 @@ internal partial class ComponentReader
     private readonly ILogger<ComponentReader> _logger;
     private readonly ComponentAttributesReader _attributesReader;
     private readonly StrokeReader _strokeReader;
+    private readonly ComponentCharacterCache _characterCache;
+    private readonly ComponentOriginalCache _originalCache;
     private readonly ComponentPositionCache _positionCache;
     private readonly ComponentRadicalCache _radicalCache;
     private readonly ComponentPhonCache _phonCache;
@@ -36,15 +38,19 @@ internal partial class ComponentReader
         ILogger<ComponentReader> logger,
         ComponentAttributesReader attributesReader,
         StrokeReader strokeReader,
+        ComponentCharacterCache characterCache,
+        ComponentOriginalCache originalCache,
         ComponentPositionCache positionCache,
         ComponentRadicalCache radicalCache,
         ComponentPhonCache phonCache) =>
-        (_logger, _attributesReader, _strokeReader, _positionCache, _radicalCache, _phonCache) =
-        (@logger, @attributesReader, @strokeReader, @positionCache, @radicalCache, @phonCache);
+        (_logger, _attributesReader, _strokeReader, _characterCache, _originalCache, _positionCache, _radicalCache, _phonCache) =
+        (@logger, @attributesReader, @strokeReader, @characterCache, @originalCache, @positionCache, @radicalCache, @phonCache);
 
     public async Task ReadAsync(XmlReader xmlReader, ComponentGroup group)
     {
         var attributes = _attributesReader.Read(xmlReader, group);
+        var character = _characterCache.Get(attributes.Text);
+        var original = _originalCache.Get(attributes.Original);
         var position = _positionCache.Get(attributes.Position);
         var radical = _radicalCache.Get(attributes.Radical);
         var phon = _phonCache.Get(attributes.Phon);
@@ -56,10 +62,10 @@ internal partial class ComponentReader
             GlobalOrder = group.ComponentCount() + 1,
             ParentGlobalOrder = null,
             LocalOrder = group.Components.Count + 1,
-            Text = attributes.Text,
+            CharacterId = character.Id,
             IsVariant = attributes.IsVariant,
             IsPartial = attributes.IsPartial,
-            Original = attributes.Original,
+            OriginalId = original.Id,
             Part = attributes.Part,
             Number = attributes.Number,
             IsTradForm = attributes.IsTradForm,
@@ -69,12 +75,16 @@ internal partial class ComponentReader
             PhonId = phon.Id,
             Group = group,
             Parent = null,
+            Character = character,
+            Original = original,
             Position = position,
             Radical = radical,
             Phon = phon,
         };
 
         group.Components.Add(component);
+        character.Components.Add(component);
+        original.Components.Add(component);
         position.Components.Add(component);
         radical.Components.Add(component);
         phon.Components.Add(component);
@@ -106,6 +116,8 @@ internal partial class ComponentReader
     private async Task ReadAsync(XmlReader xmlReader, Component parent)
     {
         var attributes = _attributesReader.Read(xmlReader, parent.Group);
+        var character = _characterCache.Get(attributes.Text);
+        var original = _originalCache.Get(attributes.Original);
         var position = _positionCache.Get(attributes.Position);
         var radical = _radicalCache.Get(attributes.Radical);
         var phon = _phonCache.Get(attributes.Phon);
@@ -117,10 +129,10 @@ internal partial class ComponentReader
             GlobalOrder = parent.Group.ComponentCount() + 1,
             ParentGlobalOrder = parent.GlobalOrder,
             LocalOrder = parent.Children.Count + 1,
-            Text = attributes.Text,
+            CharacterId = character.Id,
             IsVariant = attributes.IsVariant,
             IsPartial = attributes.IsPartial,
-            Original = attributes.Original,
+            OriginalId = original.Id,
             Part = attributes.Part,
             Number = attributes.Number,
             IsTradForm = attributes.IsTradForm,
@@ -130,12 +142,16 @@ internal partial class ComponentReader
             PhonId = phon.Id,
             Group = parent.Group,
             Parent = parent,
+            Character = character,
+            Original = original,
             Position = position,
             Radical = radical,
             Phon = phon,
         };
 
         parent.Children.Add(component);
+        character.Components.Add(component);
+        original.Components.Add(component);
         position.Components.Add(component);
         radical.Components.Add(component);
         phon.Components.Add(component);

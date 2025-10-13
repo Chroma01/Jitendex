@@ -31,10 +31,10 @@ internal static class ComponentData
     private const string C3 = nameof(Component.GlobalOrder);
     private const string C4 = nameof(Component.ParentGlobalOrder);
     private const string C5 = nameof(Component.LocalOrder);
-    private const string C6 = nameof(Component.Text);
+    private const string C6 = nameof(Component.CharacterId);
     private const string C7 = nameof(Component.IsVariant);
     private const string C8 = nameof(Component.IsPartial);
-    private const string C9 = nameof(Component.Original);
+    private const string C9 = nameof(Component.OriginalId);
     private const string C10 = nameof(Component.Part);
     private const string C11 = nameof(Component.Number);
     private const string C12 = nameof(Component.IsTradForm);
@@ -85,10 +85,10 @@ internal static class ComponentData
                     new(P3, component.GlobalOrder),
                     new(P4, component.ParentGlobalOrder.Nullable()),
                     new(P5, component.LocalOrder),
-                    new(P6, component.Text.Nullable()),
+                    new(P6, component.CharacterId),
                     new(P7, component.IsVariant),
                     new(P8, component.IsPartial),
-                    new(P9, component.Original.Nullable()),
+                    new(P9, component.OriginalId),
                     new(P10, component.Part.Nullable()),
                     new(P11, component.Number.Nullable()),
                     new(P12, component.IsTradForm),

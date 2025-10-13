@@ -16,23 +16,21 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
+using Jitendex.KanjiVG.Models;
 
-namespace Jitendex.KanjiVG.Models;
+namespace Jitendex.KanjiVG.Readers.Lookups;
 
-[NotMapped]
-public class ComponentAttributes
+internal partial class ComponentOriginalCache : LookupCache<ComponentOriginal>
 {
-    public required string Id { get; set; }
-    public string Text { get; set; } = string.Empty;
-    public bool IsVariant { get; set; }
-    public bool IsPartial { get; set; }
-    public string Original { get; set; } = string.Empty;
-    public int? Part { get; set; }
-    public int? Number { get; set; }
-    public bool IsTradForm { get; set; }
-    public bool IsRadicalForm { get; set; }
-    public string Position { get; set; } = string.Empty;
-    public string Radical { get; set; } = string.Empty;
-    public string Phon { get; set; } = string.Empty;
+    public ComponentOriginalCache(ILogger<ComponentOriginalCache> logger) : base(logger) { }
+
+    protected override ComponentOriginal NewLookup(int id, string text) => new()
+    {
+        Id = id,
+        Text = text,
+    };
+
+    protected override ImmutableArray<string> KnownLookups() => [];
 }

@@ -31,10 +31,10 @@ public class Component
     public required int? ParentGlobalOrder { get; set; }
     public required int LocalOrder { get; set; }
 
-    public required string? Text { get; set; }
+    public required int CharacterId { get; set; }
     public required bool IsVariant { get; set; }
     public required bool IsPartial { get; set; }
-    public required string? Original { get; set; }
+    public required int OriginalId { get; set; }
     public required int? Part { get; set; }
     public required int? Number { get; set; }
     public required bool IsTradForm { get; set; }
@@ -48,6 +48,12 @@ public class Component
 
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(VariantTypeId)}, {nameof(ParentGlobalOrder)}")]
     public required Component? Parent { get; set; }
+
+    [ForeignKey(nameof(CharacterId))]
+    public required ComponentCharacter Character { get; set; }
+
+    [ForeignKey(nameof(OriginalId))]
+    public required ComponentOriginal Original { get; set; }
 
     [ForeignKey(nameof(PositionId))]
     public required ComponentPosition Position { get; set; }

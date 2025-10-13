@@ -29,6 +29,8 @@ internal partial class KanjiVGReader
     private readonly VariantTypeCache _variantTypeCache;
     private readonly ComponentGroupStyleCache _componentGroupStyleCache;
     private readonly StrokeNumberGroupStyleCache _strokeNumberGroupStyleCache;
+    private readonly ComponentCharacterCache _characterCache;
+    private readonly ComponentOriginalCache _originalCache;
     private readonly ComponentPositionCache _positionCache;
     private readonly ComponentRadicalCache _radicalCache;
     private readonly ComponentPhonCache _phonCache;
@@ -40,12 +42,14 @@ internal partial class KanjiVGReader
         VariantTypeCache variantTypeCache,
         ComponentGroupStyleCache componentGroupStyleCache,
         StrokeNumberGroupStyleCache strokeNumberGroupStyleCache,
+        ComponentCharacterCache characterCache,
+        ComponentOriginalCache originalCache,
         ComponentPositionCache positionCache,
         ComponentRadicalCache radicalCache,
         ComponentPhonCache phonCache,
         StrokeTypeCache strokeTypeCache) =>
-        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _positionCache, _radicalCache, _phonCache, _strokeTypeCache) =
-        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @positionCache, @radicalCache, @phonCache, @strokeTypeCache);
+        (_logger, _entriesReader, _variantTypeCache, _componentGroupStyleCache, _strokeNumberGroupStyleCache, _characterCache, _originalCache, _positionCache, _radicalCache, _phonCache, _strokeTypeCache) =
+        (@logger, @entriesReader, @variantTypeCache, @componentGroupStyleCache, @strokeNumberGroupStyleCache, @characterCache, @originalCache, @positionCache, @radicalCache, @phonCache, @strokeTypeCache);
 
     public async Task<KanjiVGDocument> ReadAsync()
     {
@@ -57,6 +61,8 @@ internal partial class KanjiVGReader
             VariantTypes = [.. _variantTypeCache.Values],
             ComponentGroupStyles = [.. _componentGroupStyleCache.Values],
             StrokeNumberGroupStyles = [.. _strokeNumberGroupStyleCache.Values],
+            ComponentCharacters = [.. _characterCache.Values],
+            ComponentOriginals = [.. _originalCache.Values],
             ComponentPositions = [.. _positionCache.Values],
             ComponentRadicals = [.. _radicalCache.Values],
             ComponentPhons = [.. _phonCache.Values],

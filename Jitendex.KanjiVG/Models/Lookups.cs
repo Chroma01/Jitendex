@@ -57,6 +57,24 @@ public class StrokeNumberGroupStyle : ILookup
     public List<StrokeNumberGroup> Groups { get; } = [];
 }
 
+[Table(nameof(ComponentCharacter))]
+public class ComponentCharacter : ILookup
+{
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+
+    public List<Component> Components { get; } = [];
+}
+
+[Table(nameof(ComponentOriginal))]
+public class ComponentOriginal : ILookup
+{
+    public required int Id { get; set; }
+    public required string Text { get; set; }
+
+    public List<Component> Components { get; } = [];
+}
+
 [Table(nameof(ComponentPosition))]
 public class ComponentPosition : ILookup
 {

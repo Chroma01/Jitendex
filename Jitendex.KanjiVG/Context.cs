@@ -28,7 +28,11 @@ public class Context : SqliteContext
     public DbSet<VariantType> VariantTypes { get; set; } = null!;
     public DbSet<ComponentGroupStyle> ComponentGroupStyles { get; set; } = null!;
     public DbSet<StrokeNumberGroupStyle> StrokeNumberGroupStyles { get; set; } = null!;
+    public DbSet<ComponentCharacter> ComponentCharacters { get; set; } = null!;
+    public DbSet<ComponentOriginal> ComponentOriginals { get; set; } = null!;
     public DbSet<ComponentPosition> ComponentPositions { get; set; } = null!;
+    public DbSet<ComponentRadical> ComponentRadicals { get; set; } = null!;
+    public DbSet<ComponentPhon> ComponentPhons { get; set; } = null!;
     public DbSet<StrokeType> StrokeTypes { get; set; } = null!;
     public Context() : base("kanjivg.db") { }
 }

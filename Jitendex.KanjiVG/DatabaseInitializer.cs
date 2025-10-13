@@ -42,11 +42,15 @@ internal static class DatabaseInitializer
             await db.InsertLookupsAsync<VariantType>(kanjivg.VariantTypes);
             await db.InsertLookupsAsync<ComponentGroupStyle>(kanjivg.ComponentGroupStyles);
             await db.InsertLookupsAsync<StrokeNumberGroupStyle>(kanjivg.StrokeNumberGroupStyles);
+            await db.InsertLookupsAsync<ComponentCharacter>(kanjivg.ComponentCharacters);
+            await db.InsertLookupsAsync<ComponentOriginal>(kanjivg.ComponentOriginals);
             await db.InsertLookupsAsync<ComponentPosition>(kanjivg.ComponentPositions);
             await db.InsertLookupsAsync<ComponentRadical>(kanjivg.ComponentRadicals);
             await db.InsertLookupsAsync<ComponentPhon>(kanjivg.ComponentPhons);
             await db.InsertLookupsAsync<StrokeType>(kanjivg.StrokeTypes);
+
             await db.InsertEntriesAsync(kanjivg.Entries);
+
             await transaction.CommitAsync();
         }
 
