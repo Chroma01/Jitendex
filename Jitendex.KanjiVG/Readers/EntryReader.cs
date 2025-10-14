@@ -22,6 +22,7 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 using Jitendex.KanjiVG.Readers.Lookups;
+using SvgAttributes = (string Width, string Height, string ViewBox);
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -84,11 +85,9 @@ internal partial class EntryReader
             }
         }
 
-        return IsEntryValid(entry, fileName) switch
-        {
-            true => entry,
-            false => null,
-        };
+        return IsEntryValid(entry, fileName)
+            ? entry
+            : null;
     }
 
     private bool IsEntryValid(Entry entry, string fileName)
@@ -148,6 +147,7 @@ internal partial class EntryReader
         switch (xmlReader.Name)
         {
             case "svg":
+                ReadSvgHeader(xmlReader, entry);
                 break;
             case "g":
                 await ReadGroupAsync(xmlReader, entry);
@@ -179,6 +179,54 @@ internal partial class EntryReader
         }
     }
 
+    private void ReadSvgHeader(XmlReader xmlReader, Entry entry)
+    {
+        var attributes = new SvgAttributes(null!, null!, null!);
+        int attributeCount = xmlReader.AttributeCount;
+        for (int i = 0; i < attributeCount; i++)
+        {
+            xmlReader.MoveToAttribute(i);
+            switch (xmlReader.Name)
+            {
+                case "width":
+                    attributes.Width = xmlReader.Value;
+                    break;
+                case "height":
+                    attributes.Height = xmlReader.Value;
+                    break;
+                case "viewBox":
+                    attributes.ViewBox = xmlReader.Value;
+                    break;
+                case "xmlns":
+                    // Nothing to be done.
+                    break;
+                default:
+                    LogUnknownAttributeName(xmlReader.Name, xmlReader.Value, entry.FileName());
+                    break;
+            }
+        }
+
+        if (attributeCount > 0)
+        {
+            xmlReader.MoveToElement();
+        }
+
+        if (!string.Equals(attributes.Width, "109", StringComparison.Ordinal))
+        {
+            _logger.LogWarning("Abnormal SVG Width attribute in file `{File}`", entry.FileName());
+        }
+
+        if (!string.Equals(attributes.Height, "109", StringComparison.Ordinal))
+        {
+            _logger.LogWarning("Abnormal SVG Height attribute in file `{File}`", entry.FileName());
+        }
+
+        if (!string.Equals(attributes.ViewBox, "0 0 109 109", StringComparison.Ordinal))
+        {
+            _logger.LogWarning("Abnormal SVG viewBox attribute in file `{File}`", entry.FileName());
+        }
+    }
+
     [GeneratedRegex(pattern: @"^(.+?)(?:-(.+?))?\.svg$", RegexOptions.None)]
     private static partial Regex FileNameRegex();
 
@@ -201,4 +249,8 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected group element ID `{Id}` in file `{FileName}`")]
     private partial void LogUnexpectedGroupIdPrefix(string id, string fileName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unknown SVG attribute name `{Name}` with value `{Value}` in file `{File}`")]
+    private partial void LogUnknownAttributeName(string name, string value, string file);
 }
