@@ -84,24 +84,32 @@ internal partial class EntryReader
             }
         }
 
-        if (entry.Comment is null || entry.ComponentGroup is null || entry.StrokeNumberGroup is null)
+        return IsEntryValid(entry, fileName) switch
         {
-            if (entry.Comment is null)
-            {
-                LogMissingGroup(nameof(entry.Comment), fileName);
-            }
-            if (entry.ComponentGroup is null)
-            {
-                LogMissingGroup(nameof(entry.ComponentGroup), fileName);
-            }
-            if (entry.StrokeNumberGroup is null)
-            {
-                LogMissingGroup(nameof(entry.StrokeNumberGroup), fileName);
-            }
-            return null;
-        }
+            true => entry,
+            false => null,
+        };
+    }
 
-        return entry;
+    private bool IsEntryValid(Entry entry, string fileName)
+    {
+        bool @return = true;
+        if (entry.Comment is null)
+        {
+            LogMissingGroup(nameof(entry.Comment), fileName);
+            @return = false;
+        }
+        if (entry.ComponentGroup is null)
+        {
+            LogMissingGroup(nameof(entry.ComponentGroup), fileName);
+            @return = false;
+        }
+        if (entry.StrokeNumberGroup is null)
+        {
+            LogMissingGroup(nameof(entry.StrokeNumberGroup), fileName);
+            @return = false;
+        }
+        return @return;
     }
 
     private (int, string) Parse(string fileName)
