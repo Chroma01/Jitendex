@@ -40,7 +40,7 @@ internal static class ReaderProvider
             }))
 
         // XML file resource.
-        .AddSingleton<Files>(provider => paths)
+        .AddTransient<Files>(provider => paths)
         .AddTransient<KanjiFiles>()
 
         // Global lookup types
