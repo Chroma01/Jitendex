@@ -22,7 +22,7 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 using Jitendex.KanjiVG.Readers.Lookups;
-using SvgAttributes = (string Width, string Height, string ViewBox);
+using SvgAttributes = (string? Width, string? Height, string? ViewBox);
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -181,7 +181,7 @@ internal partial class EntryReader
 
     private void ReadSvgHeader(XmlReader xmlReader, Entry entry)
     {
-        var attributes = new SvgAttributes(null!, null!, null!);
+        var attributes = new SvgAttributes(null, null, null);
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
         {
@@ -205,25 +205,21 @@ internal partial class EntryReader
                     break;
             }
         }
-
         if (attributeCount > 0)
         {
             xmlReader.MoveToElement();
         }
-
         if (!string.Equals(attributes.Width, "109", StringComparison.Ordinal))
         {
-            _logger.LogWarning("Abnormal SVG Width attribute in file `{File}`", entry.FileName());
+            LogAbnormalSvgAttribute(nameof(attributes.Width), attributes.Width, entry.FileName());
         }
-
         if (!string.Equals(attributes.Height, "109", StringComparison.Ordinal))
         {
-            _logger.LogWarning("Abnormal SVG Height attribute in file `{File}`", entry.FileName());
+            LogAbnormalSvgAttribute(nameof(attributes.Height), attributes.Height, entry.FileName());
         }
-
         if (!string.Equals(attributes.ViewBox, "0 0 109 109", StringComparison.Ordinal))
         {
-            _logger.LogWarning("Abnormal SVG viewBox attribute in file `{File}`", entry.FileName());
+            LogAbnormalSvgAttribute(nameof(attributes.ViewBox), attributes.ViewBox, entry.FileName());
         }
     }
 
@@ -253,4 +249,8 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Warning,
     "Unknown SVG attribute name `{Name}` with value `{Value}` in file `{File}`")]
     private partial void LogUnknownAttributeName(string name, string value, string file);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Abnormal SVG `{Name}` attribute `{Value}` in file `{File}`")]
+    private partial void LogAbnormalSvgAttribute(string name, string? value, string file);
 }
