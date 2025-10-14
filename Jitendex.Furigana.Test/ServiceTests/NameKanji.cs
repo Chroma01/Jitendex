@@ -60,4 +60,5 @@ public class NameKanji : ServiceTest
     public void TestUnsolvable()
     {
         Assert.IsNull(_vocabSolution);
-    }}
+    }
+}

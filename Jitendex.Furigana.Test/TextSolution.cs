@@ -50,7 +50,7 @@ internal static partial class TextSolution
             solutionBuilder.Add(new SolutionPart { BaseText = noFurigana2 });
         }
 
-        var solution = solutionBuilder.ToSolution(entry) ?? 
+        var solution = solutionBuilder.ToSolution(entry) ??
             throw new ArgumentException("Malformatted solution text", nameof(text));
 
         return solution;

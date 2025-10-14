@@ -35,7 +35,7 @@ internal partial class EntriesReader
     {
         var entries = new List<Entry>(12_000);
 
-        await foreach(var (fileName, xmlReader) in _kanjiFiles.EnumerateAsync())
+        await foreach (var (fileName, xmlReader) in _kanjiFiles.EnumerateAsync())
         {
             var entry = await _entryReader.ReadAsync(fileName, xmlReader);
             if (entry is not null)

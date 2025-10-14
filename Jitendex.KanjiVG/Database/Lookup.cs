@@ -32,7 +32,7 @@ internal static class LookupData
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
 
-    public static async Task InsertLookupsAsync<T>(this Context db, IEnumerable<T> lookups) where T: ILookup
+    public static async Task InsertLookupsAsync<T>(this Context db, IEnumerable<T> lookups) where T : ILookup
     {
         var InsertSql =
             $"""
