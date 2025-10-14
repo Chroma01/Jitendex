@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Jitendex.SQLite.EntityFrameworkCore;
 
 namespace Jitendex.SQLite;
 
