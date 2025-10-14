@@ -44,8 +44,7 @@ public class ComponentGroup
         int count = 0;
         foreach (var component in Components)
         {
-            count++;
-            count += component.ChildComponentCount();
+            count += component.ComponentCount();
         }
         return count;
     }

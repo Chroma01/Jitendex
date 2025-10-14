@@ -72,13 +72,12 @@ public class Component
         + Group.Entry.FileNameFormat()
         + (GlobalOrder == 1 ? "" : $"-g{GlobalOrder - 1}");
 
-    public int ChildComponentCount()
+    public int ComponentCount()
     {
-        int count = 0;
+        int count = 1;
         foreach (var child in Children)
         {
-            count++;
-            count += child.ChildComponentCount();
+            count += child.ComponentCount();
         }
         return count;
     }
