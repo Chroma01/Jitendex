@@ -1,6 +1,8 @@
 #!/usr/bin/env fish
+# Copyright (c) 2025 Stephen Kraus
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
-set project_dir (status dirname)
+set project_dir (realpath (status dirname))
 
 set kanjivg_kanji_dir \
     "$project_dir"/../Data/kanjivg/kanji
@@ -14,7 +16,8 @@ end
 
 # Use the current KanjiVG commit ID as the name of the cached archive.
 set kanji_file_name \
-    (git rev-parse --verify --short HEAD:(dirname "$kanjivg_kanji_dir")).tar.br
+    (git -C (dirname "$kanjivg_kanji_dir") rev-parse --verify --short HEAD).tar.br
+or return 1
 
 set kanji_file_path \
     "$kanji_file_dir"/"$kanji_file_name"
@@ -26,11 +29,11 @@ if not test -e "$kanji_file_path"
     mkdir -p "$kanji_file_dir"
 
     cd "$kanjivg_kanji_dir"
-    tar -c *.svg | brotli -4 > "$kanji_file_path"
+    tar -c *.svg | brotli -4 > "$kanji_file_path"; or return 1
     cd "$project_dir"
 end
 
 time dotnet run \
     --project "$project_dir" \
-    --configuration Release \
+    --configuration 'Release' \
     -- "$kanji_file_path"

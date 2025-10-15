@@ -27,20 +27,18 @@ internal partial class StrokeNumberGroupReader
 {
     private readonly ILogger<StrokeNumberGroupReader> _logger;
     private readonly StrokeNumberReader _strokeNumberReader;
-    private readonly StrokeNumberGroupStyleCache _strokeNumberGroupStyleCache;
+    private readonly StrokeNumberGroupStyleCache _groupStyleCache;
 
-    public StrokeNumberGroupReader(
-        ILogger<StrokeNumberGroupReader> logger,
-        StrokeNumberReader strokeNumberReader,
-        StrokeNumberGroupStyleCache strokeNumberGroupStyleCache) =>
-        (_logger, _strokeNumberReader, _strokeNumberGroupStyleCache) =
-        (@logger, @strokeNumberReader, @strokeNumberGroupStyleCache);
+    public StrokeNumberGroupReader(ILogger<StrokeNumberGroupReader> logger,
+                                   StrokeNumberReader strokeNumberReader,
+                                   StrokeNumberGroupStyleCache groupStyleCache) =>
+        (_logger, _strokeNumberReader, _groupStyleCache) =
+        (@logger, @strokeNumberReader, @groupStyleCache);
 
     public async Task ReadAsync(XmlReader xmlReader, Entry entry)
     {
         var (id, styleText) = GetAttributes(xmlReader, entry);
-
-        var style = _strokeNumberGroupStyleCache.Get(styleText);
+        var style = _groupStyleCache.Get(styleText);
 
         var group = new StrokeNumberGroup
         {
@@ -50,6 +48,7 @@ internal partial class StrokeNumberGroupReader
             Entry = entry,
             Style = style,
         };
+
         style.Groups.Add(group);
 
         if (!string.Equals(id, group.XmlIdAttribute(), StringComparison.Ordinal))
@@ -87,19 +86,17 @@ internal partial class StrokeNumberGroupReader
 
     private (string, string) GetAttributes(XmlReader xmlReader, Entry entry)
     {
-        string id = null!;
-        string style = null!;
-
-        int attributeCount = xmlReader.AttributeCount;
-        for (int i = 0; i < attributeCount; i++)
+        string? id = null,
+                style = null;
+        for (int i = 0; i < xmlReader.AttributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
             {
-                case "id":
+                case nameof(id):
                     id = xmlReader.Value;
                     break;
-                case "style":
+                case nameof(style):
                     style = xmlReader.Value;
                     break;
                 case "xmlns:kvg":
@@ -110,24 +107,17 @@ internal partial class StrokeNumberGroupReader
                     break;
             }
         }
-
-        if (attributeCount > 0)
-        {
-            xmlReader.MoveToElement();
-        }
-
+        xmlReader.MoveToElement();
         if (id is null)
         {
-            LogMissingAttribute(entry.FileName(), "id");
+            LogMissingAttribute(entry.FileName(), nameof(id));
             id = Guid.NewGuid().ToString();
         }
-
         if (style is null)
         {
-            LogMissingAttribute(entry.FileName(), "style");
+            LogMissingAttribute(entry.FileName(), nameof(style));
             style = string.Empty;
         }
-
         return (id, style);
     }
 

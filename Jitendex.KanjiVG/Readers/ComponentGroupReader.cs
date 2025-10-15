@@ -29,10 +29,9 @@ internal partial class ComponentGroupReader
     private readonly ComponentReader _componentReader;
     private readonly ComponentGroupStyleCache _componentGroupStyleCache;
 
-    public ComponentGroupReader(
-        ILogger<ComponentGroupReader> logger,
-        ComponentReader componentReader,
-        ComponentGroupStyleCache componentGroupStyleCache) =>
+    public ComponentGroupReader(ILogger<ComponentGroupReader> logger,
+                                ComponentReader componentReader,
+                                ComponentGroupStyleCache componentGroupStyleCache) =>
         (_logger, _componentReader, _componentGroupStyleCache) =
         (@logger, @componentReader, @componentGroupStyleCache);
 
@@ -50,6 +49,7 @@ internal partial class ComponentGroupReader
             Entry = entry,
             Style = style
         };
+
         style.Groups.Add(group);
 
         if (!string.Equals(id, group.XmlIdAttribute(), StringComparison.Ordinal))
@@ -87,19 +87,17 @@ internal partial class ComponentGroupReader
 
     private (string, string) GetAttributes(XmlReader xmlReader, Entry entry)
     {
-        string id = null!;
-        string style = null!;
-
-        int attributeCount = xmlReader.AttributeCount;
-        for (int i = 0; i < attributeCount; i++)
+        string? id = null,
+                style = null;
+        for (int i = 0; i < xmlReader.AttributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
             {
-                case "id":
+                case nameof(id):
                     id = xmlReader.Value;
                     break;
-                case "style":
+                case nameof(style):
                     style = xmlReader.Value;
                     break;
                 case "xmlns:kvg":
@@ -110,24 +108,17 @@ internal partial class ComponentGroupReader
                     break;
             }
         }
-
-        if (attributeCount > 0)
-        {
-            xmlReader.MoveToElement();
-        }
-
+        xmlReader.MoveToElement();
         if (id is null)
         {
-            LogMissingAttribute(entry.FileName(), "id");
+            LogMissingAttribute(entry.FileName(), nameof(id));
             id = Guid.NewGuid().ToString();
         }
-
         if (style is null)
         {
-            LogMissingAttribute(entry.FileName(), "style");
+            LogMissingAttribute(entry.FileName(), nameof(style));
             style = string.Empty;
         }
-
         return (id, style);
     }
 

@@ -33,12 +33,11 @@ internal partial class EntryReader
     private readonly VariantTypeCache _variantTypeCache;
     private readonly CommentCache _commentCache;
 
-    public EntryReader(
-        ILogger<EntryReader> logger,
-        ComponentGroupReader componentGroupReader,
-        StrokeNumberGroupReader strokeNumberGroupReader,
-        VariantTypeCache variantTypeCache,
-        CommentCache commentCache) =>
+    public EntryReader(ILogger<EntryReader> logger,
+                       ComponentGroupReader componentGroupReader,
+                       StrokeNumberGroupReader strokeNumberGroupReader,
+                       VariantTypeCache variantTypeCache,
+                       CommentCache commentCache) =>
         (_logger, _componentGroupReader, _strokeNumberGroupReader, _variantTypeCache, _commentCache) =
         (@logger, @componentGroupReader, @strokeNumberGroupReader, @variantTypeCache, @commentCache);
 
@@ -180,9 +179,10 @@ internal partial class EntryReader
 
     private void ReadSvgHeader(XmlReader xmlReader, Entry entry)
     {
-        string? width = null, height = null, viewBox = null;
-        int attributeCount = xmlReader.AttributeCount;
-        for (int i = 0; i < attributeCount; i++)
+        string? width = null,
+                height = null,
+                viewBox = null;
+        for (int i = 0; i < xmlReader.AttributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
@@ -204,10 +204,7 @@ internal partial class EntryReader
                     break;
             }
         }
-        if (attributeCount > 0)
-        {
-            xmlReader.MoveToElement();
-        }
+        xmlReader.MoveToElement();
         if (!string.Equals(width, "109", StringComparison.Ordinal))
         {
             LogAbnormalSvgAttribute(nameof(width), width, entry.FileName());

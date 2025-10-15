@@ -19,8 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
-using Attributes = (string Id, string TypeText, string PathData);
 using Jitendex.KanjiVG.Readers.Lookups;
+using Attributes = (string Id, string TypeText, string PathData);
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -35,9 +35,9 @@ internal partial class StrokeReader
 
     public void Read(XmlReader xmlReader, Component component)
     {
-        var attributes = GetAttributes(xmlReader, component);
+        var (id, typeText, pathData) = GetAttributes(xmlReader, component);
 
-        var type = _strokeTypeCache.Get(attributes.TypeText);
+        var type = _strokeTypeCache.Get(typeText);
 
         var stroke = new Stroke
         {
@@ -47,7 +47,7 @@ internal partial class StrokeReader
             LocalOrder = component.Strokes.Count + 1,
             ComponentGlobalOrder = component.GlobalOrder,
             TypeId = type.Id,
-            PathData = attributes.PathData,
+            PathData = pathData,
             Component = component,
             Type = type,
         };
@@ -60,9 +60,9 @@ internal partial class StrokeReader
             LogNonEmptyElement(stroke.XmlIdAttribute(), component.Group.Entry.FileName());
         }
 
-        if (!string.Equals(attributes.Id, stroke.XmlIdAttribute(), StringComparison.Ordinal))
+        if (!string.Equals(id, stroke.XmlIdAttribute(), StringComparison.Ordinal))
         {
-            LogWrongId(stroke.XmlIdAttribute(), attributes.Id, stroke.XmlIdAttribute());
+            LogWrongId(stroke.XmlIdAttribute(), id, stroke.XmlIdAttribute());
         }
     }
 
@@ -70,8 +70,7 @@ internal partial class StrokeReader
     {
         var attributes = new Attributes(null!, string.Empty, null!);
 
-        int attributeCount = xmlReader.AttributeCount;
-        for (int i = 0; i < attributeCount; i++)
+        for (int i = 0; i < xmlReader.AttributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
@@ -94,10 +93,7 @@ internal partial class StrokeReader
             }
         }
 
-        if (attributeCount > 0)
-        {
-            xmlReader.MoveToElement();
-        }
+        xmlReader.MoveToElement();
 
         if (attributes.Id is null)
         {

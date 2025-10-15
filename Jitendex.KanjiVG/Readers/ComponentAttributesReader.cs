@@ -38,9 +38,7 @@ internal partial class ComponentAttributesReader
             Id = null!
         };
 
-        int attributeCount = xmlReader.AttributeCount;
-
-        for (int i = 0; i < attributeCount; i++)
+        for (int i = 0; i < xmlReader.AttributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
@@ -90,10 +88,7 @@ internal partial class ComponentAttributesReader
             }
         }
 
-        if (attributeCount > 0)
-        {
-            xmlReader.MoveToElement();
-        }
+        xmlReader.MoveToElement();
 
         if (attributes.Id is null)
         {

@@ -34,14 +34,14 @@ internal partial class StrokeNumberReader
 
     public async Task ReadAsync(XmlReader xmlReader, StrokeNumberGroup group)
     {
-        var translation = GetTranslation(xmlReader, group);
+        var (translateX, translateY) = GetTranslation(xmlReader, group);
 
         var strokeNumber = new StrokeNumber
         {
             UnicodeScalarValue = group.Entry.UnicodeScalarValue,
             VariantTypeId = group.Entry.VariantTypeId,
-            TranslateX = translation.X,
-            TranslateY = translation.Y,
+            TranslateX = translateX,
+            TranslateY = translateY,
             Number = await GetNumberAsync(xmlReader),
             Group = group,
         };
@@ -70,14 +70,14 @@ internal partial class StrokeNumberReader
         var translateX = match.Groups[1].Value;
         var translateY = match.Groups[2].Value;
 
-        if (!decimal.TryParse(translateX, out decimal x))
+        if (!decimal.TryParse(translateX, out decimal _))
         {
-            LogMalformattedTranslation(group.Entry.FileName(), nameof(x), translateX);
+            LogMalformattedTranslation(group.Entry.FileName(), "x", translateX);
         }
 
-        if (!decimal.TryParse(translateY, out decimal y))
+        if (!decimal.TryParse(translateY, out decimal _))
         {
-            LogMalformattedTranslation(group.Entry.FileName(), nameof(y), translateY);
+            LogMalformattedTranslation(group.Entry.FileName(), "y", translateY);
         }
 
         return (translateX, translateY);
@@ -87,8 +87,7 @@ internal partial class StrokeNumberReader
     {
         string? transform = null;
 
-        int attributeCount = xmlReader.AttributeCount;
-        for (int i = 0; i < attributeCount; i++)
+        for (int i = 0; i < xmlReader.AttributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
@@ -105,14 +104,11 @@ internal partial class StrokeNumberReader
             }
         }
 
-        if (attributeCount > 0)
-        {
-            xmlReader.MoveToElement();
-        }
+        xmlReader.MoveToElement();
 
         if (transform is null)
         {
-            LogMissingAttribute(group.Entry.FileName(), "transform");
+            LogMissingAttribute(group.Entry.FileName(), nameof(transform));
             transform = string.Empty;
         }
 
@@ -157,6 +153,6 @@ internal partial class StrokeNumberReader
     private partial void LogMalformattedTransform(string fileName, string attribute);
 
     [LoggerMessage(LogLevel.Warning,
-    "In file `{FileName}`, stroke number {Axis} translation `{Value}` is not a valid decimal number")]
+    "In file `{FileName}`, stroke number {Axis}-axis translation `{Value}` is not a valid decimal number")]
     private partial void LogMalformattedTranslation(string fileName, string axis, string value);
 }
