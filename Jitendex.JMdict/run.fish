@@ -1,7 +1,9 @@
 #!/usr/bin/env fish
+# Copyright (c) 2025 Stephen Kraus
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 set jmdict_name 'JMdict_e_examp'
-set project_dir (status dirname)
+set project_dir (realpath (status dirname))
 
 set file_fetch_script \
     "$project_dir"/../Data/edrdg-dictionary-archive/scripts/get_file_by_date.fish
@@ -16,6 +18,6 @@ set xref_ids_file \
 
 time dotnet run \
     --project "$project_dir" \
-    --configuration Release \
+    --configuration 'Release' \
     -- "$jmdict_file" \
     --xref-ids "$xref_ids_file"
