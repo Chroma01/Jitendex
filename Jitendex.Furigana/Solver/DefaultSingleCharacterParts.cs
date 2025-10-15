@@ -1,0 +1,114 @@
+/*
+Copyright (c) 2025 Stephen Kraus
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System.Collections.Immutable;
+using Jitendex.Furigana.Models;
+using Jitendex.Furigana.TextExtensions;
+
+namespace Jitendex.Furigana.Solver;
+
+internal class DefaultSingleCharacterParts : DefaultCharacterParts
+{
+    private readonly ResourceCache _resourceCache;
+
+    public DefaultSingleCharacterParts(ResourceCache resourceCache)
+    {
+        _resourceCache = resourceCache;
+    }
+
+    public override ImmutableArray<List<SolutionPart>> Enumerate(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
+    {
+        var baseText = kanjiFormSlice.RawText();
+        var readings = DefaultSingleCharacterReadings(kanjiFormSlice, readingState);
+        var partsBuilder = ImmutableArray.CreateBuilder<List<SolutionPart>>(readings.Length);
+        foreach (var reading in readings)
+        {
+            if (baseText.IsKanaEquivalent(reading))
+            {
+                partsBuilder.Add([new SolutionPart
+                {
+                    BaseText = baseText
+                }]);
+            }
+            else
+            {
+                partsBuilder.Add([new SolutionPart
+                {
+                    BaseText = baseText,
+                    Furigana = readingState.RemainingText[..reading.Length].ToString(),
+                    Readings = [_resourceCache.NewReading(kanjiFormSlice.Runes[0], reading)],
+                }]);
+            }
+        }
+        return partsBuilder.ToImmutableArray();
+    }
+
+    private static ImmutableArray<string> DefaultSingleCharacterReadings(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
+    {
+        var currentRune = kanjiFormSlice.Runes[0];
+
+        if (currentRune.IsKana())
+        {
+            if (readingState.FirstRemainingChar.IsKanaEquivalent((char)currentRune.Value))
+            {
+                return [currentRune.ToString()];
+            }
+        }
+
+        if (kanjiFormSlice.PreviousRune.IsKanaOrDefault() && kanjiFormSlice.NextRune.IsKanaOrDefault())
+        {
+            var regexReading = RegexReading(kanjiFormSlice, readingState);
+            if (regexReading is not null)
+            {
+                return [regexReading];
+            }
+        }
+
+        if (currentRune.IsKanji())
+        {
+            if (IsImpossibleKanjiReadingFirst(readingState.FirstRemainingNormalizedChar))
+            {
+                return [];
+            }
+            var remainingText = readingState.RemainingText;
+            var readingsBuilder = ImmutableArray.CreateBuilder<string>(remainingText.Length);
+            for (int i = 1; i <= remainingText.Length; i++)
+            {
+                readingsBuilder.Add(remainingText[..i].ToString());
+            }
+            return readingsBuilder.ToImmutableArray();
+        }
+
+        if (readingState.FirstRemainingChar == currentRune.Value)
+        {
+            return [readingState.FirstRemainingChar.ToString()];
+        }
+
+        return [];
+    }
+
+    private static bool IsImpossibleKanjiReadingFirst(char c) => c switch
+    {
+        'っ' or
+        'ょ' or
+        'ゃ' or
+        'ゅ' or
+        'ん' => true,
+        _ => false
+    };
+}

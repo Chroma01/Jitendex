@@ -32,7 +32,7 @@ public class Service
         var solutionPartsGenerators = new List<ISolutionPartsGenerator>()
         {
             new CachedSolutionPartsGenerator(resourceCache),
-            new DefaultSolutionParts(resourceCache),
+            new DefaultSolutionPartsGenerator(new(resourceCache), new(resourceCache))
         };
         _solver = new IterationSolver(solutionPartsGenerators);
     }
