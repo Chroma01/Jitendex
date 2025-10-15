@@ -7,3 +7,6 @@
 [submodule "Data/kanjivg"]
 	path = Data/kanjivg
 	url = https://github.com/stephenmk/kanjivg
+[submodule "Data/chise-ids"]
+	path = Data/chise-ids
+	url = https://github.com/stephenmk/CHISE-IDS
