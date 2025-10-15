@@ -22,7 +22,7 @@ using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class DefaultRepeatedCharacterParts : DefaultCharacterParts
+internal sealed class DefaultRepeatedCharacterParts : DefaultCharacterParts
 {
     private readonly ResourceCache _resourceCache;
 

@@ -24,7 +24,7 @@ using Jitendex.Furigana.Models.TextUnits.Readings;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
+internal sealed class CachedSolutionPartsGenerator : ISolutionPartsGenerator
 {
     private readonly ResourceCache _resourceCache;
 

@@ -20,7 +20,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class IterationSolver
+internal sealed class IterationSolver
 {
     private readonly List<ISolutionPartsGenerator> _solutionPartsGenerators;
 

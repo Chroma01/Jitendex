@@ -21,7 +21,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class DefaultSolutionPartsGenerator : ISolutionPartsGenerator
+internal sealed class DefaultSolutionPartsGenerator : ISolutionPartsGenerator
 {
     private readonly DefaultSingleCharacterParts _single;
     private readonly DefaultRepeatedCharacterParts _repeated;

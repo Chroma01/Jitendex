@@ -23,7 +23,7 @@ using Jitendex.Furigana.Models.TextUnits.Readings;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class ResourceCache
+internal sealed class ResourceCache
 {
     public FrozenDictionary<int, JapaneseCharacter> Characters { get; }
     public FrozenDictionary<string, JapaneseCompound> Compounds { get; }
@@ -31,11 +31,11 @@ internal class ResourceCache
     public ResourceCache(IEnumerable<JapaneseCharacter> characters, IEnumerable<JapaneseCompound> compounds)
     {
         Characters = characters
-            .Select(x => new KeyValuePair<int, JapaneseCharacter>(x.Rune.Value, x))
+            .Select(static x => new KeyValuePair<int, JapaneseCharacter>(x.Rune.Value, x))
             .ToFrozenDictionary();
 
         Compounds = compounds
-            .Select(x => new KeyValuePair<string, JapaneseCompound>(x.Text, x))
+            .Select(static x => new KeyValuePair<string, JapaneseCompound>(x.Text, x))
             .ToFrozenDictionary();
     }
 
