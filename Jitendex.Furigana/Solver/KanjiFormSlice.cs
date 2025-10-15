@@ -16,38 +16,67 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal readonly record struct KanjiFormSlice
+internal readonly ref struct KanjiFormSlice
 {
-    private readonly Entry _entry;
-    private readonly int _sliceStart;
-    private readonly int _sliceEnd;
+    public readonly ReadOnlySpan<Rune> PriorRunes;
+    public readonly ReadOnlySpan<Rune> Runes;
+    public readonly ReadOnlySpan<Rune> RemainingRunes;
 
-    public ImmutableArray<Rune> PriorRunes { get => _entry.NormalizedKanjiFormRunes[.._sliceStart]; }
-    public ImmutableArray<Rune> Runes { get => _entry.NormalizedKanjiFormRunes[_sliceStart.._sliceEnd]; }
-    public ImmutableArray<Rune> RemainingRunes { get => _entry.NormalizedKanjiFormRunes[_sliceEnd..]; }
+    public readonly ReadOnlySpan<Rune> RawRunes;
 
-    public ImmutableArray<Rune> RawRunes { get => _entry.KanjiFormRunes[_sliceStart.._sliceEnd]; }
+    public readonly Rune PreviousRune;
+    public readonly Rune NextRune;
 
-    public Rune PreviousRune() => PriorRunes.LastOrDefault();
-    public Rune NextRune() => RemainingRunes.FirstOrDefault();
+    public readonly bool ContainsFirstRune;
+    public readonly bool ContainsFinalRune;
 
-    public bool ContainsFirstRune { get => _sliceStart == 0; }
-    public bool ContainsFinalRune { get => _sliceEnd == _entry.KanjiFormRunes.Length; }
-
-    public string Text() => string.Join(string.Empty, Runes);
-    public string RawText() => string.Join(string.Empty, RawRunes);
-    public string RemainingText() => string.Join(string.Empty, RemainingRunes);
+    public string Text() => FastRuneSpanToString(Runes);
+    public string RawText() => FastRuneSpanToString(RawRunes);
+    public string RemainingText() => FastRuneSpanToString(RemainingRunes);
 
     public KanjiFormSlice(Entry entry, int sliceStart, int sliceEnd)
     {
-        _entry = entry;
-        _sliceStart = sliceStart;
-        _sliceEnd = sliceEnd;
+        var normalizedRunesSpan = entry.NormalizedKanjiFormRunes.AsSpan();
+
+        PriorRunes = normalizedRunesSpan[..sliceStart];
+        Runes = normalizedRunesSpan[sliceStart..sliceEnd];
+        RemainingRunes = normalizedRunesSpan[sliceEnd..];
+
+        RawRunes = entry.KanjiFormRunes.AsSpan()[sliceStart..sliceEnd];
+
+        PreviousRune = PriorRunes.Length > 0 ? PriorRunes[^1] : default;
+        NextRune = RemainingRunes.Length > 0 ? RemainingRunes[0] : default;
+
+        ContainsFirstRune = sliceStart == 0;
+        ContainsFinalRune = sliceEnd == entry.KanjiFormRunes.Length;
+    }
+
+    private static string FastRuneSpanToString(in ReadOnlySpan<Rune> runes)
+    {
+        int totalChars = 0;
+        for (int i = 0; i < runes.Length; i++)
+        {
+            totalChars += runes[i].Utf16SequenceLength;
+        }
+        return string.Create
+        (
+            length: totalChars,
+            state: runes,
+            action: static (destination, source) =>
+            {
+                // 'offset' is the total number of char values that
+                // have been written to the destination buffer.
+                int offset = 0;
+                for (int i = 0; i < source.Length; i++)
+                {
+                    offset += source[i].EncodeToUtf16(destination[offset..]);
+                }
+            }
+        );
     }
 }

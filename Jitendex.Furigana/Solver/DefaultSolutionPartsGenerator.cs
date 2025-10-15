@@ -33,7 +33,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         _resourceCache = resourceCache;
     }
 
-    public IEnumerable<List<SolutionPart>> Enumerate(Entry _, KanjiFormSlice kanjiFormSlice, ReadingState readingState) =>
+    public IEnumerable<List<SolutionPart>> Enumerate(in Entry _, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState) =>
         kanjiFormSlice.Runes switch
         {
             { Length: 1 } => DefaultSingleCharacterParts(kanjiFormSlice, readingState),
@@ -60,7 +60,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
                 partsBuilder.Add([new SolutionPart
                 {
                     BaseText = baseText,
-                    Furigana = readingState.RemainingText[..reading.Length],
+                    Furigana = readingState.RemainingText[..reading.Length].ToString(),
                     Readings = [_resourceCache.NewReading(kanjiFormSlice.Runes[0], reading)],
                 }]);
             }
@@ -71,17 +71,16 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
     private static ImmutableArray<string> DefaultSingleCharacterReadings(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var currentRune = kanjiFormSlice.Runes[0];
+
         if (currentRune.IsKana())
         {
-            if (readingState.RemainingText.FirstOrDefault().IsKanaEquivalent((char)currentRune.Value))
+            if (readingState.FirstRemainingChar.IsKanaEquivalent((char)currentRune.Value))
             {
                 return [currentRune.ToString()];
             }
         }
 
-        var previousRune = kanjiFormSlice.PreviousRune();
-        var nextRune = kanjiFormSlice.NextRune();
-        if (previousRune.IsKanaOrDefault() && nextRune.IsKanaOrDefault())
+        if (kanjiFormSlice.PreviousRune.IsKanaOrDefault() && kanjiFormSlice.NextRune.IsKanaOrDefault())
         {
             var regexReading = RegexReading(kanjiFormSlice, readingState);
             if (regexReading is not null)
@@ -92,21 +91,22 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
 
         if (currentRune.IsKanji())
         {
-            var readingFirst = readingState.RemainingTextNormalized.FirstOrDefault();
-            if (IsImpossibleKanjiReadingFirst(readingFirst))
+            if (IsImpossibleKanjiReadingFirst(readingState.FirstRemainingNormalizedChar))
             {
                 return [];
             }
             var remainingText = readingState.RemainingText;
-            return remainingText
-                .Select((_, idx) => remainingText[..(idx + 1)])
-                .ToImmutableArray();
+            var readingsBuilder = ImmutableArray.CreateBuilder<string>(remainingText.Length);
+            for (int i = 1; i <= remainingText.Length; i++)
+            {
+                readingsBuilder.Add(remainingText[..i].ToString());
+            }
+            return readingsBuilder.ToImmutableArray();
         }
 
-        var minimumReading = readingState.RemainingText.FirstOrDefault();
-        if (minimumReading == currentRune.Value)
+        if (readingState.FirstRemainingChar == currentRune.Value)
         {
-            return [minimumReading.ToString()];
+            return [readingState.FirstRemainingChar.ToString()];
         }
 
         return [];
@@ -132,10 +132,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             return [];
         }
 
-        var previousRune = kanjiFormSlice.PreviousRune();
-        var nextRune = kanjiFormSlice.NextRune();
-
-        if (!previousRune.IsKanaOrDefault() || !nextRune.IsKanaOrDefault())
+        if (!kanjiFormSlice.PreviousRune.IsKanaOrDefault() || !kanjiFormSlice.NextRune.IsKanaOrDefault())
         {
             return [];
         }
@@ -169,7 +166,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
     private static string? RegexReading(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
-        var remainingReadingText = readingState.RemainingTextNormalized;
+        var remainingReadingText = readingState.RemainingTextNormalized.ToString();
 
         var greedyMatch = Match("(.+)", remainingKanjiFormText, remainingReadingText);
         var lazyMatch = Match("(.+?)", remainingKanjiFormText, remainingReadingText);
@@ -180,8 +177,9 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         }
 
         var greedyValue = greedyMatch.Groups[1].Value;
+        var lazyValue = lazyMatch.Groups[1].Value;
 
-        if (greedyValue != string.Empty && greedyValue == lazyMatch.Groups[1].Value)
+        if (greedyValue != string.Empty && string.Equals(greedyValue, lazyValue, StringComparison.Ordinal))
         {
             return greedyValue;
         }

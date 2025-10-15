@@ -20,22 +20,28 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal readonly record struct ReadingState
+internal readonly ref struct ReadingState
 {
-    private readonly Entry _entry;
-    private readonly int _readingIndex;
+    public readonly ReadOnlySpan<char> FullText;
+    public readonly ReadOnlySpan<char> PriorText;
+    public readonly ReadOnlySpan<char> RemainingText;
+    public readonly char FirstRemainingChar;
 
-    public string FullText { get => _entry.ReadingText; }
-    public string PriorText { get => FullText[.._readingIndex]; }
-    public string RemainingText { get => FullText[_readingIndex..]; }
-
-    public string FullTextNormalized { get => _entry.NormalizedReadingText; }
-    public string PriorTextNormalized { get => FullTextNormalized[.._readingIndex]; }
-    public string RemainingTextNormalized { get => FullTextNormalized[_readingIndex..]; }
+    public readonly ReadOnlySpan<char> FullTextNormalized;
+    public readonly ReadOnlySpan<char> PriorTextNormalized;
+    public readonly ReadOnlySpan<char> RemainingTextNormalized;
+    public readonly char FirstRemainingNormalizedChar;
 
     public ReadingState(Entry entry, int readingIndex)
     {
-        _entry = entry;
-        _readingIndex = readingIndex;
+        FullText = entry.ReadingText.AsSpan();
+        PriorText = FullText[..readingIndex];
+        RemainingText = FullText[readingIndex..];
+        FirstRemainingChar = RemainingText.Length > 0 ? RemainingText[0] : default;
+
+        FullTextNormalized = entry.NormalizedReadingText.AsSpan();
+        PriorTextNormalized = FullTextNormalized[..readingIndex];
+        RemainingTextNormalized = FullTextNormalized[readingIndex..];
+        FirstRemainingNormalizedChar = RemainingTextNormalized.Length > 0 ? RemainingTextNormalized[0] : default;
     }
 }

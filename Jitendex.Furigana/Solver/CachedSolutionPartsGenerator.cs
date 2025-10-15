@@ -33,34 +33,36 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
         _resourceCache = resourceCache;
     }
 
-    public IEnumerable<List<SolutionPart>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    public IEnumerable<List<SolutionPart>> Enumerate(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var textToReadings = GetReadings(entry, kanjiFormSlice);
         var baseText = kanjiFormSlice.RawText();
+        var @return = new List<List<SolutionPart>>(textToReadings.Count);
 
         foreach (var (text, readings) in textToReadings)
         {
-            if (!readingState.RemainingTextNormalized.StartsWith(text))
+            if (!readingState.RemainingTextNormalized.StartsWith(text, StringComparison.Ordinal))
             {
                 continue;
             }
             else if (baseText.IsKanaEquivalent(text))
             {
-                yield return [new SolutionPart { BaseText = baseText }];
+                @return.Add([new SolutionPart { BaseText = baseText }]);
             }
             else
             {
-                yield return [new SolutionPart
+                @return.Add([new SolutionPart
                 {
                     BaseText = baseText,
-                    Furigana = readingState.RemainingText[..text.Length],
+                    Furigana = readingState.RemainingText[..text.Length].ToString(),
                     Readings = [.. readings],
-                }];
+                }]);
             }
         }
+        return @return;
     }
 
-    private Dictionary<string, List<IReading>> GetReadings(Entry entry, KanjiFormSlice kanjiFormSlice)
+    private Dictionary<string, List<IReading>> GetReadings(in Entry entry, in KanjiFormSlice kanjiFormSlice)
     {
         if (kanjiFormSlice.Runes.Length == 1)
         {
@@ -76,14 +78,14 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
             if (_resourceCache.Compounds.TryGetValue(text, out JapaneseCompound? compound))
             {
                 return compound.Readings
-                    .Select(x => new KeyValuePair<string, List<IReading>>(x.Text, [x]))
+                    .Select(static x => new KeyValuePair<string, List<IReading>>(x.Text, [x]))
                     .ToDictionary();
             }
         }
         return [];
     }
 
-    private static Dictionary<string, List<IReading>> GetCharacterReadingTexts(Entry entry, KanjiFormSlice kanjiFormSlice, JapaneseCharacter character)
+    private static Dictionary<string, List<IReading>> GetCharacterReadingTexts(in Entry entry, in KanjiFormSlice kanjiFormSlice, in JapaneseCharacter character)
     {
         var textToReadings = new Dictionary<string, List<IReading>>();
 
@@ -117,123 +119,122 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
         return textToReadings;
     }
 
-    private static IEnumerable<string> EnumerateReadingTexts(KanjiFormSlice kanjiFormSlice, CharacterReading characterReading) =>
+    private static ImmutableArray<string> EnumerateReadingTexts(in KanjiFormSlice kanjiFormSlice, in CharacterReading characterReading) =>
         characterReading switch
         {
             NonKanjiReading nonKanjiReading => EnumerateNonKanjiReadingTexts(nonKanjiReading),
             NameReading nameReading => EnumerateNameReadingTexts(nameReading),
-            OnReading onReading => EnumerateOnReadingTexts(kanjiFormSlice, onReading),
-            VerbKunReading verbKunReading => EnumerateVerbKunReadingTexts(kanjiFormSlice, verbKunReading),
-            SuffixedKunReading suffixedKunReading => EnumerateSuffixedKunReadingTexts(kanjiFormSlice, suffixedKunReading),
+            OnReading onReading => EnumerateOnReadingTexts(kanjiFormSlice, onReading).ToImmutableArray(),
+            VerbKunReading verbKunReading => EnumerateVerbKunReadingTexts(kanjiFormSlice, verbKunReading).ToImmutableArray(),
+            SuffixedKunReading suffixedKunReading => EnumerateSuffixedKunReadingTexts(kanjiFormSlice, suffixedKunReading).ToImmutableArray(),
             KunReading kunReading => EnumerateKunReadingTexts(kanjiFormSlice, kunReading),
             _ => throw new NotImplementedException()
         };
 
-    private static IEnumerable<string> EnumerateNonKanjiReadingTexts(NonKanjiReading nonKanjiReading)
+    private static ImmutableArray<string> EnumerateNonKanjiReadingTexts(in NonKanjiReading nonKanjiReading)
     {
-        yield return nonKanjiReading.Text;
+        return [nonKanjiReading.Text];
     }
 
-    private static IEnumerable<string> EnumerateNameReadingTexts(NameReading nameReading)
+    private static ImmutableArray<string> EnumerateNameReadingTexts(in NameReading nameReading)
     {
-        yield return nameReading.Text;
+        return [nameReading.Text];
     }
 
-    private static IEnumerable<string> EnumerateOnReadingTexts(KanjiFormSlice kanjiFormSlice, OnReading onReading)
+    private static List<string> EnumerateOnReadingTexts(in KanjiFormSlice kanjiFormSlice, in OnReading onReading)
     {
-        yield return onReading.Text;
+        var @return = new List<string>
+        {
+            onReading.Text
+        };
 
         if (!kanjiFormSlice.ContainsFirstRune)
         {
             foreach (var text in onReading.RendakuReadings)
             {
-                yield return text;
+                @return.Add(text);
             }
         }
 
         if (!kanjiFormSlice.ContainsFinalRune && onReading.SokuonForm is not null)
         {
-            yield return onReading.SokuonForm;
+            @return.Add(onReading.SokuonForm);
         }
 
         if (!kanjiFormSlice.ContainsFirstRune && !kanjiFormSlice.ContainsFinalRune)
         {
             foreach (var text in onReading.RendakuSokuonReadings)
             {
-                yield return text;
+                @return.Add(text);
             }
         }
+
+        return @return;
     }
 
-    private static IEnumerable<string> EnumerateKunReadingTexts(KanjiFormSlice kanjiFormSlice, KunReading kunReading)
+    private static ImmutableArray<string> EnumerateKunReadingTexts(in KanjiFormSlice kanjiFormSlice, in KunReading kunReading)
     {
-        var readings = GetStems(kanjiFormSlice, kunReading);
-        foreach (var reading in readings)
-        {
-            yield return reading;
-        }
+        return GetStems(kanjiFormSlice, kunReading);
     }
 
-    private static IEnumerable<string> EnumerateSuffixedKunReadingTexts(KanjiFormSlice kanjiFormSlice, SuffixedKunReading kunReading)
+    private static List<string> EnumerateSuffixedKunReadingTexts(in KanjiFormSlice kanjiFormSlice, in SuffixedKunReading kunReading)
     {
         var stems = GetStems(kanjiFormSlice, kunReading);
-        foreach (var stem in stems)
-        {
-            yield return stem;
-        }
-
+        var @return = new List<string>(stems);
         var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
+
         for (int i = 0; i < kunReading.Suffix.Length; i++)
         {
             var remainingSuffix = kunReading.Suffix[i..];
             if (remainingKanjiFormText.StartsWith(remainingSuffix))
             {
-                yield break;
+                return @return;
             }
 
             foreach (var stem in stems)
             {
-                yield return stem + kunReading.Suffix[..(i + 1)]; ;
+                @return.Add(stem + kunReading.Suffix[..(i + 1)]);
             }
         }
+
+        return @return;
     }
 
-    private static IEnumerable<string> EnumerateVerbKunReadingTexts(KanjiFormSlice kanjiFormSlice, VerbKunReading kunReading)
+    private static List<string> EnumerateVerbKunReadingTexts(in KanjiFormSlice kanjiFormSlice, VerbKunReading kunReading)
     {
         var stems = GetStems(kanjiFormSlice, kunReading);
-        foreach (var stem in stems)
-        {
-            yield return stem;
-        }
-
+        var @return = new List<string>(stems);
         var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
+
         for (int i = 0; i < kunReading.Suffix.Length; i++)
         {
             var remainingSuffix = kunReading.Suffix[i..];
             if (remainingKanjiFormText.StartsWith(remainingSuffix))
             {
-                yield break;
+                return @return;
             }
 
             var remainingMasuSuffix = kunReading.MasuFormSuffix[i..];
             if (remainingKanjiFormText.StartsWith(remainingMasuSuffix))
             {
-                yield break;
+                return @return;
             }
 
             foreach (var stem in stems)
             {
-                yield return stem + kunReading.Suffix[..(i + 1)];
+                @return.Add(stem + kunReading.Suffix[..(i + 1)]);
             }
         }
 
         foreach (var stem in stems)
         {
-            yield return stem + kunReading.MasuFormSuffix;
+            @return.Add(stem + kunReading.MasuFormSuffix);
         }
+
+        return @return;
     }
 
-    private static ImmutableArray<string> GetStems(in KanjiFormSlice kanjiFormSlice, KunReading kunReading)
+    private static ImmutableArray<string> GetStems(in KanjiFormSlice kanjiFormSlice, in KunReading kunReading)
     {
         if (kanjiFormSlice.ContainsFirstRune)
         {

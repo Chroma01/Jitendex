@@ -22,5 +22,5 @@ namespace Jitendex.Furigana.Solver;
 
 internal interface ISolutionPartsGenerator
 {
-    public IEnumerable<List<SolutionPart>> Enumerate(Entry entry, KanjiFormSlice kanjiFormSlice, ReadingState readingState);
+    public IEnumerable<List<SolutionPart>> Enumerate(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState);
 }
