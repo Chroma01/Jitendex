@@ -233,7 +233,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
         }
     }
 
-    private static ImmutableArray<string> GetStems(KanjiFormSlice kanjiFormSlice, KunReading kunReading)
+    private static ImmutableArray<string> GetStems(in KanjiFormSlice kanjiFormSlice, KunReading kunReading)
     {
         if (kanjiFormSlice.ContainsFirstRune)
         {

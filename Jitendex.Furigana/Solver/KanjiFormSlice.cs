@@ -22,7 +22,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class KanjiFormSlice
+internal readonly record struct KanjiFormSlice
 {
     private readonly Entry _entry;
     private readonly int _sliceStart;

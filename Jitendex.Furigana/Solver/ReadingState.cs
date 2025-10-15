@@ -20,7 +20,7 @@ using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
-internal class ReadingState
+internal readonly record struct ReadingState
 {
     private readonly Entry _entry;
     private readonly int _readingIndex;

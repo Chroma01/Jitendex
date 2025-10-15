@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using Jitendex.Furigana.Models;
@@ -40,37 +41,42 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             _ => []
         };
 
-    private IEnumerable<List<SolutionPart>> DefaultSingleCharacterParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private ImmutableArray<List<SolutionPart>> DefaultSingleCharacterParts(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var baseText = kanjiFormSlice.RawText();
-        foreach (var reading in DefaultSingleCharacterReadings(kanjiFormSlice, readingState))
+        var readings = DefaultSingleCharacterReadings(kanjiFormSlice, readingState);
+        var partsBuilder = ImmutableArray.CreateBuilder<List<SolutionPart>>(readings.Length);
+        foreach (var reading in readings)
         {
             if (baseText.IsKanaEquivalent(reading))
             {
-                yield return [new SolutionPart { BaseText = baseText }];
+                partsBuilder.Add([new SolutionPart
+                {
+                    BaseText = baseText
+                }]);
             }
             else
             {
-                yield return [new SolutionPart
+                partsBuilder.Add([new SolutionPart
                 {
                     BaseText = baseText,
                     Furigana = readingState.RemainingText[..reading.Length],
                     Readings = [_resourceCache.NewReading(kanjiFormSlice.Runes[0], reading)],
-                }];
+                }]);
             }
         }
+        return partsBuilder.ToImmutableArray();
     }
 
-    private static IEnumerable<string> DefaultSingleCharacterReadings(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static ImmutableArray<string> DefaultSingleCharacterReadings(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var currentRune = kanjiFormSlice.Runes[0];
         if (currentRune.IsKana())
         {
             if (readingState.RemainingText.FirstOrDefault().IsKanaEquivalent((char)currentRune.Value))
             {
-                yield return currentRune.ToString();
+                return [currentRune.ToString()];
             }
-            yield break;
         }
 
         var previousRune = kanjiFormSlice.PreviousRune();
@@ -80,8 +86,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             var regexReading = RegexReading(kanjiFormSlice, readingState);
             if (regexReading is not null)
             {
-                yield return regexReading;
-                yield break;
+                return [regexReading];
             }
         }
 
@@ -90,20 +95,21 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
             var readingFirst = readingState.RemainingTextNormalized.FirstOrDefault();
             if (IsImpossibleKanjiReadingFirst(readingFirst))
             {
-                yield break;
+                return [];
             }
-            for (int i = readingState.RemainingText.Length; i > 0; i--)
-            {
-                yield return readingState.RemainingText[..i];
-            }
-            yield break;
+            var remainingText = readingState.RemainingText;
+            return remainingText
+                .Select((_, idx) => remainingText[..(idx + 1)])
+                .ToImmutableArray();
         }
 
         var minimumReading = readingState.RemainingText.FirstOrDefault();
         if (minimumReading == currentRune.Value)
         {
-            yield return minimumReading.ToString();
+            return [minimumReading.ToString()];
         }
+
+        return [];
     }
 
     private static bool IsImpossibleKanjiReadingFirst(char c) => c switch
@@ -116,14 +122,14 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         _ => false
     };
 
-    private IEnumerable<List<SolutionPart>> DefaultRepeatedKanjiParts(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private ImmutableArray<List<SolutionPart>> DefaultRepeatedKanjiParts(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var currentRune1 = kanjiFormSlice.Runes[0];
         var currentRune2 = kanjiFormSlice.Runes[1];
 
         if (!currentRune1.IsKanji() || currentRune1 != currentRune2)
         {
-            yield break;
+            return [];
         }
 
         var previousRune = kanjiFormSlice.PreviousRune();
@@ -131,20 +137,20 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
 
         if (!previousRune.IsKanaOrDefault() || !nextRune.IsKanaOrDefault())
         {
-            yield break;
+            return [];
         }
 
         var reading = RegexReading(kanjiFormSlice, readingState);
 
         if (reading is null || reading.Length % 2 != 0)
         {
-            yield break;
+            return [];
         }
 
         int halfLength = reading.Length / 2;
 
-        yield return
-        [
+        return
+        [[
             new SolutionPart
             {
                 BaseText = kanjiFormSlice.RawRunes[0].ToString(),
@@ -157,10 +163,10 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
                 Furigana = reading[halfLength..],
                 Readings = [_resourceCache.NewReading(currentRune2, reading[halfLength..])],
             }
-        ];
+        ]];
     }
 
-    private static string? RegexReading(KanjiFormSlice kanjiFormSlice, ReadingState readingState)
+    private static string? RegexReading(in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
         var remainingKanjiFormText = kanjiFormSlice.RemainingText().KatakanaToHiragana();
         var remainingReadingText = readingState.RemainingTextNormalized;
