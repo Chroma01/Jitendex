@@ -33,7 +33,7 @@ internal class DefaultSolutionParts : ISolutionPartsGenerator
         _resourceCache = resourceCache;
     }
 
-    public IEnumerable<List<SolutionPart>> Enumerate(in Entry _, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState) =>
+    public ImmutableArray<List<SolutionPart>> Enumerate(in Entry _, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState) =>
         kanjiFormSlice.Runes switch
         {
             { Length: 1 } => DefaultSingleCharacterParts(kanjiFormSlice, readingState),

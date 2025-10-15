@@ -16,11 +16,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using Jitendex.Furigana.Models;
 
 namespace Jitendex.Furigana.Solver;
 
 internal interface ISolutionPartsGenerator
 {
-    public IEnumerable<List<SolutionPart>> Enumerate(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState);
+    public ImmutableArray<List<SolutionPart>> Enumerate(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState);
 }

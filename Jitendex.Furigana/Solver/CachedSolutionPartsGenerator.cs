@@ -33,19 +33,17 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
         _resourceCache = resourceCache;
     }
 
-    public IEnumerable<List<SolutionPart>> Enumerate(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
+    public ImmutableArray<List<SolutionPart>> Enumerate(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
     {
-        var textToReadings = GetReadings(entry, kanjiFormSlice);
+        var textToReadings = GetValidReadings(entry, kanjiFormSlice, readingState);
+        if (textToReadings.Count == 0) return [];
+
         var baseText = kanjiFormSlice.RawText();
-        var @return = new List<List<SolutionPart>>(textToReadings.Count);
+        var @return = ImmutableArray.CreateBuilder<List<SolutionPart>>(textToReadings.Count);
 
         foreach (var (text, readings) in textToReadings)
         {
-            if (!readingState.RemainingTextNormalized.StartsWith(text, StringComparison.Ordinal))
-            {
-                continue;
-            }
-            else if (baseText.IsKanaEquivalent(text))
+            if (baseText.IsKanaEquivalent(text))
             {
                 @return.Add([new SolutionPart { BaseText = baseText }]);
             }
@@ -59,7 +57,21 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
                 }]);
             }
         }
-        return @return;
+        return @return.ToImmutableArray();
+    }
+
+    private Dictionary<string, List<IReading>> GetValidReadings(in Entry entry, in KanjiFormSlice kanjiFormSlice, in ReadingState readingState)
+    {
+        var textToReadings = GetReadings(entry, kanjiFormSlice);
+        var valid = new Dictionary<string, List<IReading>>(textToReadings.Count);
+        foreach (var (text, readings) in textToReadings)
+        {
+            if (readingState.RemainingTextNormalized.StartsWith(text, StringComparison.Ordinal))
+            {
+                valid[text] = readings;
+            }
+        }
+        return valid;
     }
 
     private Dictionary<string, List<IReading>> GetReadings(in Entry entry, in KanjiFormSlice kanjiFormSlice)
@@ -119,6 +131,7 @@ internal class CachedSolutionPartsGenerator : ISolutionPartsGenerator
         return textToReadings;
     }
 
+    /* TODO: These should be class methods */
     private static ImmutableArray<string> EnumerateReadingTexts(in KanjiFormSlice kanjiFormSlice, in CharacterReading characterReading) =>
         characterReading switch
         {
