@@ -22,7 +22,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.KanjiVG.Models;
 using Jitendex.KanjiVG.Readers.Lookups;
-using SvgAttributes = (string? Width, string? Height, string? ViewBox);
 
 namespace Jitendex.KanjiVG.Readers;
 
@@ -181,21 +180,21 @@ internal partial class EntryReader
 
     private void ReadSvgHeader(XmlReader xmlReader, Entry entry)
     {
-        var attributes = new SvgAttributes(null, null, null);
+        string? width = null, height = null, viewBox = null;
         int attributeCount = xmlReader.AttributeCount;
         for (int i = 0; i < attributeCount; i++)
         {
             xmlReader.MoveToAttribute(i);
             switch (xmlReader.Name)
             {
-                case "width":
-                    attributes.Width = xmlReader.Value;
+                case nameof(width):
+                    width = xmlReader.Value;
                     break;
-                case "height":
-                    attributes.Height = xmlReader.Value;
+                case nameof(height):
+                    height = xmlReader.Value;
                     break;
-                case "viewBox":
-                    attributes.ViewBox = xmlReader.Value;
+                case nameof(viewBox):
+                    viewBox = xmlReader.Value;
                     break;
                 case "xmlns":
                     // Nothing to be done.
@@ -209,17 +208,17 @@ internal partial class EntryReader
         {
             xmlReader.MoveToElement();
         }
-        if (!string.Equals(attributes.Width, "109", StringComparison.Ordinal))
+        if (!string.Equals(width, "109", StringComparison.Ordinal))
         {
-            LogAbnormalSvgAttribute(nameof(attributes.Width), attributes.Width, entry.FileName());
+            LogAbnormalSvgAttribute(nameof(width), width, entry.FileName());
         }
-        if (!string.Equals(attributes.Height, "109", StringComparison.Ordinal))
+        if (!string.Equals(height, "109", StringComparison.Ordinal))
         {
-            LogAbnormalSvgAttribute(nameof(attributes.Height), attributes.Height, entry.FileName());
+            LogAbnormalSvgAttribute(nameof(height), height, entry.FileName());
         }
-        if (!string.Equals(attributes.ViewBox, "0 0 109 109", StringComparison.Ordinal))
+        if (!string.Equals(viewBox, "0 0 109 109", StringComparison.Ordinal))
         {
-            LogAbnormalSvgAttribute(nameof(attributes.ViewBox), attributes.ViewBox, entry.FileName());
+            LogAbnormalSvgAttribute(nameof(viewBox), viewBox, entry.FileName());
         }
     }
 
