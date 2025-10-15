@@ -24,7 +24,7 @@ namespace Jitendex.SQLite;
 
 public abstract class SqliteContext : DbContext
 {
-    public string DbPath { get; }
+    private readonly string _dbPath;
 
     public SqliteContext(string dbFilename)
     {
@@ -34,10 +34,10 @@ public abstract class SqliteContext : DbContext
             "Jitendex"
         );
         Directory.CreateDirectory(dbFolder);
-        DbPath = Path.Join(dbFolder, dbFilename);
+        _dbPath = Path.Join(dbFolder, dbFilename);
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options) => options
-        .UseSqlite($"Data Source={DbPath}")
+    protected sealed override void OnConfiguring(DbContextOptionsBuilder options) => options
+        .UseSqlite($"Data Source={_dbPath}")
         .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
 }

@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Jitendex.SQLite.EntityFrameworkCore;
 
-internal class SqliteRelationalCommandBuilderFactory : RelationalCommandBuilderFactory
+internal sealed class SqliteRelationalCommandBuilderFactory : RelationalCommandBuilderFactory
 {
     public SqliteRelationalCommandBuilderFactory(
         RelationalCommandBuilderDependencies dependencies) : base(dependencies) { }
