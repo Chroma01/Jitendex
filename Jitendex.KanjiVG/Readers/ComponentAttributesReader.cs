@@ -22,15 +22,8 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers;
 
-internal partial class ComponentAttributesReader
+internal partial class ComponentAttributesReader(ILogger<ComponentAttributesReader> logger)
 {
-    private readonly ILogger<ComponentAttributesReader> _logger;
-
-    public ComponentAttributesReader(ILogger<ComponentAttributesReader> logger)
-    {
-        _logger = logger;
-    }
-
     public ComponentAttributes Read(XmlReader xmlReader, ComponentGroup group)
     {
         var attributes = new ComponentAttributes
