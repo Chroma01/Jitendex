@@ -1,12 +1,12 @@
 [submodule "Data/jitendex-data"]
 	path = Data/jitendex-data
-	url = https://github.com/stephenmk/jitendex-data
+	url = https://github.com/Jitendex/jitendex-data
 [submodule "Data/edrdg-dictionary-archive"]
 	path = Data/edrdg-dictionary-archive
-	url = https://github.com/stephenmk/edrdg-dictionary-archive
+	url = https://github.com/Jitendex/edrdg-dictionary-archive
 [submodule "Data/kanjivg"]
 	path = Data/kanjivg
-	url = https://github.com/stephenmk/kanjivg
+	url = https://github.com/Jitendex/kanjivg
 [submodule "Data/chise-ids"]
 	path = Data/chise-ids
-	url = https://github.com/stephenmk/CHISE-IDS
+	url = https://github.com/Jitendex/CHISE-IDS
