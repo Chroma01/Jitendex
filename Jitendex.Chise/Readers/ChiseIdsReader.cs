@@ -80,8 +80,30 @@ internal class ChiseIdsReader
                  ? new string(lineElements.Codepoint)
                  : unicodeCharacter.CodepointId;
 
+        var sequence = MakeSequence(lineElements);
+        var altSequence = MakeAltSequence(lineElements);
+
+        if (sequence is null)
+        {
+            // There was an error making the sequence.
+            return null;
+        }
+
+        return new Codepoint
+        {
+            Id = id,
+            UnicodeScalarValue = unicodeCharacter?.ScalarValue,
+            SequenceText = sequence.Text,
+            AltSequenceText = altSequence?.Text,
+            UnicodeCharacter = unicodeCharacter,
+            Sequence = sequence,
+            AltSequence = altSequence,
+        };
+    }
+
+    private Sequence? MakeSequence(in LineElements lineElements)
+    {
         Stack<Codepoint> sequenceArguments;
-        Stack<Codepoint>? altSequenceArguments;
 
         try
         {
@@ -93,41 +115,41 @@ internal class ChiseIdsReader
             return null;
         }
 
-        try
-        {
-            altSequenceArguments = lineElements.AltSequence is []
-                ? null : MakeArgumentStack(lineElements.AltSequence);
-        }
-        catch (InvalidOperationException)
-        {
-            _logger.InsufficientAltIdsArgs(lineElements);
-            altSequenceArguments = null;
-        }
-
-        if (altSequenceArguments is not null && altSequenceArguments.Count != 1)
-        {
-            _logger.InsufficientAltIdsOps(lineElements);
-            altSequenceArguments = null;
-        }
         if (sequenceArguments.Count != 1)
         {
             _logger.InsufficientIdsOps(lineElements);
             return null;
         }
 
-        var sequence = sequenceArguments.Pop().Sequence;
-        var altSequence = altSequenceArguments?.Pop().Sequence;
+        return sequenceArguments.Pop().Sequence;
+    }
 
-        return new Codepoint
+    private Sequence? MakeAltSequence(in LineElements lineElements)
+    {
+        if (lineElements.AltSequence is [])
         {
-            Id = id,
-            UnicodeScalarValue = unicodeCharacter?.ScalarValue,
-            SequenceText = sequence?.Text,
-            AltSequenceText = altSequence?.Text,
-            UnicodeCharacter = unicodeCharacter,
-            Sequence = sequence,
-            AltSequence = altSequence,
-        };
+            return null;
+        }
+
+        Stack<Codepoint>? altSequenceArguments;
+
+        try
+        {
+            altSequenceArguments = MakeArgumentStack(lineElements.AltSequence);
+        }
+        catch (InvalidOperationException)
+        {
+            _logger.InsufficientAltIdsArgs(lineElements);
+            return null;
+        }
+
+        if (altSequenceArguments.Count != 1)
+        {
+            _logger.InsufficientAltIdsOps(lineElements);
+            return null;
+        }
+
+        return altSequenceArguments.Pop().Sequence;
     }
 
     private UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
