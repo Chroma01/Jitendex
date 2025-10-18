@@ -44,7 +44,7 @@ public static class ChiseIdsReader
             {
                 continue;
             }
-            var lineElements = new LineElements(line);
+            var lineElements = new LineElements(line.AsSpan());
             var codepoint = MakeCodepoint(lineElements);
             codepoints.Add(codepoint);
         }
