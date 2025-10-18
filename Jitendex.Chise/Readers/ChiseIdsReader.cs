@@ -78,8 +78,8 @@ public static class ChiseIdsReader
 
     private static UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
     {
-        var scalarValue = UnicodeScalarValue(lineElements.Character);
-        if (scalarValue is null)
+        var scalarValue = UnicodeScalarValueOrDefault(lineElements.Character);
+        if (scalarValue == default)
         {
             return null;
         }
@@ -100,13 +100,13 @@ public static class ChiseIdsReader
         };
     }
 
-    private static int? UnicodeScalarValue(in ReadOnlySpan<char> character) => character switch
+    private static int UnicodeScalarValueOrDefault(in ReadOnlySpan<char> character) => character switch
     {
         { Length: 1 } => character[0],
         { Length: 2 } when char.IsHighSurrogate(character[0])
                         && char.IsLowSurrogate(character[1])
                         => char.ConvertToUtf32(character[0], character[1]),
-        _ => null,
+        _ => default,
     };
 
     private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}".AsSpan();
@@ -173,11 +173,11 @@ public static class ChiseIdsReader
         }
         else
         {
-            var scalarValue = UnicodeScalarValue(argumentText);
-            var id = scalarValue is null
+            var scalarValue = UnicodeScalarValueOrDefault(argumentText);
+            var id = scalarValue == default
                      ? argumentText
                      : GetLongCodepointId((int)scalarValue);
-            var character = scalarValue is null ? null : new UnicodeCharacter
+            var character = scalarValue == default ? null : new UnicodeCharacter
             {
                 ScalarValue = (int)scalarValue,
                 CodepointId = new string(id),
