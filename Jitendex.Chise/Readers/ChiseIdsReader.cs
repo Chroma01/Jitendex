@@ -28,7 +28,7 @@ public static class ChiseIdsReader
         var codepoints = new List<Codepoint>(103_000);
         foreach (var file in chiseIdsDir.EnumerateFiles("IDS-UCS-*.txt"))
         {
-            Console.WriteLine(file.FullName);
+            Console.WriteLine(file.Name);
             await ReadFileAsync(file, codepoints);
             Console.WriteLine();
         }
@@ -109,7 +109,7 @@ public static class ChiseIdsReader
         _ => default,
     };
 
-    private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}".AsSpan();
+    private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}";
     private static ReadOnlySpan<char> GetShortCodepointId(int scalarValue) => $"U+{scalarValue:X}";
 
     private static Sequence? MakeSequence(in ReadOnlySpan<char> sequenceText)
