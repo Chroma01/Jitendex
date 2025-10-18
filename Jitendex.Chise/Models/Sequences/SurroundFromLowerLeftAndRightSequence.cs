@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Chise.Models.Sequences;
 
-public sealed class UndocumentedSequence : Sequence
+public sealed class SurroundFromLowerLeftAndRightSequence : Sequence
 {
-    public const string Indicator = "&A-compU+2FF6;";
+    public const string Indicator = "&U-i002+2FF1;";
     protected override string GetIndicator() => Indicator;
     protected override int ArgumentCount() => 2;
-    public UndocumentedSequence(Stack<Codepoint> arguments) : base(arguments) { }
+    public SurroundFromLowerLeftAndRightSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

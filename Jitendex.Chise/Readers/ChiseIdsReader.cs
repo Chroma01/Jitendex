@@ -145,9 +145,9 @@ public static class ChiseIdsReader
         [SurroundFromLowerRightSequence.Indicator] => new SurroundFromLowerRightSequence(arguments),
         [OverlaidSequence.Indicator] => new OverlaidSequence(arguments),
         SurroundFromUpperLeftAndRightSequence.Indicator => new SurroundFromUpperLeftAndRightSequence(arguments),
+        SurroundFromLowerLeftAndRightSequence.Indicator => new SurroundFromLowerLeftAndRightSequence(arguments),
         SurroundFromLeftAndRightSequence.Indicator => new SurroundFromLeftAndRightSequence(arguments),
         UndocumentedSequence.Indicator => new UndocumentedSequence(arguments),
-        SecondUndocumentedSequence.Indicator => new SecondUndocumentedSequence(arguments),
         _ => null,
     };
 
