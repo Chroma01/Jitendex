@@ -20,14 +20,26 @@ namespace Jitendex.Chise.Readers;
 
 internal readonly ref struct LineElements
 {
-    public ReadOnlySpan<char> Codepoint { get; init; }
-    public ReadOnlySpan<char> Character { get; init; }
-    public ReadOnlySpan<char> Sequence { get; init; }
-    public ReadOnlySpan<char> AltSequence { get; init; }
     private const string apparent = "@apparent=";
+    private readonly ReadOnlySpan<char> Filename;
+    private readonly int LineNumber;
+    private readonly ReadOnlySpan<char> Line;
 
-    public LineElements(in ReadOnlySpan<char> line)
+    public readonly ReadOnlySpan<char> Codepoint;
+    public readonly ReadOnlySpan<char> Character;
+    public readonly ReadOnlySpan<char> Sequence;
+    public readonly ReadOnlySpan<char> AltSequence;
+
+    public readonly bool AltSequenceFormatError;
+    public readonly bool InsufficientElementsError;
+    public readonly bool ExcessiveElementsError;
+
+    public LineElements(in ReadOnlySpan<char> filename, int number, in ReadOnlySpan<char> line)
     {
+        Filename = filename;
+        LineNumber = number;
+        Line = line;
+
         int idx = 0;
 
         foreach (var range in line.Split('\t'))
@@ -43,18 +55,16 @@ internal readonly ref struct LineElements
             else if (idx == 3 && segment.StartsWith(apparent))
                 AltSequence = segment[apparent.Length..^TagLength(segment)];
             else if (idx == 3)
-                Console.WriteLine($"Malformatted alt sequence element:\t`{line}`");
+                AltSequenceFormatError = true;
+            else
+            { ExcessiveElementsError = true; break; }
 
             idx++;
         }
 
         if (idx < 3)
         {
-            throw new ArgumentException($"Not enough elements in line: `{line}`");
-        }
-        else if (idx > 4)
-        {
-            Console.WriteLine($"Too many elements in this line:   \t`{line}`");
+            InsufficientElementsError = true;
         }
     }
 
@@ -67,4 +77,6 @@ internal readonly ref struct LineElements
         [.., '[', _, ']'] => 3,
         _ => 0,
     };
+
+    public override string ToString() => $"{Filename}\t{LineNumber}\t{Line}";
 }

@@ -21,36 +21,66 @@ using Jitendex.Chise.Models.Sequences;
 
 namespace Jitendex.Chise.Readers;
 
-public static class ChiseIdsReader
+internal class ChiseIdsReader
 {
-    public static async Task<List<Codepoint>> ReadAsync(DirectoryInfo chiseIdsDir)
+    private readonly Logger _logger;
+
+    public ChiseIdsReader()
     {
-        var codepoints = new List<Codepoint>(103_000);
-        foreach (var file in chiseIdsDir.EnumerateFiles("IDS-UCS-*.txt"))
+        _logger = new Logger();
+    }
+
+    public async Task<List<Codepoint>> ReadAsync(DirectoryInfo chiseIdsDir)
+    {
+        var codepoints = new List<Codepoint>(215_000);
+        foreach (var file in chiseIdsDir.EnumerateFiles("*.txt"))
         {
-            Console.WriteLine(file.Name);
             await ReadFileAsync(file, codepoints);
-            Console.WriteLine();
         }
         return codepoints;
     }
 
-    private static async Task ReadFileAsync(FileInfo file, List<Codepoint> codepoints)
+    private async Task ReadFileAsync(FileInfo file, List<Codepoint> codepoints)
     {
         using StreamReader sr = file.OpenText();
+        int lineNumber = 0;
+
         while (await sr.ReadLineAsync() is string line)
         {
+            lineNumber++;
+
             if (line.StartsWith(';'))
             {
                 continue;
             }
-            var lineElements = new LineElements(line.AsSpan());
-            var codepoint = MakeCodepoint(lineElements);
-            codepoints.Add(codepoint);
+
+            var lineElements = new LineElements(file.Name.AsSpan(), lineNumber, line.AsSpan());
+
+            if (lineElements.AltSequenceFormatError)
+                _logger.AltSequenceFormatError(lineElements);
+
+            if (lineElements.ExcessiveElementsError)
+                _logger.ExcessiveLineElements(lineElements);
+
+            if (lineElements.InsufficientElementsError)
+            {
+                _logger.InsufficientLineElements(lineElements);
+                continue;
+            }
+
+            try
+            {
+                if (MakeCodepoint(lineElements) is Codepoint codepoint)
+                    codepoints.Add(codepoint);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.Message);
+            }
         }
     }
 
-    private static Codepoint MakeCodepoint(in LineElements lineElements)
+    private Codepoint? MakeCodepoint(in LineElements lineElements)
     {
         var unicodeCharacter = MakeUnicodeCharacter(lineElements);
 
@@ -58,11 +88,43 @@ public static class ChiseIdsReader
                  ? new string(lineElements.Codepoint)
                  : unicodeCharacter.CodepointId;
 
-        var sequence = MakeSequence(lineElements.Sequence);
+        Stack<Codepoint> sequenceArguments;
+        Stack<Codepoint>? altSequenceArguments;
 
-        var altSequence = lineElements.AltSequence is []
-                          ? null
-                          : MakeSequence(lineElements.AltSequence);
+        try
+        {
+            sequenceArguments = MakeArgumentStack(lineElements.Sequence);
+        }
+        catch (InvalidOperationException)
+        {
+            _logger.InsufficientIdsArgs(lineElements);
+            return null;
+        }
+
+        try
+        {
+            altSequenceArguments = lineElements.AltSequence is []
+                ? null : MakeArgumentStack(lineElements.AltSequence);
+        }
+        catch (InvalidOperationException)
+        {
+            _logger.InsufficientAltIdsArgs(lineElements);
+            altSequenceArguments = null;
+        }
+
+        if (altSequenceArguments is not null && altSequenceArguments.Count != 1)
+        {
+            _logger.InsufficientAltIdsOps(lineElements);
+            altSequenceArguments = null;
+        }
+        if (sequenceArguments.Count != 1)
+        {
+            _logger.InsufficientIdsOps(lineElements);
+            return null;
+        }
+
+        var sequence = sequenceArguments.Pop().Sequence;
+        var altSequence = altSequenceArguments?.Pop().Sequence;
 
         return new Codepoint
         {
@@ -78,19 +140,27 @@ public static class ChiseIdsReader
 
     private static UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
     {
-        var scalarValue = UnicodeScalarValueOrDefault(lineElements.Character);
-        if (scalarValue == default)
+        if (!lineElements.Codepoint.StartsWith('U'))
         {
             return null;
         }
 
-        var shortId = GetShortCodepointId((int)scalarValue);
+        var scalarValue = UnicodeScalarValueOrDefault(lineElements.Character);
+
+        if (scalarValue == default)
+        {
+            Console.Error.WriteLine($"Expected scalar value for codepoint '{lineElements.Codepoint}' and character '{lineElements.Character}'");
+            return null;
+        }
+
         var longId = GetLongCodepointId((int)scalarValue);
 
+
+        var shortId = GetShortCodepointId((int)scalarValue);
         if (!shortId.SequenceEqual(lineElements.Codepoint) && !longId.SequenceEqual(lineElements.Codepoint))
         {
-            Console.WriteLine($"Inequality between codepoint '{lineElements.Codepoint}' and character '{lineElements.Character}'");
-            Console.WriteLine($"Expected '{longId}' or '{shortId}'");
+            Console.Error.WriteLine($"Inequality between codepoint '{lineElements.Codepoint}' and character '{lineElements.Character}'");
+            Console.Error.WriteLine($"Expected '{longId}' or '{shortId}'");
         }
 
         return new UnicodeCharacter
@@ -112,11 +182,10 @@ public static class ChiseIdsReader
     private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}";
     private static ReadOnlySpan<char> GetShortCodepointId(int scalarValue) => $"U+{scalarValue:X}";
 
-    private static Sequence? MakeSequence(in ReadOnlySpan<char> sequenceText)
+    private static Stack<Codepoint> MakeArgumentStack(in ReadOnlySpan<char> sequenceText)
     {
         Stack<Codepoint> arguments = [];
         int end = sequenceText.Length;
-
         while (end > 0)
         {
             int start = ArgumentIndex(sequenceText[..end]);
@@ -124,13 +193,7 @@ public static class ChiseIdsReader
             ResolveArgument(argumentText, arguments);
             end = start;
         }
-
-        if (arguments.Count != 1)
-        {
-            throw new ArgumentException($"Invalid sequence text: `{sequenceText}`");
-        }
-
-        return arguments.Pop().Sequence;
+        return arguments;
     }
 
     private static Sequence? MakeSequence(in ReadOnlySpan<char> indicator, Stack<Codepoint> arguments) => indicator switch

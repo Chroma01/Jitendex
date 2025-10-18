@@ -47,6 +47,7 @@ public class Program
 
         var chiseIdsDir = parseResult.GetRequiredValue(chiseIdsDirectoryArgument);
 
-        await ChiseIdsReader.ReadAsync(chiseIdsDir);
+        var reader = new ChiseIdsReader();
+        await reader.ReadAsync(chiseIdsDir);
     }
 }
