@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Chise.Models;
-using Jitendex.Chise.Models.Sequences;
 
 namespace Jitendex.Chise.Readers;
 
@@ -101,13 +100,43 @@ internal class ChiseIdsReader
         };
     }
 
+    private UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
+    {
+        if (!lineElements.Codepoint.StartsWith('U'))
+        {
+            return null;
+        }
+
+        var scalarValue = UnicodeConverter.ScalarValueOrDefault(lineElements.Character);
+
+        if (scalarValue == default)
+        {
+            _logger.InvalidUnicodeCodepoint(lineElements);
+            return null;
+        }
+
+        var longId = UnicodeConverter.GetLongCodepointId(scalarValue);
+        var shortId = UnicodeConverter.GetShortCodepointId(scalarValue);
+
+        if (!shortId.SequenceEqual(lineElements.Codepoint) && !longId.SequenceEqual(lineElements.Codepoint))
+        {
+            _logger.UnicodeCharacterInequality(lineElements);
+        }
+
+        return new UnicodeCharacter
+        {
+            ScalarValue = (int)scalarValue,
+            CodepointId = new string(longId),
+        };
+    }
+
     private Sequence? MakeSequence(in LineElements lineElements)
     {
         Stack<Codepoint> sequenceArguments;
 
         try
         {
-            sequenceArguments = MakeArgumentStack(lineElements.Sequence);
+            sequenceArguments = SequenceTextParser.Parse(lineElements.Sequence);
         }
         catch (InvalidOperationException)
         {
@@ -135,7 +164,7 @@ internal class ChiseIdsReader
 
         try
         {
-            altSequenceArguments = MakeArgumentStack(lineElements.AltSequence);
+            altSequenceArguments = SequenceTextParser.Parse(lineElements.AltSequence);
         }
         catch (InvalidOperationException)
         {
@@ -150,153 +179,5 @@ internal class ChiseIdsReader
         }
 
         return altSequenceArguments.Pop().Sequence;
-    }
-
-    private UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
-    {
-        if (!lineElements.Codepoint.StartsWith('U'))
-        {
-            return null;
-        }
-
-        var scalarValue = UnicodeScalarValueOrDefault(lineElements.Character);
-
-        if (scalarValue == default)
-        {
-            _logger.InvalidUnicodeCodepoint(lineElements);
-            return null;
-        }
-
-        var longId = GetLongCodepointId(scalarValue);
-        var shortId = GetShortCodepointId(scalarValue);
-
-        if (!shortId.SequenceEqual(lineElements.Codepoint) && !longId.SequenceEqual(lineElements.Codepoint))
-        {
-            _logger.UnicodeCharacterInequality(lineElements);
-        }
-
-        return new UnicodeCharacter
-        {
-            ScalarValue = (int)scalarValue,
-            CodepointId = new string(longId),
-        };
-    }
-
-    private static int UnicodeScalarValueOrDefault(in ReadOnlySpan<char> character) => character switch
-    {
-        { Length: 1 } => character[0],
-        { Length: 2 } when char.IsHighSurrogate(character[0])
-                        && char.IsLowSurrogate(character[1])
-                        => char.ConvertToUtf32(character[0], character[1]),
-        _ => default,
-    };
-
-    private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}";
-    private static ReadOnlySpan<char> GetShortCodepointId(int scalarValue) => $"U+{scalarValue:X}";
-
-    private static Stack<Codepoint> MakeArgumentStack(in ReadOnlySpan<char> sequenceText)
-    {
-        Stack<Codepoint> arguments = [];
-        int end = sequenceText.Length;
-        while (end > 0)
-        {
-            int start = ArgumentIndex(sequenceText[..end]);
-            var argumentText = sequenceText[start..end];
-            ResolveArgument(argumentText, arguments);
-            end = start;
-        }
-        return arguments;
-    }
-
-    private static Sequence? MakeSequence(in ReadOnlySpan<char> indicator, Stack<Codepoint> arguments) => indicator switch
-    {
-        [LeftToRightSequence.Indicator] => new LeftToRightSequence(arguments),
-        [AboveToBelowSequence.Indicator] => new AboveToBelowSequence(arguments),
-        [LeftToMiddleAndRightSequence.Indicator] => new LeftToMiddleAndRightSequence(arguments),
-        [AboveToMiddleAndBelowSequence.Indicator] => new AboveToMiddleAndBelowSequence(arguments),
-        [FullSurroundSequence.Indicator] => new FullSurroundSequence(arguments),
-        [SurroundFromAboveSequence.Indicator] => new SurroundFromAboveSequence(arguments),
-        [SurroundFromBelowSequence.Indicator] => new SurroundFromBelowSequence(arguments),
-        [SurroundFromLeftSequence.Indicator] => new SurroundFromLeftSequence(arguments),
-        [SurroundFromRightSequence.Indicator] => new SurroundFromRightSequence(arguments),
-        [SurroundFromUpperLeftSequence.Indicator] => new SurroundFromUpperLeftSequence(arguments),
-        [SurroundFromUpperRightSequence.Indicator] => new SurroundFromUpperRightSequence(arguments),
-        [SurroundFromLowerLeftSequence.Indicator] => new SurroundFromLowerLeftSequence(arguments),
-        [SurroundFromLowerRightSequence.Indicator] => new SurroundFromLowerRightSequence(arguments),
-        [OverlaidSequence.Indicator] => new OverlaidSequence(arguments),
-        SurroundFromUpperLeftAndRightSequence.Indicator => new SurroundFromUpperLeftAndRightSequence(arguments),
-        SurroundFromLowerLeftAndRightSequence.Indicator => new SurroundFromLowerLeftAndRightSequence(arguments),
-        SurroundFromLeftAndRightSequence.Indicator => new SurroundFromLeftAndRightSequence(arguments),
-        "&A-compU+2FF6;" => new SurroundFromBelowSequence(arguments),
-        _ => null,
-    };
-
-    private static void ResolveArgument(in ReadOnlySpan<char> argumentText, Stack<Codepoint> arguments)
-    {
-        if (MakeSequence(argumentText, arguments) is Sequence sequence)
-        {
-            arguments.Push(new Codepoint
-            {
-                Id = sequence.Text,
-                UnicodeScalarValue = null,
-                SequenceText = sequence.Text,
-                AltSequenceText = null,
-                UnicodeCharacter = null,
-                Sequence = sequence,
-                AltSequence = null,
-            });
-        }
-        else
-        {
-            var scalarValue = UnicodeScalarValueOrDefault(argumentText);
-
-            var id = scalarValue == default
-                     ? argumentText
-                     : GetLongCodepointId(scalarValue);
-
-            var character = scalarValue == default ? null : new UnicodeCharacter
-            {
-                ScalarValue = scalarValue,
-                CodepointId = new string(id),
-            };
-
-            arguments.Push(new Codepoint
-            {
-                Id = new string(id),
-                UnicodeScalarValue = scalarValue,
-                SequenceText = null,
-                AltSequenceText = null,
-                UnicodeCharacter = character,
-                Sequence = null,
-                AltSequence = null,
-            });
-        }
-    }
-
-    private static int ArgumentIndex(in ReadOnlySpan<char> text)
-    {
-        if (text.Length == 0)
-        {
-            throw new ArgumentException("Text is empty", nameof(text));
-        }
-        if (text.Length == 1)
-        {
-            return 0;
-        }
-        if (char.IsLowSurrogate(text[^1]) && char.IsHighSurrogate(text[^2]))
-        {
-            return text.Length - 2;
-        }
-        if (text[^1] == ';')
-        {
-            for (int i = 3; i <= text.Length; i++)
-            {
-                if (text[^i] == '&')
-                {
-                    return text.Length - i;
-                }
-            }
-        }
-        return text.Length - 1;
     }
 }
