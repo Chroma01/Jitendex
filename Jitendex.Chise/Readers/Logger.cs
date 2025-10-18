@@ -20,6 +20,8 @@ namespace Jitendex.Chise.Readers;
 
 internal class Logger
 {
+    private readonly string _invalidUnicodeCodepoint;
+    private readonly string _unicodeCharacterInequalityPath;
     private readonly string _insufficientLineElementsPath;
     private readonly string _excessiveLineElementsPath;
     private readonly string _altSequenceFormatErrorPath;
@@ -43,6 +45,8 @@ internal class Logger
 
         logDirectory.Create();
 
+        _invalidUnicodeCodepoint = Path.Join(logDirectory.FullName, "invalid_unicode_codepoint.tsv");
+        _unicodeCharacterInequalityPath = Path.Join(logDirectory.FullName, "unicode_character_inequality.tsv");
         _insufficientLineElementsPath = Path.Join(logDirectory.FullName, "insufficient_line_elements.tsv");
         _excessiveLineElementsPath = Path.Join(logDirectory.FullName, "excessive_line_elements.tsv");
         _altSequenceFormatErrorPath = Path.Join(logDirectory.FullName, "alt_sequence_format_error.tsv");
@@ -52,6 +56,8 @@ internal class Logger
         _insufficientAltIdsOpsPath = Path.Join(logDirectory.FullName, "insufficient_alt_idc_ops.tsv");
     }
 
+    public void InvalidUnicodeCodepoint(in LineElements line) => Write(line, _invalidUnicodeCodepoint);
+    public void UnicodeCharacterInequality(in LineElements line) => Write(line, _unicodeCharacterInequalityPath);
     public void InsufficientLineElements(in LineElements line) => Write(line, _insufficientLineElementsPath);
     public void ExcessiveLineElements(in LineElements line) => Write(line, _excessiveLineElementsPath);
     public void AltSequenceFormatError(in LineElements line) => Write(line, _altSequenceFormatErrorPath);

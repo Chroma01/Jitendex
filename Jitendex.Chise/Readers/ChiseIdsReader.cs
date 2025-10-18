@@ -56,26 +56,18 @@ internal class ChiseIdsReader
 
             var lineElements = new LineElements(file.Name.AsSpan(), lineNumber, line.AsSpan());
 
-            if (lineElements.AltSequenceFormatError)
-                _logger.AltSequenceFormatError(lineElements);
-
-            if (lineElements.ExcessiveElementsError)
-                _logger.ExcessiveLineElements(lineElements);
+            if (lineElements.AltSequenceFormatError) _logger.AltSequenceFormatError(lineElements);
+            if (lineElements.ExcessiveElementsError) _logger.ExcessiveLineElements(lineElements);
+            if (lineElements.InsufficientElementsError) _logger.InsufficientLineElements(lineElements);
 
             if (lineElements.InsufficientElementsError)
             {
-                _logger.InsufficientLineElements(lineElements);
                 continue;
             }
 
-            try
+            if (MakeCodepoint(lineElements) is Codepoint codepoint)
             {
-                if (MakeCodepoint(lineElements) is Codepoint codepoint)
-                    codepoints.Add(codepoint);
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine(e.Message);
+                codepoints.Add(codepoint);
             }
         }
     }
@@ -138,7 +130,7 @@ internal class ChiseIdsReader
         };
     }
 
-    private static UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
+    private UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
     {
         if (!lineElements.Codepoint.StartsWith('U'))
         {
@@ -149,18 +141,16 @@ internal class ChiseIdsReader
 
         if (scalarValue == default)
         {
-            Console.Error.WriteLine($"Expected scalar value for codepoint '{lineElements.Codepoint}' and character '{lineElements.Character}'");
+            _logger.InvalidUnicodeCodepoint(lineElements);
             return null;
         }
 
-        var longId = GetLongCodepointId((int)scalarValue);
+        var longId = GetLongCodepointId(scalarValue);
+        var shortId = GetShortCodepointId(scalarValue);
 
-
-        var shortId = GetShortCodepointId((int)scalarValue);
         if (!shortId.SequenceEqual(lineElements.Codepoint) && !longId.SequenceEqual(lineElements.Codepoint))
         {
-            Console.Error.WriteLine($"Inequality between codepoint '{lineElements.Codepoint}' and character '{lineElements.Character}'");
-            Console.Error.WriteLine($"Expected '{longId}' or '{shortId}'");
+            _logger.UnicodeCharacterInequality(lineElements);
         }
 
         return new UnicodeCharacter
@@ -237,12 +227,14 @@ internal class ChiseIdsReader
         else
         {
             var scalarValue = UnicodeScalarValueOrDefault(argumentText);
+
             var id = scalarValue == default
                      ? argumentText
-                     : GetLongCodepointId((int)scalarValue);
+                     : GetLongCodepointId(scalarValue);
+
             var character = scalarValue == default ? null : new UnicodeCharacter
             {
-                ScalarValue = (int)scalarValue,
+                ScalarValue = scalarValue,
                 CodepointId = new string(id),
             };
 
