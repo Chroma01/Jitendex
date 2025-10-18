@@ -20,7 +20,7 @@ namespace Jitendex.Chise.Readers;
 
 internal class Logger
 {
-    private readonly string _invalidUnicodeCodepoint;
+    private readonly string _invalidUnicodeCodepointPath;
     private readonly string _unicodeCharacterInequalityPath;
     private readonly string _insufficientLineElementsPath;
     private readonly string _excessiveLineElementsPath;
@@ -40,23 +40,31 @@ internal class Logger
         ));
 
         if (logDirectory.Exists)
+        {
             foreach (var file in logDirectory.EnumerateFiles())
+            {
                 file.Delete();
+            }
+        }
+        else
+        {
+            logDirectory.Create();
+        }
 
-        logDirectory.Create();
+        string makePath(string filename) => Path.Join(logDirectory.FullName, filename);
 
-        _invalidUnicodeCodepoint = Path.Join(logDirectory.FullName, "invalid_unicode_codepoint.tsv");
-        _unicodeCharacterInequalityPath = Path.Join(logDirectory.FullName, "unicode_character_inequality.tsv");
-        _insufficientLineElementsPath = Path.Join(logDirectory.FullName, "insufficient_line_elements.tsv");
-        _excessiveLineElementsPath = Path.Join(logDirectory.FullName, "excessive_line_elements.tsv");
-        _altSequenceFormatErrorPath = Path.Join(logDirectory.FullName, "alt_sequence_format_error.tsv");
-        _insufficientIdsArgsPath = Path.Join(logDirectory.FullName, "insufficient_ids_args.tsv");
-        _insufficientIdsOpsPath = Path.Join(logDirectory.FullName, "insufficient_ids_ops.tsv");
-        _insufficientAltIdsArgsPath = Path.Join(logDirectory.FullName, "insufficient_alt_ids_args.tsv");
-        _insufficientAltIdsOpsPath = Path.Join(logDirectory.FullName, "insufficient_alt_idc_ops.tsv");
+        _invalidUnicodeCodepointPath = makePath("invalid_unicode_codepoint.tsv");
+        _unicodeCharacterInequalityPath = makePath("unicode_character_inequality.tsv");
+        _insufficientLineElementsPath = makePath("insufficient_line_elements.tsv");
+        _excessiveLineElementsPath = makePath("excessive_line_elements.tsv");
+        _altSequenceFormatErrorPath = makePath("alt_sequence_format_error.tsv");
+        _insufficientIdsArgsPath = makePath("insufficient_ids_args.tsv");
+        _insufficientIdsOpsPath = makePath("insufficient_ids_ops.tsv");
+        _insufficientAltIdsArgsPath = makePath("insufficient_alt_ids_args.tsv");
+        _insufficientAltIdsOpsPath = makePath("insufficient_alt_idc_ops.tsv");
     }
 
-    public void InvalidUnicodeCodepoint(in LineElements line) => Write(line, _invalidUnicodeCodepoint);
+    public void InvalidUnicodeCodepoint(in LineElements line) => Write(line, _invalidUnicodeCodepointPath);
     public void UnicodeCharacterInequality(in LineElements line) => Write(line, _unicodeCharacterInequalityPath);
     public void InsufficientLineElements(in LineElements line) => Write(line, _insufficientLineElementsPath);
     public void ExcessiveLineElements(in LineElements line) => Write(line, _excessiveLineElementsPath);
