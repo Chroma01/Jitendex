@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.KanjiVG", "Jitende
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.SQLite", "Jitendex.SQLite\Jitendex.SQLite.csproj", "{5C4A3B24-CF06-48C3-8F07-022B63575185}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Chise", "Jitendex.Chise\Jitendex.Chise.csproj", "{A3AAFD6A-3133-45F1-8F38-67233584D7BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +56,9 @@ Global
 		{5C4A3B24-CF06-48C3-8F07-022B63575185}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C4A3B24-CF06-48C3-8F07-022B63575185}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C4A3B24-CF06-48C3-8F07-022B63575185}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3AAFD6A-3133-45F1-8F38-67233584D7BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3AAFD6A-3133-45F1-8F38-67233584D7BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3AAFD6A-3133-45F1-8F38-67233584D7BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3AAFD6A-3133-45F1-8F38-67233584D7BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
