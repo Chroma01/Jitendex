@@ -25,7 +25,7 @@ public static class ChiseIdsReader
 {
     public static async Task<List<Codepoint>> ReadAsync(DirectoryInfo chiseIdsDir)
     {
-        var codepoints = new List<Codepoint>();
+        var codepoints = new List<Codepoint>(103_000);
         foreach (var file in chiseIdsDir.EnumerateFiles("IDS-UCS-*.txt"))
         {
             Console.WriteLine(file.FullName);
