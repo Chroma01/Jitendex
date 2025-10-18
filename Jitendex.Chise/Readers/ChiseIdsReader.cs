@@ -108,17 +108,21 @@ public static class ChiseIdsReader
                         => char.ConvertToUtf32(character[0], character[1]),
         _ => null,
     };
+
     private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}".AsSpan();
     private static ReadOnlySpan<char> GetShortCodepointId(int scalarValue) => $"U+{scalarValue:X}";
 
     private static Sequence? MakeSequence(in ReadOnlySpan<char> sequenceText)
     {
         Stack<Codepoint> arguments = [];
-        int index = sequenceText.Length;
+        int end = sequenceText.Length;
 
-        while (index > 0)
+        while (end > 0)
         {
-            index = PushNextArgument(sequenceText[..index], arguments);
+            int start = ArgumentIndex(sequenceText[..end]);
+            var argumentText = sequenceText[start..end];
+            ResolveArgument(argumentText, arguments);
+            end = start;
         }
 
         if (arguments.Count != 1)
@@ -152,12 +156,9 @@ public static class ChiseIdsReader
         _ => null,
     };
 
-    private static int PushNextArgument(in ReadOnlySpan<char> text, Stack<Codepoint> arguments)
+    private static void ResolveArgument(in ReadOnlySpan<char> argumentText, Stack<Codepoint> arguments)
     {
-        var index = ArgumentIndex(text);
-        var newArgument = text[index..];
-
-        if (MakeSequence(newArgument, arguments) is Sequence sequence)
+        if (MakeSequence(argumentText, arguments) is Sequence sequence)
         {
             arguments.Push(new Codepoint
             {
@@ -172,9 +173,9 @@ public static class ChiseIdsReader
         }
         else
         {
-            var scalarValue = UnicodeScalarValue(newArgument);
+            var scalarValue = UnicodeScalarValue(argumentText);
             var id = scalarValue is null
-                     ? newArgument
+                     ? argumentText
                      : GetLongCodepointId((int)scalarValue);
             var character = scalarValue is null ? null : new UnicodeCharacter
             {
@@ -193,8 +194,6 @@ public static class ChiseIdsReader
                 AltSequence = null,
             });
         }
-
-        return index;
     }
 
     private static int ArgumentIndex(in ReadOnlySpan<char> text)
