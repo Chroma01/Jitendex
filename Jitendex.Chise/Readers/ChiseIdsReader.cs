@@ -28,9 +28,9 @@ public static class ChiseIdsReader
         var codepoints = new List<Codepoint>();
         foreach (var file in chiseIdsDir.EnumerateFiles("IDS-UCS-*.txt"))
         {
-            Console.WriteLine();
             Console.WriteLine(file.FullName);
             await ReadFileAsync(file, codepoints);
+            Console.WriteLine();
         }
         return codepoints;
     }
@@ -50,7 +50,7 @@ public static class ChiseIdsReader
         }
     }
 
-    private static Codepoint MakeCodepoint(LineElements lineElements)
+    private static Codepoint MakeCodepoint(in LineElements lineElements)
     {
         var unicodeCharacter = MakeUnicodeCharacter(lineElements);
 
@@ -76,7 +76,7 @@ public static class ChiseIdsReader
         };
     }
 
-    private static UnicodeCharacter? MakeUnicodeCharacter(LineElements lineElements)
+    private static UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
     {
         var scalarValue = UnicodeScalarValue(lineElements.Character);
         if (scalarValue is null)
@@ -100,7 +100,7 @@ public static class ChiseIdsReader
         };
     }
 
-    private static int? UnicodeScalarValue(ReadOnlySpan<char> character) => character switch
+    private static int? UnicodeScalarValue(in ReadOnlySpan<char> character) => character switch
     {
         { Length: 1 } => character[0],
         { Length: 2 } when char.IsHighSurrogate(character[0])
@@ -111,24 +111,25 @@ public static class ChiseIdsReader
     private static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}".AsSpan();
     private static ReadOnlySpan<char> GetShortCodepointId(int scalarValue) => $"U+{scalarValue:X}";
 
-    private static Sequence? MakeSequence(ReadOnlySpan<char> sequenceText)
+    private static Sequence? MakeSequence(in ReadOnlySpan<char> sequenceText)
     {
         Stack<Codepoint> arguments = [];
+        int index = sequenceText.Length;
 
-        while (PushNextArgument(sequenceText, arguments) is var nextText and not [])
+        while (index > 0)
         {
-            sequenceText = nextText;
+            index = PushNextArgument(sequenceText[..index], arguments);
         }
 
         if (arguments.Count != 1)
         {
             throw new ArgumentException($"Invalid sequence text: `{sequenceText}`");
         }
-        var codepoint = arguments.Pop();
-        return codepoint.Sequence;
+
+        return arguments.Pop().Sequence;
     }
 
-    private static Sequence? MakeSequence(ReadOnlySpan<char> indicator, Stack<Codepoint> arguments) => indicator switch
+    private static Sequence? MakeSequence(in ReadOnlySpan<char> indicator, Stack<Codepoint> arguments) => indicator switch
     {
         [LeftToRightSequence.Indicator] => new LeftToRightSequence(arguments),
         [AboveToBelowSequence.Indicator] => new AboveToBelowSequence(arguments),
@@ -151,10 +152,10 @@ public static class ChiseIdsReader
         _ => null,
     };
 
-    private static ReadOnlySpan<char> PushNextArgument(ReadOnlySpan<char> text, Stack<Codepoint> arguments)
+    private static int PushNextArgument(in ReadOnlySpan<char> text, Stack<Codepoint> arguments)
     {
-        var argIndex = ArgumentIndex(text);
-        var newArgument = text[argIndex..];
+        var index = ArgumentIndex(text);
+        var newArgument = text[index..];
 
         if (MakeSequence(newArgument, arguments) is Sequence sequence)
         {
@@ -180,6 +181,7 @@ public static class ChiseIdsReader
                 ScalarValue = (int)scalarValue,
                 CodepointId = new string(id),
             };
+
             arguments.Push(new Codepoint
             {
                 Id = new string(id),
@@ -192,10 +194,10 @@ public static class ChiseIdsReader
             });
         }
 
-        return text[..argIndex];
+        return index;
     }
 
-    private static int ArgumentIndex(ReadOnlySpan<char> text)
+    private static int ArgumentIndex(in ReadOnlySpan<char> text)
     {
         if (text.Length == 0)
         {
