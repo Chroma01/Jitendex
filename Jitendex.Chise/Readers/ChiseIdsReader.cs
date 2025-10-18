@@ -147,7 +147,7 @@ public static class ChiseIdsReader
         SurroundFromUpperLeftAndRightSequence.Indicator => new SurroundFromUpperLeftAndRightSequence(arguments),
         SurroundFromLowerLeftAndRightSequence.Indicator => new SurroundFromLowerLeftAndRightSequence(arguments),
         SurroundFromLeftAndRightSequence.Indicator => new SurroundFromLeftAndRightSequence(arguments),
-        UndocumentedSequence.Indicator => new UndocumentedSequence(arguments),
+        "&A-compU+2FF6;" => new SurroundFromBelowSequence(arguments),
         _ => null,
     };
 
