@@ -21,19 +21,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Chise.Models;
 
-internal interface ISequence
-{
-    abstract static string GetIndicator();
-    abstract static int ArgumentCount();
-    abstract static string FirstPositionName();
-    abstract static string SecondPositionName();
-    abstract static string ThirdPositionName();
-}
-
 /// <summary>
 /// Represents an Ideographic Description Sequence (IDS)
 /// </summary>
-public abstract class Sequence
+public class Sequence
 {
     [Key]
     public string Text { get; init; } = null!;

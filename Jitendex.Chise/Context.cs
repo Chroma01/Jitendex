@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Chise.Models;
 using Jitendex.SQLite;
-using Jitendex.Chise.Models.Sequences;
 
 namespace Jitendex.Chise;
 
@@ -29,24 +28,6 @@ public class Context : SqliteContext
     public DbSet<Component> Components { get; } = null!;
     public DbSet<ComponentPosition> ComponentPositions { get; } = null!;
     public DbSet<UnicodeCharacter> UnicodeCharacters { get; } = null!;
-
-    public DbSet<AboveToBelowSequence> AboveToBelowSequence { get; } = null!;
-    public DbSet<AboveToMiddleAndBelowSequence> AboveToMiddleAndBelowSequences { get; } = null!;
-    public DbSet<FullSurroundSequence> FullSurroundSequences { get; } = null!;
-    public DbSet<LeftToMiddleAndRightSequence> LeftToMiddleAndRightSequences { get; } = null!;
-    public DbSet<LeftToRightSequence> LeftToRightSequences { get; } = null!;
-    public DbSet<OverlaidSequence> OverlaidSequences { get; } = null!;
-    public DbSet<SurroundFromAboveSequence> SurroundFromAboveSequences { get; } = null!;
-    public DbSet<SurroundFromBelowSequence> SurroundFromBelowSequences { get; } = null!;
-    public DbSet<SurroundFromLeftAndRightSequence> SurroundFromLeftAndRightSequences { get; } = null!;
-    public DbSet<SurroundFromLeftSequence> SurroundFromLeftSequences { get; } = null!;
-    public DbSet<SurroundFromLowerLeftAndRightSequence> SurroundFromLowerLeftAndRightSequences { get; } = null!;
-    public DbSet<SurroundFromLowerLeftSequence> SurroundFromLowerLeftSequences { get; } = null!;
-    public DbSet<SurroundFromLowerRightSequence> SurroundFromLowerRightSequences { get; } = null!;
-    public DbSet<SurroundFromRightSequence> SurroundFromRightSequences { get; } = null!;
-    public DbSet<SurroundFromUpperLeftAndRightSequence> SurroundFromUpperLeftAndRightSequences { get; } = null!;
-    public DbSet<SurroundFromUpperLeftSequence> SurroundFromUpperLeftSequences { get; } = null!;
-    public DbSet<SurroundFromUpperRightSequence> SurroundFromUpperRightSequences { get; } = null!;
-
+    public DbSet<Sequence> Sequences { get; } = null!;
     public Context() : base("chise_ids.db") { }
 }

@@ -16,9 +16,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Chise.Models;
-using Jitendex.Chise.Models.Sequences;
 
 namespace Jitendex.Chise.Readers;
 
@@ -145,71 +146,72 @@ internal static class SequenceTextParser
         }
     }
 
-    private static Sequence? ApplyOperatorToArguments(in ReadOnlySpan<char> @operator, Stack<Codepoint> arguments)
-    => @operator switch
-    {
-        [LeftToRightSequence.Indicator] => NewSequence<LeftToRightSequence>(arguments),
-        [AboveToBelowSequence.Indicator] => NewSequence<AboveToBelowSequence>(arguments),
-        [LeftToMiddleAndRightSequence.Indicator] => NewSequence<LeftToMiddleAndRightSequence>(arguments),
-        [AboveToMiddleAndBelowSequence.Indicator] => NewSequence<AboveToMiddleAndBelowSequence>(arguments),
-        [FullSurroundSequence.Indicator] => NewSequence<FullSurroundSequence>(arguments),
-        [SurroundFromAboveSequence.Indicator] => NewSequence<SurroundFromAboveSequence>(arguments),
-        [SurroundFromBelowSequence.Indicator] => NewSequence<SurroundFromBelowSequence>(arguments),
-        [SurroundFromLeftSequence.Indicator] => NewSequence<SurroundFromLeftSequence>(arguments),
-        [SurroundFromRightSequence.Indicator] => NewSequence<SurroundFromRightSequence>(arguments),
-        [SurroundFromUpperLeftSequence.Indicator] => NewSequence<SurroundFromUpperLeftSequence>(arguments),
-        [SurroundFromUpperRightSequence.Indicator] => NewSequence<SurroundFromUpperRightSequence>(arguments),
-        [SurroundFromLowerLeftSequence.Indicator] => NewSequence<SurroundFromLowerLeftSequence>(arguments),
-        [SurroundFromLowerRightSequence.Indicator] => NewSequence<SurroundFromLowerRightSequence>(arguments),
-        [OverlaidSequence.Indicator] => NewSequence<OverlaidSequence>(arguments),
-        SurroundFromUpperLeftAndRightSequence.Indicator => NewSequence<SurroundFromUpperLeftAndRightSequence>(arguments),
-        SurroundFromLowerLeftAndRightSequence.Indicator => NewSequence<SurroundFromLowerLeftAndRightSequence>(arguments),
-        SurroundFromLeftAndRightSequence.Indicator => NewSequence<SurroundFromLeftAndRightSequence>(arguments),
-        "&A-compU+2FF6;" => NewSequence<SurroundFromBelowSequence>(arguments),
-        _ => null,
-    };
+    private static Sequence? ApplyOperatorToArguments(ReadOnlySpan<char> @operator, Stack<Codepoint> arguments) =>
+        SequenceTypes.TryGetValue(new string(@operator), out var argumentInfo)
+            ? NewSequence(@operator, arguments, argumentInfo)
+            : null;
 
-    private static Sequence NewSequence<T>(Stack<Codepoint> arguments) where T: Sequence, ISequence, new()
+    private static readonly FrozenDictionary<string, ImmutableArray<string>> SequenceTypes = new Dictionary<string, ImmutableArray<string>>
     {
-        var textBuilder = new StringBuilder(T.GetIndicator());
+        ["⿰"] = ["Left Half", "Right Half"],
+        ["⿱"] = ["Top Half", "Bottom Half"],
+        ["⿲"] = ["Left", "Middle", "Right"],
+        ["⿳"] = ["Top", "Center", "Bottom"],
+        ["⿴"] = ["Surrounding", "Surrounded"],
+        ["⿵"] = ["Above Surrounding", "Below Surrounded"],
+        ["⿶"] = ["Below Surrounding", "Above Surrounded"],
+        ["⿷"] = ["Left Surrounding", "Right Surrounded"],
+        ["⿼"] = ["Right Surrounding", "Left Surrounded"],
+        ["⿸"] = ["Upper-Left Surrounding", "Lower-Right Surrounded"],
+        ["⿹"] = ["Upper-Right Surrounding", "Lower-Left Surrounded"],
+        ["⿺"] = ["Lower-Left Surrounding", "Upper-Right Surrounded"],
+        ["⿽"] = ["Lower-Right Surrounding", "Upper-Left Surrounded"],
+        ["⿻"] = ["Overlaying", "Overlaid"],
+        ["&U-i001+2FF1;"] = ["Upper-Left And Upper-Right Surrounding", "Lower-Left and Lower-Right Surrounded"],
+        ["&U-i002+2FF1;"] = ["Lower-Left and Lower-Right Surrounding", "Upper-Left and Upper-Right Surrounded"],
+        ["&U-i001+2FFB;"] = ["Left and Right Surrounding", "Middle Surrounded"],
+        ["&A-compU+2FF6;"] = ["Below Surrounding", "Above Surrounded"],
+    }.ToFrozenDictionary();
+
+    private static Sequence NewSequence(ReadOnlySpan<char> @operator, Stack<Codepoint> arguments, ImmutableArray<string> argumentInfo)
+    {
+        var textBuilder = new StringBuilder(new string(@operator));
         var components = new List<Component>();
 
         var firstCodepoint = arguments.Pop();
         components.Add(new Component
         {
             CodepointId = firstCodepoint.Id,
-            PositionName = T.FirstPositionName(),
+            PositionName = argumentInfo[0],
             Codepoint = firstCodepoint,
         });
         textBuilder.Append(firstCodepoint.ToCharacter());
 
-        int argumentCount = T.ArgumentCount();
-
-        if (argumentCount > 1)
+        if (argumentInfo.Length > 1)
         {
             var secondCodepoint = arguments.Pop();
             components.Add(new Component
             {
                 CodepointId = secondCodepoint.Id,
-                PositionName = T.SecondPositionName(),
+                PositionName = argumentInfo[1],
                 Codepoint = secondCodepoint,
             });
             textBuilder.Append(secondCodepoint.ToCharacter());
         }
 
-        if (argumentCount > 2)
+        if (argumentInfo.Length > 2)
         {
             var thirdCodepoint = arguments.Pop();
             components.Add(new Component
             {
                 CodepointId = thirdCodepoint.Id,
-                PositionName = T.ThirdPositionName(),
+                PositionName = argumentInfo[2],
                 Codepoint = thirdCodepoint,
             });
             textBuilder.Append(thirdCodepoint.ToCharacter());
         }
 
-        return new T
+        return new Sequence
         {
             Text = textBuilder.ToString(),
             Components = components,
