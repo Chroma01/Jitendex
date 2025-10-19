@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Chise.Models;
+using static Jitendex.Chise.Models.ComponentPositionId;
 
 namespace Jitendex.Chise.Readers;
 
@@ -151,34 +152,33 @@ internal static class SequenceTextParser
     }
 
     private static Sequence? ApplyIdcToArguments(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments)
-        => IdcToPositionNames(idc) is var positionNames and not []
-            ? NewSequence(idc, arguments, positionNames)
+        => IdcToPositionIds(idc) is var positionIds and not []
+            ? NewSequence(idc, arguments, positionIds)
             : null;
 
-    private static ImmutableArray<string> IdcToPositionNames(in ReadOnlySpan<char> idc) => idc switch
+    private static ImmutableArray<ComponentPositionId> IdcToPositionIds(in ReadOnlySpan<char> idc) => idc switch
     {
-        ['⿰'] => ["Left Half", "Right Half"],
-        ['⿱'] => ["Top Half", "Bottom Half"],
-        ['⿲'] => ["Left", "Middle", "Right"],
-        ['⿳'] => ["Top", "Center", "Bottom"],
-        ['⿴'] => ["Surrounding", "Surrounded"],
-        ['⿵'] => ["Above Surrounding", "Below Surrounded"],
-        ['⿶'] => ["Below Surrounding", "Above Surrounded"],
-        ['⿷'] => ["Left Surrounding", "Right Surrounded"],
-        ['⿼'] => ["Right Surrounding", "Left Surrounded"],
-        ['⿸'] => ["Upper-Left Surrounding", "Lower-Right Surrounded"],
-        ['⿹'] => ["Upper-Right Surrounding", "Lower-Left Surrounded"],
-        ['⿺'] => ["Lower-Left Surrounding", "Upper-Right Surrounded"],
-        ['⿽'] => ["Lower-Right Surrounding", "Upper-Left Surrounded"],
-        ['⿻'] => ["Overlaying", "Overlaid"],
-        "&U-i001+2FF1;" => ["Upper-Left And Upper-Right Surrounding", "Lower-Left and Lower-Right Surrounded"],
-        "&U-i002+2FF1;" => ["Lower-Left and Lower-Right Surrounding", "Upper-Left and Upper-Right Surrounded"],
-        "&U-i001+2FFB;" => ["Left and Right Surrounding", "Middle Surrounded"],
-        "&A-compU+2FF6;" => ["Below Surrounding", "Above Surrounded"],
+        ['⿰'] => [LeftHalf, RightHalf],
+        ['⿱'] => [TopHalf, BottomHalf],
+        ['⿲'] => [Left, VerticalCenter, Right],
+        ['⿳'] => [Top, HorizontalCenter, Bottom],
+        ['⿴'] => [FullSurrounding, FullSurrounded],
+        ['⿵'] => [AboveSurrounding, BelowSurrounded],
+        ['⿶'] => [BelowSurrounding, AboveSurrounded],
+        ['⿷'] => [LeftSurrounding, RightSurrounded],
+        ['⿼'] => [RightSurrounding, LeftSurrounded],
+        ['⿸'] => [UpperLeftSurrounding, LowerRightSurrounded],
+        ['⿹'] => [UpperRightSurrounding, LowerLeftSurrounded],
+        ['⿺'] => [LowerLeftSurrounding, UpperRightSurrounded],
+        ['⿽'] => [LowerRightSurrounding, UpperLeftSurrounded],
+        ['⿻'] => [Overlaying, Overlaid],
+        "&U-i001+2FF1;" => [UpperLeftAndRightSurrounding, LowerLeftAndRightSurrounded],
+        "&U-i002+2FF1;" => [LowerLeftAndRightSurrounding, UpperLeftAndRightSurrounded],
+        "&U-i001+2FFB;" => [UpperAndLowerSurrounding, LeftAndRightSurrounded],
         _ => [],
     };
 
-    private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, in ImmutableArray<string> positionNames)
+    private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, in ImmutableArray<ComponentPositionId> positionIds)
     {
         var textBuilder = new StringBuilder(new string(idc));
         var components = new List<Component>();
@@ -187,30 +187,30 @@ internal static class SequenceTextParser
         components.Add(new Component
         {
             CodepointId = firstCodepoint.Id,
-            PositionName = positionNames[0],
+            PositionId = positionIds[0],
             Codepoint = firstCodepoint,
         });
         textBuilder.Append(firstCodepoint.ToCharacter());
 
-        if (positionNames.Length > 1)
+        if (positionIds.Length > 1)
         {
             var secondCodepoint = arguments.Pop();
             components.Add(new Component
             {
                 CodepointId = secondCodepoint.Id,
-                PositionName = positionNames[1],
+                PositionId = positionIds[1],
                 Codepoint = secondCodepoint,
             });
             textBuilder.Append(secondCodepoint.ToCharacter());
         }
 
-        if (positionNames.Length > 2)
+        if (positionIds.Length > 2)
         {
             var thirdCodepoint = arguments.Pop();
             components.Add(new Component
             {
                 CodepointId = thirdCodepoint.Id,
-                PositionName = positionNames[2],
+                PositionId = positionIds[2],
                 Codepoint = thirdCodepoint,
             });
             textBuilder.Append(thirdCodepoint.ToCharacter());

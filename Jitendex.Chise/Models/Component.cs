@@ -22,16 +22,16 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Chise.Models;
 
 [Table(nameof(Component))]
-[PrimaryKey(nameof(CodepointId), nameof(PositionName))]
+[PrimaryKey(nameof(CodepointId), nameof(PositionId))]
 public class Component
 {
     public required string CodepointId { get; init; }
-    public required string PositionName { get; init; }
+    public required ComponentPositionId PositionId { get; init; }
 
     [ForeignKey(nameof(CodepointId))]
     public required Codepoint Codepoint { get; init; }
 
-    [ForeignKey(nameof(PositionName))]
+    [ForeignKey(nameof(PositionId))]
     public ComponentPosition Position { get; init; } = null!;
 
     [InverseProperty(nameof(Sequence.Components))]
