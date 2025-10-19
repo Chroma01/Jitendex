@@ -27,7 +27,7 @@ namespace Jitendex.Chise.Models;
 public class Sequence
 {
     [Key]
-    public string Text { get; init; } = null!;
+    public required string Text { get; init; }
 
     [InverseProperty(nameof(Component.Sequences))]
     public List<Component> Components { get; init; } = [];
