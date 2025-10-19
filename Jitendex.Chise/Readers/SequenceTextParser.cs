@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Chise.Models;
 
@@ -146,34 +147,35 @@ internal static class SequenceTextParser
         }
     }
 
-    private static Sequence? ApplyIdcToArguments(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments) =>
-        IdcToPositionNames.TryGetValue(new string(idc), out var positionNames)
+    private static Sequence? ApplyIdcToArguments(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments)
+        => IdcToPositionNames(idc) is var positionNames and not []
             ? NewSequence(idc, arguments, positionNames)
             : null;
 
-    private static readonly Dictionary<string, string[]> IdcToPositionNames = new()
+    private static ImmutableArray<string> IdcToPositionNames(in ReadOnlySpan<char> idc) => idc switch
     {
-        ["⿰"] = ["Left Half", "Right Half"],
-        ["⿱"] = ["Top Half", "Bottom Half"],
-        ["⿲"] = ["Left", "Middle", "Right"],
-        ["⿳"] = ["Top", "Center", "Bottom"],
-        ["⿴"] = ["Surrounding", "Surrounded"],
-        ["⿵"] = ["Above Surrounding", "Below Surrounded"],
-        ["⿶"] = ["Below Surrounding", "Above Surrounded"],
-        ["⿷"] = ["Left Surrounding", "Right Surrounded"],
-        ["⿼"] = ["Right Surrounding", "Left Surrounded"],
-        ["⿸"] = ["Upper-Left Surrounding", "Lower-Right Surrounded"],
-        ["⿹"] = ["Upper-Right Surrounding", "Lower-Left Surrounded"],
-        ["⿺"] = ["Lower-Left Surrounding", "Upper-Right Surrounded"],
-        ["⿽"] = ["Lower-Right Surrounding", "Upper-Left Surrounded"],
-        ["⿻"] = ["Overlaying", "Overlaid"],
-        ["&U-i001+2FF1;"] = ["Upper-Left And Upper-Right Surrounding", "Lower-Left and Lower-Right Surrounded"],
-        ["&U-i002+2FF1;"] = ["Lower-Left and Lower-Right Surrounding", "Upper-Left and Upper-Right Surrounded"],
-        ["&U-i001+2FFB;"] = ["Left and Right Surrounding", "Middle Surrounded"],
-        ["&A-compU+2FF6;"] = ["Below Surrounding", "Above Surrounded"],
+        ['⿰'] => ["Left Half", "Right Half"],
+        ['⿱'] => ["Top Half", "Bottom Half"],
+        ['⿲'] => ["Left", "Middle", "Right"],
+        ['⿳'] => ["Top", "Center", "Bottom"],
+        ['⿴'] => ["Surrounding", "Surrounded"],
+        ['⿵'] => ["Above Surrounding", "Below Surrounded"],
+        ['⿶'] => ["Below Surrounding", "Above Surrounded"],
+        ['⿷'] => ["Left Surrounding", "Right Surrounded"],
+        ['⿼'] => ["Right Surrounding", "Left Surrounded"],
+        ['⿸'] => ["Upper-Left Surrounding", "Lower-Right Surrounded"],
+        ['⿹'] => ["Upper-Right Surrounding", "Lower-Left Surrounded"],
+        ['⿺'] => ["Lower-Left Surrounding", "Upper-Right Surrounded"],
+        ['⿽'] => ["Lower-Right Surrounding", "Upper-Left Surrounded"],
+        ['⿻'] => ["Overlaying", "Overlaid"],
+        "&U-i001+2FF1;" => ["Upper-Left And Upper-Right Surrounding", "Lower-Left and Lower-Right Surrounded"],
+        "&U-i002+2FF1;" => ["Lower-Left and Lower-Right Surrounding", "Upper-Left and Upper-Right Surrounded"],
+        "&U-i001+2FFB;" => ["Left and Right Surrounding", "Middle Surrounded"],
+        "&A-compU+2FF6;" => ["Below Surrounding", "Above Surrounded"],
+        _ => [],
     };
 
-    private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, string[] positionNames)
+    private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, in ImmutableArray<string> positionNames)
     {
         var textBuilder = new StringBuilder(new string(idc));
         var components = new List<Component>();
