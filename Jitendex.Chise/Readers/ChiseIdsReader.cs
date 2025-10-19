@@ -116,16 +116,19 @@ internal class ChiseIdsReader
         }
 
         var longId = UnicodeConverter.GetLongCodepointId(scalarValue);
-        var shortId = UnicodeConverter.GetShortCodepointId(scalarValue);
 
-        if (!shortId.SequenceEqual(lineElements.Codepoint) && !longId.SequenceEqual(lineElements.Codepoint))
+        if (!longId.SequenceEqual(lineElements.Codepoint))
         {
-            _logger.UnicodeCharacterInequality(lineElements);
+            var shortId = UnicodeConverter.GetShortCodepointId(scalarValue);
+            if (!shortId.SequenceEqual(lineElements.Codepoint))
+            {
+                _logger.UnicodeCharacterInequality(lineElements);
+            }
         }
 
         return new UnicodeCharacter
         {
-            ScalarValue = (int)scalarValue,
+            ScalarValue = scalarValue,
             CodepointId = new string(longId),
         };
     }
