@@ -21,6 +21,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Chise.Models;
 
+[Table(nameof(Codepoint))]
 public class Codepoint
 {
     [Key]

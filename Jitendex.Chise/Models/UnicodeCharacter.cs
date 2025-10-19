@@ -22,6 +22,7 @@ using System.Text;
 
 namespace Jitendex.Chise.Models;
 
+[Table(nameof(UnicodeCharacter))]
 public class UnicodeCharacter
 {
     [Key]

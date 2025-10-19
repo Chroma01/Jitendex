@@ -24,6 +24,7 @@ namespace Jitendex.Chise.Models;
 /// <summary>
 /// Represents an Ideographic Description Sequence (IDS)
 /// </summary>
+[Table(nameof(Sequence))]
 public class Sequence
 {
     [Key]

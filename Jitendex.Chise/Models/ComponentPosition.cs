@@ -17,9 +17,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Chise.Models;
 
+[Table(nameof(ComponentPosition))]
 public class ComponentPosition
 {
     [Key]
