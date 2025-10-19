@@ -47,6 +47,9 @@ namespace Jitendex.Chise.Readers;
 /// </list>
 /// </example>
 /// </remarks>
+/// <exception cref="InvalidOperationException">
+/// Thrown when the IDS contains insufficient tokens for a given IDC.
+/// </exception>
 internal static class SequenceTextParser
 {
     public static Stack<Codepoint> Parse(in ReadOnlySpan<char> sequenceText)
