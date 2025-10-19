@@ -23,5 +23,8 @@ public sealed class SurroundFromLeftSequence : Sequence
     public const char Indicator = '⿷';
     protected override string GetIndicator() => Indicator.ToString();
     protected override int ArgumentCount() => 2;
+    protected override string FirstPositionName() => "LeftSurrounding";
+    protected override string SecondPositionName() => "RightSurrounded";
+    protected override string ThirdPositionName() => throw new NotImplementedException();
     public SurroundFromLeftSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

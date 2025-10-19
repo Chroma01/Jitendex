@@ -37,4 +37,9 @@ public class Codepoint
 
     [ForeignKey(nameof(AltSequenceText))]
     public required Sequence? AltSequence { get; init; }
+
+    [InverseProperty(nameof(Component.Codepoint))]
+    public ICollection<Component> Components { get; } = [];
+
+    public string ToCharacter() => UnicodeCharacter?.Character().ToString() ?? Id;
 }

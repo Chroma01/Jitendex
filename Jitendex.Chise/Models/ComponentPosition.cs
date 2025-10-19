@@ -16,15 +16,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Chise.Models.Sequences;
+using System.ComponentModel.DataAnnotations;
 
-public sealed class SurroundFromUpperRightSequence : Sequence
+namespace Jitendex.Chise.Models;
+
+public class ComponentPosition
 {
-    public const char Indicator = '⿹';
-    protected override string GetIndicator() => Indicator.ToString();
-    protected override int ArgumentCount() => 2;
-    protected override string FirstPositionName() => "UpperRightSurrounding";
-    protected override string SecondPositionName() => "LowerLeftSurrounded";
-    protected override string ThirdPositionName() => throw new NotImplementedException();
-    public SurroundFromUpperRightSequence(Stack<Codepoint> arguments) : base(arguments) { }
+    [Key]
+    public required string Name { get; init; }
+    public ICollection<Component> Components { get; } = [];
 }

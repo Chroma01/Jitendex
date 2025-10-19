@@ -23,5 +23,8 @@ public sealed class SurroundFromUpperLeftAndRightSequence : Sequence
     public const string Indicator = "&U-i001+2FF1;";
     protected override string GetIndicator() => Indicator;
     protected override int ArgumentCount() => 2;
+    protected override string FirstPositionName() => "UpperLeftAndRightSurrounding";
+    protected override string SecondPositionName() => "LowerLeftAndRightSurrounded";
+    protected override string ThirdPositionName() => throw new NotImplementedException();
     public SurroundFromUpperLeftAndRightSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

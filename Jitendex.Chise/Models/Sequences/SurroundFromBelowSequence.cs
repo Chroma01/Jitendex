@@ -23,5 +23,8 @@ public sealed class SurroundFromBelowSequence : Sequence
     public const char Indicator = '⿶';
     protected override string GetIndicator() => Indicator.ToString();
     protected override int ArgumentCount() => 2;
+    protected override string FirstPositionName() => "BelowSurrounding";
+    protected override string SecondPositionName() => "AboveSurrounded";
+    protected override string ThirdPositionName() => throw new NotImplementedException();
     public SurroundFromBelowSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

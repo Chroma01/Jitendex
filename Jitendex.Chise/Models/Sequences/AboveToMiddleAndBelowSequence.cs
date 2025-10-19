@@ -23,5 +23,8 @@ public sealed class AboveToMiddleAndBelowSequence : Sequence
     public const char Indicator = '⿳';
     protected override string GetIndicator() => Indicator.ToString();
     protected override int ArgumentCount() => 3;
+    protected override string FirstPositionName() => "Top";
+    protected override string SecondPositionName() => "Center";
+    protected override string ThirdPositionName() => "Bottom";
     public AboveToMiddleAndBelowSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

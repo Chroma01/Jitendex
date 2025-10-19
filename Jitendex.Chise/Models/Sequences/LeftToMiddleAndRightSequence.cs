@@ -23,5 +23,8 @@ public sealed class LeftToMiddleAndRightSequence : Sequence
     public const char Indicator = '⿲';
     protected override string GetIndicator() => Indicator.ToString();
     protected override int ArgumentCount() => 3;
+    protected override string FirstPositionName() => "Left";
+    protected override string SecondPositionName() => "Middle";
+    protected override string ThirdPositionName() => "Right";
     public LeftToMiddleAndRightSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

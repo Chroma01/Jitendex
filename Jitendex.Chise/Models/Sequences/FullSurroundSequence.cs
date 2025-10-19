@@ -23,5 +23,8 @@ public sealed class FullSurroundSequence : Sequence
     public const char Indicator = '⿴';
     protected override string GetIndicator() => Indicator.ToString();
     protected override int ArgumentCount() => 2;
+    protected override string FirstPositionName() => "Surrounding";
+    protected override string SecondPositionName() => "Surrounded";
+    protected override string ThirdPositionName() => throw new NotImplementedException();
     public FullSurroundSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

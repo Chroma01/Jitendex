@@ -23,5 +23,8 @@ public sealed class LeftToRightSequence : Sequence
     public const char Indicator = '⿰';
     protected override string GetIndicator() => Indicator.ToString();
     protected override int ArgumentCount() => 2;
+    protected override string FirstPositionName() => "LeftHalf";
+    protected override string SecondPositionName() => "RightHalf";
+    protected override string ThirdPositionName() => throw new NotImplementedException();
     public LeftToRightSequence(Stack<Codepoint> arguments) : base(arguments) { }
 }

@@ -160,7 +160,7 @@ internal class ChiseIdsReader
             return null;
         }
 
-        Stack<Codepoint>? altSequenceArguments;
+        Stack<Codepoint> altSequenceArguments;
 
         try
         {
