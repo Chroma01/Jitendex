@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Chise.Models;
 
 [Table(nameof(Component))]
-[PrimaryKey($"{nameof(CodepointId)}, {nameof(PositionName)}")]
+[PrimaryKey(nameof(CodepointId), nameof(PositionName))]
 public class Component
 {
     public required string CodepointId { get; init; }
