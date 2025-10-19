@@ -183,37 +183,16 @@ internal static class SequenceTextParser
         var textBuilder = new StringBuilder(new string(idc));
         var components = new List<Component>();
 
-        var firstCodepoint = arguments.Pop();
-        components.Add(new Component
+        foreach (var positionId in positionIds)
         {
-            CodepointId = firstCodepoint.Id,
-            PositionId = positionIds[0],
-            Codepoint = firstCodepoint,
-        });
-        textBuilder.Append(firstCodepoint.ToCharacter());
-
-        if (positionIds.Length > 1)
-        {
-            var secondCodepoint = arguments.Pop();
+            var codepoint = arguments.Pop();
             components.Add(new Component
             {
-                CodepointId = secondCodepoint.Id,
-                PositionId = positionIds[1],
-                Codepoint = secondCodepoint,
+                CodepointId = codepoint.Id,
+                PositionId = positionId,
+                Codepoint = codepoint,
             });
-            textBuilder.Append(secondCodepoint.ToCharacter());
-        }
-
-        if (positionIds.Length > 2)
-        {
-            var thirdCodepoint = arguments.Pop();
-            components.Add(new Component
-            {
-                CodepointId = thirdCodepoint.Id,
-                PositionId = positionIds[2],
-                Codepoint = thirdCodepoint,
-            });
-            textBuilder.Append(thirdCodepoint.ToCharacter());
+            textBuilder.Append(codepoint.ToCharacter());
         }
 
         return new Sequence
