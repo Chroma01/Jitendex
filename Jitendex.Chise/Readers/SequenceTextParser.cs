@@ -16,8 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Frozen;
-using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Chise.Models;
 
@@ -101,10 +99,12 @@ internal static class SequenceTextParser
 
     private static void Evaluate(in ReadOnlySpan<char> token, Stack<Codepoint> arguments)
     {
-        if (ApplyOperatorToArguments(token, arguments) is Sequence sequence)
+        if (ApplyIdcToArguments(token, arguments) is Sequence sequence)
         {
-            // Token was an operator, and its arguments were removed from the stack.
+            // Token was an Ideographic Description Character (IDC),
+            // and its arguments were removed from the stack.
             // Now push the result of the evaluation onto the stack.
+
             arguments.Push(new Codepoint
             {
                 Id = sequence.Text,
@@ -146,12 +146,12 @@ internal static class SequenceTextParser
         }
     }
 
-    private static Sequence? ApplyOperatorToArguments(ReadOnlySpan<char> @operator, Stack<Codepoint> arguments) =>
-        SequenceTypes.TryGetValue(new string(@operator), out var argumentInfo)
-            ? NewSequence(@operator, arguments, argumentInfo)
+    private static Sequence? ApplyIdcToArguments(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments) =>
+        IdcToPositionNames.TryGetValue(new string(idc), out var positionNames)
+            ? NewSequence(idc, arguments, positionNames)
             : null;
 
-    private static readonly FrozenDictionary<string, ImmutableArray<string>> SequenceTypes = new Dictionary<string, ImmutableArray<string>>
+    private static readonly Dictionary<string, string[]> IdcToPositionNames = new()
     {
         ["⿰"] = ["Left Half", "Right Half"],
         ["⿱"] = ["Top Half", "Bottom Half"],
@@ -171,41 +171,41 @@ internal static class SequenceTextParser
         ["&U-i002+2FF1;"] = ["Lower-Left and Lower-Right Surrounding", "Upper-Left and Upper-Right Surrounded"],
         ["&U-i001+2FFB;"] = ["Left and Right Surrounding", "Middle Surrounded"],
         ["&A-compU+2FF6;"] = ["Below Surrounding", "Above Surrounded"],
-    }.ToFrozenDictionary();
+    };
 
-    private static Sequence NewSequence(ReadOnlySpan<char> @operator, Stack<Codepoint> arguments, ImmutableArray<string> argumentInfo)
+    private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, string[] positionNames)
     {
-        var textBuilder = new StringBuilder(new string(@operator));
+        var textBuilder = new StringBuilder(new string(idc));
         var components = new List<Component>();
 
         var firstCodepoint = arguments.Pop();
         components.Add(new Component
         {
             CodepointId = firstCodepoint.Id,
-            PositionName = argumentInfo[0],
+            PositionName = positionNames[0],
             Codepoint = firstCodepoint,
         });
         textBuilder.Append(firstCodepoint.ToCharacter());
 
-        if (argumentInfo.Length > 1)
+        if (positionNames.Length > 1)
         {
             var secondCodepoint = arguments.Pop();
             components.Add(new Component
             {
                 CodepointId = secondCodepoint.Id,
-                PositionName = argumentInfo[1],
+                PositionName = positionNames[1],
                 Codepoint = secondCodepoint,
             });
             textBuilder.Append(secondCodepoint.ToCharacter());
         }
 
-        if (argumentInfo.Length > 2)
+        if (positionNames.Length > 2)
         {
             var thirdCodepoint = arguments.Pop();
             components.Add(new Component
             {
                 CodepointId = thirdCodepoint.Id,
-                PositionName = argumentInfo[2],
+                PositionName = positionNames[2],
                 Codepoint = thirdCodepoint,
             });
             textBuilder.Append(thirdCodepoint.ToCharacter());
