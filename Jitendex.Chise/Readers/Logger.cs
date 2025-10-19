@@ -29,6 +29,7 @@ internal class Logger
     private readonly string _insufficientIdsOpsPath;
     private readonly string _insufficientAltIdsArgsPath;
     private readonly string _insufficientAltIdsOpsPath;
+    private readonly Dictionary<string, List<string>> _pathToLogs = [];
 
     public Logger()
     {
@@ -55,28 +56,62 @@ internal class Logger
 
         _invalidUnicodeCodepointPath = makePath("invalid_unicode_codepoint.tsv");
         _unicodeCharacterInequalityPath = makePath("unicode_character_inequality.tsv");
-        _insufficientLineElementsPath = makePath("insufficient_line_elements.tsv");
-        _excessiveLineElementsPath = makePath("excessive_line_elements.tsv");
-        _altSequenceFormatErrorPath = makePath("alt_sequence_format_error.tsv");
         _insufficientIdsArgsPath = makePath("insufficient_ids_args.tsv");
         _insufficientIdsOpsPath = makePath("insufficient_ids_ops.tsv");
         _insufficientAltIdsArgsPath = makePath("insufficient_alt_ids_args.tsv");
         _insufficientAltIdsOpsPath = makePath("insufficient_alt_idc_ops.tsv");
+
+        _insufficientLineElementsPath = makePath("insufficient_line_elements.tsv");
+        _excessiveLineElementsPath = makePath("excessive_line_elements.tsv");
+        _altSequenceFormatErrorPath = makePath("alt_sequence_format_error.tsv");
     }
 
-    public void InvalidUnicodeCodepoint(in LineElements line) => Write(line, _invalidUnicodeCodepointPath);
-    public void UnicodeCharacterInequality(in LineElements line) => Write(line, _unicodeCharacterInequalityPath);
-    public void InsufficientLineElements(in LineElements line) => Write(line, _insufficientLineElementsPath);
-    public void ExcessiveLineElements(in LineElements line) => Write(line, _excessiveLineElementsPath);
-    public void AltSequenceFormatError(in LineElements line) => Write(line, _altSequenceFormatErrorPath);
-    public void InsufficientIdsArgs(in LineElements line) => Write(line, _insufficientIdsArgsPath);
-    public void InsufficientIdsOps(in LineElements line) => Write(line, _insufficientIdsOpsPath);
-    public void InsufficientAltIdsArgs(in LineElements line) => Write(line, _insufficientAltIdsArgsPath);
-    public void InsufficientAltIdsOps(in LineElements line) => Write(line, _insufficientAltIdsOpsPath);
+    public void InvalidUnicodeCodepoint(in LineElements line) => Log(line, _invalidUnicodeCodepointPath);
+    public void UnicodeCharacterInequality(in LineElements line) => Log(line, _unicodeCharacterInequalityPath);
+    public void InsufficientIdsArgs(in LineElements line) => Log(line, _insufficientIdsArgsPath);
+    public void InsufficientIdsOps(in LineElements line) => Log(line, _insufficientIdsOpsPath);
+    public void InsufficientAltIdsArgs(in LineElements line) => Log(line, _insufficientAltIdsArgsPath);
+    public void InsufficientAltIdsOps(in LineElements line) => Log(line, _insufficientAltIdsOpsPath);
 
-    private static void Write(in LineElements line, string path)
+    public void LogLineErrors(in LineElements line)
     {
-        using var sw = new StreamWriter(path, append: true);
-        sw.WriteLine(line.ToString());
+        if (line.InsufficientElementsError)
+        {
+            Log(line, _insufficientLineElementsPath);
+        }
+        if (line.ExcessiveElementsError)
+        {
+            Log(line, _excessiveLineElementsPath);
+        }
+        if (line.AltSequenceFormatError)
+        {
+            Log(line, _altSequenceFormatErrorPath);
+        }
+    }
+
+    private void Log(in LineElements line, string path)
+    {
+        if (_pathToLogs.TryGetValue(path, out var logs))
+        {
+            logs.Add(line.ToString());
+        }
+        else
+        {
+            _pathToLogs[path] = [line.ToString()];
+        }
+    }
+
+    public void WriteLogs()
+    {
+        if (_pathToLogs.Count > 0)
+        {
+            var path = _pathToLogs.Keys.First();
+            Console.Error.WriteLine($"Log directory: {Path.GetDirectoryName(path)}");
+        }
+        foreach (var (path, logs) in _pathToLogs)
+        {
+            File.WriteAllLines(path, logs);
+            Console.Error.WriteLine($"\t{Path.GetFileName(path)}\t{logs.Count:n0} logs");
+        }
     }
 }

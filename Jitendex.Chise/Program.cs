@@ -23,7 +23,7 @@ namespace Jitendex.Chise;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var chiseIdsDirectoryArgument = new Argument<DirectoryInfo>("chise-ids-dir")
         {
@@ -48,6 +48,6 @@ public class Program
         var chiseIdsDir = parseResult.GetRequiredValue(chiseIdsDirectoryArgument);
 
         var reader = new ChiseIdsReader();
-        await reader.ReadAsync(chiseIdsDir);
+        reader.Read(chiseIdsDir);
     }
 }

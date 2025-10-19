@@ -29,22 +29,24 @@ internal class ChiseIdsReader
         _logger = new Logger();
     }
 
-    public async Task<List<Codepoint>> ReadAsync(DirectoryInfo chiseIdsDir)
+    public List<Codepoint> Read(DirectoryInfo chiseIdsDir)
     {
         var codepoints = new List<Codepoint>(215_000);
         foreach (var file in chiseIdsDir.EnumerateFiles("*.txt"))
         {
-            await ReadFileAsync(file, codepoints);
+            ReadFile(file, codepoints);
         }
+        _logger.WriteLogs();
         return codepoints;
     }
 
-    private async Task ReadFileAsync(FileInfo file, List<Codepoint> codepoints)
+    private void ReadFile(FileInfo file, List<Codepoint> codepoints)
     {
         using StreamReader sr = file.OpenText();
         int lineNumber = 0;
+        var filename = file.Name.AsSpan();
 
-        while (await sr.ReadLineAsync() is string line)
+        while (sr.ReadLine() is string line)
         {
             lineNumber++;
 
@@ -53,11 +55,9 @@ internal class ChiseIdsReader
                 continue;
             }
 
-            var lineElements = new LineElements(file.Name.AsSpan(), lineNumber, line.AsSpan());
+            var lineElements = new LineElements(filename, lineNumber, line.AsSpan());
 
-            if (lineElements.AltSequenceFormatError) _logger.AltSequenceFormatError(lineElements);
-            if (lineElements.ExcessiveElementsError) _logger.ExcessiveLineElements(lineElements);
-            if (lineElements.InsufficientElementsError) _logger.InsufficientLineElements(lineElements);
+            _logger.LogLineErrors(lineElements);
 
             if (lineElements.InsufficientElementsError)
             {
