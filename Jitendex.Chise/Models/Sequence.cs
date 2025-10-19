@@ -18,9 +18,17 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Jitendex.Chise.Models;
+
+internal interface ISequence
+{
+    abstract static string GetIndicator();
+    abstract static int ArgumentCount();
+    abstract static string FirstPositionName();
+    abstract static string SecondPositionName();
+    abstract static string ThirdPositionName();
+}
 
 /// <summary>
 /// Represents an Ideographic Description Sequence (IDS)
@@ -28,62 +36,14 @@ namespace Jitendex.Chise.Models;
 public abstract class Sequence
 {
     [Key]
-    public string Text { get; }
+    public string Text { get; init; } = null!;
 
     [InverseProperty(nameof(Component.Sequences))]
-    public List<Component> Components { get; } = [];
+    public List<Component> Components { get; init; } = [];
 
     [InverseProperty(nameof(Codepoint.Sequence))]
-    public List<Codepoint> Codepoints { get; } = [];
+    public List<Codepoint> Codepoints { get; init; } = [];
 
     [InverseProperty(nameof(Codepoint.AltSequence))]
-    public List<Codepoint> AltCodepoints { get; } = [];
-
-    protected abstract string GetIndicator();
-    protected abstract int ArgumentCount();
-    protected abstract string FirstPositionName();
-    protected abstract string SecondPositionName();
-    protected abstract string ThirdPositionName();
-
-    public Sequence(Stack<Codepoint> arguments)
-    {
-        var textBuilder = new StringBuilder(GetIndicator());
-
-        var firstCodepoint = arguments.Pop();
-        Components.Add(new Component
-        {
-            CodepointId = firstCodepoint.Id,
-            PositionName = FirstPositionName(),
-            Codepoint = firstCodepoint,
-        });
-        textBuilder.Append(firstCodepoint.ToCharacter());
-
-        int argumentCount = ArgumentCount();
-
-        if (argumentCount > 1)
-        {
-            var secondCodepoint = arguments.Pop();
-            Components.Add(new Component
-            {
-                CodepointId = secondCodepoint.Id,
-                PositionName = SecondPositionName(),
-                Codepoint = secondCodepoint,
-            });
-            textBuilder.Append(secondCodepoint.ToCharacter());
-        }
-
-        if (argumentCount > 2)
-        {
-            var thirdCodepoint = arguments.Pop();
-            Components.Add(new Component
-            {
-                CodepointId = thirdCodepoint.Id,
-                PositionName = ThirdPositionName(),
-                Codepoint = thirdCodepoint,
-            });
-            textBuilder.Append(thirdCodepoint.ToCharacter());
-        }
-
-        Text = textBuilder.ToString();
-    }
+    public List<Codepoint> AltCodepoints { get; init; } = [];
 }

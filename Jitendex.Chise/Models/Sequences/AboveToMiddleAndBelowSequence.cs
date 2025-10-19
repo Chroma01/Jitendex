@@ -18,13 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Chise.Models.Sequences;
 
-public sealed class AboveToMiddleAndBelowSequence : Sequence
+public sealed class AboveToMiddleAndBelowSequence : Sequence, ISequence
 {
-    public const char Indicator = '⿳';
-    protected override string GetIndicator() => Indicator.ToString();
-    protected override int ArgumentCount() => 3;
-    protected override string FirstPositionName() => "Top";
-    protected override string SecondPositionName() => "Center";
-    protected override string ThirdPositionName() => "Bottom";
-    public AboveToMiddleAndBelowSequence(Stack<Codepoint> arguments) : base(arguments) { }
+    internal const char Indicator = '⿳';
+    static string ISequence.GetIndicator() => Indicator.ToString();
+    static int ISequence.ArgumentCount() => 3;
+    static string ISequence.FirstPositionName() => "Top";
+    static string ISequence.SecondPositionName() => "Center";
+    static string ISequence.ThirdPositionName() => "Bottom";
 }

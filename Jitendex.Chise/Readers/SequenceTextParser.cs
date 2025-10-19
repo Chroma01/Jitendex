@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
 using Jitendex.Chise.Models;
 using Jitendex.Chise.Models.Sequences;
 
@@ -147,24 +148,71 @@ internal static class SequenceTextParser
     private static Sequence? ApplyOperatorToArguments(in ReadOnlySpan<char> @operator, Stack<Codepoint> arguments)
     => @operator switch
     {
-        [LeftToRightSequence.Indicator] => new LeftToRightSequence(arguments),
-        [AboveToBelowSequence.Indicator] => new AboveToBelowSequence(arguments),
-        [LeftToMiddleAndRightSequence.Indicator] => new LeftToMiddleAndRightSequence(arguments),
-        [AboveToMiddleAndBelowSequence.Indicator] => new AboveToMiddleAndBelowSequence(arguments),
-        [FullSurroundSequence.Indicator] => new FullSurroundSequence(arguments),
-        [SurroundFromAboveSequence.Indicator] => new SurroundFromAboveSequence(arguments),
-        [SurroundFromBelowSequence.Indicator] => new SurroundFromBelowSequence(arguments),
-        [SurroundFromLeftSequence.Indicator] => new SurroundFromLeftSequence(arguments),
-        [SurroundFromRightSequence.Indicator] => new SurroundFromRightSequence(arguments),
-        [SurroundFromUpperLeftSequence.Indicator] => new SurroundFromUpperLeftSequence(arguments),
-        [SurroundFromUpperRightSequence.Indicator] => new SurroundFromUpperRightSequence(arguments),
-        [SurroundFromLowerLeftSequence.Indicator] => new SurroundFromLowerLeftSequence(arguments),
-        [SurroundFromLowerRightSequence.Indicator] => new SurroundFromLowerRightSequence(arguments),
-        [OverlaidSequence.Indicator] => new OverlaidSequence(arguments),
-        SurroundFromUpperLeftAndRightSequence.Indicator => new SurroundFromUpperLeftAndRightSequence(arguments),
-        SurroundFromLowerLeftAndRightSequence.Indicator => new SurroundFromLowerLeftAndRightSequence(arguments),
-        SurroundFromLeftAndRightSequence.Indicator => new SurroundFromLeftAndRightSequence(arguments),
-        "&A-compU+2FF6;" => new SurroundFromBelowSequence(arguments),
+        [LeftToRightSequence.Indicator] => NewSequence<LeftToRightSequence>(arguments),
+        [AboveToBelowSequence.Indicator] => NewSequence<AboveToBelowSequence>(arguments),
+        [LeftToMiddleAndRightSequence.Indicator] => NewSequence<LeftToMiddleAndRightSequence>(arguments),
+        [AboveToMiddleAndBelowSequence.Indicator] => NewSequence<AboveToMiddleAndBelowSequence>(arguments),
+        [FullSurroundSequence.Indicator] => NewSequence<FullSurroundSequence>(arguments),
+        [SurroundFromAboveSequence.Indicator] => NewSequence<SurroundFromAboveSequence>(arguments),
+        [SurroundFromBelowSequence.Indicator] => NewSequence<SurroundFromBelowSequence>(arguments),
+        [SurroundFromLeftSequence.Indicator] => NewSequence<SurroundFromLeftSequence>(arguments),
+        [SurroundFromRightSequence.Indicator] => NewSequence<SurroundFromRightSequence>(arguments),
+        [SurroundFromUpperLeftSequence.Indicator] => NewSequence<SurroundFromUpperLeftSequence>(arguments),
+        [SurroundFromUpperRightSequence.Indicator] => NewSequence<SurroundFromUpperRightSequence>(arguments),
+        [SurroundFromLowerLeftSequence.Indicator] => NewSequence<SurroundFromLowerLeftSequence>(arguments),
+        [SurroundFromLowerRightSequence.Indicator] => NewSequence<SurroundFromLowerRightSequence>(arguments),
+        [OverlaidSequence.Indicator] => NewSequence<OverlaidSequence>(arguments),
+        SurroundFromUpperLeftAndRightSequence.Indicator => NewSequence<SurroundFromUpperLeftAndRightSequence>(arguments),
+        SurroundFromLowerLeftAndRightSequence.Indicator => NewSequence<SurroundFromLowerLeftAndRightSequence>(arguments),
+        SurroundFromLeftAndRightSequence.Indicator => NewSequence<SurroundFromLeftAndRightSequence>(arguments),
+        "&A-compU+2FF6;" => NewSequence<SurroundFromBelowSequence>(arguments),
         _ => null,
     };
+
+    private static Sequence NewSequence<T>(Stack<Codepoint> arguments) where T: Sequence, ISequence, new()
+    {
+        var textBuilder = new StringBuilder(T.GetIndicator());
+        var components = new List<Component>();
+
+        var firstCodepoint = arguments.Pop();
+        components.Add(new Component
+        {
+            CodepointId = firstCodepoint.Id,
+            PositionName = T.FirstPositionName(),
+            Codepoint = firstCodepoint,
+        });
+        textBuilder.Append(firstCodepoint.ToCharacter());
+
+        int argumentCount = T.ArgumentCount();
+
+        if (argumentCount > 1)
+        {
+            var secondCodepoint = arguments.Pop();
+            components.Add(new Component
+            {
+                CodepointId = secondCodepoint.Id,
+                PositionName = T.SecondPositionName(),
+                Codepoint = secondCodepoint,
+            });
+            textBuilder.Append(secondCodepoint.ToCharacter());
+        }
+
+        if (argumentCount > 2)
+        {
+            var thirdCodepoint = arguments.Pop();
+            components.Add(new Component
+            {
+                CodepointId = thirdCodepoint.Id,
+                PositionName = T.ThirdPositionName(),
+                Codepoint = thirdCodepoint,
+            });
+            textBuilder.Append(thirdCodepoint.ToCharacter());
+        }
+
+        return new T
+        {
+            Text = textBuilder.ToString(),
+            Components = components,
+        };
+    }
 }

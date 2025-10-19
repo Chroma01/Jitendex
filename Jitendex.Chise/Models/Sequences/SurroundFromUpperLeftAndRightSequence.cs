@@ -18,13 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Chise.Models.Sequences;
 
-public sealed class SurroundFromUpperLeftAndRightSequence : Sequence
+public sealed class SurroundFromUpperLeftAndRightSequence : Sequence, ISequence
 {
-    public const string Indicator = "&U-i001+2FF1;";
-    protected override string GetIndicator() => Indicator;
-    protected override int ArgumentCount() => 2;
-    protected override string FirstPositionName() => "UpperLeftAndRightSurrounding";
-    protected override string SecondPositionName() => "LowerLeftAndRightSurrounded";
-    protected override string ThirdPositionName() => throw new NotImplementedException();
-    public SurroundFromUpperLeftAndRightSequence(Stack<Codepoint> arguments) : base(arguments) { }
+    internal const string Indicator = "&U-i001+2FF1;";
+    static string ISequence.GetIndicator() => Indicator;
+    static int ISequence.ArgumentCount() => 2;
+    static string ISequence.FirstPositionName() => "UpperLeftAndRightSurrounding";
+    static string ISequence.SecondPositionName() => "LowerLeftAndRightSurrounded";
+    static string ISequence.ThirdPositionName() => throw new NotImplementedException();
 }
