@@ -20,6 +20,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Jitendex.Chise.Models;
 using static Jitendex.Chise.Models.ComponentPositionId;
+using static Jitendex.Chise.Readers.UnicodeConverter;
 
 namespace Jitendex.Chise.Readers;
 
@@ -121,23 +122,16 @@ internal static class SequenceTextParser
                 AltSequence = null,
             });
         }
-        else
+        else if (ScalarValue(token) is int scalarValue)
         {
-            // Token is a new codepoint argument.
+            // Token is a Unicode character.
             // Push it onto the stack.
-
-            var scalarValue = UnicodeConverter.ScalarValueOrDefault(token);
-
-            var id = scalarValue == default
-                     ? token
-                     : UnicodeConverter.GetLongCodepointId(scalarValue);
-
-            var character = scalarValue == default ? null : new UnicodeCharacter
+            var id = GetLongCodepointId(scalarValue);
+            var character = new UnicodeCharacter
             {
                 ScalarValue = scalarValue,
                 CodepointId = new string(id),
             };
-
             arguments.Push(new Codepoint
             {
                 Id = new string(id),
@@ -145,6 +139,21 @@ internal static class SequenceTextParser
                 SequenceText = null,
                 AltSequenceText = null,
                 UnicodeCharacter = character,
+                Sequence = null,
+                AltSequence = null,
+            });
+        }
+        else
+        {
+            // Token is a non-Unicode character (e.g. "&CDP-8BC4;").
+            // Push it onto the stack.
+            arguments.Push(new Codepoint
+            {
+                Id = new string(token),
+                UnicodeScalarValue = null,
+                SequenceText = null,
+                AltSequenceText = null,
+                UnicodeCharacter = null,
                 Sequence = null,
                 AltSequence = null,
             });
@@ -181,7 +190,7 @@ internal static class SequenceTextParser
     private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, in ImmutableArray<ComponentPositionId> positionIds)
     {
         var textBuilder = new StringBuilder(new string(idc));
-        var components = new List<Component>();
+        var components = new List<Component>(positionIds.Length);
 
         foreach (var positionId in positionIds)
         {

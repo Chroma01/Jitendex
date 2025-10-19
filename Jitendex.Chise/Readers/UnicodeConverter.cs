@@ -20,13 +20,13 @@ namespace Jitendex.Chise.Readers;
 
 internal static class UnicodeConverter
 {
-    public static int ScalarValueOrDefault(in ReadOnlySpan<char> character) => character switch
+    public static int? ScalarValue(in ReadOnlySpan<char> character) => character switch
     {
         { Length: 1 } => character[0],
         { Length: 2 } when char.IsHighSurrogate(character[0])
                         && char.IsLowSurrogate(character[1])
                         => char.ConvertToUtf32(character[0], character[1]),
-        _ => default,
+        _ => null,
     };
 
     public static ReadOnlySpan<char> GetLongCodepointId(int scalarValue) => $"U-{scalarValue:X8}";

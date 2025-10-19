@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Chise.Models;
+using static Jitendex.Chise.Readers.UnicodeConverter;
 
 namespace Jitendex.Chise.Readers;
 
@@ -107,19 +108,17 @@ internal class ChiseIdsReader
             return null;
         }
 
-        var scalarValue = UnicodeConverter.ScalarValueOrDefault(lineElements.Character);
-
-        if (scalarValue == default)
+        if (ScalarValue(lineElements.Character) is not int scalarValue)
         {
             _logger.InvalidUnicodeCodepoint(lineElements);
             return null;
         }
 
-        var longId = UnicodeConverter.GetLongCodepointId(scalarValue);
+        var longId = GetLongCodepointId(scalarValue);
 
         if (!longId.SequenceEqual(lineElements.Codepoint))
         {
-            var shortId = UnicodeConverter.GetShortCodepointId(scalarValue);
+            var shortId = GetShortCodepointId(scalarValue);
             if (!shortId.SequenceEqual(lineElements.Codepoint))
             {
                 _logger.UnicodeCharacterInequality(lineElements);
