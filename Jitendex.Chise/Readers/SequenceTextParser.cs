@@ -103,14 +103,15 @@ internal static class SequenceTextParser
         return text.Length - 1;
     }
 
+    /// <summary>
+    /// Add the token to the argument stack, or evaluate the sequence if the token is an IDC.
+    /// </summary>
     private static void Evaluate(in ReadOnlySpan<char> token, Stack<Codepoint> arguments)
     {
         if (ApplyIdcToArguments(token, arguments) is Sequence sequence)
         {
             // Token was an Ideographic Description Character (IDC),
             // and its arguments were removed from the stack.
-            // Now push the result of the evaluation onto the stack.
-
             arguments.Push(new Codepoint
             {
                 Id = sequence.Text,
@@ -125,7 +126,6 @@ internal static class SequenceTextParser
         else if (ScalarValue(token) is int scalarValue)
         {
             // Token is a Unicode character.
-            // Push it onto the stack.
             var id = GetLongCodepointId(scalarValue);
             var character = new UnicodeCharacter
             {
@@ -146,7 +146,6 @@ internal static class SequenceTextParser
         else
         {
             // Token is a non-Unicode character (e.g. "&CDP-8BC4;").
-            // Push it onto the stack.
             arguments.Push(new Codepoint
             {
                 Id = new string(token),
