@@ -34,7 +34,7 @@ internal readonly ref struct LineElements
     public readonly bool InsufficientElementsError;
     public readonly bool ExcessiveElementsError;
 
-    public LineElements(in ReadOnlySpan<char> filename, int number, in ReadOnlySpan<char> line)
+    public LineElements(ReadOnlySpan<char> filename, int number, ReadOnlySpan<char> line)
     {
         Filename = filename;
         LineNumber = number;
@@ -57,7 +57,7 @@ internal readonly ref struct LineElements
             else if (idx == 3)
                 AltSequenceFormatError = true;
             else
-            { ExcessiveElementsError = true; break; }
+                ExcessiveElementsError = true;
 
             idx++;
         }
@@ -71,7 +71,7 @@ internal readonly ref struct LineElements
     /// <summary>
     /// Length of a trailing "[U]" "[J]" "[K]" etc tag at the end of an IDS text
     /// </summary>
-    private static int TagLength(in ReadOnlySpan<char> sequence) => sequence switch
+    private static int TagLength(ReadOnlySpan<char> sequence) => sequence switch
     {
         [.., ' ', '[', _, ']'] => 4,
         [.., '[', _, ']'] => 3,

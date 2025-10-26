@@ -35,17 +35,19 @@ internal class ChiseIdsReader
         var codepoints = new List<Codepoint>(215_000);
         foreach (var file in chiseIdsDir.EnumerateFiles("*.txt"))
         {
-            ReadFile(file, codepoints);
+            foreach (var codepoint in ReadFile(file))
+            {
+                codepoints.Add(codepoint);
+            }
         }
         _logger.WriteLogs();
         return codepoints;
     }
 
-    private void ReadFile(FileInfo file, List<Codepoint> codepoints)
+    private IEnumerable<Codepoint> ReadFile(FileInfo file)
     {
-        using StreamReader sr = file.OpenText();
         int lineNumber = 0;
-        var filename = file.Name.AsSpan();
+        using StreamReader sr = file.OpenText();
 
         while (sr.ReadLine() is string line)
         {
@@ -56,7 +58,7 @@ internal class ChiseIdsReader
                 continue;
             }
 
-            var lineElements = new LineElements(filename, lineNumber, line.AsSpan());
+            var lineElements = new LineElements(file.Name, lineNumber, line);
 
             _logger.LogLineErrors(lineElements);
 
@@ -67,7 +69,7 @@ internal class ChiseIdsReader
 
             if (MakeCodepoint(lineElements) is Codepoint codepoint)
             {
-                codepoints.Add(codepoint);
+                yield return codepoint;
             }
         }
     }
@@ -110,7 +112,7 @@ internal class ChiseIdsReader
 
         if (ScalarValue(lineElements.Character) is not int scalarValue)
         {
-            _logger.InvalidUnicodeCodepoint(lineElements);
+            _logger.LogInvalidUnicodeCodepoint(lineElements);
             return null;
         }
 
@@ -121,7 +123,7 @@ internal class ChiseIdsReader
             var shortId = GetShortCodepointId(scalarValue);
             if (!shortId.SequenceEqual(lineElements.Codepoint))
             {
-                _logger.UnicodeCharacterInequality(lineElements);
+                _logger.LogUnicodeCharacterInequality(lineElements);
             }
         }
 
@@ -142,13 +144,13 @@ internal class ChiseIdsReader
         }
         catch (InvalidOperationException)
         {
-            _logger.InsufficientIdsArgs(lineElements);
+            _logger.LogInsufficientIdsArgs(lineElements);
             return null;
         }
 
         if (sequenceArguments.Count != 1)
         {
-            _logger.InsufficientIdsOps(lineElements);
+            _logger.LogInsufficientIdsOps(lineElements);
             return null;
         }
 
@@ -157,7 +159,7 @@ internal class ChiseIdsReader
 
     private Sequence? MakeAltSequence(in LineElements lineElements)
     {
-        if (lineElements.AltSequence is [])
+        if (lineElements.AltSequence.IsEmpty)
         {
             return null;
         }
@@ -170,13 +172,13 @@ internal class ChiseIdsReader
         }
         catch (InvalidOperationException)
         {
-            _logger.InsufficientAltIdsArgs(lineElements);
+            _logger.LogInsufficientAltIdsArgs(lineElements);
             return null;
         }
 
         if (altSequenceArguments.Count != 1)
         {
-            _logger.InsufficientAltIdsOps(lineElements);
+            _logger.LogInsufficientAltIdsOps(lineElements);
             return null;
         }
 
