@@ -23,29 +23,29 @@ namespace Jitendex.Chise.Readers;
 internal class Logger
 {
     private readonly Dictionary<ChiseError, List<string>> _logs = [];
-    public void LogInvalidUnicodeCodepoint(in LineElements line) => Log(line, InvalidUnicodeCodepoint);
-    public void LogUnicodeCharacterInequality(in LineElements line) => Log(line, UnicodeCharacterInequality);
-    public void LogInsufficientIdsArgs(in LineElements line) => Log(line, InsufficientIdsArgs);
-    public void LogInsufficientIdsOps(in LineElements line) => Log(line, InsufficientIdsOps);
-    public void LogInsufficientAltIdsArgs(in LineElements line) => Log(line, InsufficientAltIdsArgs);
-    public void LogInsufficientAltIdsOps(in LineElements line) => Log(line, InsufficientAltIdsOps);
+    public void LogInvalidUnicodeCodepoint(in LineElements line) => LogLine(line, InvalidUnicodeCodepoint);
+    public void LogUnicodeCharacterInequality(in LineElements line) => LogLine(line, UnicodeCharacterInequality);
+    public void LogInsufficientIdsArgs(in LineElements line) => LogLine(line, InsufficientIdsArgs);
+    public void LogInsufficientIdsOps(in LineElements line) => LogLine(line, InsufficientIdsOps);
+    public void LogInsufficientAltIdsArgs(in LineElements line) => LogLine(line, InsufficientAltIdsArgs);
+    public void LogInsufficientAltIdsOps(in LineElements line) => LogLine(line, InsufficientAltIdsOps);
 
     public void LogLineErrors(in LineElements line)
     {
         if (line.InsufficientElementsError)
         {
-            Log(line, InsufficientLineElements);
+            LogLine(line, InsufficientLineElements);
         }
         if (line.ExcessiveElementsError)
         {
-            Log(line, ExcessiveLineElements);
+            LogLine(line, ExcessiveLineElements);
         }
         if (line.AltSequenceFormatError)
         {
-            Log(line, AltSequenceFormatError);
+            LogLine(line, AltSequenceFormatError);
         }
     }
-    private void Log(in LineElements line, ChiseError error)
+    private void LogLine(in LineElements line, ChiseError error)
     {
         if (_logs.TryGetValue(error, out var lines))
         {

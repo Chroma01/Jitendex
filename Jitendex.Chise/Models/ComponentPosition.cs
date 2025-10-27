@@ -30,7 +30,7 @@ public class ComponentPosition
     public string Name { get => IdToName(Id); }
 
     [InverseProperty(nameof(Component.Position))]
-    public ICollection<Component> Components { get; } = [];
+    public List<Component> Components { get; } = [];
 
     private static string IdToName(ComponentPositionId id) => id switch
     {

@@ -32,8 +32,8 @@ public class Component
     public required Codepoint Codepoint { get; init; }
 
     [ForeignKey(nameof(PositionId))]
-    public ComponentPosition Position { get; init; } = null!;
+    public required ComponentPosition Position { get; init; }
 
     [InverseProperty(nameof(Sequence.Components))]
-    public ICollection<Sequence> Sequences { get; } = [];
+    public List<Sequence> Sequences { get; } = [];
 }

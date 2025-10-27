@@ -17,13 +17,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
-using Jitendex.Chise.Readers;
 
 namespace Jitendex.Chise;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var chiseIdsDirectoryArgument = new Argument<DirectoryInfo>("chise-ids-dir")
         {
@@ -48,6 +47,8 @@ public class Program
         var chiseIdsDir = parseResult.GetRequiredValue(chiseIdsDirectoryArgument);
 
         var reader = new ChiseIdsReader();
-        reader.Read(chiseIdsDir);
+        var collector = reader.Read(chiseIdsDir);
+
+        await DatabaseInitializer.WriteAsync(collector);
     }
 }

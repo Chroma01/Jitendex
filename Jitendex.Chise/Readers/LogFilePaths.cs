@@ -26,7 +26,7 @@ internal readonly ref struct LogFilePaths
 
     public LogFilePaths()
     {
-        Directory = InitLogDirectory();
+        Directory = InitDirectory();
     }
 
     public ReadOnlySpan<char> GetLogFilePath(ChiseError error) => error switch
@@ -46,7 +46,7 @@ internal readonly ref struct LogFilePaths
     private ReadOnlySpan<char> MakePath(ReadOnlySpan<char> filename)
         => Path.Join(Directory, filename);
 
-    private static ReadOnlySpan<char> InitLogDirectory()
+    private static ReadOnlySpan<char> InitDirectory()
     {
         var logDirectory = new DirectoryInfo(Path.Join
         (

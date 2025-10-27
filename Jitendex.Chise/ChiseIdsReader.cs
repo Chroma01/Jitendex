@@ -17,9 +17,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.Chise.Models;
+using Jitendex.Chise.Readers;
 using static Jitendex.Chise.Readers.UnicodeConverter;
 
-namespace Jitendex.Chise.Readers;
+namespace Jitendex.Chise;
 
 internal class ChiseIdsReader
 {
@@ -30,18 +31,18 @@ internal class ChiseIdsReader
         _logger = new Logger();
     }
 
-    public List<Codepoint> Read(DirectoryInfo chiseIdsDir)
+    public IdsCollector Read(DirectoryInfo chiseIdsDir)
     {
-        var codepoints = new List<Codepoint>(215_000);
+        var IdsCollector = new IdsCollector(_logger);
         foreach (var file in chiseIdsDir.EnumerateFiles("*.txt"))
         {
             foreach (var codepoint in ReadFile(file))
             {
-                codepoints.Add(codepoint);
+                IdsCollector.AddCodepoint(codepoint);
             }
         }
         _logger.WriteLogs();
-        return codepoints;
+        return IdsCollector;
     }
 
     private IEnumerable<Codepoint> ReadFile(FileInfo file)
@@ -105,7 +106,7 @@ internal class ChiseIdsReader
 
     private UnicodeCharacter? MakeUnicodeCharacter(in LineElements lineElements)
     {
-        if (!lineElements.Codepoint.StartsWith('U'))
+        if (!lineElements.Codepoint.StartsWith("&U"))
         {
             return null;
         }

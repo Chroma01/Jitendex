@@ -54,7 +54,7 @@ namespace Jitendex.Chise.Readers;
 /// </exception>
 internal static class SequenceTextParser
 {
-    public static Stack<Codepoint> Parse(in ReadOnlySpan<char> sequenceText)
+    public static Stack<Codepoint> Parse(ReadOnlySpan<char> sequenceText)
     {
         Stack<Codepoint> stack = [];
         int end = sequenceText.Length;
@@ -68,7 +68,7 @@ internal static class SequenceTextParser
         return stack;
     }
 
-    private static int TokenStartIndex(in ReadOnlySpan<char> text)
+    private static int TokenStartIndex(ReadOnlySpan<char> text)
     {
         if (text.Length == 0)
         {
@@ -106,7 +106,7 @@ internal static class SequenceTextParser
     /// <summary>
     /// Add the token to the argument stack, or evaluate the sequence if the token is an IDC.
     /// </summary>
-    private static void Evaluate(in ReadOnlySpan<char> token, Stack<Codepoint> arguments)
+    private static void Evaluate(ReadOnlySpan<char> token, Stack<Codepoint> arguments)
     {
         if (ApplyIdcToArguments(token, arguments) is Sequence sequence)
         {
@@ -159,12 +159,12 @@ internal static class SequenceTextParser
         }
     }
 
-    private static Sequence? ApplyIdcToArguments(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments)
+    private static Sequence? ApplyIdcToArguments(ReadOnlySpan<char> idc, Stack<Codepoint> arguments)
         => IdcToPositionIds(idc) is var positionIds and not []
             ? NewSequence(idc, arguments, positionIds)
             : null;
 
-    private static ImmutableArray<ComponentPositionId> IdcToPositionIds(in ReadOnlySpan<char> idc) => idc switch
+    private static ImmutableArray<ComponentPositionId> IdcToPositionIds(ReadOnlySpan<char> idc) => idc switch
     {
         ['⿰'] => [LeftHalf, RightHalf],
         ['⿱'] => [TopHalf, BottomHalf],
@@ -186,7 +186,7 @@ internal static class SequenceTextParser
         _ => [],
     };
 
-    private static Sequence NewSequence(in ReadOnlySpan<char> idc, Stack<Codepoint> arguments, in ImmutableArray<ComponentPositionId> positionIds)
+    private static Sequence NewSequence(ReadOnlySpan<char> idc, Stack<Codepoint> arguments, in ImmutableArray<ComponentPositionId> positionIds)
     {
         var textBuilder = new StringBuilder(new string(idc));
         var components = new List<Component>(positionIds.Length);
@@ -199,14 +199,22 @@ internal static class SequenceTextParser
                 CodepointId = codepoint.Id,
                 PositionId = positionId,
                 Codepoint = codepoint,
+                Position = new ComponentPosition { Id = positionId },
             });
             textBuilder.Append(codepoint.ToCharacter());
         }
 
-        return new Sequence
+        var sequence = new Sequence
         {
             Text = textBuilder.ToString(),
             Components = components,
         };
+
+        foreach (var component in components)
+        {
+            component.Sequences.Add(sequence);
+        }
+
+        return sequence;
     }
 }

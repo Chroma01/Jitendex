@@ -47,7 +47,7 @@ internal readonly ref struct LineElements
             var segment = line[range];
 
             if (idx == 0)
-                Codepoint = segment;
+                Codepoint = $"&{segment.Trim()};";
             else if (idx == 1)
                 Character = segment;
             else if (idx == 2)

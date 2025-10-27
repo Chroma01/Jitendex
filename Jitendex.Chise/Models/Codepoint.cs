@@ -40,7 +40,7 @@ public class Codepoint
     public required Sequence? AltSequence { get; init; }
 
     [InverseProperty(nameof(Component.Codepoint))]
-    public ICollection<Component> Components { get; } = [];
+    public List<Component> Components { get; } = [];
 
     public string ToCharacter() => UnicodeCharacter?.Character().ToString() ?? Id;
 }
