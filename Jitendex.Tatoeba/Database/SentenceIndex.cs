@@ -42,7 +42,7 @@ internal static class SentenceIndexData
     public static async Task InsertIndicesAsync(this Context db, ICollection<SentenceIndex> indices)
     {
         var allJapaneseSentences = new Dictionary<int, JapaneseSentence>(indices.Count);
-        var allIndexElements = new List<IndexElement>(indices.Count * 10);
+        var allIndexElements = new List<IndexElement>(indices.Count * 8);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
         {

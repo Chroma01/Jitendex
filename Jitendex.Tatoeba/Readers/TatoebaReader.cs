@@ -25,8 +25,10 @@ internal class TatoebaReader
 {
     private readonly ILogger<TatoebaReader> _logger;
     private readonly StreamReader _reader;
-    private readonly Dictionary<int, JapaneseSentence> _japaneseSentences = [];
-    private readonly Dictionary<int, EnglishSentence> _englishSentences = [];
+
+    private readonly Dictionary<int, JapaneseSentence> _japaneseSentences = new(150_000);
+    private readonly Dictionary<int, EnglishSentence> _englishSentences = new(150_000);
+    private readonly HashSet<(int, int)> _examples = new(150_000);
 
     public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader) =>
         (_logger, _reader) =
@@ -73,6 +75,21 @@ internal class TatoebaReader
         var japaneseSentence = GetJapaneseSentence(text);
         var englishSentence = GetEnglishSentence(text);
 
+        var exampleKey = (japaneseSentence.Id, englishSentence.Id);
+        if (!_examples.Contains(exampleKey))
+        {
+            var example = new Example
+            {
+                JapaneseSentenceId = japaneseSentence.Id,
+                EnglishSentenceId = englishSentence.Id,
+                JapaneseSentence = japaneseSentence,
+                EnglishSentence = englishSentence,
+            };
+            japaneseSentence.Examples.Add(example);
+            englishSentence.Examples.Add(example);
+            _examples.Add(exampleKey);
+        }
+
         var index = new SentenceIndex
         {
             SentenceId = japaneseSentence.Id,
@@ -101,17 +118,6 @@ internal class TatoebaReader
             index.Elements.Add(indexElement);
         }
 
-        var example = new Example
-        {
-            JapaneseSentenceId = japaneseSentence.Id,
-            EnglishSentenceId = englishSentence.Id,
-            JapaneseSentence = japaneseSentence,
-            EnglishSentence = englishSentence,
-        };
-
-        japaneseSentence.Examples.Add(example);
-        englishSentence.Examples.Add(example);
-
         return index;
     }
 
@@ -133,6 +139,7 @@ internal class TatoebaReader
         }
         else
         {
+            _japaneseSentences[sentence.Id] = sentence;
             return sentence;
         }
     }
@@ -155,6 +162,7 @@ internal class TatoebaReader
         }
         else
         {
+            _englishSentences[sentence.Id] = sentence;
             return sentence;
         }
     }
