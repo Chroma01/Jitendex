@@ -26,9 +26,10 @@ internal class TatoebaReader
     private readonly ILogger<TatoebaReader> _logger;
     private readonly StreamReader _reader;
 
-    private readonly Dictionary<int, JapaneseSentence> _japaneseSentences = new(150_000);
-    private readonly Dictionary<int, EnglishSentence> _englishSentences = new(150_000);
-    private readonly HashSet<(int, int)> _examples = new(150_000);
+    private const int _capacity = 150_000;
+    private readonly Dictionary<int, JapaneseSentence> _japaneseSentences = new(_capacity);
+    private readonly Dictionary<int, EnglishSentence> _englishSentences = new(_capacity);
+    private readonly HashSet<(int, int)> _examples = new(_capacity);
 
     public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader) =>
         (_logger, _reader) =
@@ -36,7 +37,7 @@ internal class TatoebaReader
 
     public async Task<List<SentenceIndex>> ReadAsync()
     {
-        var indices = new List<SentenceIndex>(150_000);
+        var indices = new List<SentenceIndex>(_capacity);
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
