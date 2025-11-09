@@ -21,6 +21,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Tatoeba.Models;
 
+[Table(nameof(EnglishSentence))]
 public class EnglishSentence
 {
     [Key]

@@ -47,8 +47,8 @@ public class Program
         var examplesFile = parseResult.GetRequiredValue(tatoebaFileArgument);
 
         var reader = ReaderProvider.GetReader(examplesFile);
-        var examples = await reader.ReadAsync();
+        var indices = await reader.ReadAsync();
 
-        // await DatabaseInitializer.WriteAsync(examples);
+        await DatabaseInitializer.WriteAsync(indices);
     }
 }

@@ -32,9 +32,9 @@ internal class TatoebaReader
         (_logger, _reader) =
         (@logger, @reader);
 
-    public async Task<List<Example>> ReadAsync()
+    public async Task<List<SentenceIndex>> ReadAsync()
     {
-        var examples = new List<Example>(150_000);
+        var indices = new List<SentenceIndex>(150_000);
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
@@ -55,8 +55,8 @@ internal class TatoebaReader
                 var text = new ExampleText(lineA.AsSpan()[3..], lineB.AsSpan()[3..]);
                 try
                 {
-                    var example = MakeExample(text);
-                    examples.Add(example);
+                    var index = MakeIndex(text);
+                    indices.Add(index);
                 }
                 catch (FormatException e)
                 {
@@ -65,10 +65,10 @@ internal class TatoebaReader
             }
         }
 
-        return examples;
+        return indices;
     }
 
-    private Example MakeExample(in ExampleText text)
+    private SentenceIndex MakeIndex(in ExampleText text)
     {
         var japaneseSentence = GetJapaneseSentence(text);
         var englishSentence = GetEnglishSentence(text);
@@ -112,7 +112,7 @@ internal class TatoebaReader
         japaneseSentence.Examples.Add(example);
         englishSentence.Examples.Add(example);
 
-        return example;
+        return index;
     }
 
     private JapaneseSentence GetJapaneseSentence(in ExampleText text)

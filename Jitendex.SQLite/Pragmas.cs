@@ -31,4 +31,7 @@ public static class Pragmas
         PRAGMA cache_size = -200000;
         PRAGMA locking_mode = EXCLUSIVE;
         """;
+
+    public static readonly string DeferForeignKeys =
+        "PRAGMA defer_foreign_keys = ON;";
 }

@@ -16,21 +16,16 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Tatoeba.Models;
+using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba.Models;
+namespace Jitendex.Tatoeba;
 
-[Table(nameof(JapaneseSentence))]
-public class JapaneseSentence
+public class Context : SqliteContext
 {
-    [Key]
-    public required int Id { get; init; }
-    public required string Text { get; init; }
-
-    [InverseProperty(nameof(SentenceIndex.Sentence))]
-    public List<SentenceIndex> Indices { get; init; } = [];
-
-    [InverseProperty(nameof(Example.JapaneseSentence))]
-    public List<Example> Examples { get; init; } = [];
+    public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
+    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
+    public DbSet<SentenceIndex> SentenceIndices { get; set; } = null!;
+    public Context() : base("tatoeba.db") { }
 }

@@ -14,7 +14,7 @@ set examples_file (
         --latest)
 or return 1
 
-dotnet run \
+time dotnet run \
     --project "$project_dir" \
     --configuration 'Release' \
     -- "$examples_file"

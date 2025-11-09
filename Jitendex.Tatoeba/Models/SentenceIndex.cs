@@ -21,6 +21,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Tatoeba.Models;
 
+[Table(nameof(SentenceIndex))]
 [PrimaryKey(nameof(SentenceId), nameof(Order))]
 public class SentenceIndex
 {

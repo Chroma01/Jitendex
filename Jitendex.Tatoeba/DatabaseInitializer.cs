@@ -17,15 +17,15 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Chise.Readers;
-using Jitendex.Chise.Database;
+using Jitendex.Tatoeba.Database;
+using Jitendex.Tatoeba.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Chise;
+namespace Jitendex.Tatoeba;
 
 internal static class DatabaseInitializer
 {
-    public static async Task WriteAsync(IdsCollector collector)
+    public static async Task WriteAsync(List<SentenceIndex> indices)
     {
         await using var db = new Context();
 
@@ -36,22 +36,15 @@ internal static class DatabaseInitializer
         // For faster importing, write data to memory rather than to the disk.
         await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
 
-        // Using a transaction decreases the runtime by 10 seconds.
-        // Using multiple smaller transactions doesn't seem to improve upon that.
-        await using var transaction = await db.Database.BeginTransactionAsync();
-
         // Wait until all data is imported before checking foreign key constraints.
         await db.Database.ExecuteSqlRawAsync(Pragmas.DeferForeignKeys);
 
         // Begin inserting data.
-        await db.InsertCodepointsAsync(collector.Codepoints.Values);
-        await db.InsertUnicodeCharactersAsync(collector.UnicodeCharacters.Values);
-        await db.InsertSequencesAsync(collector.Sequences.Values);
-        await db.InsertComponentsAsync(collector.Components.Values);
-        await db.InsertComponentSequencesAsync(collector.Components.Values);
-        await db.InsertComponentPositionsAsync(collector.ComponentPositions.Values);
-
-        await transaction.CommitAsync();
+        await using (var transaction = await db.Database.BeginTransactionAsync())
+        {
+            await db.InsertIndicesAsync(indices);
+            await transaction.CommitAsync();
+        }
 
         // Write database to the disk.
         await db.SaveChangesAsync();
