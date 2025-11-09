@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
+
 namespace Jitendex.Tatoeba.Readers;
 
 internal readonly ref struct ExampleText
@@ -25,6 +27,8 @@ internal readonly ref struct ExampleText
     private readonly int _tabIdx;
     private readonly int _idIdx;
     private readonly int _underscoreIdx;
+    private const string idPrefix = "#ID=";
+    private static readonly int idPrefixLength = idPrefix.Length;
 
     public ExampleText(ReadOnlySpan<char> lineA, ReadOnlySpan<char> lineB)
     {
@@ -32,7 +36,7 @@ internal readonly ref struct ExampleText
         _lineB = lineB;
 
         _tabIdx = _lineA.IndexOf('\t');
-        _idIdx = _lineA.IndexOf("#ID=", StringComparison.Ordinal);
+        _idIdx = _lineA.IndexOf(idPrefix, StringComparison.Ordinal);
         _underscoreIdx = _idIdx > -1
             ? _idIdx + _lineA[_idIdx..].IndexOf("_")
             : -1;
@@ -42,7 +46,7 @@ internal readonly ref struct ExampleText
     {
         if (_tabIdx == -1)
         {
-            throw new InvalidOperationException($"Missing tab character in `{_lineA}`");
+            throw new FormatException($"Missing tab character in `{_lineA}`");
         }
         return _lineA[.._tabIdx].ToString();
     }
@@ -51,11 +55,11 @@ internal readonly ref struct ExampleText
     {
         if (_tabIdx == -1)
         {
-            throw new InvalidOperationException($"Missing tab character in `{_lineA}`");
+            throw new FormatException($"Missing tab character in `{_lineA}`");
         }
         if (_idIdx == -1)
         {
-            throw new InvalidOperationException($"Missing ID string in `{_lineA}`");
+            throw new FormatException($"Missing ID string in `{_lineA}`");
         }
         return _lineA[(_tabIdx + 1).._idIdx].ToString();
     }
@@ -64,34 +68,43 @@ internal readonly ref struct ExampleText
     {
         if (_idIdx == -1)
         {
-            throw new InvalidOperationException($"Missing ID string in `{_lineA}`");
+            throw new FormatException($"Missing ID string in `{_lineA}`");
         }
-        var text = _lineA[(_idIdx + 4).._underscoreIdx];
-        return int.Parse(text);
+
+        var text = _lineA[(_idIdx + idPrefixLength).._underscoreIdx];
+
+        if (int.TryParse(text, out int id))
+        {
+            return id;
+        }
+        else
+        {
+            throw new FormatException($"Non-integer English sentence ID in `{_lineA}`");
+        }
     }
 
     public int GetJapaneseSentenceId()
     {
         if (_underscoreIdx == -1)
         {
-            throw new InvalidOperationException($"Missing underscore in `{_lineA}`");
+            throw new FormatException($"Missing underscore in `{_lineA}`");
         }
+
         var text = _lineA[(_underscoreIdx + 1)..];
-        return int.Parse(text);
+
+        if (int.TryParse(text, out int id))
+        {
+            return id;
+        }
+        else
+        {
+            throw new FormatException($"Non-integer Japanese sentence ID in `{_lineA}`");
+        }
     }
 
-    public List<Range> ElementTextRanges()
-    {
-        List<Range> ranges = [];
-        foreach (var range in _lineB.Split(' '))
-        {
-            ranges.Add(range);
-        }
-        return ranges;
-    }
+    public ImmutableArray<Range> ElementTextRanges()
+        => [.. _lineB.Split(' ')];
 
     public IndexElementText GetElementText(Range range)
-    {
-        return new IndexElementText(_lineB[range]);
-    }
+        => new IndexElementText(_lineB[range]);
 }

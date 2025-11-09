@@ -97,7 +97,7 @@ internal readonly ref struct IndexElementText
         }
         else
         {
-            throw new InvalidOperationException($"Non-integer entry ID in element `{_text}`");
+            throw new FormatException($"Non-integer entry ID in element `{_text}`");
         }
     }
 
@@ -117,7 +117,7 @@ internal readonly ref struct IndexElementText
         }
         else
         {
-            throw new InvalidOperationException($"Non-integer sense number in element `{_text}`");
+            throw new FormatException($"Non-integer sense number in element `{_text}`");
         }
     }
 

@@ -58,7 +58,7 @@ internal class TatoebaReader
                     var example = MakeExample(text);
                     examples.Add(example);
                 }
-                catch (InvalidOperationException e)
+                catch (FormatException e)
                 {
                     _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
                 }
