@@ -24,11 +24,13 @@ internal readonly ref struct ExampleText
 {
     private readonly ReadOnlySpan<char> _lineA;
     private readonly ReadOnlySpan<char> _lineB;
+
     private readonly int _tabIdx;
     private readonly int _idIdx;
     private readonly int _underscoreIdx;
-    private const string idPrefix = "#ID=";
-    private static readonly int idPrefixLength = idPrefix.Length;
+
+    private const string _idPrefix = "#ID=";
+    private static readonly int _idPrefixLength = _idPrefix.Length;
 
     public ExampleText(ReadOnlySpan<char> lineA, ReadOnlySpan<char> lineB)
     {
@@ -36,7 +38,7 @@ internal readonly ref struct ExampleText
         _lineB = lineB;
 
         _tabIdx = _lineA.IndexOf('\t');
-        _idIdx = _lineA.IndexOf(idPrefix, StringComparison.Ordinal);
+        _idIdx = _lineA.IndexOf(_idPrefix, StringComparison.Ordinal);
         _underscoreIdx = _idIdx > -1
             ? _idIdx + _lineA[_idIdx..].IndexOf("_")
             : -1;
@@ -71,7 +73,7 @@ internal readonly ref struct ExampleText
             throw new FormatException($"Missing ID string in `{_lineA}`");
         }
 
-        var text = _lineA[(_idIdx + idPrefixLength).._underscoreIdx];
+        var text = _lineA[(_idIdx + _idPrefixLength).._underscoreIdx];
 
         if (int.TryParse(text, out int id))
         {
