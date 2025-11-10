@@ -22,7 +22,9 @@ using Jitendex.JMdict.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.JMdict.Models.EntryElements;
 
+[Table(nameof(Reading))]
 [PrimaryKey(nameof(EntryId), nameof(Order))]
+[Index(nameof(Text), IsUnique = false)]
 public class Reading
 {
     public required int EntryId { get; set; }

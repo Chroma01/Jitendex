@@ -18,14 +18,18 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Models;
+using Jitendex.JMdict.Models.EntryElements;
 using Jitendex.SQLite;
 
 namespace Jitendex.JMdict;
 
 public class Context : SqliteContext
 {
-    public DbSet<Entry> Entries { get; set; } = null!;
     public DbSet<Corpus> Corpora { get; set; } = null!;
+    public DbSet<Entry> Entries { get; set; } = null!;
+
+    public DbSet<Reading> Readings { get; set; } = null!;
+    public DbSet<KanjiForm> KanjiForms { get; set; } = null!;
 
     public DbSet<PriorityTag> PriorityTags { get; set; } = null!;
     public DbSet<ReadingInfoTag> ReadingInfoTags { get; set; } = null!;

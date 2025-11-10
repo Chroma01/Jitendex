@@ -22,7 +22,9 @@ using Jitendex.JMdict.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.JMdict.Models.EntryElements;
 
+[Table(nameof(KanjiForm))]
 [PrimaryKey(nameof(EntryId), nameof(Order))]
+[Index(nameof(Text), IsUnique = false)]
 public class KanjiForm
 {
     public required int EntryId { get; set; }
