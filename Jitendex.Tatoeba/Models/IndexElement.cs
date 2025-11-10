@@ -38,4 +38,12 @@ public class IndexElement
 
     [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]
     public required SentenceIndex Index { get; init; }
+
+    public override string ToString() =>
+        $"{SentenceId}・{IndexOrder}・{Order}: {Headword}"
+        + (Reading is not null ? $"({Reading})" : "")
+        + (EntryId is not null ? $"(#{EntryId})" : "")
+        + (SenseNumber is not null ? $"[{SenseNumber:D2}]" : "")
+        + (SentenceForm is not null ? $"{{{SentenceForm}}}" : "")
+        + (IsPriority ? "~" : "");
 }
