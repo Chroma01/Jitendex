@@ -27,5 +27,6 @@ public class Context : SqliteContext
     public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
     public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
     public DbSet<SentenceIndex> SentenceIndices { get; set; } = null!;
+    public DbSet<IndexElement> IndexElements { get; set; } = null!;
     public Context() : base("tatoeba.db") { }
 }
