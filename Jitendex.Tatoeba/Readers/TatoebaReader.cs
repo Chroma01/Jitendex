@@ -29,7 +29,7 @@ internal class TatoebaReader
     private const int _capacity = 150_000;
     private readonly Dictionary<int, JapaneseSentence> _japaneseSentences = new(_capacity);
     private readonly Dictionary<int, EnglishSentence> _englishSentences = new(_capacity);
-    private readonly HashSet<(int, int)> _examples = new(_capacity);
+    private readonly Dictionary<(int, int), int> _indexOrder = new(_capacity);
 
     public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader) =>
         (_logger, _reader) =
@@ -75,30 +75,19 @@ internal class TatoebaReader
     {
         var japaneseSentence = GetJapaneseSentence(text);
         var englishSentence = GetEnglishSentence(text);
-
-        var exampleKey = (japaneseSentence.Id, englishSentence.Id);
-        if (!_examples.Contains(exampleKey))
-        {
-            var example = new Example
-            {
-                JapaneseSentenceId = japaneseSentence.Id,
-                EnglishSentenceId = englishSentence.Id,
-                JapaneseSentence = japaneseSentence,
-                EnglishSentence = englishSentence,
-            };
-            japaneseSentence.Examples.Add(example);
-            englishSentence.Examples.Add(example);
-            _examples.Add(exampleKey);
-        }
+        var order = GetOrder(japaneseSentence.Id, englishSentence.Id);
 
         var index = new SentenceIndex
         {
             SentenceId = japaneseSentence.Id,
-            Order = japaneseSentence.Indices.Count + 1,
+            MeaningId = englishSentence.Id,
+            Order = order,
             Sentence = japaneseSentence,
+            Meaning = englishSentence,
         };
 
         japaneseSentence.Indices.Add(index);
+        englishSentence.Indices.Add(index);
 
         foreach (var range in text.ElementTextRanges())
         {
@@ -106,6 +95,7 @@ internal class TatoebaReader
             var indexElement = new IndexElement
             {
                 SentenceId = index.SentenceId,
+                MeaningId = index.MeaningId,
                 IndexOrder = index.Order,
                 Order = index.Elements.Count + 1,
                 Headword = elementText.GetHeadword(),
@@ -166,5 +156,16 @@ internal class TatoebaReader
             _englishSentences[sentence.Id] = sentence;
             return sentence;
         }
+    }
+
+    private int GetOrder(int sentenceId, int meaningId)
+    {
+        var key = (sentenceId, meaningId);
+        if (!_indexOrder.TryGetValue(key, out int order))
+        {
+            order = 1;
+        }
+        _indexOrder[key] = order + 1;
+        return order;
     }
 }

@@ -26,22 +26,25 @@ internal static class SentenceIndexData
 {
     // Column names
     private const string C1 = nameof(SentenceIndex.SentenceId);
-    private const string C2 = nameof(SentenceIndex.Order);
+    private const string C2 = nameof(SentenceIndex.MeaningId);
+    private const string C3 = nameof(SentenceIndex.Order);
 
     // Parameter names
     private const string P1 = $"@{C1}";
     private const string P2 = $"@{C2}";
+    private const string P3 = $"@{C3}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(SentenceIndex)}"
-        ("{C1}", "{C2}") VALUES
-        ( {P1} ,  {P2} );
+        ("{C1}", "{C2}", "{C3}") VALUES
+        ( {P1} ,  {P2} ,  {P3} );
         """;
 
     public static async Task InsertIndicesAsync(this Context db, ICollection<SentenceIndex> indices)
     {
         var allJapaneseSentences = new Dictionary<int, JapaneseSentence>(indices.Count);
+        var allEnglishSentences = new Dictionary<int, EnglishSentence>(indices.Count);
         var allIndexElements = new List<IndexElement>(indices.Count * 8);
 
         await using (var command = db.Database.GetDbConnection().CreateCommand())
@@ -53,7 +56,8 @@ internal static class SentenceIndexData
                 command.Parameters.AddRange(new SqliteParameter[]
                 {
                     new(P1, index.SentenceId),
-                    new(P2, index.Order),
+                    new(P2, index.MeaningId),
+                    new(P3, index.Order),
                 });
 
                 var commandExecution = command.ExecuteNonQueryAsync();
@@ -62,6 +66,12 @@ internal static class SentenceIndexData
                 {
                     allJapaneseSentences[index.SentenceId] = index.Sentence;
                 }
+
+                if (!allEnglishSentences.ContainsKey(index.MeaningId))
+                {
+                    allEnglishSentences[index.MeaningId] = index.Meaning;
+                }
+
                 allIndexElements.AddRange(index.Elements);
 
                 await commandExecution;
@@ -70,6 +80,7 @@ internal static class SentenceIndexData
         }
 
         await db.InsertJapaneseSentencesAsync(allJapaneseSentences.Values);
+        await db.InsertEnglishSentencesAsync(allEnglishSentences.Values);
         await db.InsertIndexElementsAsync(allIndexElements);
     }
 }

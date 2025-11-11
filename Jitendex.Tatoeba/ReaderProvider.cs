@@ -38,7 +38,7 @@ internal static class ReaderProvider
         {
             FileStream f = new(examplesFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
             BrotliStream b = new(f, CompressionMode.Decompress);
-            return new StreamReader(b);
+            return new(b);
         })
 
         .AddTransient<TatoebaReader>()

@@ -22,17 +22,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Jitendex.Tatoeba.Models;
 
 [Table(nameof(SentenceIndex))]
-[PrimaryKey(nameof(SentenceId), nameof(Order))]
+[PrimaryKey(nameof(SentenceId), nameof(MeaningId), nameof(Order))]
 public class SentenceIndex
 {
     public required int SentenceId { get; init; }
+    public required int MeaningId { get; init; }
     public required int Order { get; init; }
-
-    [InverseProperty(nameof(IndexElement.Index))]
-    public List<IndexElement> Elements { get; init; } = [];
 
     [ForeignKey(nameof(SentenceId))]
     public required JapaneseSentence Sentence { get; init; }
 
-    public bool IsPriority() => Elements.Any(static e => e.IsPriority);
+    [ForeignKey(nameof(MeaningId))]
+    public required EnglishSentence Meaning { get; init; }
+
+    [InverseProperty(nameof(IndexElement.Index))]
+    public List<IndexElement> Elements { get; init; } = [];
 }

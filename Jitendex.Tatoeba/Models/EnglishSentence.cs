@@ -28,6 +28,6 @@ public class EnglishSentence
     public required int Id { get; init; }
     public required string Text { get; init; }
 
-    [InverseProperty(nameof(Example.EnglishSentence))]
-    public List<Example> Examples { get; init; } = [];
+    [InverseProperty(nameof(SentenceIndex.Meaning))]
+    public List<SentenceIndex> Indices { get; init; } = [];
 }

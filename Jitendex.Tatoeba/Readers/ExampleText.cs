@@ -108,5 +108,5 @@ internal readonly ref struct ExampleText
         => [.. _lineB.Split(' ')];
 
     public IndexElementText GetElementText(Range range)
-        => new IndexElementText(_lineB[range]);
+        => new(_lineB[range]);
 }

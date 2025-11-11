@@ -22,10 +22,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Jitendex.Tatoeba.Models;
 
 [Table(nameof(IndexElement))]
-[PrimaryKey(nameof(SentenceId), nameof(IndexOrder), nameof(Order))]
+[PrimaryKey(nameof(SentenceId), nameof(MeaningId), nameof(IndexOrder), nameof(Order))]
 public class IndexElement
 {
     public required int SentenceId { get; init; }
+    public required int MeaningId { get; init; }
     public required int IndexOrder { get; init; }
     public required int Order { get; init; }
 
@@ -36,14 +37,14 @@ public class IndexElement
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
 
-    [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]
+    [ForeignKey($"{nameof(SentenceId)}, {nameof(MeaningId)}, {nameof(IndexOrder)}")]
     public required SentenceIndex Index { get; init; }
 
     public override string ToString() =>
-        $"{SentenceId}・{IndexOrder}・{Order}: {Headword}"
-        + (Reading is not null ? $"({Reading})" : "")
-        + (EntryId is not null ? $"(#{EntryId})" : "")
-        + (SenseNumber is not null ? $"[{SenseNumber:D2}]" : "")
-        + (SentenceForm is not null ? $"{{{SentenceForm}}}" : "")
-        + (IsPriority ? "~" : "");
+        $"{SentenceId}\t{MeaningId}\t{IndexOrder}\t{Order}\t{Headword}"
+        + '\t' + (Reading is not null ? Reading : "")
+        + '\t' + (EntryId is not null ? EntryId : "")
+        + '\t' + (SenseNumber is not null ? $"{SenseNumber:D2}" : "")
+        + '\t' + (SentenceForm is not null ? SentenceForm : "")
+        + '\t' + (IsPriority ? "1" : "0");
 }

@@ -41,29 +41,19 @@ internal static class JapaneseSentenceData
 
     public static async Task InsertJapaneseSentencesAsync(this Context db, ICollection<JapaneseSentence> sentences)
     {
-        var allExamples = new List<Example>(sentences.Count);
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertSql;
 
-        await using (var command = db.Database.GetDbConnection().CreateCommand())
+        foreach (var sentence in sentences)
         {
-            command.CommandText = InsertSql;
-
-            foreach (var sentence in sentences)
+            command.Parameters.AddRange(new SqliteParameter[]
             {
-                command.Parameters.AddRange(new SqliteParameter[]
-                {
-                    new(P1, sentence.Id),
-                    new(P2, sentence.Text),
-                });
+                new(P1, sentence.Id),
+                new(P2, sentence.Text),
+            });
 
-                var commandExecution = command.ExecuteNonQueryAsync();
-
-                allExamples.AddRange(sentence.Examples);
-
-                await commandExecution;
-                command.Parameters.Clear();
-            }
+            await command.ExecuteNonQueryAsync();
+            command.Parameters.Clear();
         }
-
-        await db.InsertExamplesAsync(allExamples);
     }
 }

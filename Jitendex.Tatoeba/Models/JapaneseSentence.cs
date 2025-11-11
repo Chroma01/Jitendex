@@ -30,7 +30,4 @@ public class JapaneseSentence
 
     [InverseProperty(nameof(SentenceIndex.Sentence))]
     public List<SentenceIndex> Indices { get; init; } = [];
-
-    [InverseProperty(nameof(Example.JapaneseSentence))]
-    public List<Example> Examples { get; init; } = [];
 }

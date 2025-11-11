@@ -27,14 +27,15 @@ internal static class IndexElementData
 {
     // Column names
     private const string C1 = nameof(IndexElement.SentenceId);
-    private const string C2 = nameof(IndexElement.IndexOrder);
-    private const string C3 = nameof(IndexElement.Order);
-    private const string C4 = nameof(IndexElement.Headword);
-    private const string C5 = nameof(IndexElement.Reading);
-    private const string C6 = nameof(IndexElement.EntryId);
-    private const string C7 = nameof(IndexElement.SenseNumber);
-    private const string C8 = nameof(IndexElement.SentenceForm);
-    private const string C9 = nameof(IndexElement.IsPriority);
+    private const string C2 = nameof(IndexElement.MeaningId);
+    private const string C3 = nameof(IndexElement.IndexOrder);
+    private const string C4 = nameof(IndexElement.Order);
+    private const string C5 = nameof(IndexElement.Headword);
+    private const string C6 = nameof(IndexElement.Reading);
+    private const string C7 = nameof(IndexElement.EntryId);
+    private const string C8 = nameof(IndexElement.SenseNumber);
+    private const string C9 = nameof(IndexElement.SentenceForm);
+    private const string C10 = nameof(IndexElement.IsPriority);
 
     // Parameter names
     private const string P1 = $"@{C1}";
@@ -46,12 +47,13 @@ internal static class IndexElementData
     private const string P7 = $"@{C7}";
     private const string P8 = $"@{C8}";
     private const string P9 = $"@{C9}";
+    private const string P10 = $"@{C10}";
 
     private const string InsertSql =
         $"""
         INSERT INTO "{nameof(IndexElement)}"
-        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}", "{C6}", "{C7}", "{C8}", "{C9}") VALUES
-        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} ,  {P8} ,  {P9} );
+        ("{C1}", "{C2}", "{C3}", "{C4}", "{C5}", "{C6}", "{C7}", "{C8}", "{C9}", "{C10}") VALUES
+        ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} ,  {P8} ,  {P9} ,  {P10} );
         """;
 
     public static async Task InsertIndexElementsAsync(this Context db, IEnumerable<IndexElement> elements)
@@ -63,14 +65,15 @@ internal static class IndexElementData
             command.Parameters.AddRange(new SqliteParameter[]
             {
                 new(P1, element.SentenceId),
-                new(P2, element.IndexOrder),
-                new(P3, element.Order),
-                new(P4, element.Headword),
-                new(P5, element.Reading.Nullable()),
-                new(P6, element.EntryId.Nullable()),
-                new(P7, element.SenseNumber.Nullable()),
-                new(P8, element.SentenceForm.Nullable()),
-                new(P9, element.IsPriority),
+                new(P2, element.MeaningId),
+                new(P3, element.IndexOrder),
+                new(P4, element.Order),
+                new(P5, element.Headword),
+                new(P6, element.Reading.Nullable()),
+                new(P7, element.EntryId.Nullable()),
+                new(P8, element.SenseNumber.Nullable()),
+                new(P9, element.SentenceForm.Nullable()),
+                new(P10, element.IsPriority),
             });
             await command.ExecuteNonQueryAsync();
             command.Parameters.Clear();
