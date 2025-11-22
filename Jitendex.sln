@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Chise", "Jitendex.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.Tatoeba", "Jitendex.Tatoeba\Jitendex.Tatoeba.csproj", "{3CB10FA5-87F4-4354-A42B-2CC3997E3144}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitendex.EdrdgDictionaryArchive", "Jitendex.EdrdgDictionaryArchive\Jitendex.EdrdgDictionaryArchive.csproj", "{04BE382A-4573-4BC7-9652-7D9F29B6BB0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{3CB10FA5-87F4-4354-A42B-2CC3997E3144}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CB10FA5-87F4-4354-A42B-2CC3997E3144}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CB10FA5-87F4-4354-A42B-2CC3997E3144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04BE382A-4573-4BC7-9652-7D9F29B6BB0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04BE382A-4573-4BC7-9652-7D9F29B6BB0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04BE382A-4573-4BC7-9652-7D9F29B6BB0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04BE382A-4573-4BC7-9652-7D9F29B6BB0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
