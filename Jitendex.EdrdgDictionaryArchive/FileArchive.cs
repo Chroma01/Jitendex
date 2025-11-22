@@ -23,9 +23,9 @@ namespace Jitendex.EdrdgDictionaryArchive;
 internal sealed class FileArchive
 {
     private readonly DirectoryInfo _patchesDirectory;
-    public FileInfo BaseFile { get; private init; }
+    public FileInfo BaseFile { get; }
 
-    public FileArchive(DirectoryInfo? directoryInfo, FileType type)
+    public FileArchive(FileType type, DirectoryInfo? directoryInfo)
     {
         var root = directoryInfo is null
             ? GetDefaultDirectory()

@@ -68,9 +68,11 @@ public class Program
         var archiveDir = parseResult.GetValue(archiveDirOption);
         var date = parseResult.GetValue(dateOption);
 
-        FileCache cache = new(type);
-        FileArchive archive = new(archiveDir, type);
-        FileBuilder builder = new(cache, archive);
+        FileBuilder builder = new
+        (
+            cache: new(type),
+            archive: new(type, archiveDir)
+        );
 
         var file = builder.GetFile(date);
 
