@@ -44,21 +44,16 @@ internal sealed class FileCache
     };
 
     public FileInfo? GetFile(DateOnly date)
-        => GetCachedFilePath(date) is var cachedFile
-        && File.Exists(cachedFile)
-            ? new FileInfo(cachedFile)
+        => GetCachedFilePath(date) is var path && File.Exists(path)
+            ? new FileInfo(path)
             : null;
 
     public FileInfo SetFile(DateOnly date, ReadOnlySpan<char> text)
     {
-        var cachedFile = GetCachedFilePath(date);
-        using (FileStream f = new(cachedFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-        {
-            using BrotliStream b = new(f, CompressionLevel.Optimal);
-            using StreamWriter s = new(b);
-            s.Write(text);
-        }
-        return new FileInfo(cachedFile);
+        var path = GetCachedFilePath(date);
+        var file = new FileInfo(path);
+        file.WriteText(text);
+        return file;
     }
 
     private string GetCachedFilePath(DateOnly date) => Path.Join

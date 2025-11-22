@@ -127,12 +127,3 @@ internal sealed class FileArchive
         )
     );
 }
-
-internal static class DirectoryInfoExtensions
-{
-    public static IOrderedEnumerable<DirectoryInfo> GetSortedDirectories(this DirectoryInfo dInfo)
-        => dInfo.GetDirectories().OrderBy(static d => int.Parse(d.Name));
-
-    public static IOrderedEnumerable<FileInfo> GetSortedFiles(this DirectoryInfo dInfo)
-        => dInfo.GetFiles().OrderBy(static d => int.Parse(d.Name.AsSpan(0, 2)));
-}

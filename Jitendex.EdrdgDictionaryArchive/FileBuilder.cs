@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.IO.Compression;
 
 namespace Jitendex.EdrdgDictionaryArchive;
 
@@ -26,10 +25,7 @@ internal sealed class FileBuilder
     private readonly FileArchive _archive;
 
     public FileBuilder(FileCache cache, FileArchive archive)
-    {
-        _cache = cache;
-        _archive = archive;
-    }
+        => (_cache, _archive) = (cache, archive);
 
     public FileInfo GetFile(DateOnly date)
     {
@@ -37,7 +33,6 @@ internal sealed class FileBuilder
         {
             date = _archive.GetLatestPatchDate();
         }
-
         if (_cache.GetFile(date) is FileInfo cachedFile)
         {
             return cachedFile;
@@ -66,10 +61,10 @@ internal sealed class FileBuilder
                 newText
             );
             newText.AsSpan(0, textLength)
-                .CopyTo(originalText.AsSpan(0, textLength));
+                .CopyTo(originalText.AsSpan(0, textLength));  // Not necessary on the final loop, but it's no big deal.
         }
 
-        var file = _cache.SetFile(date, originalText.AsSpan(0, textLength));
+        var file = _cache.SetFile(date, newText.AsSpan(0, textLength));
 
         return file;
     }
@@ -92,22 +87,6 @@ internal sealed class FileBuilder
         }
         baseFile ??= _archive.BaseFile;
         return (baseDate, baseFile);
-    }
-}
-
-internal static class FileInfoExtensions
-{
-    public static int CopyTo(this FileInfo file, Span<char> buffer)
-    {
-        using FileStream fs = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        using BrotliStream bs = new(fs, CompressionMode.Decompress);
-        using StreamReader sr = new(bs);
-        int length = 0;
-        while (sr.Read(buffer[length..]) is int charsRead and not 0)
-        {
-            length += charsRead;
-        }
-        return length;
     }
 }
 
