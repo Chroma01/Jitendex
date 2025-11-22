@@ -82,7 +82,7 @@ internal sealed class FileArchive
         );
     }
 
-    public ReadOnlyCollection<DateOnly> EnumeratePatchDates(DateOnly afterDate, DateOnly untilDate = default)
+    public ReadOnlyCollection<DateOnly> GetPatchDates(DateOnly afterDate, DateOnly untilDate = default)
     {
         List<DateOnly> patchDates = [];
         foreach (var yearDir in _patchesDirectory.GetSortedDirectories())

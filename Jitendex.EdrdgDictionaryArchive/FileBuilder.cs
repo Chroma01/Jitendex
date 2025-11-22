@@ -39,7 +39,7 @@ internal sealed class FileBuilder
         }
 
         var (baseDate, baseFile) = GetBaseFiles(date);
-        var patchDates = _archive.EnumeratePatchDates(afterDate: baseDate, untilDate: date);
+        var patchDates = _archive.GetPatchDates(afterDate: baseDate, untilDate: date);
 
         Console.Error.WriteLine($"Reading base file from date {baseDate}");
 
@@ -73,7 +73,7 @@ internal sealed class FileBuilder
     {
         DateOnly baseDate = default;
         FileInfo? baseFile = null;
-        foreach (var patchDate in _archive.EnumeratePatchDates(afterDate: default))
+        foreach (var patchDate in _archive.GetPatchDates(afterDate: default))
         {
             if (patchDate == date)
             {
