@@ -58,7 +58,6 @@ internal sealed class FileCache
             using StreamWriter s = new(b);
             s.Write(text);
         }
-        // File.Delete(cachedFile);
         return new FileInfo(cachedFile);
     }
 

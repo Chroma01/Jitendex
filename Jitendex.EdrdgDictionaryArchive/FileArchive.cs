@@ -103,7 +103,7 @@ internal sealed class FileArchive
                     }
                     if (patchDate == untilDate)
                     {
-                        goto finish;
+                        goto end;
                     }
                 }
             }
@@ -112,7 +112,7 @@ internal sealed class FileArchive
         {
             throw new ArgumentException($"Patch for date {untilDate} does not exist in the archive", nameof(untilDate));
         }
-    finish:
+    end:
         return patchDates.AsReadOnly();
     }
 
@@ -130,9 +130,9 @@ internal sealed class FileArchive
 
 internal static class DirectoryInfoExtensions
 {
-    public static IEnumerable<DirectoryInfo> GetSortedDirectories(this DirectoryInfo dInfo)
+    public static IOrderedEnumerable<DirectoryInfo> GetSortedDirectories(this DirectoryInfo dInfo)
         => dInfo.GetDirectories().OrderBy(static d => int.Parse(d.Name));
 
-    public static IEnumerable<FileInfo> GetSortedFiles(this DirectoryInfo dInfo)
+    public static IOrderedEnumerable<FileInfo> GetSortedFiles(this DirectoryInfo dInfo)
         => dInfo.GetFiles().OrderBy(static d => int.Parse(d.Name.AsSpan(0, 2)));
 }
