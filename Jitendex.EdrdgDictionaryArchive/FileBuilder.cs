@@ -47,13 +47,13 @@ internal sealed class FileBuilder
         var patchText = new char[arraySize];
         var originalText = new char[arraySize];
         var newText = new char[arraySize];
-        var textLength = baseFile.CopyTo(originalText);
+        var textLength = baseFile.ReadInto(originalText);
 
         foreach (var patchDate in patchDates)
         {
             Console.Error.WriteLine($"Patching file to date {patchDate}");
             var patchFile = _archive.GetPatchFile(patchDate);
-            int patchLength = patchFile.CopyTo(patchText);
+            int patchLength = patchFile.ReadInto(patchText);
             textLength = Patch.Apply
             (
                 patchText.AsSpan(0, patchLength),

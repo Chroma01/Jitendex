@@ -52,7 +52,7 @@ internal sealed class FileCache
     {
         var path = GetCachedFilePath(date);
         var file = new FileInfo(path);
-        file.WriteText(text);
+        file.Write(text);
         return file;
     }
 

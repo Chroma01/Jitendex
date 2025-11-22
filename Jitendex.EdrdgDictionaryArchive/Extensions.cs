@@ -22,7 +22,7 @@ namespace Jitendex.EdrdgDictionaryArchive;
 
 internal static class FileInfoExtensions
 {
-    public static int CopyTo(this FileInfo file, Span<char> buffer)
+    public static int ReadInto(this FileInfo file, Span<char> buffer)
     {
         using FileStream fs = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
         using BrotliStream bs = new(fs, CompressionMode.Decompress);
@@ -35,7 +35,7 @@ internal static class FileInfoExtensions
         return length;
     }
 
-    public static void WriteText(this FileInfo file, ReadOnlySpan<char> text)
+    public static void Write(this FileInfo file, ReadOnlySpan<char> text)
     {
         using FileStream fs = new(file.FullName, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         using BrotliStream bs = new(fs, CompressionLevel.Optimal);
