@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
+
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal readonly ref struct FileType
@@ -24,26 +26,22 @@ internal readonly ref struct FileType
     public readonly ReadOnlySpan<char> DirectoryName { get; }
     public readonly ReadOnlySpan<char> CompressedName { get; }
 
-    public FileType(ReadOnlySpan<char> name)
+    public FileType(DictionaryFile file)
     {
-        if (!IsValid(name))
-        {
-            throw new ArgumentException($"Invalid file type '{name}'", nameof(name));
-        }
-        Name = name;
-        DirectoryName = ToDirectoryName(name);
-        CompressedName = $"{name}.br";
+        Name = GetFileName(file);
+        DirectoryName = ToDirectoryName(Name);
+        CompressedName = $"{Name}.br";
     }
 
-    private static bool IsValid(ReadOnlySpan<char> name) => name switch
+    private static ReadOnlySpan<char> GetFileName(DictionaryFile file) => file switch
     {
-        "JMdict" or
-        "JMdict_e" or
-        "JMdict_e_examp" or
-        "JMnedict.xml" or
-        "kanjidic2.xml" or
-        "examples.utf" => true,
-        _ => false
+        JMdict => "JMdict",
+        JMdict_e => "JMdict_e",
+        JMdict_e_examp => "JMdict_e_examp",
+        JMnedict => "JMnedict.xml",
+        kanjidic2 => "kanjidic2.xml",
+        examples => "examples.utf",
+        _ => throw new ArgumentOutOfRangeException(nameof(file))
     };
 
     private static ReadOnlySpan<char> ToDirectoryName(ReadOnlySpan<char> name) => string.Create

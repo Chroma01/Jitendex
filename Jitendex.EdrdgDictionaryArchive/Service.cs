@@ -1,0 +1,47 @@
+/*
+Copyright (c) 2025 Stephen Kraus
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using Jitendex.EdrdgDictionaryArchive.Internal;
+
+namespace Jitendex.EdrdgDictionaryArchive;
+
+public static class Service
+{
+    public static FileInfo GetFile(DictionaryFile file, DateOnly date = default, DirectoryInfo? archiveDirectory = null)
+    {
+        var type = new FileType(file);
+
+        FileBuilder builder = new
+        (
+            cache: new(type),
+            archive: new(type, archiveDirectory)
+        );
+
+        return builder.GetFile(date);
+    }
+}
+
+public enum DictionaryFile : byte
+{
+    JMdict,
+    JMdict_e,
+    JMdict_e_examp,
+    JMnedict,
+    kanjidic2,
+    examples,
+}

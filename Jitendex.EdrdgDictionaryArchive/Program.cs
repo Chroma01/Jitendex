@@ -17,7 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
-using Jitendex.EdrdgDictionaryArchive.Internal;
 
 namespace Jitendex.EdrdgDictionaryArchive;
 
@@ -25,9 +24,9 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        Option<DirectoryInfo> archiveDirOption = new("--archive-path")
+        Argument<DictionaryFile> filenameArgument = new("file")
         {
-            Description = "Path to the edrdg-dictionary-archive directory",
+            Description = "File to retrieve"
         };
 
         Option<DateOnly> dateOption = new("--date")
@@ -35,24 +34,16 @@ public class Program
             Description = "Date of the file to retrieve"
         };
 
-        Argument<string> filenameArgument = new("filename");
-        filenameArgument.Validators.Add(result =>
+        Option<DirectoryInfo> archiveDirOption = new("--archive-path")
         {
-            try
-            {
-                _ = new FileType(result.GetValue(filenameArgument));
-            }
-            catch(Exception ex)
-            {
-                result.AddError(ex.Message);
-            }
-        });
+            Description = "Path to the edrdg-dictionary-archive directory",
+        };
 
         var rootCommand = new RootCommand("Jitendex.EdrdgDictionaryArchive: Retrieve a versioned file from the EDRDG Dictionary Archive")
         {
-            archiveDirOption,
-            dateOption,
             filenameArgument,
+            dateOption,
+            archiveDirOption,
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -65,17 +56,12 @@ public class Program
             return 1;
         }
 
-        var type = new FileType(parseResult.GetRequiredValue(filenameArgument));
-        var archiveDir = parseResult.GetValue(archiveDirOption);
-        var date = parseResult.GetValue(dateOption);
-
-        FileBuilder builder = new
+        var file = Service.GetFile
         (
-            cache: new(type),
-            archive: new(type, archiveDir)
+            file: parseResult.GetRequiredValue(filenameArgument),
+            date: parseResult.GetValue(dateOption),
+            archiveDirectory: parseResult.GetValue(archiveDirOption)
         );
-
-        var file = builder.GetFile(date);
 
         Console.WriteLine(file.FullName);
         return 0;
