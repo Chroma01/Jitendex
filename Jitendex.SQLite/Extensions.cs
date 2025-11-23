@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.SQLite;
 
-public static class DBValueExtensions
+public static class Extensions
 {
     public static object Nullable(this object? dbValue)
         => dbValue is null ? DBNull.Value : dbValue;
