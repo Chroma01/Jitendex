@@ -42,7 +42,7 @@ internal sealed class FileBuilder
     {
         var (baseDate, baseFile, patchDates) = GetBuildBase(date);
 
-        Console.Error.WriteLine($"Reading base file from date {baseDate}");
+        Console.Error.WriteLine(ReadingBaseFileMessage(baseDate));
 
         int length = baseFile.Length();
         var patchText = new char[length / 10];
@@ -52,7 +52,7 @@ internal sealed class FileBuilder
 
         foreach (var patchDate in patchDates)
         {
-            Console.Error.WriteLine($"Patching file to date {patchDate}");
+            Console.Error.WriteLine($"Patching file to date {patchDate:yyyy-MM-dd}");
             var patchFile = _archive.GetPatchFile(patchDate);
             int patchLength = patchFile.ReadInto(patchText);
             length = Patch.Apply
@@ -61,12 +61,13 @@ internal sealed class FileBuilder
                 originalText.AsSpan(0, length),
                 newText
             );
-
             newText.AsSpan(0, length)
                 .CopyTo(originalText.AsSpan(0, length));  // Not necessary on the final loop, but it's no big deal.
         }
 
-        return _cache.SetFile(date, newText.AsSpan(0, length));
+        var builtFile = _cache.SetFile(date, newText.AsSpan(0, length));
+        _cache.DeleteFile(baseDate);
+        return builtFile;
     }
 
     private (DateOnly, FileInfo, List<DateOnly>) GetBuildBase(DateOnly date)
@@ -90,4 +91,9 @@ internal sealed class FileBuilder
         baseFile ??= _archive.BaseFile;
         return (baseDate, baseFile, patchDates);
     }
+
+    private static ReadOnlySpan<char> ReadingBaseFileMessage(DateOnly baseDate)
+        => baseDate == default
+            ? "Reading base file from file archive"
+            : $"Reading base file from date {baseDate:yyyy-MM-dd}";
 }

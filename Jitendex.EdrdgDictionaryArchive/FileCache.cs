@@ -56,6 +56,14 @@ internal sealed class FileCache
         return file;
     }
 
+    public void DeleteFile(DateOnly date)
+    {
+        if (GetFile(date) is FileInfo file)
+        {
+            file.Delete();
+        }
+    }
+
     private string GetCachedFilePath(DateOnly date) => Path.Join
     (
         _directory.FullName,
