@@ -27,9 +27,7 @@ internal sealed class FileArchive
 
     public FileArchive(FileType type, DirectoryInfo? directoryInfo)
     {
-        var root = directoryInfo is null
-            ? GetDefaultDirectory()
-            : directoryInfo;
+        var root = directoryInfo ?? GetDefaultDirectory();
         _patchesDirectory = GetPatchesDirectory(root, type);
         BaseFile = GetBaseFile(root, type);
     }

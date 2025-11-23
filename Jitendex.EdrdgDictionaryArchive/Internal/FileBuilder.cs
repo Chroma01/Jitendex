@@ -34,9 +34,7 @@ internal sealed class FileBuilder
         {
             date = _archive.GetLatestPatchDate();
         }
-        return _cache.GetFile(date) is FileInfo cachedFile
-            ? cachedFile
-            : BuildFile(date);
+        return _cache.GetFile(date) ?? BuildFile(date);
     }
 
     private FileInfo BuildFile(DateOnly date)
