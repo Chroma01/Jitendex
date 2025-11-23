@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 namespace Jitendex.EdrdgDictionaryArchive;
 
 internal sealed class FileBuilder
@@ -29,64 +28,66 @@ internal sealed class FileBuilder
 
     public FileInfo GetFile(DateOnly date)
     {
-        if (date.Equals(default))
+        if (date == default)
         {
             date = _archive.GetLatestPatchDate();
         }
-        if (_cache.GetFile(date) is FileInfo cachedFile)
-        {
-            return cachedFile;
-        }
+        return _cache.GetFile(date) is FileInfo cachedFile
+            ? cachedFile
+            : BuildFile(date);
+    }
 
-        var (baseDate, baseFile) = GetBaseFiles(date);
-        var patchDates = _archive.GetPatchDates(afterDate: baseDate, untilDate: date);
+    private FileInfo BuildFile(DateOnly date)
+    {
+        var (baseDate, baseFile, patchDates) = GetBuildBase(date);
 
         Console.Error.WriteLine($"Reading base file from date {baseDate}");
 
-        int arraySize = int.MaxValue / 10;
-        var patchText = new char[arraySize];
-        var originalText = new char[arraySize];
-        var newText = new char[arraySize];
-        var textLength = baseFile.ReadInto(originalText);
+        int length = baseFile.Length();
+        var patchText = new char[length / 10];
+        var originalText = new char[length * 3 / 2];
+        var newText = new char[length * 3 / 2];
+        baseFile.ReadInto(originalText);
 
         foreach (var patchDate in patchDates)
         {
             Console.Error.WriteLine($"Patching file to date {patchDate}");
             var patchFile = _archive.GetPatchFile(patchDate);
             int patchLength = patchFile.ReadInto(patchText);
-            textLength = Patch.Apply
+            length = Patch.Apply
             (
                 patchText.AsSpan(0, patchLength),
-                originalText.AsSpan(0, textLength),
+                originalText.AsSpan(0, length),
                 newText
             );
-            newText.AsSpan(0, textLength)
-                .CopyTo(originalText.AsSpan(0, textLength));  // Not necessary on the final loop, but it's no big deal.
+
+            newText.AsSpan(0, length)
+                .CopyTo(originalText.AsSpan(0, length));  // Not necessary on the final loop, but it's no big deal.
         }
 
-        var file = _cache.SetFile(date, newText.AsSpan(0, textLength));
-
-        return file;
+        return _cache.SetFile(date, newText.AsSpan(0, length));
     }
 
-    private (DateOnly, FileInfo) GetBaseFiles(DateOnly date)
+    private (DateOnly, FileInfo, List<DateOnly>) GetBuildBase(DateOnly date)
     {
         DateOnly baseDate = default;
         FileInfo? baseFile = null;
-        foreach (var patchDate in _archive.GetPatchDates(afterDate: default))
+        List<DateOnly> patchDates = [];
+        foreach (var patchDate in _archive.GetPatchDates(untilDate: date))
         {
-            if (patchDate == date)
-            {
-                break;
-            }
             if (_cache.GetFile(patchDate) is FileInfo cachedFile)
             {
                 baseDate = patchDate;
                 baseFile = cachedFile;
+                patchDates.Clear();
+            }
+            else
+            {
+                patchDates.Add(patchDate);
             }
         }
         baseFile ??= _archive.BaseFile;
-        return (baseDate, baseFile);
+        return (baseDate, baseFile, patchDates);
     }
 }
 

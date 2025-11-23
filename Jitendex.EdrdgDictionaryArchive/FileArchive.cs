@@ -82,7 +82,7 @@ internal sealed class FileArchive
         );
     }
 
-    public ReadOnlyCollection<DateOnly> GetPatchDates(DateOnly afterDate, DateOnly untilDate = default)
+    public ReadOnlyCollection<DateOnly> GetPatchDates(DateOnly untilDate = default)
     {
         List<DateOnly> patchDates = [];
         foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
@@ -97,10 +97,7 @@ internal sealed class FileArchive
                         month: int.Parse(monthDir.Name),
                         day: int.Parse(patchFile.Name.AsSpan(0, 2))
                     );
-                    if (patchDate > afterDate)
-                    {
-                        patchDates.Add(patchDate);
-                    }
+                    patchDates.Add(patchDate);
                     if (patchDate == untilDate)
                     {
                         goto end;

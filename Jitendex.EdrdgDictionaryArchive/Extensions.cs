@@ -22,6 +22,19 @@ namespace Jitendex.EdrdgDictionaryArchive;
 
 internal static class FileInfoExtensions
 {
+    public static int Length(this FileInfo file)
+    {
+        using FileStream fs = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using BrotliStream bs = new(fs, CompressionMode.Decompress);
+        using StreamReader sr = new(bs);
+        int length = 0;
+        while (sr.Read() != -1)
+        {
+            length++;
+        }
+        return length;
+    }
+
     public static int ReadInto(this FileInfo file, Span<char> buffer)
     {
         using FileStream fs = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
