@@ -44,10 +44,14 @@ internal readonly ref struct FileType
         _ => throw new ArgumentOutOfRangeException(nameof(file))
     };
 
+    /// <summary>
+    /// Replace the '.' characters in a filename with underscores to get a folder name.
+    /// </summary>
     private static ReadOnlySpan<char> ToDirectoryName(ReadOnlySpan<char> name) => string.Create
     (
         length: name.Length,
         state: name,
-        action: static (buffer, filename) => filename.Replace(buffer, '.', '_')
+        action: static (destination, filename)
+            => filename.Replace(destination, oldValue: '.', newValue: '_')
     );
 }
