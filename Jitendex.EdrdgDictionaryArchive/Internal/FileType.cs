@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.EdrdgDictionaryArchive;
+namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal readonly ref struct FileType
 {

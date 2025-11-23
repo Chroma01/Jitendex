@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.ObjectModel;
 
-namespace Jitendex.EdrdgDictionaryArchive;
+namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed class FileArchive
 {

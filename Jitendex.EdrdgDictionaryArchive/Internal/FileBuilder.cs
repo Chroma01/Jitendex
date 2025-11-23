@@ -17,7 +17,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using MinimalPatch;
-namespace Jitendex.EdrdgDictionaryArchive;
+
+namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed class FileBuilder
 {

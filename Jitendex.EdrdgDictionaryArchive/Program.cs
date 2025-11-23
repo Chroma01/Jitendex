@@ -17,6 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
+using Jitendex.EdrdgDictionaryArchive.Internal;
 
 namespace Jitendex.EdrdgDictionaryArchive;
 

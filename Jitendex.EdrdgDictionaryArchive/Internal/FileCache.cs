@@ -16,9 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.IO.Compression;
-
-namespace Jitendex.EdrdgDictionaryArchive;
+namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed class FileCache
 {
