@@ -28,8 +28,8 @@ public static class Service
 
         FileBuilder builder = new
         (
-            cache: new(type),
-            archive: new(type, archiveDirectory)
+            new FileCache(type),
+            new FileArchive(type, archiveDirectory)
         );
 
         return builder.GetFile(date);
