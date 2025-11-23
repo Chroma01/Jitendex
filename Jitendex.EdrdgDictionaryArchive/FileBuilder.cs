@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using MinimalPatch;
 namespace Jitendex.EdrdgDictionaryArchive;
 
 internal sealed class FileBuilder
@@ -88,13 +89,5 @@ internal sealed class FileBuilder
         }
         baseFile ??= _archive.BaseFile;
         return (baseDate, baseFile, patchDates);
-    }
-}
-
-internal static class Patch
-{
-    public static int Apply(ReadOnlySpan<char> patchText, ReadOnlySpan<char> originalText, Span<char> newText)
-    {
-        throw new NotImplementedException();
     }
 }
