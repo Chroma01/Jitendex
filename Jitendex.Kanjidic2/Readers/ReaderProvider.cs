@@ -20,20 +20,14 @@ using System.IO.Compression;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Jitendex.Kanjidic2.Readers;
 using Jitendex.Kanjidic2.Readers.GroupReaders;
 
-namespace Jitendex.Kanjidic2;
-
-internal record Files
-{
-    public required FileInfo Kanjidic2 { get; init; }
-}
+namespace Jitendex.Kanjidic2.Readers;
 
 internal static class ReaderProvider
 {
-    public static Kanjidic2Reader GetReader(Files files) => new ServiceCollection()
-        .AddLogging(builder =>
+    public static Kanjidic2Reader GetReader(FileInfo file) => new ServiceCollection()
+        .AddLogging(static builder =>
             builder.AddSimpleConsole(options =>
             {
                 options.IncludeScopes = true;
@@ -42,8 +36,19 @@ internal static class ReaderProvider
             }))
 
         // Global XML file reader.
-        .AddSingleton(provider =>
-            CreateXmlReader(files.Kanjidic2.FullName))
+        .AddSingleton(_ =>
+            {
+                var readerSettings = new XmlReaderSettings
+                {
+                    Async = true,
+                    DtdProcessing = DtdProcessing.Parse,
+                    MaxCharactersFromEntities = long.MaxValue,
+                    MaxCharactersInDocument = long.MaxValue,
+                };
+                FileStream f = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                BrotliStream b = new(f, CompressionMode.Decompress);
+                return XmlReader.Create(b, readerSettings);
+            })
 
         // Global document types.
         .AddSingleton<DocumentTypes>()
@@ -68,19 +73,4 @@ internal static class ReaderProvider
         .AddTransient<Kanjidic2Reader>()
         .BuildServiceProvider()
         .GetRequiredService<Kanjidic2Reader>();
-
-
-    private static XmlReader CreateXmlReader(string path)
-    {
-        var readerSettings = new XmlReaderSettings
-        {
-            Async = true,
-            DtdProcessing = DtdProcessing.Parse,
-            MaxCharactersFromEntities = long.MaxValue,
-            MaxCharactersInDocument = long.MaxValue,
-        };
-        FileStream f = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        BrotliStream b = new(f, CompressionMode.Decompress);
-        return XmlReader.Create(b, readerSettings);
-    }
 }

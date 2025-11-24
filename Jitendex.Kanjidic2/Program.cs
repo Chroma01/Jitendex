@@ -20,18 +20,24 @@ using System.CommandLine;
 
 namespace Jitendex.Kanjidic2;
 
-public class Program
+public static class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        var kanjidic2FileArgument = new Argument<FileInfo>("kanjidic2-file")
+        Option<DateOnly> dateOption = new("--date")
         {
-            Description = "Path to Brotli-compressed Kanjidic2 XML file",
+            Description = "Date of the kanjidic2.xml file to retrieve"
+        };
+
+        Option<DirectoryInfo> archiveDirOption = new("--archive-path")
+        {
+            Description = "Path to the edrdg-dictionary-archive directory",
         };
 
         var rootCommand = new RootCommand("Jitendex.Kanjidic2: Import a Kanjidic2 XML document")
         {
-            kanjidic2FileArgument
+            dateOption,
+            archiveDirOption,
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -41,17 +47,15 @@ public class Program
             {
                 Console.Error.WriteLine(parseError.Message);
             }
-            return;
+            return 1;
         }
 
-        var files = new Files
-        {
-            Kanjidic2 = parseResult.GetRequiredValue(kanjidic2FileArgument)
-        };
+        await Service.RunAsync
+        (
+            date: parseResult.GetValue(dateOption),
+            archiveDirectory: parseResult.GetValue(archiveDirOption)
+        );
 
-        var reader = ReaderProvider.GetReader(files);
-        var kanjidic2 = await reader.ReadAsync();
-
-        await DatabaseInitializer.WriteAsync(kanjidic2);
+        return 0;
     }
 }

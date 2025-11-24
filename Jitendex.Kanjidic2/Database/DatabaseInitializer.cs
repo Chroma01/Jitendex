@@ -17,11 +17,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Kanjidic2.Database;
 using Jitendex.Kanjidic2.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Kanjidic2;
+namespace Jitendex.Kanjidic2.Database;
 
 internal static class DatabaseInitializer
 {
