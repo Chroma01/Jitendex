@@ -21,5 +21,5 @@ namespace Jitendex.SQLite;
 public static class Extensions
 {
     public static object Nullable(this object? dbValue)
-        => dbValue is null ? DBNull.Value : dbValue;
+        => dbValue ?? DBNull.Value;
 }
