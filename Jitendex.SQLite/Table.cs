@@ -18,40 +18,29 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Tatoeba.Models;
 
-namespace Jitendex.Tatoeba.Database;
+namespace Jitendex.SQLite;
 
-internal static class EnglishSentenceData
+public abstract class Table<T>
 {
-    // Column names
-    private const string C1 = nameof(EnglishSentence.Id);
-    private const string C2 = nameof(EnglishSentence.Text);
+    protected abstract string Name { get; }
+    protected abstract IReadOnlyList<string> ColumnNames { get; }
+    protected abstract SqliteParameter[] Parameters(T item);
 
-    // Parameter names
-    private const string P1 = $"@{C1}";
-    private const string P2 = $"@{C2}";
-
-    private const string InsertSql =
+    private string InsertCommandText =>
         $"""
-        INSERT INTO "{nameof(EnglishSentence)}"
-        ("{C1}", "{C2}") VALUES
-        ( {P1} ,  {P2} );
+        INSERT INTO "{Name}"
+        ({string.Join(',', ColumnNames.Select(static c => $"\"{c}\""))}) VALUES
+        ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx}"))});
         """;
 
-    public static async Task InsertEnglishSentencesAsync(this Context db, IEnumerable<EnglishSentence> sentences)
+    public async Task InsertItemsAsync(SqliteContext db, IEnumerable<T> items)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();
-        command.CommandText = InsertSql;
-
-        foreach (var sentence in sentences)
+        command.CommandText = InsertCommandText;
+        foreach (var item in items)
         {
-            command.Parameters.AddRange(new SqliteParameter[]
-            {
-                new(P1, sentence.Id),
-                new(P2, sentence.Text),
-            });
-
+            command.Parameters.AddRange(Parameters(item));
             await command.ExecuteNonQueryAsync();
             command.Parameters.Clear();
         }

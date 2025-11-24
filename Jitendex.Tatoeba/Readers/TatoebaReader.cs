@@ -55,7 +55,7 @@ internal sealed class TatoebaReader
             }
             else
             {
-                var text = new ExampleText(lineA.AsSpan()[3..], lineB.AsSpan()[3..]);
+                var text = new ExampleText(lineA.AsSpan(3), lineB.AsSpan(3));
                 try
                 {
                     var index = MakeIndex(text);

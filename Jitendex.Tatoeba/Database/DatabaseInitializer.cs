@@ -35,10 +35,19 @@ internal static class DatabaseInitializer
         // Wait until all data is imported before checking foreign key constraints.
         await context.ExecuteDeferForeignKeysPragmaAsync();
 
+        // Initialize table objects.
+        SentenceIndexTable siTable = new();
+        EnglishSentenceTable esTable = new();
+        JapaneseSentenceTable jsTable = new();
+        IndexElementTable ieTable = new();
+
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await context.InsertIndicesAsync(indices);
+            await siTable.InsertItemsAsync(context, indices);
+            await esTable.InsertItemsAsync(context, indices.GetAllEnglishSentences());
+            await jsTable.InsertItemsAsync(context, indices.GetAllJapaneseSentences());
+            await ieTable.InsertItemsAsync(context, indices.GetAllIndexElements());
             await transaction.CommitAsync();
         }
 
@@ -48,4 +57,33 @@ internal static class DatabaseInitializer
         // Rebuild the database compactly.
         await context.ExecuteVacuumAsync();
     }
+
+    private static IEnumerable<EnglishSentence> GetAllEnglishSentences(this List<SentenceIndex> indices)
+    {
+        Dictionary<int, EnglishSentence> all = new(indices.Count);
+        foreach (var index in indices)
+        {
+            if (!all.ContainsKey(index.MeaningId))
+            {
+                all[index.MeaningId] = index.Meaning;
+            }
+        }
+        return all.Values;
+    }
+
+    private static IEnumerable<JapaneseSentence> GetAllJapaneseSentences(this List<SentenceIndex> indices)
+    {
+        Dictionary<int, JapaneseSentence> all = new(indices.Count);
+        foreach (var index in indices)
+        {
+            if (!all.ContainsKey(index.SentenceId))
+            {
+                all[index.SentenceId] = index.Sentence;
+            }
+        }
+        return all.Values;
+    }
+
+    private static IEnumerable<IndexElement> GetAllIndexElements(this List<SentenceIndex> indices)
+        => indices.SelectMany(static i => i.Elements);
 }
