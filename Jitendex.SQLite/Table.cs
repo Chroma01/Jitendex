@@ -30,8 +30,8 @@ public abstract class Table<T>
     private string InsertCommandText =>
         $"""
         INSERT INTO "{Name}"
-        ({string.Join(',', ColumnNames.Select(static c => $"\"{c}\""))}) VALUES
-        ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx}"))});
+        ({string.Join(',', ColumnNames.Select(static name => $"\"{name}\""))}) VALUES
+        ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx:X}"))});
         """;
 
     public async Task InsertItemsAsync(SqliteContext db, IEnumerable<T> items)
