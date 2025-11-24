@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using static System.Environment;
 
-namespace Jitendex.AppDirectory;
+namespace Jitendex.AppDirectory.Internal;
 
 internal static class EnvironmentPaths
 {

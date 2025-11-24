@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.AppDirectory.Internal;
 using static Jitendex.AppDirectory.CacheSubdirectory;
 
 namespace Jitendex.AppDirectory;
