@@ -20,18 +20,24 @@ using System.CommandLine;
 
 namespace Jitendex.Tatoeba;
 
-public class Program
+public static class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        var tatoebaFileArgument = new Argument<FileInfo>("examples-file")
+        Option<DateOnly> dateOption = new("--date")
         {
-            Description = "Path to Brotli-compressed example sentence file",
+            Description = "Date of the Tatoeba examples file to retrieve"
+        };
+
+        Option<DirectoryInfo> archiveDirOption = new("--archive-path")
+        {
+            Description = "Path to the edrdg-dictionary-archive directory",
         };
 
         var rootCommand = new RootCommand("Jitendex.Tatoeba: Import Japanese-to-English example sentences")
         {
-            tatoebaFileArgument,
+            dateOption,
+            archiveDirOption,
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -41,14 +47,15 @@ public class Program
             {
                 Console.Error.WriteLine(parseError.Message);
             }
-            return;
+            return 1;
         }
 
-        var examplesFile = parseResult.GetRequiredValue(tatoebaFileArgument);
+        await Service.RunAsync
+        (
+            date: parseResult.GetValue(dateOption),
+            archiveDirectory: parseResult.GetValue(archiveDirOption)
+        );
 
-        var reader = ReaderProvider.GetReader(examplesFile);
-        var indices = await reader.ReadAsync();
-
-        await DatabaseInitializer.WriteAsync(indices);
+        return 0;
     }
 }

@@ -7,4 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jitendex.AppDirectory\Jitendex.AppDirectory.csproj" />
+  </ItemGroup>
 </Project>

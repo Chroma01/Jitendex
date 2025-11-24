@@ -19,9 +19,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Jitendex.Tatoeba.Readers;
 
-namespace Jitendex.Tatoeba;
+namespace Jitendex.Tatoeba.Readers;
 
 internal static class ReaderProvider
 {

@@ -16,24 +16,22 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Jitendex.AppDirectory;
-using Jitendex.SQLite.EntityFrameworkCore;
+using Jitendex.Tatoeba.Database;
+using Jitendex.Tatoeba.Readers;
+using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
+using static Jitendex.EdrdgDictionaryArchive.Service;
 
-namespace Jitendex.SQLite;
+namespace Jitendex.Tatoeba;
 
-public abstract class SqliteContext : DbContext
+public static class Service
 {
-    private readonly string _dbPath;
-
-    public SqliteContext(string dbFilename)
+    public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null)
     {
-        var directory = Cache.Get(CacheSubdirectory.Sqlite);
-        _dbPath = Path.Join(directory.FullName, dbFilename);
-    }
+        var examplesFile = GetFile(examples, date, archiveDirectory);
 
-    protected sealed override void OnConfiguring(DbContextOptionsBuilder options) => options
-        .UseSqlite($"Data Source={_dbPath}")
-        .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
+        var reader = ReaderProvider.GetReader(examplesFile);
+        var indices = await reader.ReadAsync();
+
+        await DatabaseInitializer.WriteAsync(indices);
+    }
 }

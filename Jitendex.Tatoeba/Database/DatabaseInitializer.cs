@@ -17,11 +17,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Tatoeba.Database;
 using Jitendex.Tatoeba.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba;
+namespace Jitendex.Tatoeba.Database;
 
 internal static class DatabaseInitializer
 {
