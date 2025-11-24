@@ -17,6 +17,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.Collections.ObjectModel;
+using Jitendex.AppDirectory;
+using static Jitendex.AppDirectory.DataSubdirectory;
 
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
@@ -27,24 +29,9 @@ internal sealed class FileArchive
 
     public FileArchive(FileType type, DirectoryInfo? directoryInfo)
     {
-        var root = directoryInfo ?? GetDefaultDirectory();
-        _patchesDirectory = GetPatchesDirectory(root, type);
-        BaseFile = GetBaseFile(root, type);
-    }
-
-    private static DirectoryInfo GetDefaultDirectory()
-    {
-        var path = Path.Join
-        (
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "jitendex",
-            "edrdg-dictionary-archive"
-        );
-        if (!Directory.Exists(path))
-        {
-            throw new DirectoryNotFoundException($"Path to archive directory not specified. No archive found at the default path '{path}'");
-        }
-        return new DirectoryInfo(path);
+        var dataRoot = directoryInfo ?? DataHome.Get(EdrdgArchive);
+        _patchesDirectory = GetPatchesDirectory(dataRoot, type);
+        BaseFile = GetBaseFile(dataRoot, type);
     }
 
     private static DirectoryInfo GetPatchesDirectory(DirectoryInfo root, FileType type) => new

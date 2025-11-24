@@ -16,6 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.AppDirectory;
+using static Jitendex.AppDirectory.CacheSubdirectory;
+
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed class FileCache
@@ -24,22 +27,9 @@ internal sealed class FileCache
 
     public FileCache(FileType type)
     {
-        var path = Path.Join(GetCacheRoot(), "jitendex", "edrdg-dictionary-archive", type.DirectoryName);
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-        _directory = new DirectoryInfo(path);
+        var cacheRoot = Cache.Get(EdrdgArchive);
+        _directory = cacheRoot.CreateSubdirectory(type.DirectoryName.ToString());
     }
-
-    private static ReadOnlySpan<char> GetCacheRoot() => Environment.OSVersion.Platform switch
-    {
-        PlatformID.Unix
-            => Environment.GetEnvironmentVariable("XDG_CACHE_HOME")
-            ?? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache"),
-        _
-            => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-    };
 
     public FileInfo? GetFile(DateOnly date)
         => GetCachedFilePath(date) is var path && File.Exists(path)

@@ -9,4 +9,7 @@
     <PackageReference Include="System.CommandLine" Version="2.0.0" />
     <PackageReference Include="MinimalPatch" Version="2025.11.22" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jitendex.AppDirectory\Jitendex.AppDirectory.csproj" />
+  </ItemGroup>
 </Project>
