@@ -21,7 +21,7 @@ using Jitendex.Tatoeba.Models;
 
 namespace Jitendex.Tatoeba.Readers;
 
-internal class TatoebaReader
+internal sealed class TatoebaReader
 {
     private readonly ILogger<TatoebaReader> _logger;
     private readonly StreamReader _reader;

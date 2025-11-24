@@ -22,7 +22,7 @@ using Jitendex.SQLite;
 
 namespace Jitendex.Tatoeba;
 
-public class Context : SqliteContext
+public sealed class Context : SqliteContext
 {
     public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
     public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
