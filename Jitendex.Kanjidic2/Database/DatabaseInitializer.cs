@@ -16,9 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Models;
-using Jitendex.SQLite;
 
 namespace Jitendex.Kanjidic2.Database;
 
@@ -26,34 +24,33 @@ internal static class DatabaseInitializer
 {
     public static async Task WriteAsync(Kanjidic2Document kanjidic2)
     {
-        await using var db = new Context();
+        await using var context = new Context();
 
         // Delete and recreate the database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await context.InitializeDatabaseAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
+        await context.ExecuteFastNewDatabasePragmaAsync();
 
         // Begin inserting data.
-        await using (var transaction = await db.Database.BeginTransactionAsync())
+        await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await db.InsertKeywordsAsync(kanjidic2.CodepointTypes);
-            await db.InsertKeywordsAsync(kanjidic2.DictionaryTypes);
-            await db.InsertKeywordsAsync(kanjidic2.QueryCodeTypes);
-            await db.InsertKeywordsAsync(kanjidic2.MisclassificationTypes);
-            await db.InsertKeywordsAsync(kanjidic2.RadicalTypes);
-            await db.InsertKeywordsAsync(kanjidic2.ReadingType);
-            await db.InsertKeywordsAsync(kanjidic2.VariantTypes);
-            await db.InsertEntriesAsync(kanjidic2.Entries);
+            await context.InsertKeywordsAsync(kanjidic2.CodepointTypes);
+            await context.InsertKeywordsAsync(kanjidic2.DictionaryTypes);
+            await context.InsertKeywordsAsync(kanjidic2.QueryCodeTypes);
+            await context.InsertKeywordsAsync(kanjidic2.MisclassificationTypes);
+            await context.InsertKeywordsAsync(kanjidic2.RadicalTypes);
+            await context.InsertKeywordsAsync(kanjidic2.ReadingType);
+            await context.InsertKeywordsAsync(kanjidic2.VariantTypes);
+            await context.InsertEntriesAsync(kanjidic2.Entries);
 
             await transaction.CommitAsync();
         }
 
         // Write database to the disk.
-        await db.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Rebuild the database compactly.
-        await db.Database.ExecuteSqlRawAsync("VACUUM;");
+        await context.ExecuteVacuumAsync();
     }
 }

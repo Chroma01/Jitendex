@@ -16,10 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.KanjiVG.Database;
 using Jitendex.KanjiVG.Models;
-using Jitendex.SQLite;
 
 namespace Jitendex.KanjiVG;
 
@@ -27,38 +25,35 @@ internal static class DatabaseInitializer
 {
     public static async Task WriteAsync(KanjiVGDocument kanjivg)
     {
-        await using var db = new Context();
+        await using var context = new Context();
 
         // Delete and recreate the database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await context.InitializeDatabaseAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
+        await context.ExecuteFastNewDatabasePragmaAsync();
 
         // Begin inserting data.
-        await using (var transaction = await db.Database.BeginTransactionAsync())
+        await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await db.InsertLookupsAsync<VariantType>(kanjivg.VariantTypes);
-            await db.InsertLookupsAsync<Comment>(kanjivg.Comments);
-            await db.InsertLookupsAsync<ComponentGroupStyle>(kanjivg.ComponentGroupStyles);
-            await db.InsertLookupsAsync<StrokeNumberGroupStyle>(kanjivg.StrokeNumberGroupStyles);
-            await db.InsertLookupsAsync<ComponentCharacter>(kanjivg.ComponentCharacters);
-            await db.InsertLookupsAsync<ComponentOriginal>(kanjivg.ComponentOriginals);
-            await db.InsertLookupsAsync<ComponentPosition>(kanjivg.ComponentPositions);
-            await db.InsertLookupsAsync<ComponentRadical>(kanjivg.ComponentRadicals);
-            await db.InsertLookupsAsync<ComponentPhon>(kanjivg.ComponentPhons);
-            await db.InsertLookupsAsync<StrokeType>(kanjivg.StrokeTypes);
-
-            await db.InsertEntriesAsync(kanjivg.Entries);
-
+            await context.InsertLookupsAsync(kanjivg.VariantTypes);
+            await context.InsertLookupsAsync(kanjivg.Comments);
+            await context.InsertLookupsAsync(kanjivg.ComponentGroupStyles);
+            await context.InsertLookupsAsync(kanjivg.StrokeNumberGroupStyles);
+            await context.InsertLookupsAsync(kanjivg.ComponentCharacters);
+            await context.InsertLookupsAsync(kanjivg.ComponentOriginals);
+            await context.InsertLookupsAsync(kanjivg.ComponentPositions);
+            await context.InsertLookupsAsync(kanjivg.ComponentRadicals);
+            await context.InsertLookupsAsync(kanjivg.ComponentPhons);
+            await context.InsertLookupsAsync(kanjivg.StrokeTypes);
+            await context.InsertEntriesAsync(kanjivg.Entries);
             await transaction.CommitAsync();
         }
 
         // Write database to the disk.
-        await db.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Rebuild the database compactly.
-        await db.Database.ExecuteSqlRawAsync("VACUUM;");
+        await context.ExecuteVacuumAsync();
     }
 }

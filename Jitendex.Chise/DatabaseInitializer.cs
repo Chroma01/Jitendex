@@ -16,10 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.Chise.Readers;
 using Jitendex.Chise.Database;
-using Jitendex.SQLite;
 
 namespace Jitendex.Chise;
 
@@ -27,36 +25,35 @@ internal static class DatabaseInitializer
 {
     public static async Task WriteAsync(IdsCollector collector)
     {
-        await using var db = new Context();
+        await using var context = new Context();
 
         // Delete and recreate the database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await context.InitializeDatabaseAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
+        await context.ExecuteFastNewDatabasePragmaAsync();
 
         // Using a transaction decreases the runtime by 10 seconds.
         // Using multiple smaller transactions doesn't seem to improve upon that.
-        await using var transaction = await db.Database.BeginTransactionAsync();
+        await using var transaction = await context.Database.BeginTransactionAsync();
 
         // Wait until all data is imported before checking foreign key constraints.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.DeferForeignKeys);
+        await context.ExecuteDeferForeignKeysPragmaAsync();
 
         // Begin inserting data.
-        await db.InsertCodepointsAsync(collector.Codepoints.Values);
-        await db.InsertUnicodeCharactersAsync(collector.UnicodeCharacters.Values);
-        await db.InsertSequencesAsync(collector.Sequences.Values);
-        await db.InsertComponentsAsync(collector.Components.Values);
-        await db.InsertComponentSequencesAsync(collector.Components.Values);
-        await db.InsertComponentPositionsAsync(collector.ComponentPositions.Values);
+        await context.InsertCodepointsAsync(collector.Codepoints.Values);
+        await context.InsertUnicodeCharactersAsync(collector.UnicodeCharacters.Values);
+        await context.InsertSequencesAsync(collector.Sequences.Values);
+        await context.InsertComponentsAsync(collector.Components.Values);
+        await context.InsertComponentSequencesAsync(collector.Components.Values);
+        await context.InsertComponentPositionsAsync(collector.ComponentPositions.Values);
 
         await transaction.CommitAsync();
 
         // Write database to the disk.
-        await db.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Rebuild the database compactly.
-        await db.Database.ExecuteSqlRawAsync("VACUUM;");
+        await context.ExecuteVacuumAsync();
     }
 }

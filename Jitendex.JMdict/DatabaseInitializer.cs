@@ -16,10 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Database;
 using Jitendex.JMdict.Models;
-using Jitendex.SQLite;
 
 namespace Jitendex.JMdict;
 
@@ -27,42 +25,41 @@ internal static class DatabaseInitializer
 {
     public static async Task WriteAsync(JmdictDocument jmdict)
     {
-        await using var db = new Context();
+        await using var context = new Context();
 
         // Delete and recreate the database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await context.InitializeDatabaseAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
+        await context.ExecuteFastNewDatabasePragmaAsync();
 
         // Using a transaction decreases the runtime by 10 seconds.
         // Using multiple smaller transactions doesn't seem to improve upon that.
-        await using var transaction = await db.Database.BeginTransactionAsync();
+        await using var transaction = await context.Database.BeginTransactionAsync();
 
         // Begin inserting data.
-        await db.InsertCorporaAsync(jmdict.Corpora);
-        await db.InsertKeywordsAsync(jmdict.CrossReferenceTypes);
-        await db.InsertKeywordsAsync(jmdict.DialectTags);
-        await db.InsertKeywordsAsync(jmdict.ExampleSourceTypes);
-        await db.InsertKeywordsAsync(jmdict.FieldTags);
-        await db.InsertKeywordsAsync(jmdict.GlossTypes);
-        await db.InsertKeywordsAsync(jmdict.KanjiFormInfoTags);
-        await db.InsertKeywordsAsync(jmdict.Languages);
-        await db.InsertKeywordsAsync(jmdict.LanguageSourceTypes);
-        await db.InsertKeywordsAsync(jmdict.MiscTags);
-        await db.InsertKeywordsAsync(jmdict.PartOfSpeechTags);
-        await db.InsertKeywordsAsync(jmdict.PriorityTags);
-        await db.InsertKeywordsAsync(jmdict.ReadingInfoTags);
-        await db.InsertExampleSourcesAsync(jmdict.ExampleSources);
-        await db.InsertEntries(jmdict.Entries);
+        await context.InsertCorporaAsync(jmdict.Corpora);
+        await context.InsertKeywordsAsync(jmdict.CrossReferenceTypes);
+        await context.InsertKeywordsAsync(jmdict.DialectTags);
+        await context.InsertKeywordsAsync(jmdict.ExampleSourceTypes);
+        await context.InsertKeywordsAsync(jmdict.FieldTags);
+        await context.InsertKeywordsAsync(jmdict.GlossTypes);
+        await context.InsertKeywordsAsync(jmdict.KanjiFormInfoTags);
+        await context.InsertKeywordsAsync(jmdict.Languages);
+        await context.InsertKeywordsAsync(jmdict.LanguageSourceTypes);
+        await context.InsertKeywordsAsync(jmdict.MiscTags);
+        await context.InsertKeywordsAsync(jmdict.PartOfSpeechTags);
+        await context.InsertKeywordsAsync(jmdict.PriorityTags);
+        await context.InsertKeywordsAsync(jmdict.ReadingInfoTags);
+        await context.InsertExampleSourcesAsync(jmdict.ExampleSources);
+        await context.InsertEntries(jmdict.Entries);
 
         await transaction.CommitAsync();
 
         // Write database to the disk.
-        await db.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Rebuild the database compactly.
-        await db.Database.ExecuteSqlRawAsync("VACUUM;");
+        await context.ExecuteVacuumAsync();
     }
 }

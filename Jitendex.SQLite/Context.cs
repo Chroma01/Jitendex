@@ -36,4 +36,42 @@ public abstract class SqliteContext : DbContext
     protected sealed override void OnConfiguring(DbContextOptionsBuilder options) => options
         .UseSqlite($"Data Source={_dbPath}")
         .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
+
+    /// <summary>
+    /// Delete and recreate the database file.
+    /// </summary>
+    public async Task InitializeDatabaseAsync()
+    {
+        await Database.EnsureDeletedAsync();
+        await Database.EnsureCreatedAsync();
+    }
+
+    /// <summary>
+    /// For faster importing into a new db file, write data to memory rather than to the disk.
+    /// </summary>
+    /// <remarks>See: https://www.sqlite.org/pragma.html</remarks>
+    public async Task ExecuteFastNewDatabasePragmaAsync()
+        => await Database.ExecuteSqlRawAsync
+        (
+            """
+            PRAGMA synchronous  = OFF;
+            PRAGMA journal_mode = OFF;
+            PRAGMA temp_store   = MEMORY;
+            PRAGMA cache_size   = -200000;
+            PRAGMA locking_mode = EXCLUSIVE;
+            """
+        );
+
+    /// <summary>
+    /// Wait until all data is imported before checking foreign key constraints.
+    /// </summary>
+    public async Task ExecuteDeferForeignKeysPragmaAsync()
+        => await Database.ExecuteSqlRawAsync("PRAGMA defer_foreign_keys = ON;");
+
+
+    /// <summary>
+    /// Rebuild the database file compactly.
+    /// </summary>
+    public async Task ExecuteVacuumAsync()
+        => await Database.ExecuteSqlRawAsync("VACUUM;");
 }

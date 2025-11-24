@@ -16,9 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.Tatoeba.Models;
-using Jitendex.SQLite;
 
 namespace Jitendex.Tatoeba.Database;
 
@@ -26,29 +24,28 @@ internal static class DatabaseInitializer
 {
     public static async Task WriteAsync(List<SentenceIndex> indices)
     {
-        await using var db = new Context();
+        await using var context = new Context();
 
         // Delete and recreate the database file.
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await context.InitializeDatabaseAsync();
 
         // For faster importing, write data to memory rather than to the disk.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.FastNewDatabase);
+        await context.ExecuteFastNewDatabasePragmaAsync();
 
         // Wait until all data is imported before checking foreign key constraints.
-        await db.Database.ExecuteSqlRawAsync(Pragmas.DeferForeignKeys);
+        await context.ExecuteDeferForeignKeysPragmaAsync();
 
         // Begin inserting data.
-        await using (var transaction = await db.Database.BeginTransactionAsync())
+        await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await db.InsertIndicesAsync(indices);
+            await context.InsertIndicesAsync(indices);
             await transaction.CommitAsync();
         }
 
         // Write database to the disk.
-        await db.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Rebuild the database compactly.
-        await db.Database.ExecuteSqlRawAsync("VACUUM;");
+        await context.ExecuteVacuumAsync();
     }
 }
