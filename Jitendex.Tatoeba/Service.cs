@@ -27,7 +27,7 @@ public static class Service
 {
     public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null)
     {
-        var file = GetFile(examples, date, archiveDirectory);
+        var file = GetEdrdgFile(examples, date, archiveDirectory);
         var reader = ReaderProvider.GetReader(file);
         var document = await reader.ReadAsync();
         await DatabaseInitializer.WriteAsync(document);

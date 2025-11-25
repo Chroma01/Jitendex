@@ -27,7 +27,7 @@ public static class Service
 {
     public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null)
     {
-        var file = GetFile(kanjidic2, date, archiveDirectory);
+        var file = GetEdrdgFile(kanjidic2, date, archiveDirectory);
 
         var reader = ReaderProvider.GetReader(file);
         var document = await reader.ReadAsync();

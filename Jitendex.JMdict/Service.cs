@@ -29,7 +29,7 @@ public static class Service
     {
         var files = new Files
         {
-            Jmdict = GetFile(JMdict_e_examp, date, archiveDirectory),
+            Jmdict = GetEdrdgFile(JMdict_e_examp, date, archiveDirectory),
             XrefIds = GetXrefFile(jitendexDataDirectory),
         };
         Console.WriteLine(files.XrefIds?.FullName);

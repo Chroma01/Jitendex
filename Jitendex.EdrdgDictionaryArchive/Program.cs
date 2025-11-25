@@ -56,7 +56,7 @@ public static class Program
             return 1;
         }
 
-        var file = Service.GetFile
+        var file = Service.GetEdrdgFile
         (
             file: parseResult.GetRequiredValue(filenameArgument),
             date: parseResult.GetValue(dateOption),
