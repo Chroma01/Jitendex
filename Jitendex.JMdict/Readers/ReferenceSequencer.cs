@@ -31,9 +31,7 @@ internal partial class ReferenceSequencer
     private readonly CrossReferenceIds _crossReferenceIds;
     private readonly Dictionary<string, object> _usedDisambiguations = [];
 
-    public ReferenceSequencer(
-        ILogger<ReferenceSequencer> logger,
-        CrossReferenceIds crossReferenceIds) =>
+    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, CrossReferenceIds crossReferenceIds) =>
         (_logger, _crossReferenceIds) =
         (@logger, @crossReferenceIds);
 
@@ -100,7 +98,7 @@ internal partial class ReferenceSequencer
             xref.RefSenseOrder);
 
         var possibleTargetEntries =
-            referenceTextToEntries.TryGetValue(key, out ImmutableArray<Entry> keyEntries)
+            referenceTextToEntries.TryGetValue(key, out var keyEntries)
             ? keyEntries.Where(e
                     => e.Id != id                      // Entries cannot reference themselves.
                     && e.CorpusId == corpusId          // Assume references are within same corpus.
@@ -120,10 +118,8 @@ internal partial class ReferenceSequencer
             : FindTargetEntry(possibleTargetEntries, xref, disambiguationCache);
     }
 
-    private static Sense GetReferencedSense(in Entry entry, int refOrder) => entry
-        .Senses
-        .Where(sense => sense.Order == refOrder)
-        .First();
+    private static Sense GetReferencedSense(Entry entry, int refOrder)
+        => entry.Senses.Where(sense => sense.Order == refOrder).First();
 
     private (Reading, KanjiForm?) GetReferencedReadingKanjiForm(
         in Entry entry,
@@ -133,8 +129,8 @@ internal partial class ReferenceSequencer
         if (ValidSpellings(entry).TryGetValue(key, out SpellingId id))
         {
             var refReading = entry.Readings.Where(r => r.Order == id.ReadingOrder).First();
-            var refKanjiForm = id.KanjiFormOrder is not null
-                ? entry.KanjiForms.Where(k => k.Order == id.KanjiFormOrder).First()
+            var refKanjiForm = id.KanjiFormOrder is int order
+                ? entry.KanjiForms.Where(k => k.Order == order).First()
                 : null;
             return (refReading, refKanjiForm);
         }
@@ -166,7 +162,7 @@ internal partial class ReferenceSequencer
                 }
                 else
                 {
-                    dict[referenceText] = [entry];
+                    dict.Add(referenceText, [entry]);
                 }
             }
         }
