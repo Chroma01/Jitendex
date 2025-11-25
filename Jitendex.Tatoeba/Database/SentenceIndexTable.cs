@@ -29,14 +29,14 @@ internal sealed class SentenceIndexTable : Table<SentenceIndex>
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(SentenceIndex.SentenceId),
-        nameof(SentenceIndex.MeaningId),
         nameof(SentenceIndex.Order),
+        nameof(SentenceIndex.MeaningId),
     ];
 
     protected override SqliteParameter[] Parameters(SentenceIndex index) =>
     [
         new("@0", index.SentenceId),
-        new("@1", index.MeaningId),
-        new("@2", index.Order),
+        new("@1", index.Order),
+        new("@2", index.MeaningId),
     ];
 }

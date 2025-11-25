@@ -22,12 +22,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Jitendex.Tatoeba.Models;
 
 [Table(nameof(SentenceIndex))]
-[PrimaryKey(nameof(SentenceId), nameof(MeaningId), nameof(Order))]
+[PrimaryKey(nameof(SentenceId), nameof(Order))]
 public sealed class SentenceIndex
 {
     public required int SentenceId { get; init; }
-    public required int MeaningId { get; init; }
     public required int Order { get; init; }
+    public required int MeaningId { get; init; }
 
     [ForeignKey(nameof(SentenceId))]
     public required JapaneseSentence Sentence { get; init; }
@@ -38,5 +38,5 @@ public sealed class SentenceIndex
     [InverseProperty(nameof(IndexElement.Index))]
     public List<IndexElement> Elements { get; init; } = [];
 
-    internal (int, int, int) Key => (SentenceId, MeaningId, Order);
+    internal (int, int) Key => (SentenceId, Order);
 }

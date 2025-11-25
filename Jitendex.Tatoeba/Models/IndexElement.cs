@@ -22,11 +22,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Jitendex.Tatoeba.Models;
 
 [Table(nameof(IndexElement))]
-[PrimaryKey(nameof(SentenceId), nameof(MeaningId), nameof(IndexOrder), nameof(Order))]
+[PrimaryKey(nameof(SentenceId), nameof(IndexOrder), nameof(Order))]
 public sealed class IndexElement
 {
     public required int SentenceId { get; init; }
-    public required int MeaningId { get; init; }
     public required int IndexOrder { get; init; }
     public required int Order { get; init; }
 
@@ -37,16 +36,16 @@ public sealed class IndexElement
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
 
-    [ForeignKey($"{nameof(SentenceId)}, {nameof(MeaningId)}, {nameof(IndexOrder)}")]
+    [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]
     public required SentenceIndex Index { get; init; }
 
     public override string ToString() =>
-        $"{SentenceId}\t{MeaningId}\t{IndexOrder}\t{Order}\t{Headword}"
+        $"{SentenceId}\t{IndexOrder}\t{Order}\t{Headword}"
         + '\t' + (Reading ?? "")
         + '\t' + (EntryId.HasValue ? EntryId : "")
         + '\t' + (SenseNumber.HasValue ? $"{SenseNumber:D2}" : "")
         + '\t' + (SentenceForm ?? "")
         + '\t' + (IsPriority ? "1" : "0");
 
-    internal (int, int, int, int) Key => (SentenceId, MeaningId, IndexOrder, Order);
+    internal (int, int, int) Key => (SentenceId, IndexOrder, Order);
 }

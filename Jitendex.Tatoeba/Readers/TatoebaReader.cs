@@ -68,14 +68,14 @@ internal sealed class TatoebaReader
     private void MakeIndex(in ExampleText text, Document document)
     {
         var japaneseSentence = GetJapaneseSentence(text, document);
+        var order = japaneseSentence.Indices.Count + 1;
         var englishSentence = GetEnglishSentence(text, document);
-        var order = GetOrder(japaneseSentence.Id, englishSentence.Id, document);
 
         var index = new SentenceIndex
         {
             SentenceId = japaneseSentence.Id,
-            MeaningId = englishSentence.Id,
             Order = order,
+            MeaningId = englishSentence.Id,
             Sentence = japaneseSentence,
             Meaning = englishSentence,
         };
@@ -89,7 +89,6 @@ internal sealed class TatoebaReader
             var indexElement = new IndexElement
             {
                 SentenceId = index.SentenceId,
-                MeaningId = index.MeaningId,
                 IndexOrder = index.Order,
                 Order = index.Elements.Count + 1,
                 Headword = elementText.GetHeadword(),
@@ -151,19 +150,5 @@ internal sealed class TatoebaReader
             document.EnglishSentences.Add(sentence.Id, sentence);
             return sentence;
         }
-    }
-
-    private static int GetOrder(int sentenceId, int meaningId, Document document)
-    {
-        int i = 0;
-        while (true)
-        {
-            var key = (sentenceId, meaningId, ++i);
-            if (!document.SentenceIndices.ContainsKey(key))
-            {
-                break;
-            }
-        }
-        return i;
     }
 }

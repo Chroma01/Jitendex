@@ -29,7 +29,6 @@ internal sealed class IndexElementTable : Table<IndexElement>
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(IndexElement.SentenceId),
-        nameof(IndexElement.MeaningId),
         nameof(IndexElement.IndexOrder),
         nameof(IndexElement.Order),
         nameof(IndexElement.Headword),
@@ -43,14 +42,13 @@ internal sealed class IndexElementTable : Table<IndexElement>
     protected override SqliteParameter[] Parameters(IndexElement element) =>
     [
         new("@0", element.SentenceId),
-        new("@1", element.MeaningId),
-        new("@2", element.IndexOrder),
-        new("@3", element.Order),
-        new("@4", element.Headword),
-        new("@5", element.Reading.Nullable()),
-        new("@6", element.EntryId.Nullable()),
-        new("@7", element.SenseNumber.Nullable()),
-        new("@8", element.SentenceForm.Nullable()),
-        new("@9", element.IsPriority),
+        new("@1", element.IndexOrder),
+        new("@2", element.Order),
+        new("@3", element.Headword),
+        new("@4", element.Reading.Nullable()),
+        new("@5", element.EntryId.Nullable()),
+        new("@6", element.SenseNumber.Nullable()),
+        new("@7", element.SentenceForm.Nullable()),
+        new("@8", element.IsPriority),
     ];
 }

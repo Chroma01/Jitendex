@@ -23,6 +23,6 @@ internal sealed class Document
     private const int Capacity = 150_000;
     public Dictionary<int, EnglishSentence> EnglishSentences { get; init; } = new(Capacity);
     public Dictionary<int, JapaneseSentence> JapaneseSentences { get; init; } = new(Capacity);
-    public Dictionary<(int, int, int), SentenceIndex> SentenceIndices { get; init; } = new(Capacity);
-    public Dictionary<(int, int, int, int), IndexElement> IndexElements { get; init; } = new(Capacity * 8);
+    public Dictionary<(int, int), SentenceIndex> SentenceIndices { get; init; } = new(Capacity);
+    public Dictionary<(int, int, int), IndexElement> IndexElements { get; init; } = new(Capacity * 8);
 }
