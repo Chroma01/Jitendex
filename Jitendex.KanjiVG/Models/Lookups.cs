@@ -32,9 +32,8 @@ public class VariantType : ILookup
     public required int Id { get; set; }
     public required string Text { get; set; }
     public List<Entry> Entries { get; } = [];
-    public string FileNameFormat() => Text == string.Empty
-        ? string.Empty
-        : $"-{Text}";
+    public string FileNameFormat()
+        => Text == string.Empty ? string.Empty : $"-{Text}";
 }
 
 [Table(nameof(Comment))]

@@ -38,7 +38,6 @@ public class Stroke
     [ForeignKey(nameof(TypeId))]
     public required StrokeType Type { get; set; }
 
-    public string XmlIdAttribute() => "kvg:"
-        + Component.Group.Entry.FileNameFormat()
-        + $"-s{GlobalOrder}";
+    public string XmlIdAttribute()
+        => $"kvg:{Component.Group.Entry.FileNameFormat()}-s{GlobalOrder}";
 }

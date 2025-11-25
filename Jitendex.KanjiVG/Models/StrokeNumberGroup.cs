@@ -36,6 +36,6 @@ public class StrokeNumberGroup
     [ForeignKey(nameof(StyleId))]
     public required StrokeNumberGroupStyle Style { get; set; }
 
-    public string XmlIdAttribute() =>
-        "kvg:StrokeNumbers_" + Entry.FileNameFormat();
+    public string XmlIdAttribute()
+        => $"kvg:StrokeNumbers_{Entry.FileNameFormat()}";
 }

@@ -37,9 +37,8 @@ public class Entry
     [ForeignKey(nameof(CommentId))]
     public required Comment Comment { get; set; }
 
-    public string FileNameFormat() =>
-        UnicodeScalarValue.ToString("X").PadLeft(5, '0').ToLower()
-        + VariantType.FileNameFormat();
+    public string FileNameFormat()
+        => $"{UnicodeScalarValue:x5}{VariantType.FileNameFormat()}";
 
-    public string FileName() => FileNameFormat() + ".svg";
+    public string FileName() => $"{FileNameFormat()}.svg";
 }

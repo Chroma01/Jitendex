@@ -68,31 +68,13 @@ public class Component
 
     public List<Stroke> Strokes { get; set; } = [];
 
-    public string XmlIdAttribute() => "kvg:"
-        + Group.Entry.FileNameFormat()
-        + (GlobalOrder == 1 ? "" : $"-g{GlobalOrder - 1}");
+    public string XmlIdAttribute() => GlobalOrder == 1
+        ? $"kvg:{Group.Entry.FileNameFormat()}"
+        : $"kvg:{Group.Entry.FileNameFormat()}-g{GlobalOrder - 1}";
 
     public int ComponentCount()
-    {
-        int count = 1;
-        foreach (var child in Children)
-        {
-            count += child.ComponentCount();
-        }
-        return count;
-    }
+        => 1 + Children.Sum(static c => c.ComponentCount());
 
     public int StrokeCount()
-    {
-        int count = 0;
-        foreach (var stroke in Strokes)
-        {
-            count++;
-        }
-        foreach (var child in Children)
-        {
-            count += child.StrokeCount();
-        }
-        return count;
-    }
+        => Strokes.Count + Children.Sum(static c => c.StrokeCount());
 }

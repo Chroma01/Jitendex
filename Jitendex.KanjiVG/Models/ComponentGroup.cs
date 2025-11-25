@@ -36,26 +36,12 @@ public class ComponentGroup
     [ForeignKey(nameof(StyleId))]
     public required ComponentGroupStyle Style { get; set; }
 
-    public string XmlIdAttribute() =>
-        "kvg:StrokePaths_" + Entry.FileNameFormat();
+    public string XmlIdAttribute()
+        => $"kvg:StrokePaths_{Entry.FileNameFormat()}";
 
     public int ComponentCount()
-    {
-        int count = 0;
-        foreach (var component in Components)
-        {
-            count += component.ComponentCount();
-        }
-        return count;
-    }
+        => Components.Sum(static c => c.ComponentCount());
 
     public int StrokeCount()
-    {
-        int count = 0;
-        foreach (var component in Components)
-        {
-            count += component.StrokeCount();
-        }
-        return count;
-    }
+        => Components.Sum(static c => c.StrokeCount());
 }
