@@ -20,25 +20,30 @@ using System.CommandLine;
 
 namespace Jitendex.JMdict;
 
-public class Program
+public static class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        var jmdictFileArgument = new Argument<FileInfo>("jmdict-file")
+        Option<DateOnly> dateOption = new("--date")
         {
-            Description = "Path to Brotli-compressed JMdict XML file",
+            Description = "Date of the JMdict file to retrieve"
         };
 
-        var xrefIdsFileOption = new Option<FileInfo>("--xref-ids")
+        Option<DirectoryInfo> archiveDirOption = new("--archive-path")
         {
-            Description = "Path to JSON file containing cross-reference keys and corresponding entry ID values",
-            Required = false,
+            Description = "Path to the edrdg-dictionary-archive directory",
+        };
+
+        Option<DirectoryInfo> jitendexDataDirOption = new("--jitendex-data-path")
+        {
+            Description = "Path to the jitendex-data directory",
         };
 
         var rootCommand = new RootCommand("Jitendex.JMdict: Import a JMdict XML document")
         {
-            jmdictFileArgument,
-            xrefIdsFileOption,
+            dateOption,
+            archiveDirOption,
+            jitendexDataDirOption,
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -48,18 +53,16 @@ public class Program
             {
                 Console.Error.WriteLine(parseError.Message);
             }
-            return;
+            return 1;
         }
 
-        var files = new Files
-        {
-            Jmdict = parseResult.GetRequiredValue(jmdictFileArgument),
-            XrefIds = parseResult.GetValue(xrefIdsFileOption),
-        };
+        await Service.RunAsync
+        (
+            date: parseResult.GetValue(dateOption),
+            archiveDirectory: parseResult.GetValue(archiveDirOption),
+            jitendexDataDirectory: parseResult.GetValue(jitendexDataDirOption)
+        );
 
-        var reader = ReaderProvider.GetReader(files);
-        var jmdict = await reader.ReadAsync();
-
-        await DatabaseInitializer.WriteAsync(jmdict);
+        return 0;
     }
 }
