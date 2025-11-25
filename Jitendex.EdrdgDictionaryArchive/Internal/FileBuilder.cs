@@ -44,9 +44,9 @@ internal sealed class FileBuilder
         Console.Error.WriteLine(ReadingBaseFileMessage(baseDate));
 
         int length = baseFile.Length();
-        var @patchBuffer = new char[length / 10];
-        var originBuffer = new char[length * 3 / 2];
-        var outputBuffer = new char[length * 3 / 2];
+        var @patchBuffer = (new char[length / 10]).AsSpan();
+        var originBuffer = (new char[length * 3 / 2]).AsSpan();
+        var outputBuffer = (new char[length * 3 / 2]).AsSpan();
         baseFile.ReadInto(originBuffer);
 
         foreach (var patchDate in patchDates)
@@ -54,21 +54,22 @@ internal sealed class FileBuilder
             Console.Error.WriteLine($"Patching file to date {patchDate:yyyy-MM-dd}");
             var patchFile = _archive.GetPatchFile(patchDate);
             int patchLength = patchFile.ReadInto(patchBuffer);
-            length = Patch.Apply
+            Patch.Apply
             (
-                @patchBuffer.AsSpan(0, patchLength),
-                originBuffer.AsSpan(0, length),
-                outputBuffer
+                @patchBuffer[..patchLength],
+                originBuffer[..length],
+                outputBuffer,
+                out length
             );
             if (patchDate != date)
             {
-                var originText = originBuffer.AsSpan(0, length);
-                var outputText = outputBuffer.AsSpan(0, length);
+                var originText = originBuffer[..length];
+                var outputText = outputBuffer[..length];
                 outputText.CopyTo(originText);
             }
         }
 
-        var builtFile = _cache.SetFile(date, outputBuffer.AsSpan(0, length));
+        var builtFile = _cache.SetFile(date, outputBuffer[..length]);
         _cache.DeleteFile(baseDate);
         return builtFile;
     }
