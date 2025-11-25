@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.ObjectModel;
 using Jitendex.AppDirectory;
 using static Jitendex.AppDirectory.DataSubdirectory;
 
@@ -67,7 +66,7 @@ internal sealed class FileArchive
         );
     }
 
-    public ReadOnlyCollection<DateOnly> GetPatchDates(DateOnly untilDate = default)
+    public List<DateOnly> GetPatchDates(DateOnly afterDate = default, DateOnly untilDate = default)
     {
         List<DateOnly> patchDates = [];
         foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
@@ -82,7 +81,10 @@ internal sealed class FileArchive
                         month: int.Parse(monthDir.Name),
                         day: int.Parse(patchFile.Name.AsSpan(0, 2))
                     );
-                    patchDates.Add(patchDate);
+                    if (patchDate > afterDate)
+                    {
+                        patchDates.Add(patchDate);
+                    }
                     if (patchDate == untilDate)
                     {
                         goto end;
@@ -95,7 +97,7 @@ internal sealed class FileArchive
             throw new ArgumentException($"Patch for date {untilDate} does not exist in the archive", nameof(untilDate));
         }
     end:
-        return patchDates.AsReadOnly();
+        return patchDates;
     }
 
     public FileInfo GetPatchFile(DateOnly date) => new

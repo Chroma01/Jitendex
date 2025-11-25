@@ -22,7 +22,7 @@ namespace Jitendex.EdrdgDictionaryArchive;
 
 public static class Service
 {
-    public static FileInfo GetEdrdgFile(DictionaryFile file, DateOnly date = default, DirectoryInfo? archiveDirectory = null)
+    public static FileInfo GetEdrdgFile(DictionaryFile file, DateOnly date, DirectoryInfo? archiveDirectory = null)
     {
         var type = new FileType(file);
 
@@ -33,6 +33,13 @@ public static class Service
         );
 
         return builder.GetFile(date);
+    }
+
+    public static List<DateOnly> GetEdrdgFileDates(DictionaryFile file, DateOnly afterDate, DirectoryInfo? archiveDirectory = null)
+    {
+        var type = new FileType(file);
+        FileArchive archive = new (type, archiveDirectory);
+        return archive.GetPatchDates(afterDate: afterDate);
     }
 }
 

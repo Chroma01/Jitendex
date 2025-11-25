@@ -55,9 +55,11 @@ internal sealed class TatoebaReader
                 {
                     MakeIndex(text, document);
                 }
-                catch (FormatException e)
+                catch (Exception e)
                 {
                     _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
+                    _logger.LogError("Line {LineA}", lineA);
+                    _logger.LogError("Line {LineB}", lineB);
                 }
             }
         }
