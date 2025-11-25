@@ -37,4 +37,6 @@ public class SentenceIndex
 
     [InverseProperty(nameof(IndexElement.Index))]
     public List<IndexElement> Elements { get; init; } = [];
+
+    internal (int, int, int) Key => (SentenceId, MeaningId, Order);
 }

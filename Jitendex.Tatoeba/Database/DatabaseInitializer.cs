@@ -22,7 +22,7 @@ namespace Jitendex.Tatoeba.Database;
 
 internal static class DatabaseInitializer
 {
-    public static async Task WriteAsync(List<SentenceIndex> indices)
+    public static async Task WriteAsync(Document document)
     {
         await using var context = new Context();
 
@@ -44,10 +44,10 @@ internal static class DatabaseInitializer
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await siTable.InsertItemsAsync(context, indices);
-            await esTable.InsertItemsAsync(context, indices.GetAllEnglishSentences());
-            await jsTable.InsertItemsAsync(context, indices.GetAllJapaneseSentences());
-            await ieTable.InsertItemsAsync(context, indices.GetAllIndexElements());
+            await siTable.InsertItemsAsync(context, document.SentenceIndices.Values);
+            await esTable.InsertItemsAsync(context, document.EnglishSentences.Values);
+            await jsTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
+            await ieTable.InsertItemsAsync(context, document.IndexElements.Values);
             await transaction.CommitAsync();
         }
 
@@ -57,33 +57,4 @@ internal static class DatabaseInitializer
         // Rebuild the database compactly.
         await context.ExecuteVacuumAsync();
     }
-
-    private static IEnumerable<EnglishSentence> GetAllEnglishSentences(this List<SentenceIndex> indices)
-    {
-        Dictionary<int, EnglishSentence> all = new(indices.Count);
-        foreach (var index in indices)
-        {
-            if (!all.ContainsKey(index.MeaningId))
-            {
-                all[index.MeaningId] = index.Meaning;
-            }
-        }
-        return all.Values;
-    }
-
-    private static IEnumerable<JapaneseSentence> GetAllJapaneseSentences(this List<SentenceIndex> indices)
-    {
-        Dictionary<int, JapaneseSentence> all = new(indices.Count);
-        foreach (var index in indices)
-        {
-            if (!all.ContainsKey(index.SentenceId))
-            {
-                all[index.SentenceId] = index.Sentence;
-            }
-        }
-        return all.Values;
-    }
-
-    private static IEnumerable<IndexElement> GetAllIndexElements(this List<SentenceIndex> indices)
-        => indices.SelectMany(static i => i.Elements);
 }

@@ -16,20 +16,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Tatoeba.Database;
-using Jitendex.Tatoeba.Readers;
-using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
-using static Jitendex.EdrdgDictionaryArchive.Service;
+namespace Jitendex.Tatoeba.Models;
 
-namespace Jitendex.Tatoeba;
-
-public static class Service
+internal sealed class Document
 {
-    public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null)
-    {
-        var file = GetFile(examples, date, archiveDirectory);
-        var reader = ReaderProvider.GetReader(file);
-        var document = await reader.ReadAsync();
-        await DatabaseInitializer.WriteAsync(document);
-    }
+    private const int Capacity = 150_000;
+    public Dictionary<int, EnglishSentence> EnglishSentences { get; init; } = new(Capacity);
+    public Dictionary<int, JapaneseSentence> JapaneseSentences { get; init; } = new(Capacity);
+    public Dictionary<(int, int, int), SentenceIndex> SentenceIndices { get; init; } = new(Capacity);
+    public Dictionary<(int, int, int, int), IndexElement> IndexElements { get; init; } = new(Capacity * 8);
 }

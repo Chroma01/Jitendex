@@ -26,18 +26,13 @@ internal sealed class TatoebaReader
     private readonly ILogger<TatoebaReader> _logger;
     private readonly StreamReader _reader;
 
-    private const int _capacity = 150_000;
-    private readonly Dictionary<int, JapaneseSentence> _japaneseSentences = new(_capacity);
-    private readonly Dictionary<int, EnglishSentence> _englishSentences = new(_capacity);
-    private readonly Dictionary<(int, int), int> _indexOrder = new(_capacity);
-
     public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader) =>
         (_logger, _reader) =
         (@logger, @reader);
 
-    public async Task<List<SentenceIndex>> ReadAsync()
+    public async Task<Document> ReadAsync()
     {
-        var indices = new List<SentenceIndex>(_capacity);
+        Document document = new();
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
@@ -58,8 +53,7 @@ internal sealed class TatoebaReader
                 var text = new ExampleText(lineA.AsSpan(3), lineB.AsSpan(3));
                 try
                 {
-                    var index = MakeIndex(text);
-                    indices.Add(index);
+                    MakeIndex(text, document);
                 }
                 catch (FormatException e)
                 {
@@ -68,14 +62,14 @@ internal sealed class TatoebaReader
             }
         }
 
-        return indices;
+        return document;
     }
 
-    private SentenceIndex MakeIndex(in ExampleText text)
+    private void MakeIndex(in ExampleText text, Document document)
     {
-        var japaneseSentence = GetJapaneseSentence(text);
-        var englishSentence = GetEnglishSentence(text);
-        var order = GetOrder(japaneseSentence.Id, englishSentence.Id);
+        var japaneseSentence = GetJapaneseSentence(text, document);
+        var englishSentence = GetEnglishSentence(text, document);
+        var order = GetOrder(japaneseSentence.Id, englishSentence.Id, document);
 
         var index = new SentenceIndex
         {
@@ -107,12 +101,13 @@ internal sealed class TatoebaReader
                 Index = index,
             };
             index.Elements.Add(indexElement);
+            document.IndexElements.Add(indexElement.Key, indexElement);
         }
 
-        return index;
+        document.SentenceIndices.Add(index.Key, index);
     }
 
-    private JapaneseSentence GetJapaneseSentence(in ExampleText text)
+    private JapaneseSentence GetJapaneseSentence(in ExampleText text, Document document)
     {
         var sentence = new JapaneseSentence
         {
@@ -120,7 +115,7 @@ internal sealed class TatoebaReader
             Text = text.GetJapaneseSentenceText(),
         };
 
-        if (_japaneseSentences.TryGetValue(sentence.Id, out var oldSentence))
+        if (document.JapaneseSentences.TryGetValue(sentence.Id, out var oldSentence))
         {
             if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
             {
@@ -130,12 +125,12 @@ internal sealed class TatoebaReader
         }
         else
         {
-            _japaneseSentences[sentence.Id] = sentence;
+            document.JapaneseSentences.Add(sentence.Id, sentence);
             return sentence;
         }
     }
 
-    private EnglishSentence GetEnglishSentence(in ExampleText text)
+    private EnglishSentence GetEnglishSentence(in ExampleText text, Document document)
     {
         var sentence = new EnglishSentence
         {
@@ -143,7 +138,7 @@ internal sealed class TatoebaReader
             Text = text.GetEnglishSentenceText(),
         };
 
-        if (_englishSentences.TryGetValue(sentence.Id, out var oldSentence))
+        if (document.EnglishSentences.TryGetValue(sentence.Id, out var oldSentence))
         {
             if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
             {
@@ -153,19 +148,22 @@ internal sealed class TatoebaReader
         }
         else
         {
-            _englishSentences[sentence.Id] = sentence;
+            document.EnglishSentences.Add(sentence.Id, sentence);
             return sentence;
         }
     }
 
-    private int GetOrder(int sentenceId, int meaningId)
+    private static int GetOrder(int sentenceId, int meaningId, Document document)
     {
-        var key = (sentenceId, meaningId);
-        if (!_indexOrder.TryGetValue(key, out int order))
+        int i = 0;
+        while (true)
         {
-            order = 1;
+            var key = (sentenceId, meaningId, ++i);
+            if (!document.SentenceIndices.ContainsKey(key))
+            {
+                break;
+            }
         }
-        _indexOrder[key] = order + 1;
-        return order;
+        return i;
     }
 }
