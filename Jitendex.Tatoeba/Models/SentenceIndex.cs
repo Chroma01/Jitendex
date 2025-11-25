@@ -23,7 +23,7 @@ namespace Jitendex.Tatoeba.Models;
 
 [Table(nameof(SentenceIndex))]
 [PrimaryKey(nameof(SentenceId), nameof(MeaningId), nameof(Order))]
-public class SentenceIndex
+public sealed class SentenceIndex
 {
     public required int SentenceId { get; init; }
     public required int MeaningId { get; init; }

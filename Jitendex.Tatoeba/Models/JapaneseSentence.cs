@@ -22,7 +22,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Jitendex.Tatoeba.Models;
 
 [Table(nameof(JapaneseSentence))]
-public class JapaneseSentence
+public sealed class JapaneseSentence
 {
     [Key]
     public required int Id { get; init; }
