@@ -32,22 +32,19 @@ internal static class DatabaseInitializer
         // For faster importing, write data to memory rather than to the disk.
         await context.ExecuteFastNewDatabasePragmaAsync();
 
-        // Wait until all data is imported before checking foreign key constraints.
-        await context.ExecuteDeferForeignKeysPragmaAsync();
-
         // Initialize table objects.
-        SentenceIndexTable siTable = new();
-        EnglishSentenceTable esTable = new();
-        JapaneseSentenceTable jsTable = new();
-        IndexElementTable ieTable = new();
+        var jTable = new JapaneseSentenceTable();
+        var sTable = new EnglishSentenceTable();
+        var iTable = new SentenceIndexTable();
+        var eTable = new IndexElementTable();
 
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await siTable.InsertItemsAsync(context, document.SentenceIndices.Values);
-            await esTable.InsertItemsAsync(context, document.EnglishSentences.Values);
-            await jsTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
-            await ieTable.InsertItemsAsync(context, document.IndexElements.Values);
+            await jTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
+            await sTable.InsertItemsAsync(context, document.EnglishSentences.Values);
+            await iTable.InsertItemsAsync(context, document.SentenceIndices.Values);
+            await eTable.InsertItemsAsync(context, document.IndexElements.Values);
             await transaction.CommitAsync();
         }
 
