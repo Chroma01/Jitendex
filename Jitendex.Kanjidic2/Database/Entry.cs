@@ -52,6 +52,17 @@ internal static class EntryData
         ( {P1} ,  {P2} ,  {P3} ,  {P4} ,  {P5} ,  {P6} ,  {P7} );
         """;
 
+    private static readonly CodepointTable CodepointTable = new();
+    private static readonly DictionaryTable DictionaryTable = new();
+    private static readonly MeaningTable MeaningTable = new();
+    private static readonly NanoriTable NanoriTable = new();
+    private static readonly QueryCodeTable QueryCodeTable = new();
+    private static readonly RadicalTable RadicalTable = new();
+    private static readonly RadicalNameTable RadicalNameTable = new();
+    private static readonly ReadingTable ReadingTable = new();
+    private static readonly StrokeCountTable StrokeCountTable = new();
+    private static readonly VariantTable VariantTable = new();
+
     public static async Task InsertEntriesAsync(this Context db, List<Entry> entries)
     {
         var allCodepoints = new List<Codepoint>(entries.Count * 3);
@@ -100,26 +111,15 @@ internal static class EntryData
             }
         }
 
-        var table0 = new CodepointTable();
-        var table1 = new DictionaryTable();
-        var table2 = new MeaningTable();
-        var table3 = new NanoriTable();
-        var table4 = new QueryCodeTable();
-        var table5 = new RadicalTable();
-        var table6 = new RadicalNameTable();
-        var table7 = new ReadingTable();
-        var table8 = new StrokeCountTable();
-        var table9 = new VariantTable();
-
-        await table0.InsertItemsAsync(db, allCodepoints);
-        await table1.InsertItemsAsync(db, allDictionaries);
-        await table2.InsertItemsAsync(db, allMeanings);
-        await table3.InsertItemsAsync(db, allNanori);
-        await table4.InsertItemsAsync(db, allQueryCodes);
-        await table5.InsertItemsAsync(db, allRadicals);
-        await table6.InsertItemsAsync(db, allRadicalNames);
-        await table7.InsertItemsAsync(db, allReadings);
-        await table8.InsertItemsAsync(db, allStrokeCounts);
-        await table9.InsertItemsAsync(db, allVariants);
+        await CodepointTable.InsertItemsAsync(db, allCodepoints);
+        await DictionaryTable.InsertItemsAsync(db, allDictionaries);
+        await MeaningTable.InsertItemsAsync(db, allMeanings);
+        await NanoriTable.InsertItemsAsync(db, allNanori);
+        await QueryCodeTable.InsertItemsAsync(db, allQueryCodes);
+        await RadicalTable.InsertItemsAsync(db, allRadicals);
+        await RadicalNameTable.InsertItemsAsync(db, allRadicalNames);
+        await ReadingTable.InsertItemsAsync(db, allReadings);
+        await StrokeCountTable.InsertItemsAsync(db, allStrokeCounts);
+        await VariantTable.InsertItemsAsync(db, allVariants);
     }
 }

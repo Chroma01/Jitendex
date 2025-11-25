@@ -22,6 +22,14 @@ namespace Jitendex.Kanjidic2.Database;
 
 internal static class DatabaseInitializer
 {
+    private static readonly KeywordTable<CodepointType> CodepointTypeTable = new();
+    private static readonly KeywordTable<DictionaryType> DictionaryTypeTable = new();
+    private static readonly KeywordTable<QueryCodeType> QueryCodeTypeTable = new();
+    private static readonly KeywordTable<MisclassificationType> MisclassificationTypeTable = new();
+    private static readonly KeywordTable<RadicalType> RadicalTypeTable = new();
+    private static readonly KeywordTable<ReadingType> ReadingTypeTable = new();
+    private static readonly KeywordTable<VariantType> VariantTypeTable = new();
+
     public static async Task WriteAsync(Kanjidic2Document kanjidic2)
     {
         await using var context = new Context();
@@ -32,25 +40,16 @@ internal static class DatabaseInitializer
         // For faster importing, write data to memory rather than to the disk.
         await context.ExecuteFastNewDatabasePragmaAsync();
 
-        // Initialize table objects.
-        var table1 = new KeywordTable<CodepointType>();
-        var table2 = new KeywordTable<DictionaryType>();
-        var table3 = new KeywordTable<QueryCodeType>();
-        var table4 = new KeywordTable<MisclassificationType>();
-        var table5 = new KeywordTable<RadicalType>();
-        var table6 = new KeywordTable<ReadingType>();
-        var table7 = new KeywordTable<VariantType>();
-
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await table1.InsertItemsAsync(context, kanjidic2.CodepointTypes);
-            await table2.InsertItemsAsync(context, kanjidic2.DictionaryTypes);
-            await table3.InsertItemsAsync(context, kanjidic2.QueryCodeTypes);
-            await table4.InsertItemsAsync(context, kanjidic2.MisclassificationTypes);
-            await table5.InsertItemsAsync(context, kanjidic2.RadicalTypes);
-            await table6.InsertItemsAsync(context, kanjidic2.ReadingTypes);
-            await table7.InsertItemsAsync(context, kanjidic2.VariantTypes);
+            await CodepointTypeTable.InsertItemsAsync(context, kanjidic2.CodepointTypes);
+            await DictionaryTypeTable.InsertItemsAsync(context, kanjidic2.DictionaryTypes);
+            await QueryCodeTypeTable.InsertItemsAsync(context, kanjidic2.QueryCodeTypes);
+            await MisclassificationTypeTable.InsertItemsAsync(context, kanjidic2.MisclassificationTypes);
+            await RadicalTypeTable.InsertItemsAsync(context, kanjidic2.RadicalTypes);
+            await ReadingTypeTable.InsertItemsAsync(context, kanjidic2.ReadingTypes);
+            await VariantTypeTable.InsertItemsAsync(context, kanjidic2.VariantTypes);
             await context.InsertEntriesAsync(kanjidic2.Entries);
 
             await transaction.CommitAsync();

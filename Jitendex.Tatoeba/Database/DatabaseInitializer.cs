@@ -22,6 +22,11 @@ namespace Jitendex.Tatoeba.Database;
 
 internal static class DatabaseInitializer
 {
+    private static readonly JapaneseSentenceTable JapaneseSentenceTable = new();
+    private static readonly EnglishSentenceTable EnglishSentenceTable = new();
+    private static readonly SentenceIndexTable SentenceIndexTable = new();
+    private static readonly IndexElementTable IndexElementTable = new();
+
     public static async Task WriteAsync(Document document)
     {
         await using var context = new Context();
@@ -32,19 +37,13 @@ internal static class DatabaseInitializer
         // For faster importing, write data to memory rather than to the disk.
         await context.ExecuteFastNewDatabasePragmaAsync();
 
-        // Initialize table objects.
-        var jTable = new JapaneseSentenceTable();
-        var sTable = new EnglishSentenceTable();
-        var iTable = new SentenceIndexTable();
-        var eTable = new IndexElementTable();
-
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await jTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
-            await sTable.InsertItemsAsync(context, document.EnglishSentences.Values);
-            await iTable.InsertItemsAsync(context, document.SentenceIndices.Values);
-            await eTable.InsertItemsAsync(context, document.IndexElements.Values);
+            await JapaneseSentenceTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
+            await EnglishSentenceTable.InsertItemsAsync(context, document.EnglishSentences.Values);
+            await SentenceIndexTable.InsertItemsAsync(context, document.SentenceIndices.Values);
+            await IndexElementTable.InsertItemsAsync(context, document.IndexElements.Values);
             await transaction.CommitAsync();
         }
 
