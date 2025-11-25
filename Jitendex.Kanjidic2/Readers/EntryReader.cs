@@ -36,15 +36,7 @@ internal partial class EntryReader
     private readonly RadicalGroupReader _radicalGroupReader;
     private readonly ReadingMeaningGroupReader _readingMeaningGroupReader;
 
-    public EntryReader(
-        ILogger<EntryReader> logger,
-        XmlReader xmlReader,
-        CodepointGroupReader codepointGroupReader,
-        DictionaryGroupReader dictionaryGroupReader,
-        MiscGroupReader miscGroupReader,
-        QueryCodeGroupReader queryCodeGroupReader,
-        RadicalGroupReader radicalGroupReader,
-        ReadingMeaningGroupReader readingMeaningGroupReader) =>
+    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) =>
         (_logger, _xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
         (@logger, @xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
 

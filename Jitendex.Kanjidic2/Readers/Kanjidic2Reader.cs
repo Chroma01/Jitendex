@@ -30,24 +30,48 @@ internal class Kanjidic2Reader
         (_headerReader, _entriesReader, _docTypes) =
         (@headerReader, @entriesReader, @docTypes);
 
-    public async Task<Kanjidic2Document> ReadAsync()
+    public async Task<Document> ReadAsync()
     {
         var header = await _headerReader.ReadAsync();
         var entries = await _entriesReader.ReadAsync();
 
-        var kanjidic2 = new Kanjidic2Document
+        var document = new Document
         {
             Date = header.DateOfCreation,
-            Entries = entries,
-            CodepointTypes = [.. _docTypes.CodepointTypes()],
-            DictionaryTypes = [.. _docTypes.DictionaryTypes()],
-            QueryCodeTypes = [.. _docTypes.QueryCodeTypes()],
-            MisclassificationTypes = [.. _docTypes.MisclassificationTypes()],
-            RadicalTypes = [.. _docTypes.RadicalTypes()],
-            ReadingTypes = [.. _docTypes.ReadingType()],
-            VariantTypes = [.. _docTypes.VariantTypes()],
+            CodepointTypes = _docTypes.CodepointTypes(),
+            DictionaryTypes = _docTypes.DictionaryTypes(),
+            QueryCodeTypes = _docTypes.QueryCodeTypes(),
+            MisclassificationTypes = _docTypes.MisclassificationTypes(),
+            RadicalTypes = _docTypes.RadicalTypes(),
+            ReadingTypes = _docTypes.ReadingTypes(),
+            VariantTypes = _docTypes.VariantTypes(),
         };
 
-        return kanjidic2;
+        foreach (var entry in entries)
+        {
+            document.Entries.Add(entry.UnicodeScalarValue, entry);
+            foreach (var codepoint in entry.Codepoints)
+                document.Codepoints.Add(codepoint.Key, codepoint);
+            foreach (var dictionary in entry.Dictionaries)
+                document.Dictionaries.Add(dictionary.Key, dictionary);
+            foreach(var meaning in entry.Meanings)
+                document.Meanings.Add(meaning.Key, meaning);
+            foreach(var nanori in entry.Nanoris)
+                document.Nanoris.Add(nanori.Key, nanori);
+            foreach(var queryCode in entry.QueryCodes)
+                document.QueryCodes.Add(queryCode.Key, queryCode);
+            foreach(var radical in entry.Radicals)
+                document.Radicals.Add(radical.Key, radical);
+            foreach(var radicalName in entry.RadicalNames)
+                document.RadicalNames.Add(radicalName.Key, radicalName);
+            foreach(var reading in entry.Readings)
+                document.Readings.Add(reading.Key, reading);
+            foreach(var strokeCount in entry.StrokeCounts)
+                document.StrokeCounts.Add(strokeCount.Key, strokeCount);
+            foreach(var variant in entry.Variants)
+                document.Variants.Add(variant.Key, variant);
+        }
+
+        return document;
     }
 }

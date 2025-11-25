@@ -67,17 +67,18 @@ internal partial class DocumentTypes
     "Keyword name `{Name}` for type `{TypeName}` was not registered with a description before use.")]
     private partial void LogUnregisteredKeywordName(string name, string typeName);
 
-    public IEnumerable<CodepointType> CodepointTypes() => GetKeywords<CodepointType>();
-    public IEnumerable<DictionaryType> DictionaryTypes() => GetKeywords<DictionaryType>();
-    public IEnumerable<QueryCodeType> QueryCodeTypes() => GetKeywords<QueryCodeType>();
-    public IEnumerable<MisclassificationType> MisclassificationTypes() => GetKeywords<MisclassificationType>();
-    public IEnumerable<RadicalType> RadicalTypes() => GetKeywords<RadicalType>();
-    public IEnumerable<ReadingType> ReadingType() => GetKeywords<ReadingType>();
-    public IEnumerable<VariantType> VariantTypes() => GetKeywords<VariantType>();
+    public Dictionary<string, CodepointType> CodepointTypes() => GetKeywords<CodepointType>();
+    public Dictionary<string, DictionaryType> DictionaryTypes() => GetKeywords<DictionaryType>();
+    public Dictionary<string, QueryCodeType> QueryCodeTypes() => GetKeywords<QueryCodeType>();
+    public Dictionary<string, MisclassificationType> MisclassificationTypes() => GetKeywords<MisclassificationType>();
+    public Dictionary<string, RadicalType> RadicalTypes() => GetKeywords<RadicalType>();
+    public Dictionary<string, ReadingType> ReadingTypes() => GetKeywords<ReadingType>();
+    public Dictionary<string, VariantType> VariantTypes() => GetKeywords<VariantType>();
 
-    private IEnumerable<T> GetKeywords<T>() where T : IKeyword => _cache.Values
+    private Dictionary<string, T> GetKeywords<T>() where T : IKeyword => _cache.Values
         .Where(static keyword => keyword is T)
-        .Select(static keyword => (T)keyword);
+        .Select(static keyword => new KeyValuePair<string, T>(keyword.Name, (T)keyword))
+        .ToDictionary();
 
     private void Register<T>(string name, string description) where T : IKeyword
     {
