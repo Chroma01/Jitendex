@@ -27,8 +27,7 @@ public static class Service
     {
         using var loggerFactory = CreateLoggerFactory();
         var logger = loggerFactory.CreateLogger<FileBuilder>();
-
-        var type = new FileType(file);
+        FileType type = new(file);
         FileBuilder builder = new
         (
             logger,
@@ -40,8 +39,8 @@ public static class Service
 
     public static List<DateOnly> GetEdrdgFileDates(DictionaryFile file, DateOnly afterDate, DirectoryInfo? archiveDirectory = null)
     {
-        var type = new FileType(file);
-        FileArchive archive = new (type, archiveDirectory);
+        FileType type = new(file);
+        FileArchive archive = new(type, archiveDirectory);
         return archive.GetPatchDates(afterDate: afterDate);
     }
 
