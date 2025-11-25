@@ -37,5 +37,6 @@ public class Dictionary
     [ForeignKey(nameof(TypeName))]
     public required DictionaryType Type { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "dic_ref";
 }

@@ -35,5 +35,6 @@ public class Variant
     [ForeignKey(nameof(TypeName))]
     public required VariantType Type { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "variant";
 }

@@ -35,5 +35,6 @@ public class Reading
     [ForeignKey(nameof(TypeName))]
     public required ReadingType Type { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "reading";
 }

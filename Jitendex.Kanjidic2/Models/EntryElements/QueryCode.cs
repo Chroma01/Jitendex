@@ -39,5 +39,6 @@ public class QueryCode
     [ForeignKey(nameof(Misclassification))]
     public required MisclassificationType? MisclassificationType { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "q_code";
 }

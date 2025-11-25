@@ -35,5 +35,6 @@ public class Radical
     [ForeignKey(nameof(TypeName))]
     public required RadicalType Type { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "rad_value";
 }

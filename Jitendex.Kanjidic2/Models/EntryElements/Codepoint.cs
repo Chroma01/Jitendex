@@ -35,5 +35,6 @@ public class Codepoint
     [ForeignKey(nameof(TypeName))]
     public required CodepointType Type { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "cp_value";
 }

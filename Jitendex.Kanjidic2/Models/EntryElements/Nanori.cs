@@ -31,5 +31,6 @@ public class Nanori
     [ForeignKey(nameof(UnicodeScalarValue))]
     public required Entry Entry { get; set; }
 
+    internal (int, int) Key => (UnicodeScalarValue, Order);
     internal const string XmlTagName = "nanori";
 }
