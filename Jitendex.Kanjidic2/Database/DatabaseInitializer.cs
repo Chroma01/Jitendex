@@ -32,16 +32,25 @@ internal static class DatabaseInitializer
         // For faster importing, write data to memory rather than to the disk.
         await context.ExecuteFastNewDatabasePragmaAsync();
 
+        // Initialize table objects.
+        var table1 = new KeywordTable<CodepointType>();
+        var table2 = new KeywordTable<DictionaryType>();
+        var table3 = new KeywordTable<QueryCodeType>();
+        var table4 = new KeywordTable<MisclassificationType>();
+        var table5 = new KeywordTable<RadicalType>();
+        var table6 = new KeywordTable<ReadingType>();
+        var table7 = new KeywordTable<VariantType>();
+
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await context.InsertKeywordsAsync(kanjidic2.CodepointTypes);
-            await context.InsertKeywordsAsync(kanjidic2.DictionaryTypes);
-            await context.InsertKeywordsAsync(kanjidic2.QueryCodeTypes);
-            await context.InsertKeywordsAsync(kanjidic2.MisclassificationTypes);
-            await context.InsertKeywordsAsync(kanjidic2.RadicalTypes);
-            await context.InsertKeywordsAsync(kanjidic2.ReadingType);
-            await context.InsertKeywordsAsync(kanjidic2.VariantTypes);
+            await table1.InsertItemsAsync(context, kanjidic2.CodepointTypes);
+            await table2.InsertItemsAsync(context, kanjidic2.DictionaryTypes);
+            await table3.InsertItemsAsync(context, kanjidic2.QueryCodeTypes);
+            await table4.InsertItemsAsync(context, kanjidic2.MisclassificationTypes);
+            await table5.InsertItemsAsync(context, kanjidic2.RadicalTypes);
+            await table6.InsertItemsAsync(context, kanjidic2.ReadingTypes);
+            await table7.InsertItemsAsync(context, kanjidic2.VariantTypes);
             await context.InsertEntriesAsync(kanjidic2.Entries);
 
             await transaction.CommitAsync();

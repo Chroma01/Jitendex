@@ -16,17 +16,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Kanjidic2.Models;
+using Microsoft.Data.Sqlite;
+using Jitendex.Kanjidic2.Models.EntryElements;
+using Jitendex.SQLite;
 
-public class Kanjidic2Document
+namespace Jitendex.Kanjidic2.Database.EntryElements;
+
+internal sealed class NanoriTable : Table<Nanori>
 {
-    public required string Date { get; set; }
-    public required List<Entry> Entries { get; init; }
-    public required List<CodepointType> CodepointTypes { get; init; }
-    public required List<DictionaryType> DictionaryTypes { get; init; }
-    public required List<QueryCodeType> QueryCodeTypes { get; init; }
-    public required List<MisclassificationType> MisclassificationTypes { get; init; }
-    public required List<RadicalType> RadicalTypes { get; init; }
-    public required List<ReadingType> ReadingTypes { get; init; }
-    public required List<VariantType> VariantTypes { get; init; }
+    protected override string Name => nameof(Nanori);
+
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(Nanori.UnicodeScalarValue),
+        nameof(Nanori.Order),
+        nameof(Nanori.Text),
+    ];
+
+    protected override SqliteParameter[] Parameters(Nanori nanori) =>
+    [
+        new("@0", nanori.UnicodeScalarValue),
+        new("@1", nanori.Order),
+        new("@2", nanori.Text),
+    ];
 }

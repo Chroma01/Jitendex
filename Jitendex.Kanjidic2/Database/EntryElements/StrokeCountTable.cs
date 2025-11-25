@@ -16,17 +16,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Kanjidic2.Models;
+using Microsoft.Data.Sqlite;
+using Jitendex.Kanjidic2.Models.EntryElements;
+using Jitendex.SQLite;
 
-public class Kanjidic2Document
+namespace Jitendex.Kanjidic2.Database.EntryElements;
+
+internal sealed class StrokeCountTable : Table<StrokeCount>
 {
-    public required string Date { get; set; }
-    public required List<Entry> Entries { get; init; }
-    public required List<CodepointType> CodepointTypes { get; init; }
-    public required List<DictionaryType> DictionaryTypes { get; init; }
-    public required List<QueryCodeType> QueryCodeTypes { get; init; }
-    public required List<MisclassificationType> MisclassificationTypes { get; init; }
-    public required List<RadicalType> RadicalTypes { get; init; }
-    public required List<ReadingType> ReadingTypes { get; init; }
-    public required List<VariantType> VariantTypes { get; init; }
+    protected override string Name => nameof(StrokeCount);
+
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(StrokeCount.UnicodeScalarValue),
+        nameof(StrokeCount.Order),
+        nameof(StrokeCount.Value),
+    ];
+
+    protected override SqliteParameter[] Parameters(StrokeCount strokeCount) =>
+    [
+        new("@0", strokeCount.UnicodeScalarValue),
+        new("@1", strokeCount.Order),
+        new("@2", strokeCount.Value),
+    ];
 }

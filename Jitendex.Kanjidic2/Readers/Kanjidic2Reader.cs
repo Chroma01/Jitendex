@@ -44,7 +44,7 @@ internal class Kanjidic2Reader
             QueryCodeTypes = [.. _docTypes.QueryCodeTypes()],
             MisclassificationTypes = [.. _docTypes.MisclassificationTypes()],
             RadicalTypes = [.. _docTypes.RadicalTypes()],
-            ReadingType = [.. _docTypes.ReadingType()],
+            ReadingTypes = [.. _docTypes.ReadingType()],
             VariantTypes = [.. _docTypes.VariantTypes()],
         };
 
