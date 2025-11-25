@@ -16,17 +16,20 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using MinimalPatch;
 
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed class FileBuilder
 {
+    private readonly ILogger<FileBuilder> _logger;
     private readonly FileCache _cache;
     private readonly FileArchive _archive;
 
-    public FileBuilder(FileCache cache, FileArchive archive)
-        => (_cache, _archive) = (cache, archive);
+    public FileBuilder(ILogger<FileBuilder> logger, FileCache cache, FileArchive archive) =>
+        (_logger, _cache, _archive) =
+        (@logger, @cache, @archive);
 
     public FileInfo GetFile(DateOnly date)
     {
@@ -41,8 +44,6 @@ internal sealed class FileBuilder
     {
         var (baseDate, baseFile, patchDates) = GetBuildBase(date);
 
-        Console.Error.WriteLine(ReadingBaseFileMessage(baseDate));
-
         int length = baseFile.Length();
         var @patchBuffer = (new char[length / 10]).AsSpan();
         var originBuffer = (new char[length * 3 / 2]).AsSpan();
@@ -51,7 +52,7 @@ internal sealed class FileBuilder
 
         foreach (var patchDate in patchDates)
         {
-            Console.Error.WriteLine($"Patching file to date {patchDate:yyyy-MM-dd}");
+            _logger.LogInformation("Patching file to date {PatchDate:yyyy-MM-dd}", patchDate);
             var patchFile = _archive.GetPatchFile(patchDate);
             int patchLength = patchFile.ReadInto(patchBuffer);
             Patch.Apply
@@ -95,9 +96,4 @@ internal sealed class FileBuilder
         baseFile ??= _archive.BaseFile;
         return (baseDate, baseFile, patchDates);
     }
-
-    private static ReadOnlySpan<char> ReadingBaseFileMessage(DateOnly baseDate)
-        => baseDate == default
-            ? "Reading base file from file archive"
-            : $"Reading base file from date {baseDate:yyyy-MM-dd}";
 }

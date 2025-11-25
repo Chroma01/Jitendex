@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.EdrdgDictionaryArchive.Internal;
 
 namespace Jitendex.EdrdgDictionaryArchive;
@@ -24,14 +25,16 @@ public static class Service
 {
     public static FileInfo GetEdrdgFile(DictionaryFile file, DateOnly date, DirectoryInfo? archiveDirectory = null)
     {
-        var type = new FileType(file);
+        using var loggerFactory = CreateLoggerFactory();
+        var logger = loggerFactory.CreateLogger<FileBuilder>();
 
+        var type = new FileType(file);
         FileBuilder builder = new
         (
+            logger,
             new FileCache(type),
             new FileArchive(type, archiveDirectory)
         );
-
         return builder.GetFile(date);
     }
 
@@ -41,6 +44,15 @@ public static class Service
         FileArchive archive = new (type, archiveDirectory);
         return archive.GetPatchDates(afterDate: afterDate);
     }
+
+    private static ILoggerFactory CreateLoggerFactory() =>
+        LoggerFactory.Create(static builder =>
+            builder.AddSimpleConsole(static options =>
+            {
+                options.IncludeScopes = true;
+                options.SingleLine = true;
+                options.TimestampFormat = "HH:mm:ss ";
+            }));
 }
 
 public enum DictionaryFile : byte

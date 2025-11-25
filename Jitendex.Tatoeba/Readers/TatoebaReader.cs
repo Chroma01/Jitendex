@@ -57,9 +57,8 @@ internal sealed class TatoebaReader
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
-                    _logger.LogError("Line {LineA}", lineA);
-                    _logger.LogError("Line {LineB}", lineB);
+                    using (_logger.BeginScope((lineA, lineB)))
+                        _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
                 }
             }
         }

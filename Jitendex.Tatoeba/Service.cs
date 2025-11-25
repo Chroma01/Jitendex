@@ -25,7 +25,7 @@ namespace Jitendex.Tatoeba;
 
 public static class Service
 {
-    public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null)
+    public static async Task RunAsync(DateOnly date, DirectoryInfo? archiveDirectory)
     {
         var file = GetEdrdgFile(examples, date, archiveDirectory);
         var reader = ReaderProvider.GetReader(file);
