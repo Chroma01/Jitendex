@@ -55,12 +55,11 @@ internal sealed class FileBuilder
             _logger.LogInformation("Patching file to date {PatchDate:yyyy-MM-dd}", patchDate);
             var patchFile = _archive.GetPatchFile(patchDate);
             int patchLength = patchFile.ReadInto(patchBuffer);
-            Patch.Apply
+            length = Patch.Apply
             (
                 @patchBuffer[..patchLength],
                 originBuffer[..length],
-                outputBuffer,
-                out length
+                outputBuffer
             );
             if (patchDate != date)
             {
