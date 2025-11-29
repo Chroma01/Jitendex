@@ -31,7 +31,7 @@ internal sealed class FileCache
         _directory = cacheRoot.CreateSubdirectory(type.DirectoryName.ToString());
     }
 
-    public FileInfo? GetFile(DateOnly date)
+    public FileInfo? GetExistingFile(DateOnly date)
         => GetCachedFilePath(date) is var path && File.Exists(path)
             ? new FileInfo(path)
             : null;
@@ -46,7 +46,7 @@ internal sealed class FileCache
 
     public void DeleteFile(DateOnly date)
     {
-        if (GetFile(date) is FileInfo file)
+        if (GetExistingFile(date) is FileInfo file)
         {
             file.Delete();
         }

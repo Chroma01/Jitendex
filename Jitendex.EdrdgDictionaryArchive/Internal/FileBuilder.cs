@@ -37,7 +37,7 @@ internal sealed class FileBuilder
         {
             date = _archive.GetLatestPatchDate();
         }
-        return _cache.GetFile(date) ?? BuildFile(date);
+        return _cache.GetExistingFile(date) ?? BuildFile(date);
     }
 
     private FileInfo BuildFile(DateOnly date)
@@ -81,7 +81,7 @@ internal sealed class FileBuilder
         List<DateOnly> patchDates = [];
         foreach (var patchDate in _archive.GetPatchDates(untilDate: date))
         {
-            if (_cache.GetFile(patchDate) is FileInfo cachedFile)
+            if (_cache.GetExistingFile(patchDate) is FileInfo cachedFile)
             {
                 baseDate = patchDate;
                 baseFile = cachedFile;
