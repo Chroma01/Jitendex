@@ -25,17 +25,15 @@ namespace Jitendex.JMdict;
 
 public static class Service
 {
-    public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null, DirectoryInfo? jitendexDataDirectory = null)
+    public static async Task RunAsync(DateOnly date, DirectoryInfo? archiveDirectory, DirectoryInfo? jitendexDataDirectory)
     {
         var files = new Files
         {
             Jmdict = GetEdrdgFile(JMdict_e_examp, date, archiveDirectory),
             XrefIds = GetXrefFile(jitendexDataDirectory),
         };
-        Console.WriteLine(files.XrefIds?.FullName);
         var reader = ReaderProvider.GetReader(files);
         var document = await reader.ReadAsync();
-
         await DatabaseInitializer.WriteAsync(document);
     }
 
