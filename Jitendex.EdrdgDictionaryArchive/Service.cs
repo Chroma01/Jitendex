@@ -37,6 +37,20 @@ public static class Service
         return builder.GetFile(date);
     }
 
+    public static (FileInfo, DateOnly) GetNextEdrdgFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null)
+    {
+        using var loggerFactory = CreateLoggerFactory();
+        var logger = loggerFactory.CreateLogger<FileBuilder>();
+        FileType type = new(file);
+        FileBuilder builder = new
+        (
+            logger,
+            new FileCache(type),
+            new FileArchive(type, archiveDirectory)
+        );
+        return builder.GetNextFile(previousDate);
+    }
+
     public static List<DateOnly> GetEdrdgFileDates(DictionaryFile file, DateOnly afterDate, DirectoryInfo? archiveDirectory = null)
     {
         FileType type = new(file);

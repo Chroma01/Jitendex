@@ -66,35 +66,66 @@ internal sealed class FileArchive
         );
     }
 
+    public DateOnly GetNextPatchDate(DateOnly previousDate)
+    {
+        foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
+        {
+            int year = int.Parse(yearDir.Name);
+            if (year < previousDate.Year)
+            {
+                continue;
+            }
+            foreach (var monthDir in yearDir.GetSortedDirectories())
+            {
+                int month = int.Parse(monthDir.Name);
+                if (month < previousDate.Month)
+                {
+                    continue;
+                }
+                foreach (var patchFile in monthDir.GetSortedFiles())
+                {
+                    int day = int.Parse(patchFile.Name.AsSpan(0, 2));
+                    if (day > previousDate.Day)
+                    {
+                        return new DateOnly(year, month, day);
+                    }
+                }
+            }
+        }
+        return default;
+    }
+
     public List<DateOnly> GetPatchDates(DateOnly afterDate = default, DateOnly untilDate = default)
     {
         List<DateOnly> patchDates = [];
         foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
         {
+            int year = int.Parse(yearDir.Name);
+            if (year < afterDate.Year)
+            {
+                continue;
+            }
             foreach (var monthDir in yearDir.GetSortedDirectories())
             {
+                int month = int.Parse(monthDir.Name);
+                if (month < afterDate.Month)
+                {
+                    continue;
+                }
                 foreach (var patchFile in monthDir.GetSortedFiles())
                 {
-                    var patchDate = new DateOnly
-                    (
-                        year: int.Parse(yearDir.Name),
-                        month: int.Parse(monthDir.Name),
-                        day: int.Parse(patchFile.Name.AsSpan(0, 2))
-                    );
+                    int day = int.Parse(patchFile.Name.AsSpan(0, 2));
+                    DateOnly patchDate = new(year, month, day);
+                    if (untilDate != default && patchDate > untilDate)
+                    {
+                        goto end;
+                    }
                     if (patchDate > afterDate)
                     {
                         patchDates.Add(patchDate);
                     }
-                    if (patchDate == untilDate)
-                    {
-                        goto end;
-                    }
                 }
             }
-        }
-        if (untilDate != default)
-        {
-            throw new ArgumentException($"Patch for date {untilDate} does not exist in the archive", nameof(untilDate));
         }
     end:
         return patchDates;
