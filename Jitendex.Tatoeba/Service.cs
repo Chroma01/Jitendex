@@ -42,9 +42,9 @@ public static class Service
 
         await using FileStream fs = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
         await using BrotliStream bs = new(fs, CompressionMode.Decompress);
-        using StreamReader sr = new(bs);
+        using var streamReader = new StreamReader(bs);
 
-        var reader = new TatoebaReader(logger, sr, date);
+        var reader = new TatoebaReader(logger, streamReader, date);
         return await reader.ReadAsync();
     }
 

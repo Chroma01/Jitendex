@@ -40,7 +40,7 @@ public abstract class Table<T>
         command.CommandText = InsertCommandText;
         foreach (var item in items)
         {
-            // Extremely hot path: millions of loops here.
+            // Extremely hot path: millions of loops here for DB initializations.
             // AddRange() & Clear() have shown to be more efficient than
             // updating the command.Parameters values on every loop.
             command.Parameters.AddRange(Parameters(item));
