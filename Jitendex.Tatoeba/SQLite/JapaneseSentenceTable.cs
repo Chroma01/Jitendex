@@ -20,19 +20,19 @@ using Microsoft.Data.Sqlite;
 using Jitendex.Tatoeba.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba.Database;
+namespace Jitendex.Tatoeba.SQLite;
 
-internal sealed class EnglishSentenceTable : Table<EnglishSentence>
+internal sealed class JapaneseSentenceTable : Table<JapaneseSentence>
 {
-    protected override string Name => nameof(EnglishSentence);
+    protected override string Name => nameof(JapaneseSentence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(EnglishSentence.SequenceId),
-        nameof(EnglishSentence.Text),
+        nameof(JapaneseSentence.SequenceId),
+        nameof(JapaneseSentence.Text),
     ];
 
-    protected override SqliteParameter[] Parameters(EnglishSentence sentence) =>
+    protected override SqliteParameter[] Parameters(JapaneseSentence sentence) =>
     [
         new("@0", sentence.SequenceId),
         new("@1", sentence.Text),

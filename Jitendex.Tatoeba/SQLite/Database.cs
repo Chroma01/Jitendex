@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Jitendex.Tatoeba.Models;
 
-namespace Jitendex.Tatoeba.Database;
+namespace Jitendex.Tatoeba.SQLite;
 
-internal static class DatabaseInitializer
+internal static class Database
 {
     private static readonly SequenceTable SequenceTable = new();
     private static readonly JapaneseSentenceTable JapaneseSentenceTable = new();
@@ -28,7 +28,7 @@ internal static class DatabaseInitializer
     private static readonly SentenceIndexTable SentenceIndexTable = new();
     private static readonly IndexElementTable IndexElementTable = new();
 
-    public static async Task WriteAsync(Document document)
+    public static async Task InitializeAsync(Document document)
     {
         await using var context = new Context();
 

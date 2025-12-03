@@ -20,23 +20,21 @@ using Microsoft.Data.Sqlite;
 using Jitendex.Tatoeba.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba.Database;
+namespace Jitendex.Tatoeba.SQLite;
 
-internal sealed class SentenceIndexTable : Table<SentenceIndex>
+internal sealed class EnglishSentenceTable : Table<EnglishSentence>
 {
-    protected override string Name => nameof(SentenceIndex);
+    protected override string Name => nameof(EnglishSentence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(SentenceIndex.SentenceId),
-        nameof(SentenceIndex.Order),
-        nameof(SentenceIndex.MeaningId),
+        nameof(EnglishSentence.SequenceId),
+        nameof(EnglishSentence.Text),
     ];
 
-    protected override SqliteParameter[] Parameters(SentenceIndex index) =>
+    protected override SqliteParameter[] Parameters(EnglishSentence sentence) =>
     [
-        new("@0", index.SentenceId),
-        new("@1", index.Order),
-        new("@2", index.MeaningId),
+        new("@0", sentence.SequenceId),
+        new("@1", sentence.Text),
     ];
 }

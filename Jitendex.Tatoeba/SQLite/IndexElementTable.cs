@@ -20,7 +20,7 @@ using Microsoft.Data.Sqlite;
 using Jitendex.Tatoeba.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba.Database;
+namespace Jitendex.Tatoeba.SQLite;
 
 internal sealed class IndexElementTable : Table<IndexElement>
 {

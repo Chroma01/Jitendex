@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
-using Jitendex.Tatoeba.Database;
 using Jitendex.Tatoeba.Models;
 using Jitendex.Tatoeba.Readers;
+using Jitendex.Tatoeba.SQLite;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
@@ -32,7 +32,7 @@ public static class Service
     {
         var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
         var document = await ReadAsync(file, date);
-        await DatabaseInitializer.WriteAsync(document);
+        await Database.InitializeAsync(document);
     }
 
     private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
