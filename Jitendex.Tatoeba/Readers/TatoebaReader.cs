@@ -33,7 +33,7 @@ internal sealed class TatoebaReader
 
     public async Task<Document> ReadAsync()
     {
-        Document document = new(expectedSequenceCount: 300_000);
+        Document document = new(_fileDate, expectedSequenceCount: 300_000);
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
