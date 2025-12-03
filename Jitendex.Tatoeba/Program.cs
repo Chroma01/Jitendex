@@ -50,9 +50,9 @@ public static class Program
             return 1;
         }
 
-        await Service.RunAsync
+        await Service.UpdateAsync
         (
-            date: parseResult.GetValue(dateOption),
+            previousDate: parseResult.GetValue(dateOption),
             archiveDirectory: parseResult.GetValue(archiveDirOption)
         );
 

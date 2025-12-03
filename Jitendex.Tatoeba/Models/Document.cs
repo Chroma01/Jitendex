@@ -26,12 +26,12 @@ internal sealed class Document
     public Dictionary<(int, int), SentenceIndex> SentenceIndices { get; init; }
     public Dictionary<(int, int, int), IndexElement> IndexElements { get; init; }
 
-    public Document(int initialCapacity)
+    public Document(int expectedSequenceCount = 0)
     {
-        Sequences = new(initialCapacity * 2);
-        EnglishSentences = new(initialCapacity);
-        JapaneseSentences = new(initialCapacity);
-        SentenceIndices = new(initialCapacity);
-        IndexElements = new(initialCapacity * 8);
+        Sequences = new(expectedSequenceCount);
+        EnglishSentences = new(expectedSequenceCount / 2);
+        JapaneseSentences = new(expectedSequenceCount / 2);
+        SentenceIndices = new(expectedSequenceCount / 2);
+        IndexElements = new(expectedSequenceCount * 4);
     }
 }

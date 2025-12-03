@@ -26,6 +26,7 @@ public sealed class Sequence
 {
     [Key]
     public required int Id { get; init; }
+    public required DateOnly CreatedDate { get; init; }
 
     [InverseProperty(nameof(JapaneseSentence.Sequence))]
     public JapaneseSentence? JapaneseSentence { get; set; }

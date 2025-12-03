@@ -29,10 +29,12 @@ internal sealed class SequenceTable : Table<Sequence>
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(Sequence.Id),
+        nameof(Sequence.CreatedDate),
     ];
 
     protected override SqliteParameter[] Parameters(Sequence sequence) =>
     [
         new("@0", sequence.Id),
+        new("@1", sequence.CreatedDate),
     ];
 }
