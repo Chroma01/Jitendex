@@ -16,25 +16,20 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.Models;
-using Jitendex.SQLite;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Jitendex.Tatoeba.Database;
+namespace Jitendex.Tatoeba.Models;
 
-internal sealed class EnglishSentenceTable : Table<EnglishSentence>
+[Table(nameof(Sequence))]
+public sealed class Sequence
 {
-    protected override string Name => nameof(EnglishSentence);
+    [Key]
+    public required int Id { get; init; }
 
-    protected override IReadOnlyList<string> ColumnNames =>
-    [
-        nameof(EnglishSentence.SequenceId),
-        nameof(EnglishSentence.Text),
-    ];
+    [InverseProperty(nameof(JapaneseSentence.Sequence))]
+    public JapaneseSentence? JapaneseSentence { get; set; }
 
-    protected override SqliteParameter[] Parameters(EnglishSentence sentence) =>
-    [
-        new("@0", sentence.SequenceId),
-        new("@1", sentence.Text),
-    ];
+    [InverseProperty(nameof(EnglishSentence.Sequence))]
+    public EnglishSentence? EnglishSentence { get; set; }
 }

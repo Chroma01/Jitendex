@@ -74,9 +74,9 @@ internal sealed class TatoebaReader
 
         var index = new SentenceIndex
         {
-            SentenceId = japaneseSentence.Id,
+            SentenceId = japaneseSentence.SequenceId,
             Order = order,
-            MeaningId = englishSentence.Id,
+            MeaningId = englishSentence.SequenceId,
             Sentence = japaneseSentence,
             Meaning = englishSentence,
         };
@@ -109,47 +109,83 @@ internal sealed class TatoebaReader
 
     private JapaneseSentence GetJapaneseSentence(in ExampleText text, Document document)
     {
-        var sentence = new JapaneseSentence
+        var sequence = new Sequence
         {
             Id = text.GetJapaneseSentenceId(),
-            Text = text.GetJapaneseSentenceText(),
         };
 
-        if (document.JapaneseSentences.TryGetValue(sentence.Id, out var oldSentence))
+        if (document.Sequences.TryGetValue(sequence.Id, out var oldSequence))
         {
-            if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
-            {
-                _logger.LogWarning("Sentence ID #{ID} has more than one distinct text", sentence.Id);
-            }
-            return oldSentence;
+            sequence = oldSequence;
         }
         else
         {
-            document.JapaneseSentences.Add(sentence.Id, sentence);
-            return sentence;
+            document.Sequences.Add(sequence.Id, sequence);
         }
+
+        if (sequence.EnglishSentence is not null)
+        {
+            _logger.LogWarning("Sequence ID {Id} is used for different language sentences", sequence.Id);
+        }
+
+        var sentence = new JapaneseSentence
+        {
+            SequenceId = sequence.Id,
+            Text = text.GetJapaneseSentenceText(),
+            Sequence = sequence,
+        };
+
+        if (sequence.JapaneseSentence is null)
+        {
+            sequence.JapaneseSentence = sentence;
+            document.JapaneseSentences.Add(sequence.Id, sentence);
+        }
+        else if (!string.Equals(sentence.Text, sequence.JapaneseSentence.Text, StringComparison.Ordinal))
+        {
+            _logger.LogWarning("Japanese sentence #{ID} has more than one distinct text", sentence.SequenceId);
+        }
+
+        return sequence.JapaneseSentence;
     }
 
     private EnglishSentence GetEnglishSentence(in ExampleText text, Document document)
     {
-        var sentence = new EnglishSentence
+        var sequence = new Sequence
         {
             Id = text.GetEnglishSentenceId(),
-            Text = text.GetEnglishSentenceText(),
         };
 
-        if (document.EnglishSentences.TryGetValue(sentence.Id, out var oldSentence))
+        if (document.Sequences.TryGetValue(sequence.Id, out var oldSequence))
         {
-            if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
-            {
-                _logger.LogWarning("Sentence ID #{ID} has more than one distinct text", sentence.Id);
-            }
-            return oldSentence;
+            sequence = oldSequence;
         }
         else
         {
-            document.EnglishSentences.Add(sentence.Id, sentence);
-            return sentence;
+            document.Sequences.Add(sequence.Id, sequence);
         }
+
+        if (sequence.JapaneseSentence is not null)
+        {
+            _logger.LogWarning("Sequence ID {Id} is used for different language sentences", sequence.Id);
+        }
+
+        var sentence = new EnglishSentence
+        {
+            SequenceId = sequence.Id,
+            Text = text.GetEnglishSentenceText(),
+            Sequence = sequence,
+        };
+
+        if (sequence.EnglishSentence is null)
+        {
+            sequence.EnglishSentence = sentence;
+            document.EnglishSentences.Add(sequence.Id, sentence);
+        }
+        else if (!string.Equals(sentence.Text, sequence.EnglishSentence.Text, StringComparison.Ordinal))
+        {
+            _logger.LogWarning("English sentence #{ID} has more than one distinct text", sentence.SequenceId);
+        }
+
+        return sequence.EnglishSentence;
     }
 }

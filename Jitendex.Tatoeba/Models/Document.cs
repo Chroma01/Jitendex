@@ -21,6 +21,7 @@ namespace Jitendex.Tatoeba.Models;
 internal sealed class Document
 {
     private const int InitialCapacity = 150_000;
+    public Dictionary<int, Sequence> Sequences { get; init; } = new(InitialCapacity * 2);
     public Dictionary<int, EnglishSentence> EnglishSentences { get; init; } = new(InitialCapacity);
     public Dictionary<int, JapaneseSentence> JapaneseSentences { get; init; } = new(InitialCapacity);
     public Dictionary<(int, int), SentenceIndex> SentenceIndices { get; init; } = new(InitialCapacity);

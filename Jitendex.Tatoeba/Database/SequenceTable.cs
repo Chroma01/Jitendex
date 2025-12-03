@@ -22,19 +22,17 @@ using Jitendex.SQLite;
 
 namespace Jitendex.Tatoeba.Database;
 
-internal sealed class EnglishSentenceTable : Table<EnglishSentence>
+internal sealed class SequenceTable : Table<Sequence>
 {
-    protected override string Name => nameof(EnglishSentence);
+    protected override string Name => nameof(Sequence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(EnglishSentence.SequenceId),
-        nameof(EnglishSentence.Text),
+        nameof(Sequence.Id),
     ];
 
-    protected override SqliteParameter[] Parameters(EnglishSentence sentence) =>
+    protected override SqliteParameter[] Parameters(Sequence sequence) =>
     [
-        new("@0", sentence.SequenceId),
-        new("@1", sentence.Text),
+        new("@0", sequence.Id),
     ];
 }

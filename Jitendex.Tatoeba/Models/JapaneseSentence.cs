@@ -25,8 +25,11 @@ namespace Jitendex.Tatoeba.Models;
 public sealed class JapaneseSentence
 {
     [Key]
-    public required int Id { get; init; }
+    public required int SequenceId { get; init; }
     public required string Text { get; init; }
+
+    [ForeignKey(nameof(SequenceId))]
+    public required Sequence Sequence { get; init; }
 
     [InverseProperty(nameof(SentenceIndex.Sentence))]
     public List<SentenceIndex> Indices { get; init; } = [];

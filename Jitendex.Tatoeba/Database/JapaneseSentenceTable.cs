@@ -28,13 +28,13 @@ internal sealed class JapaneseSentenceTable : Table<JapaneseSentence>
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(JapaneseSentence.Id),
+        nameof(JapaneseSentence.SequenceId),
         nameof(JapaneseSentence.Text),
     ];
 
     protected override SqliteParameter[] Parameters(JapaneseSentence sentence) =>
     [
-        new("@0", sentence.Id),
+        new("@0", sentence.SequenceId),
         new("@1", sentence.Text),
     ];
 }
