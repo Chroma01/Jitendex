@@ -33,4 +33,12 @@ public sealed class EnglishSentence
 
     [InverseProperty(nameof(SentenceIndex.Meaning))]
     public List<SentenceIndex> Indices { get; init; } = [];
+
+    public override bool Equals(object? obj)
+        => obj is EnglishSentence sentence
+        && SequenceId == sentence.SequenceId
+        && string.Equals(Text, sentence.Text, StringComparison.Ordinal);
+
+    public override int GetHashCode()
+        => HashCode.Combine(SequenceId, Text);
 }

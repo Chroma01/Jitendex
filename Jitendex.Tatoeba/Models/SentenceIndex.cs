@@ -38,5 +38,19 @@ public sealed class SentenceIndex
     [InverseProperty(nameof(IndexElement.Index))]
     public List<IndexElement> Elements { get; init; } = [];
 
+    public override bool Equals(object? obj)
+        => obj is SentenceIndex index
+        && SentenceId == index.SentenceId
+        && Order == index.Order
+        && MeaningId == index.MeaningId
+        && Enumerable.SequenceEqual(Elements, index.Elements);
+
+    public override int GetHashCode()
+        => Elements.Aggregate
+        (
+            seed: HashCode.Combine(SentenceId, Order, MeaningId),
+            func: static (hash, element) => HashCode.Combine(hash, element)
+        );
+
     internal (int, int) Key => (SentenceId, Order);
 }

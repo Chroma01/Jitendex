@@ -47,5 +47,24 @@ public sealed class IndexElement
         + '\t' + (SentenceForm ?? "")
         + '\t' + (IsPriority ? "1" : "0");
 
+    public override bool Equals(object? obj)
+        => obj is IndexElement element
+        && SentenceId == element.SentenceId
+        && IndexOrder == element.IndexOrder
+        && Order == element.Order
+        && Headword == element.Headword
+        && Reading == element.Reading
+        && EntryId == element.EntryId
+        && SenseNumber == element.SenseNumber
+        && SentenceForm == element.SentenceForm
+        && IsPriority == element.IsPriority;
+
+    public override int GetHashCode()
+        => HashCode.Combine
+        (
+            HashCode.Combine(SentenceId, IndexOrder, Order, Headword, Reading),
+            HashCode.Combine(EntryId, SenseNumber, SentenceForm, IsPriority)
+        );
+
     internal (int, int, int) Key => (SentenceId, IndexOrder, Order);
 }

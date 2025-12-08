@@ -33,4 +33,16 @@ public sealed class JapaneseSentence
 
     [InverseProperty(nameof(SentenceIndex.Sentence))]
     public List<SentenceIndex> Indices { get; init; } = [];
+
+    public override bool Equals(object? obj)
+        => obj is JapaneseSentence sentence
+        && SequenceId == sentence.SequenceId
+        && string.Equals(Text, sentence.Text, StringComparison.Ordinal);
+
+    public override int GetHashCode()
+        => Indices.Aggregate
+        (
+            seed: HashCode.Combine(SequenceId, Text),
+            func: static (hash, index) => HashCode.Combine(hash, index)
+        );
 }
