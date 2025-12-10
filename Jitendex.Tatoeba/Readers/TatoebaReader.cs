@@ -51,20 +51,27 @@ internal sealed class TatoebaReader
             }
             else
             {
-                var text = new ExampleText(lineA.AsSpan(3), lineB.AsSpan(3));
-                try
-                {
-                    MakeIndex(text, document);
-                }
-                catch (Exception e)
-                {
-                    using (_logger.BeginScope((lineA, lineB)))
-                        _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
-                }
+                ProcessLines(lineA.AsSpan(3), lineB.AsSpan(3), document);
             }
         }
 
         return document;
+    }
+
+    private void ProcessLines(ReadOnlySpan<char> lineA, ReadOnlySpan<char> lineB, Document document)
+    {
+        var text = new ExampleText(lineA, lineB);
+        try
+        {
+            MakeIndex(text, document);
+        }
+        catch (Exception e)
+        {
+            using (_logger.BeginScope((lineA.ToString(), lineB.ToString())))
+            {
+                _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
+            }
+        }
     }
 
     private void MakeIndex(in ExampleText text, Document document)
