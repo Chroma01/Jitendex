@@ -40,9 +40,13 @@ internal sealed class FileBuilder
         return _cache.GetExistingFile(date) ?? BuildFile(date);
     }
 
-    public (FileInfo, DateOnly) GetNextFile(DateOnly previousDate)
+    public (FileInfo?, DateOnly) GetNextFile(DateOnly previousDate)
     {
         var date = _archive.GetNextPatchDate(previousDate);
+        if (date == default)
+        {
+            return (null, date);
+        }
         var file = _cache.GetExistingFile(date) ?? BuildFile(date);
         return (file, date);
     }

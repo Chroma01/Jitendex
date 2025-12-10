@@ -24,20 +24,14 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        Option<DateOnly> dateOption = new("--date")
-        {
-            Description = "Date of the Tatoeba examples file to retrieve"
-        };
-
         Option<DirectoryInfo> archiveDirOption = new("--archive-path")
         {
-            Description = "Path to the edrdg-dictionary-archive directory",
+            Description = "Path to the edrdg-dictionary-archive directory"
         };
 
         var rootCommand = new RootCommand("Jitendex.Tatoeba: Import Japanese-to-English example sentences")
         {
-            dateOption,
-            archiveDirOption,
+            archiveDirOption
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -52,7 +46,6 @@ public static class Program
 
         await Service.UpdateAsync
         (
-            previousDate: parseResult.GetValue(dateOption),
             archiveDirectory: parseResult.GetValue(archiveDirOption)
         );
 

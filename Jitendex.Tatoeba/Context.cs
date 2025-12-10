@@ -25,8 +25,9 @@ namespace Jitendex.Tatoeba;
 public sealed class Context : SqliteContext
 {
     public DbSet<DocumentMetadata> Metadata { get; set; } = null!;
-    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
+    public DbSet<Sequence> Sequences { get; set; } = null!;
     public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
+    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
     public DbSet<SentenceIndex> SentenceIndices { get; set; } = null!;
     public DbSet<IndexElement> IndexElements { get; set; } = null!;
     public Context() : base("tatoeba.db") { }

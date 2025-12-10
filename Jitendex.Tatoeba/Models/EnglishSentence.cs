@@ -31,7 +31,7 @@ public sealed class EnglishSentence
 
     [JsonIgnore]
     [ForeignKey(nameof(SequenceId))]
-    public required Sequence Sequence { get; init; }
+    public Sequence Sequence { get; init; } = null!;
 
     [JsonIgnore]
     [InverseProperty(nameof(SentenceIndex.Meaning))]

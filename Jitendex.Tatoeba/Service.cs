@@ -16,23 +16,72 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
-using static Jitendex.EdrdgDictionaryArchive.Service;
+using System.IO.Compression;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Jitendex.Tatoeba.Models;
 using Jitendex.Tatoeba.Readers;
 using Jitendex.Tatoeba.SQLite;
-using Microsoft.Extensions.Logging;
-using System.IO.Compression;
+using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
+using static Jitendex.EdrdgDictionaryArchive.Service;
 
 namespace Jitendex.Tatoeba;
 
 public static class Service
 {
-    public static async Task UpdateAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
+    public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
     {
-        var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
-        var document = await ReadAsync(file, date);
-        await Database.InitializeAsync(document);
+        var previousDocument = await GetPreviousDocumentAsync(archiveDirectory);
+        var previousDate = previousDocument.Metadata.Date;
+
+        while (true)
+        {
+            var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
+
+            if (nextFile is null)
+            {
+                break;
+            }
+
+            var nextDocument = await ReadAsync(nextFile, nextDate);
+            var diff = new DocumentDiff(previousDocument, nextDocument);
+
+            await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
+            UpdateDatabase(diff);
+
+            previousDocument = nextDocument;
+            previousDate = nextDate;
+        }
+    }
+
+    private static async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
+    {
+        var previousDate = GetPreviousDate();
+        if (previousDate == default)
+        {
+            var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
+            var document = await ReadAsync(file!, date);
+            await Console.Error.WriteLineAsync($"Initializing database with data from {date:yyyy-MM-dd}");
+            await Database.InitializeAsync(document);
+            return document;
+        }
+        else
+        {
+            var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
+            var document = await ReadAsync(file, previousDate);
+            return document;
+        }
+    }
+
+    private static DateOnly GetPreviousDate()
+    {
+        using var db = new Context();
+        db.Database.EnsureCreated();
+        return db.Metadata
+            .OrderBy(static x => x.Id)
+            .Select(static x => x.Date)
+            .LastOrDefault();
     }
 
     private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
@@ -56,4 +105,54 @@ public static class Service
                 options.SingleLine = false;
                 options.TimestampFormat = "HH:mm:ss ";
             }));
+
+    private static void UpdateDatabase(DocumentDiff diff)
+    {
+        using var db = new Context();
+        var keys = new HashSet<int>(diff.ABPatches.Keys);
+        Console.Error.WriteLine($"There are {keys.Count} keys to process");
+
+        var sequences = db.Sequences
+            .Where(s => keys.Contains(s.Id))
+            .Include(s => s.Revisions)
+            .Include(s => s.EnglishSentence)
+            .Include(s => s.JapaneseSentence)
+            .ThenInclude(j => j!.Indices)
+            .ThenInclude(i => i.Elements)
+            .Select(s => new KeyValuePair<int, Sequence>(s.Id, s))
+            .ToDictionary();
+
+        Console.Error.WriteLine($"Retrieved {sequences.Count} entities from the database");
+
+        foreach (var (key, patch) in diff.ABPatches)
+        {
+            if (sequences.TryGetValue(key, out var sequence))
+            {
+                patch.ApplyTo(sequence);
+                var reversePatch = diff.BAPatches[key];
+                var revision = new Revision
+                {
+                    SequenceId = key,
+                    Number = sequence.Revisions.Count,
+                    CreatedDate = diff.Date,
+                    DiffJson = JsonSerializer.Serialize(reversePatch),
+                    Sequence = sequence,
+                };
+                sequence.Revisions.Add(revision);
+            }
+            else
+            {
+                var newSequence = new Sequence
+                {
+                    Id = key,
+                    CreatedDate = diff.Date,
+                };
+                patch.ApplyTo(newSequence);
+                db.Sequences.Add(newSequence);
+            }
+        }
+
+        db.SaveChanges();
+        db.Database.ExecuteSql($"INSERT INTO DocumentMetadata (DATE) VALUES ({diff.Date})");
+    }
 }

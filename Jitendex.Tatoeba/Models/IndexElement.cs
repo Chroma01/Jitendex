@@ -39,7 +39,7 @@ public sealed class IndexElement
 
     [JsonIgnore]
     [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]
-    public required SentenceIndex Index { get; init; }
+    public SentenceIndex Index { get; init; } = null!;
 
     public override string ToString() =>
         $"{SentenceId}\t{IndexOrder}\t{Order}\t{Headword}"

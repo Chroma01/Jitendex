@@ -32,11 +32,11 @@ public sealed class SentenceIndex
 
     [JsonIgnore]
     [ForeignKey(nameof(SentenceId))]
-    public required JapaneseSentence Sentence { get; init; }
+    public JapaneseSentence Sentence { get; init; } = null!;
 
     [JsonIgnore]
     [ForeignKey(nameof(MeaningId))]
-    public required EnglishSentence Meaning { get; init; }
+    public EnglishSentence Meaning { get; init; } = null!;
 
     [InverseProperty(nameof(IndexElement.Index))]
     public List<IndexElement> Elements { get; init; } = [];

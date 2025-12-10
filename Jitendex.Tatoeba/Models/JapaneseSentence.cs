@@ -31,7 +31,7 @@ public sealed class JapaneseSentence
 
     [JsonIgnore]
     [ForeignKey(nameof(SequenceId))]
-    public required Sequence Sequence { get; init; }
+    public Sequence Sequence { get; init; } = null!;
 
     [InverseProperty(nameof(SentenceIndex.Sentence))]
     public List<SentenceIndex> Indices { get; init; } = [];

@@ -37,7 +37,7 @@ public static class Service
         return builder.GetFile(date);
     }
 
-    public static (FileInfo, DateOnly) GetNextEdrdgFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null)
+    public static (FileInfo?, DateOnly) GetNextEdrdgFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null)
     {
         using var loggerFactory = CreateLoggerFactory();
         var logger = loggerFactory.CreateLogger<FileBuilder>();
