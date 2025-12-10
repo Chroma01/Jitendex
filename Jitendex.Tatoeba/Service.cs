@@ -109,6 +109,8 @@ public static class Service
     private static void UpdateDatabase(DocumentDiff diff)
     {
         using var db = new Context();
+        using var transaction = db.Database.BeginTransaction();
+
         var keys = new HashSet<int>(diff.ABPatches.Keys);
         Console.Error.WriteLine($"There are {keys.Count} keys to process");
 
@@ -116,13 +118,14 @@ public static class Service
             .Where(s => keys.Contains(s.Id))
             .Include(s => s.Revisions)
             .Include(s => s.EnglishSentence)
+            .ThenInclude(e => e!.Indices)
             .Include(s => s.JapaneseSentence)
             .ThenInclude(j => j!.Indices)
             .ThenInclude(i => i.Elements)
-            .Select(s => new KeyValuePair<int, Sequence>(s.Id, s))
-            .ToDictionary();
+            .ToDictionary(s => s.Id);
 
         Console.Error.WriteLine($"Retrieved {sequences.Count} entities from the database");
+        var options = new JsonSerializerOptions { WriteIndented = true };
 
         foreach (var (key, patch) in diff.ABPatches)
         {
@@ -135,24 +138,28 @@ public static class Service
                     SequenceId = key,
                     Number = sequence.Revisions.Count,
                     CreatedDate = diff.Date,
-                    DiffJson = JsonSerializer.Serialize(reversePatch),
-                    Sequence = sequence,
+                    DiffJson = JsonSerializer.Serialize(reversePatch, options),
                 };
                 sequence.Revisions.Add(revision);
             }
             else
             {
+                Console.Error.WriteLine(JsonSerializer.Serialize(patch, options));
                 var newSequence = new Sequence
                 {
                     Id = key,
                     CreatedDate = diff.Date,
                 };
                 patch.ApplyTo(newSequence);
+                Console.Error.WriteLine(JsonSerializer.Serialize(newSequence, options));
+                Console.Error.WriteLine(newSequence.EnglishSentence!.Indices.Count);
                 db.Sequences.Add(newSequence);
             }
         }
 
         db.SaveChanges();
         db.Database.ExecuteSql($"INSERT INTO DocumentMetadata (DATE) VALUES ({diff.Date})");
+
+        transaction.Commit();
     }
 }

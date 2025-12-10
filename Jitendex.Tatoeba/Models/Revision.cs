@@ -31,5 +31,5 @@ public sealed class Revision
     public required string DiffJson { get; init; }
 
     [ForeignKey(nameof(SequenceId))]
-    public required Sequence Sequence { get; init; }
+    public Sequence Sequence { get; init; } = null!;
 }

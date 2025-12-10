@@ -39,7 +39,8 @@ public sealed class JapaneseSentence
     public override bool Equals(object? obj)
         => obj is JapaneseSentence sentence
         && SequenceId == sentence.SequenceId
-        && string.Equals(Text, sentence.Text, StringComparison.Ordinal);
+        && string.Equals(Text, sentence.Text, StringComparison.Ordinal)
+        && Enumerable.SequenceEqual(Indices, sentence.Indices);
 
     public override int GetHashCode()
         => Indices.Aggregate
