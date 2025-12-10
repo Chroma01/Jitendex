@@ -39,9 +39,10 @@ public sealed class Sequence
 
     public override bool Equals(object? obj)
         => obj is Sequence sequence
-        && JapaneseSentence == sequence.JapaneseSentence
-        && EnglishSentence == sequence.EnglishSentence;
+        && Id == sequence.Id
+        && EqualityComparer<JapaneseSentence?>.Default.Equals(JapaneseSentence, sequence.JapaneseSentence)
+        && EqualityComparer<EnglishSentence?>.Default.Equals(EnglishSentence, sequence.EnglishSentence);
 
     public override int GetHashCode()
-        => HashCode.Combine(JapaneseSentence, EnglishSentence);
+        => HashCode.Combine(Id, JapaneseSentence, EnglishSentence);
 }

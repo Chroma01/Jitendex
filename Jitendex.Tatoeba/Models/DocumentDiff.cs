@@ -44,7 +44,7 @@ internal sealed class DocumentDiff
                 ABPatches[key] = SequenceDiff(valueA, emptyB);
                 BAPatches[key] = SequenceDiff(emptyB, valueA);
             }
-            else if (valueA != valueB)
+            else if (!valueA.Equals(valueB))
             {
                 ABPatches[key] = SequenceDiff(valueA, valueB);
                 BAPatches[key] = SequenceDiff(valueB, valueA);
@@ -69,13 +69,13 @@ internal sealed class DocumentDiff
     {
         var diff = new JsonPatchDocument<Sequence>();
 
-        if (a.EnglishSentence != b.EnglishSentence)
+        if (!EqualityComparer<EnglishSentence?>.Default.Equals(a.EnglishSentence, b.EnglishSentence))
         {
             diff.Test(path: static x => x.EnglishSentence, value: a.EnglishSentence);
             diff.Replace(path: static x => x.EnglishSentence, value: b.EnglishSentence);
         }
 
-        if (a.JapaneseSentence != b.JapaneseSentence)
+        if (!EqualityComparer<JapaneseSentence?>.Default.Equals(a.JapaneseSentence, b.JapaneseSentence))
         {
             diff.Test(path: static x => x.JapaneseSentence, value: a.JapaneseSentence);
             diff.Replace(path: static x => x.JapaneseSentence, value: b.JapaneseSentence);
