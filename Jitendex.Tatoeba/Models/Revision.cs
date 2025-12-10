@@ -16,18 +16,20 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Tatoeba.Models;
-using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba;
+namespace Jitendex.Tatoeba.Models;
 
-public sealed class Context : SqliteContext
+[Table(nameof(Revision))]
+[PrimaryKey(nameof(SequenceId), nameof(Number))]
+public sealed class Revision
 {
-    public DbSet<DocumentMetadata> Metadata { get; set; } = null!;
-    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
-    public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
-    public DbSet<SentenceIndex> SentenceIndices { get; set; } = null!;
-    public DbSet<IndexElement> IndexElements { get; set; } = null!;
-    public Context() : base("tatoeba.db") { }
+    public required int SequenceId { get; init; }
+    public required int Number { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public required string DiffJson { get; init; }
+
+    [ForeignKey(nameof(SequenceId))]
+    public required Sequence Sequence { get; init; }
 }

@@ -33,4 +33,15 @@ public sealed class Sequence
 
     [InverseProperty(nameof(EnglishSentence.Sequence))]
     public EnglishSentence? EnglishSentence { get; set; }
+
+    [InverseProperty(nameof(Revision.Sequence))]
+    public List<Revision> Revisions { get; init; } = [];
+
+    public override bool Equals(object? obj)
+        => obj is Sequence sequence
+        && JapaneseSentence == sequence.JapaneseSentence
+        && EnglishSentence == sequence.EnglishSentence;
+
+    public override int GetHashCode()
+        => HashCode.Combine(JapaneseSentence, EnglishSentence);
 }

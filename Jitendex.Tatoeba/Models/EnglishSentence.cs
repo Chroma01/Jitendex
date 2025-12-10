@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Jitendex.Tatoeba.Models;
 
@@ -28,9 +29,11 @@ public sealed class EnglishSentence
     public required int SequenceId { get; init; }
     public required string Text { get; init; }
 
+    [JsonIgnore]
     [ForeignKey(nameof(SequenceId))]
     public required Sequence Sequence { get; init; }
 
+    [JsonIgnore]
     [InverseProperty(nameof(SentenceIndex.Meaning))]
     public List<SentenceIndex> Indices { get; init; } = [];
 

@@ -20,7 +20,7 @@ namespace Jitendex.Tatoeba.Models;
 
 internal sealed class Document
 {
-    public DateOnly Date { get; init; }
+    public DocumentMetadata Metadata { get; init; }
     public Dictionary<int, Sequence> Sequences { get; init; }
     public Dictionary<int, EnglishSentence> EnglishSentences { get; init; }
     public Dictionary<int, JapaneseSentence> JapaneseSentences { get; init; }
@@ -29,7 +29,7 @@ internal sealed class Document
 
     public Document(DateOnly date, int expectedSequenceCount = 0)
     {
-        Date = date;
+        Metadata = new() { Id = default, Date = date };
         Sequences = new(expectedSequenceCount);
         EnglishSentences = new(expectedSequenceCount / 2);
         JapaneseSentences = new(expectedSequenceCount / 2);

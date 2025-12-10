@@ -22,6 +22,7 @@ namespace Jitendex.Tatoeba.SQLite;
 
 internal static class Database
 {
+    private static readonly DocumentMetadataTable DocumentMetadataTable = new();
     private static readonly SequenceTable SequenceTable = new();
     private static readonly JapaneseSentenceTable JapaneseSentenceTable = new();
     private static readonly EnglishSentenceTable EnglishSentenceTable = new();
@@ -41,6 +42,7 @@ internal static class Database
         // Begin inserting data.
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
+            DocumentMetadataTable.InsertItem(context, document.Metadata);
             await SequenceTable.InsertItemsAsync(context, document.Sequences.Values);
             await JapaneseSentenceTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
             await EnglishSentenceTable.InsertItemsAsync(context, document.EnglishSentences.Values);

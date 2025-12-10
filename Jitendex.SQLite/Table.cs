@@ -34,6 +34,14 @@ public abstract class Table<T>
         ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx:X}"))});
         """;
 
+    public int InsertItem(SqliteContext db, T item)
+    {
+        using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertCommandText;
+        command.Parameters.AddRange(Parameters(item));
+        return command.ExecuteNonQuery();
+    }
+
     public async Task InsertItemsAsync(SqliteContext db, IEnumerable<T> items)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();

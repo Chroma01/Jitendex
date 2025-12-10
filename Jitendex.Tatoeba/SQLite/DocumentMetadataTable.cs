@@ -16,18 +16,23 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
-using Jitendex.Tatoeba.Models;
+using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Tatoeba.Models;
 
-namespace Jitendex.Tatoeba;
+namespace Jitendex.Tatoeba.SQLite;
 
-public sealed class Context : SqliteContext
+internal sealed class DocumentMetadataTable : Table<DocumentMetadata>
 {
-    public DbSet<DocumentMetadata> Metadata { get; set; } = null!;
-    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
-    public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
-    public DbSet<SentenceIndex> SentenceIndices { get; set; } = null!;
-    public DbSet<IndexElement> IndexElements { get; set; } = null!;
-    public Context() : base("tatoeba.db") { }
+    protected override string Name => nameof(DocumentMetadata);
+
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(DocumentMetadata.Date)
+    ];
+
+    protected override SqliteParameter[] Parameters(DocumentMetadata metadata) =>
+    [
+        new("@0", metadata.Date)
+    ];
 }

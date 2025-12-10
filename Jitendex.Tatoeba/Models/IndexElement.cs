@@ -16,8 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba.Models;
 
@@ -36,6 +37,7 @@ public sealed class IndexElement
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]
     public required SentenceIndex Index { get; init; }
 
