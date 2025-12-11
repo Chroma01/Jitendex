@@ -61,17 +61,7 @@ internal sealed class TatoebaReader
     private void ProcessLines(ReadOnlySpan<char> lineA, ReadOnlySpan<char> lineB, Document document)
     {
         var text = new ExampleText(lineA, lineB);
-        try
-        {
-            MakeIndex(text, document);
-        }
-        catch (Exception e)
-        {
-            using (_logger.BeginScope((lineA.ToString(), lineB.ToString())))
-            {
-                _logger.LogError("Error parsing example text: \"{Message}\"", e.Message);
-            }
-        }
+        MakeIndex(text, document);
     }
 
     private void MakeIndex(in ExampleText text, Document document)
