@@ -78,16 +78,17 @@ internal sealed class FileArchive
             foreach (var monthDir in yearDir.GetSortedDirectories())
             {
                 int month = int.Parse(monthDir.Name);
-                if (month < previousDate.Month)
+                if (year == previousDate.Year && month < previousDate.Month)
                 {
                     continue;
                 }
                 foreach (var patchFile in monthDir.GetSortedFiles())
                 {
                     int day = int.Parse(patchFile.Name.AsSpan(0, 2));
-                    if (day > previousDate.Day)
+                    var date = new DateOnly(year, month, day);
+                    if (previousDate < date)
                     {
-                        return new DateOnly(year, month, day);
+                        return date;
                     }
                 }
             }
