@@ -28,7 +28,7 @@ public sealed class SentenceIndex
 {
     public required int SentenceId { get; init; }
     public required int Order { get; init; }
-    public required int MeaningId { get; init; }
+    public required int MeaningId { get; set; }
 
     [JsonIgnore]
     [ForeignKey(nameof(SentenceId))]
@@ -36,7 +36,7 @@ public sealed class SentenceIndex
 
     [JsonIgnore]
     [ForeignKey(nameof(MeaningId))]
-    public EnglishSentence Meaning { get; init; } = null!;
+    public EnglishSentence Meaning { get; set; } = null!;
 
     [InverseProperty(nameof(IndexElement.Index))]
     public List<IndexElement> Elements { get; init; } = [];

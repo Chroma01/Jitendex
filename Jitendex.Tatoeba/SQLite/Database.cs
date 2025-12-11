@@ -57,34 +57,36 @@ internal static class Database
         context.SaveChanges();
     }
 
-    public static void Update(Document document, DocumentDiff diff)
+    public static void Update(Document docA, Document docB)
     {
+        var diff = new DocumentDiff(docA, docB);
+
         using var context = new Context();
-        context.ExecuteFastNewDatabasePragma();
         using var transaction = context.Database.BeginTransaction();
 
-        var keys = new HashSet<int>(diff.BAPatches.Keys);
-        Console.Error.WriteLine($"There are {keys.Count} keys to process");
+        Console.Error.WriteLine($"There are {diff.BAPatches.Keys.Count} keys to process");
 
-        var sequences = context.Sequences
+        var keys = new HashSet<int>(diff.BAPatches.Keys);
+
+        var existingSequences = context.Sequences
             .Where(s => keys.Contains(s.Id))
             .Include(s => s.Revisions)
             .ToDictionary(s => s.Id);
 
-        Console.Error.WriteLine($"Retrieved {sequences.Count} entities from the database");
+        Console.Error.WriteLine($"Retrieved {existingSequences.Count} entities from the database");
         var options = new JsonSerializerOptions { WriteIndented = true };
 
         foreach (var (key, patch) in diff.BAPatches)
         {
-            if (sequences.TryGetValue(key, out var sequence))
+            if (existingSequences.TryGetValue(key, out var sequence))
             {
-                var reversePatch = diff.BAPatches[key];
                 var revision = new Revision
                 {
                     SequenceId = key,
                     Number = sequence.Revisions.Count,
                     CreatedDate = diff.Date,
-                    DiffJson = JsonSerializer.Serialize(reversePatch, options),
+                    DiffJson = JsonSerializer.Serialize(patch, options),
+                    Sequence = sequence,
                 };
                 sequence.Revisions.Add(revision);
             }
@@ -100,21 +102,153 @@ internal static class Database
         }
 
         context.SaveChanges();
-        context.ExecuteDeferForeignKeysPragma();
 
-        DocumentMetadataTable.InsertItem(context, document.Metadata);
+        var updateSequences = context.Sequences
+            .Where(sequence => keys.Contains(sequence.Id))
+            .Include(sequence => sequence.EnglishSentence)
+            .ThenInclude(englishSentence => englishSentence!.Indices)
+            .Include(sequence => sequence.JapaneseSentence)
+            .ThenInclude(japaneseSentence => japaneseSentence!.Indices)
+            .ThenInclude(index => index.Elements)
+            .ToList();
 
-        EnglishSentenceTable.Truncate(context);
-        EnglishSentenceTable.InsertItems(context, document.EnglishSentences.Values);
+        if (updateSequences.Count != keys.Count)
+        {
+            throw new Exception();
+        }
 
-        JapaneseSentenceTable.Truncate(context);
-        JapaneseSentenceTable.InsertItems(context, document.JapaneseSentences.Values);
+        foreach (var sequence in updateSequences)
+        {
+            if (!docB.Sequences.TryGetValue(sequence.Id, out var newSequence))
+            {
+                newSequence = new Sequence { Id = sequence.Id, CreatedDate = diff.Date };
+            }
 
-        SentenceIndexTable.Truncate(context);
-        SentenceIndexTable.InsertItems(context, document.SentenceIndices.Values);
+            if (newSequence.EnglishSentence is null)
+            {
+                if (sequence.EnglishSentence is not null)
+                {
+                    context.Remove(sequence.EnglishSentence);
+                    sequence.EnglishSentence = null;
+                }
+            }
+            else if (sequence.EnglishSentence is null)
+            {
+                sequence.EnglishSentence = new EnglishSentence
+                {
+                    SequenceId = sequence.Id,
+                    Text = newSequence.EnglishSentence.Text,
+                    Sequence = sequence,
+                };
+            }
+            else
+            {
+                sequence.EnglishSentence.Text = newSequence.EnglishSentence.Text;
+            }
 
-        IndexElementTable.Truncate(context);
-        IndexElementTable.InsertItems(context, document.IndexElements.Values);
+            if (newSequence.JapaneseSentence is null)
+            {
+                if (sequence.JapaneseSentence is not null)
+                {
+                    context.Remove(sequence.JapaneseSentence);
+                    sequence.JapaneseSentence = null;
+                }
+            }
+            else if (sequence.JapaneseSentence is null)
+            {
+                sequence.JapaneseSentence = new JapaneseSentence
+                {
+                    SequenceId = sequence.Id,
+                    Text = newSequence.JapaneseSentence.Text,
+                    Sequence = sequence,
+                };
+            }
+            else
+            {
+                sequence.JapaneseSentence.Text = newSequence.JapaneseSentence.Text;
+            }
+
+        }
+
+        foreach (var sequence in updateSequences)
+        {
+            if (sequence.JapaneseSentence is null)
+            {
+                continue;
+            }
+
+            var newSequence = docB.Sequences[sequence.Id];
+            var newIndicesLength = newSequence.JapaneseSentence!.Indices.Count;
+
+            for (int i = 0; i < newIndicesLength; i++)
+            {
+                var newIndex = newSequence.JapaneseSentence.Indices[i];
+
+                if (sequence.JapaneseSentence.Indices.ElementAtOrDefault(i) is SentenceIndex index)
+                {
+                    index.Meaning = context.Find<EnglishSentence>(newIndex.MeaningId)!;
+                }
+                else
+                {
+                    index = new SentenceIndex
+                    {
+                        SentenceId = sequence.Id,
+                        Order = i + 1,
+                        MeaningId = newIndex.MeaningId,
+                        Meaning = context.Find<EnglishSentence>(newIndex.MeaningId)!,
+                        Sentence = sequence.JapaneseSentence,
+                    };
+                    context.SentenceIndices.Add(index);
+                    sequence.JapaneseSentence.Indices.Add(index);
+                }
+
+                var newElementsLength = newIndex.Elements.Count;
+
+                for (int j = 0; j < newElementsLength; j++)
+                {
+                    var newElement = newIndex.Elements[j];
+                    if (index.Elements.ElementAtOrDefault(j) is IndexElement element)
+                    {
+                        element.Headword = newElement.Headword;
+                        element.Reading = newElement.Reading;
+                        element.EntryId = newElement.EntryId;
+                        element.SenseNumber = newElement.SenseNumber;
+                        element.SentenceForm = newElement.SentenceForm;
+                        element.IsPriority = newElement.IsPriority;
+                    }
+                    else
+                    {
+                        element = new IndexElement
+                        {
+                            SentenceId = index.SentenceId,
+                            IndexOrder = index.Order,
+                            Order = j + 1,
+                            Headword = newElement.Headword,
+                            Reading = newElement.Reading,
+                            EntryId = newElement.EntryId,
+                            SenseNumber = newElement.SenseNumber,
+                            SentenceForm = newElement.SentenceForm,
+                            IsPriority = newElement.IsPriority,
+                            Index = index,
+                        };
+                        context.IndexElements.Add(element);
+                        index.Elements.Add(element);
+                    }
+                }
+                for (int j = newElementsLength; j < index.Elements.Count; j++)
+                {
+                    var element = index.Elements[j];
+                    context.Remove(element);
+                }
+            }
+            for (int i = newIndicesLength; i < sequence.JapaneseSentence.Indices.Count; i++)
+            {
+                var index = sequence.JapaneseSentence.Indices[i];
+                context.Remove(index);
+            }
+        }
+
+        context.Metadata.Add(docB.Metadata);
 
         // Write database to the disk.
         context.SaveChanges();

@@ -43,10 +43,9 @@ public static class Service
             }
 
             var nextDocument = await ReadAsync(nextFile, nextDate);
-            var diff = new DocumentDiff(previousDocument, nextDocument);
 
             await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
-            Database.Update(nextDocument, diff);
+            Database.Update(previousDocument, nextDocument);
 
             previousDocument = nextDocument;
             previousDate = nextDate;

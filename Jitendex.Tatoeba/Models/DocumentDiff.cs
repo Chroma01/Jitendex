@@ -24,6 +24,7 @@ namespace Jitendex.Tatoeba.Models;
 internal sealed class DocumentDiff
 {
     public DateOnly Date { get; init; }
+
     public Dictionary<int, JsonPatchDocument<Sequence>> ABPatches { get; init; }
     public Dictionary<int, JsonPatchDocument<Sequence>> BAPatches { get; init; }
 
@@ -66,17 +67,13 @@ internal sealed class DocumentDiff
         }
     }
 
-    private static JsonPatchDocument<Sequence> SequenceDiff(Sequence a, Sequence b)
+    private JsonPatchDocument<Sequence> SequenceDiff(Sequence a, Sequence b)
     {
         var diff = new JsonPatchDocument<Sequence>();
 
         if (a.EnglishSentence is not null && b.EnglishSentence is not null)
         {
-            if (!a.EnglishSentence.Equals(b.EnglishSentence))
-            {
-                diff.Test(path: static x => x.EnglishSentence!.Text, value: a.EnglishSentence.Text);
-                diff.Replace(path: static x => x.EnglishSentence!.Text, value: b.EnglishSentence.Text);
-            }
+            diff.Operations.AddRange(EnglishSentenceDiff(a.EnglishSentence, b.EnglishSentence));
         }
         else if (a.EnglishSentence is not null || b.EnglishSentence is not null)
         {
@@ -86,10 +83,7 @@ internal sealed class DocumentDiff
 
         if (a.JapaneseSentence is not null && b.JapaneseSentence is not null)
         {
-            if (!a.JapaneseSentence.Equals(b.JapaneseSentence))
-            {
-                diff.Operations.AddRange(JapaneseSentenceDiff(a.JapaneseSentence, b.JapaneseSentence));
-            }
+            diff.Operations.AddRange(JapaneseSentenceDiff(a.JapaneseSentence, b.JapaneseSentence));
         }
         else if (a.JapaneseSentence is not null || b.JapaneseSentence is not null)
         {
@@ -98,6 +92,19 @@ internal sealed class DocumentDiff
         }
 
         return diff;
+    }
+
+    private static List<Operation<Sequence>> EnglishSentenceDiff(EnglishSentence a, EnglishSentence b)
+    {
+        var diff = new JsonPatchDocument<Sequence>();
+
+        if (!string.Equals(a.Text, b.Text, StringComparison.Ordinal))
+        {
+            diff.Test(path: static x => x.EnglishSentence!.Text, value: a.Text);
+            diff.Replace(path: static x => x.EnglishSentence!.Text, value: b.Text);
+        }
+
+        return diff.Operations;
     }
 
     private static List<Operation<Sequence>> JapaneseSentenceDiff(JapaneseSentence a, JapaneseSentence b)

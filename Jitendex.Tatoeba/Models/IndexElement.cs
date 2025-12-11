@@ -30,12 +30,12 @@ public sealed class IndexElement
     public required int IndexOrder { get; init; }
     public required int Order { get; init; }
 
-    public required string Headword { get; init; }
-    public required string? Reading { get; init; }
-    public required int? EntryId { get; init; }
-    public required int? SenseNumber { get; init; }
-    public required string? SentenceForm { get; init; }
-    public required bool IsPriority { get; init; }
+    public required string Headword { get; set; }
+    public required string? Reading { get; set; }
+    public required int? EntryId { get; set; }
+    public required int? SenseNumber { get; set; }
+    public required string? SentenceForm { get; set; }
+    public required bool IsPriority { get; set; }
 
     [JsonIgnore]
     [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]

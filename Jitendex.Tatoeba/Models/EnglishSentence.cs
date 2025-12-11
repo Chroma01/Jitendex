@@ -27,7 +27,7 @@ public sealed class EnglishSentence
 {
     [Key]
     public required int SequenceId { get; init; }
-    public required string Text { get; init; }
+    public required string Text { get; set; }
 
     [JsonIgnore]
     [ForeignKey(nameof(SequenceId))]
