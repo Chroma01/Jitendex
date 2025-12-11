@@ -51,17 +51,12 @@ internal sealed class TatoebaReader
             }
             else
             {
-                ProcessLines(lineA.AsSpan(3), lineB.AsSpan(3), document);
+                var text = new ExampleText(lineA.AsSpan(3), lineB.AsSpan(3));
+                MakeIndex(text, document);
             }
         }
 
         return document;
-    }
-
-    private void ProcessLines(ReadOnlySpan<char> lineA, ReadOnlySpan<char> lineB, Document document)
-    {
-        var text = new ExampleText(lineA, lineB);
-        MakeIndex(text, document);
     }
 
     private void MakeIndex(in ExampleText text, Document document)
