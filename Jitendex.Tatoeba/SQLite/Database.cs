@@ -31,36 +31,36 @@ internal static class Database
     private static readonly SentenceIndexTable SentenceIndexTable = new();
     private static readonly IndexElementTable IndexElementTable = new();
 
-    public static async Task InitializeAsync(Document document)
+    public static void Initialize(Document document)
     {
-        await using var context = new Context();
+        using var context = new Context();
 
         // Delete and recreate the database file.
-        await context.InitializeDatabaseAsync();
+        context.InitializeDatabase();
 
         // For faster importing, write data to memory rather than to the disk.
-        await context.ExecuteFastNewDatabasePragmaAsync();
+        context.ExecuteFastNewDatabasePragma();
 
         // Begin inserting data.
-        await using (var transaction = await context.Database.BeginTransactionAsync())
+        using (var transaction = context.Database.BeginTransaction())
         {
             DocumentMetadataTable.InsertItem(context, document.Metadata);
-            await SequenceTable.InsertItemsAsync(context, document.Sequences.Values);
-            await JapaneseSentenceTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
-            await EnglishSentenceTable.InsertItemsAsync(context, document.EnglishSentences.Values);
-            await SentenceIndexTable.InsertItemsAsync(context, document.SentenceIndices.Values);
-            await IndexElementTable.InsertItemsAsync(context, document.IndexElements.Values);
-            await transaction.CommitAsync();
+            SequenceTable.InsertItems(context, document.Sequences.Values);
+            JapaneseSentenceTable.InsertItems(context, document.JapaneseSentences.Values);
+            EnglishSentenceTable.InsertItems(context, document.EnglishSentences.Values);
+            SentenceIndexTable.InsertItems(context, document.SentenceIndices.Values);
+            IndexElementTable.InsertItems(context, document.IndexElements.Values);
+            transaction.Commit();
         }
 
         // Write database to the disk.
-        await context.SaveChangesAsync();
+        context.SaveChanges();
     }
 
-    public static async Task UpdateAsync(Document document, DocumentDiff diff)
+    public static void Update(Document document, DocumentDiff diff)
     {
         using var context = new Context();
-        await context.ExecuteFastNewDatabasePragmaAsync();
+        context.ExecuteFastNewDatabasePragma();
         using var transaction = context.Database.BeginTransaction();
 
         var keys = new HashSet<int>(diff.BAPatches.Keys);
@@ -100,19 +100,21 @@ internal static class Database
         }
 
         context.SaveChanges();
-
         context.ExecuteDeferForeignKeysPragma();
 
-        EnglishSentenceTable.Truncate(context);
-        JapaneseSentenceTable.Truncate(context);
-        SentenceIndexTable.Truncate(context);
-        IndexElementTable.Truncate(context);
-
         DocumentMetadataTable.InsertItem(context, document.Metadata);
-        await JapaneseSentenceTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
-        await EnglishSentenceTable.InsertItemsAsync(context, document.EnglishSentences.Values);
-        await SentenceIndexTable.InsertItemsAsync(context, document.SentenceIndices.Values);
-        await IndexElementTable.InsertItemsAsync(context, document.IndexElements.Values);
+
+        EnglishSentenceTable.Truncate(context);
+        EnglishSentenceTable.InsertItems(context, document.EnglishSentences.Values);
+
+        JapaneseSentenceTable.Truncate(context);
+        JapaneseSentenceTable.InsertItems(context, document.JapaneseSentences.Values);
+
+        SentenceIndexTable.Truncate(context);
+        SentenceIndexTable.InsertItems(context, document.SentenceIndices.Values);
+
+        IndexElementTable.Truncate(context);
+        IndexElementTable.InsertItems(context, document.IndexElements.Values);
 
         // Write database to the disk.
         context.SaveChanges();

@@ -47,6 +47,21 @@ public abstract class Table<T>
         return command.ExecuteNonQuery();
     }
 
+    public void InsertItems(SqliteContext db, IEnumerable<T> items)
+    {
+        using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = InsertCommandText;
+        foreach (var item in items)
+        {
+            // Extremely hot path: millions of loops here for DB initializations.
+            // AddRange() & Clear() have shown to be more efficient than
+            // updating the command.Parameters values on every loop.
+            command.Parameters.AddRange(Parameters(item));
+            command.ExecuteNonQuery();
+            command.Parameters.Clear();
+        }
+    }
+
     public async Task InsertItemsAsync(SqliteContext db, IEnumerable<T> items)
     {
         await using var command = db.Database.GetDbConnection().CreateCommand();

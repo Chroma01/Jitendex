@@ -40,11 +40,36 @@ public abstract class SqliteContext : DbContext
     /// <summary>
     /// Delete and recreate the database file.
     /// </summary>
+    public void InitializeDatabase()
+    {
+        Database.EnsureDeleted();
+        Database.EnsureCreated();
+    }
+
+    /// <summary>
+    /// Delete and recreate the database file.
+    /// </summary>
     public async Task InitializeDatabaseAsync()
     {
         await Database.EnsureDeletedAsync();
         await Database.EnsureCreatedAsync();
     }
+
+    /// <summary>
+    /// For faster importing into a new db file, write data to memory rather than to the disk.
+    /// </summary>
+    /// <remarks>See: https://www.sqlite.org/pragma.html</remarks>
+    public void ExecuteFastNewDatabasePragma()
+        => Database.ExecuteSqlRaw
+        (
+            """
+            PRAGMA synchronous  = OFF;
+            PRAGMA journal_mode = OFF;
+            PRAGMA temp_store   = MEMORY;
+            PRAGMA cache_size   = -200000;
+            PRAGMA locking_mode = EXCLUSIVE;
+            """
+        );
 
     /// <summary>
     /// For faster importing into a new db file, write data to memory rather than to the disk.
@@ -74,6 +99,12 @@ public abstract class SqliteContext : DbContext
     public async Task ExecuteDeferForeignKeysPragmaAsync()
         => await Database.ExecuteSqlRawAsync("PRAGMA defer_foreign_keys = ON;");
 
+
+    /// <summary>
+    /// Rebuild the database file compactly.
+    /// </summary>
+    public void ExecuteVacuum()
+        => Database.ExecuteSqlRaw("VACUUM;");
 
     /// <summary>
     /// Rebuild the database file compactly.
