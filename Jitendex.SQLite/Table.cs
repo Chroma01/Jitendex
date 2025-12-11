@@ -34,6 +34,11 @@ public abstract class Table<T>
         ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx:X}"))});
         """;
 
+    private string DeleteCommandText =>
+        $"""
+        DELETE FROM "{Name}";
+        """;
+
     public int InsertItem(SqliteContext db, T item)
     {
         using var command = db.Database.GetDbConnection().CreateCommand();
@@ -56,4 +61,7 @@ public abstract class Table<T>
             command.Parameters.Clear();
         }
     }
+
+    public void Truncate(SqliteContext db)
+        => db.Database.ExecuteSqlRaw(DeleteCommandText);
 }

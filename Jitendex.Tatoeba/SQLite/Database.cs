@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Jitendex.Tatoeba.Models;
 
 namespace Jitendex.Tatoeba.SQLite;
@@ -53,8 +55,67 @@ internal static class Database
 
         // Write database to the disk.
         await context.SaveChangesAsync();
+    }
 
-        // Rebuild the database compactly.
-        await context.ExecuteVacuumAsync();
+    public static async Task UpdateAsync(Document document, DocumentDiff diff)
+    {
+        using var context = new Context();
+        await context.ExecuteFastNewDatabasePragmaAsync();
+        using var transaction = context.Database.BeginTransaction();
+
+        var keys = new HashSet<int>(diff.BAPatches.Keys);
+        Console.Error.WriteLine($"There are {keys.Count} keys to process");
+
+        var sequences = context.Sequences
+            .Where(s => keys.Contains(s.Id))
+            .Include(s => s.Revisions)
+            .ToDictionary(s => s.Id);
+
+        Console.Error.WriteLine($"Retrieved {sequences.Count} entities from the database");
+        var options = new JsonSerializerOptions { WriteIndented = true };
+
+        foreach (var (key, patch) in diff.BAPatches)
+        {
+            if (sequences.TryGetValue(key, out var sequence))
+            {
+                var reversePatch = diff.BAPatches[key];
+                var revision = new Revision
+                {
+                    SequenceId = key,
+                    Number = sequence.Revisions.Count,
+                    CreatedDate = diff.Date,
+                    DiffJson = JsonSerializer.Serialize(reversePatch, options),
+                };
+                sequence.Revisions.Add(revision);
+            }
+            else
+            {
+                var newSequence = new Sequence
+                {
+                    Id = key,
+                    CreatedDate = diff.Date,
+                };
+                context.Sequences.Add(newSequence);
+            }
+        }
+
+        context.SaveChanges();
+
+        context.ExecuteDeferForeignKeysPragma();
+
+        EnglishSentenceTable.Truncate(context);
+        JapaneseSentenceTable.Truncate(context);
+        SentenceIndexTable.Truncate(context);
+        IndexElementTable.Truncate(context);
+
+        DocumentMetadataTable.InsertItem(context, document.Metadata);
+        await JapaneseSentenceTable.InsertItemsAsync(context, document.JapaneseSentences.Values);
+        await EnglishSentenceTable.InsertItemsAsync(context, document.EnglishSentences.Values);
+        await SentenceIndexTable.InsertItemsAsync(context, document.SentenceIndices.Values);
+        await IndexElementTable.InsertItemsAsync(context, document.IndexElements.Values);
+
+        // Write database to the disk.
+        context.SaveChanges();
+        transaction.Commit();
     }
 }

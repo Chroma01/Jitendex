@@ -65,6 +65,12 @@ public abstract class SqliteContext : DbContext
     /// <summary>
     /// Wait until all data is imported before checking foreign key constraints.
     /// </summary>
+    public void ExecuteDeferForeignKeysPragma()
+        => Database.ExecuteSqlRaw("PRAGMA defer_foreign_keys = ON;");
+
+    /// <summary>
+    /// Wait until all data is imported before checking foreign key constraints.
+    /// </summary>
     public async Task ExecuteDeferForeignKeysPragmaAsync()
         => await Database.ExecuteSqlRawAsync("PRAGMA defer_foreign_keys = ON;");
 

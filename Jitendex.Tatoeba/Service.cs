@@ -17,8 +17,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.IO.Compression;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Jitendex.Tatoeba.Models;
 using Jitendex.Tatoeba.Readers;
@@ -48,7 +46,7 @@ public static class Service
             var diff = new DocumentDiff(previousDocument, nextDocument);
 
             await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
-            UpdateDatabase(diff);
+            await Database.UpdateAsync(nextDocument, diff);
 
             previousDocument = nextDocument;
             previousDate = nextDate;
@@ -105,61 +103,4 @@ public static class Service
                 options.SingleLine = false;
                 options.TimestampFormat = "HH:mm:ss ";
             }));
-
-    private static void UpdateDatabase(DocumentDiff diff)
-    {
-        using var db = new Context();
-        using var transaction = db.Database.BeginTransaction();
-
-        var keys = new HashSet<int>(diff.ABPatches.Keys);
-        Console.Error.WriteLine($"There are {keys.Count} keys to process");
-
-        var sequences = db.Sequences
-            .Where(s => keys.Contains(s.Id))
-            .Include(s => s.Revisions)
-            .Include(s => s.EnglishSentence)
-            .ThenInclude(e => e!.Indices)
-            .Include(s => s.JapaneseSentence)
-            .ThenInclude(j => j!.Indices)
-            .ThenInclude(i => i.Elements)
-            .ToDictionary(s => s.Id);
-
-        Console.Error.WriteLine($"Retrieved {sequences.Count} entities from the database");
-        var options = new JsonSerializerOptions { WriteIndented = true };
-
-        foreach (var (key, patch) in diff.ABPatches)
-        {
-            if (sequences.TryGetValue(key, out var sequence))
-            {
-                patch.ApplyTo(sequence);
-                var reversePatch = diff.BAPatches[key];
-                var revision = new Revision
-                {
-                    SequenceId = key,
-                    Number = sequence.Revisions.Count,
-                    CreatedDate = diff.Date,
-                    DiffJson = JsonSerializer.Serialize(reversePatch, options),
-                };
-                sequence.Revisions.Add(revision);
-            }
-            else
-            {
-                Console.Error.WriteLine(JsonSerializer.Serialize(patch, options));
-                var newSequence = new Sequence
-                {
-                    Id = key,
-                    CreatedDate = diff.Date,
-                };
-                patch.ApplyTo(newSequence);
-                Console.Error.WriteLine(JsonSerializer.Serialize(newSequence, options));
-                Console.Error.WriteLine(newSequence.EnglishSentence!.Indices.Count);
-                db.Sequences.Add(newSequence);
-            }
-        }
-
-        db.SaveChanges();
-        db.Database.ExecuteSql($"INSERT INTO DocumentMetadata (DATE) VALUES ({diff.Date})");
-
-        transaction.Commit();
-    }
 }
