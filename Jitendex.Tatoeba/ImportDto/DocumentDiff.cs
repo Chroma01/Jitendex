@@ -38,7 +38,13 @@ internal sealed class DocumentDiff
         DiffDictionaries<(int, int, int), Token>(docA, docB, nameof(Document.Tokens));
     }
 
-    public void DiffHashSets<T>(Document docA, Document docB, string propertyName) where T : notnull
+    public HashSet<int> GetTouchedSequenceIds()
+        => InsertDocument.GetTouchedSequenceIds()
+        .Concat(UpdateDocument.GetTouchedSequenceIds())
+        .Concat(DeleteDocument.GetTouchedSequenceIds())
+        .ToHashSet();
+
+    private void DiffHashSets<T>(Document docA, Document docB, string propertyName) where T : notnull
     {
         var prop = typeof(Document).GetProperty(propertyName)!;
         var setA = (HashSet<T>)prop.GetValue(docA)!;
@@ -62,7 +68,7 @@ internal sealed class DocumentDiff
         }
     }
 
-    public void DiffDictionaries<TKey, TValue>(Document docA, Document docB, string propertyName)
+    private void DiffDictionaries<TKey, TValue>(Document docA, Document docB, string propertyName)
         where TKey : notnull
         where TValue : notnull
     {

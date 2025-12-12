@@ -16,6 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text.Json;
+using Json.Patch;
+using Microsoft.EntityFrameworkCore;
 using Jitendex.Tatoeba.ImportDto;
 
 namespace Jitendex.Tatoeba.SQLite;
@@ -52,6 +55,18 @@ internal static class Database
     public static void Update(DocumentDiff diff)
     {
         using var context = new Context();
+
+        var ids = diff.GetTouchedSequenceIds();
+
+        var oldSequences = context.Sequences
+            .AsNoTracking()
+            .Where(sequence => ids.Contains(sequence.Id))
+            .Include(sequence => sequence.EnglishSentence)
+            .Include(sequence => sequence.JapaneseSentence)
+            .ThenInclude(japaneseSentence => japaneseSentence!.TokenizedSentences)
+            .ThenInclude(tokenizedSentence => tokenizedSentence.Tokens)
+            .ToDictionary(s => s.Id);
+
         context.ExecuteDeferForeignKeysPragma();
 
         using (var transaction = context.Database.BeginTransaction())
@@ -75,6 +90,49 @@ internal static class Database
             EnglishSentenceTable.DeleteItems(context, diff.DeleteDocument.EnglishSequences.Values);
 
             transaction.Commit();
+        }
+
+        var newSequences = context.Sequences
+            .AsNoTracking()
+            .Where(sequence => ids.Contains(sequence.Id))
+            .Include(sequence => sequence.EnglishSentence)
+            .Include(sequence => sequence.JapaneseSentence)
+            .ThenInclude(japaneseSentence => japaneseSentence!.TokenizedSentences)
+            .ThenInclude(tokenizedSentence => tokenizedSentence.Tokens)
+            .ToList();
+
+        var patches = new Dictionary<int, string>(ids.Count);
+        var options = new JsonSerializerOptions { WriteIndented = true };
+
+        foreach (var newSeq in newSequences)
+        {
+            if (oldSequences.TryGetValue(newSeq.Id, out var oldSeq))
+            {
+                var original = JsonSerializer.SerializeToNode(newSeq);
+                var target = JsonSerializer.SerializeToNode(oldSeq);
+                var patch = original.CreatePatch(target);
+                patches.Add(newSeq.Id, JsonSerializer.Serialize(patch, options));
+            }
+        }
+
+        var sequences = context.Sequences
+            .Where(sequence => ids.Contains(sequence.Id))
+            .Include(sequence => sequence.Revisions)
+            .ToList();
+
+        foreach (var sequence in sequences)
+        {
+            if (patches.TryGetValue(sequence.Id, out var patch))
+            {
+                sequence.Revisions.Add(new()
+                {
+                    SequenceId = sequence.Id,
+                    Number = sequence.Revisions.Count,
+                    CreatedDate = diff.Date,
+                    DiffJson = patch,
+                    Sequence = sequence,
+                });
+            }
         }
 
         context.SaveChanges();

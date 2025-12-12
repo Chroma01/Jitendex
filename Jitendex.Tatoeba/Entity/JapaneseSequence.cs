@@ -34,5 +34,5 @@ public sealed class JapaneseSequence
     public Sequence Sequence { get; init; } = null!;
 
     [InverseProperty(nameof(TokenizedSentence.JapaneseSentence))]
-    public List<TokenizedSentence> Indices { get; init; } = [];
+    public List<TokenizedSentence> TokenizedSentences { get; init; } = [];
 }

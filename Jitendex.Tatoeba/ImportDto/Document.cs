@@ -36,11 +36,6 @@ internal sealed class Document
         Tokens = new(expectedSequenceCount * 4);
     }
 
-    public IEnumerable<Sequence> GetSequences()
-        => Sequences.Select(id => new Sequence { Id = id, CreatedDate = Date });
-
-    public DocumentMetadata GetMetadata() => new DocumentMetadata { Date = Date };
-
     public int NextTokenizedSentenceIndex(int id)
     {
         int index = 0;
@@ -60,4 +55,16 @@ internal sealed class Document
         }
         return index;
     }
+
+    public IEnumerable<Sequence> GetSequences()
+        => Sequences.Select(id => new Sequence { Id = id, CreatedDate = Date });
+
+    public DocumentMetadata GetMetadata()
+        => new DocumentMetadata { Date = Date };
+
+    public IEnumerable<int> GetTouchedSequenceIds()
+        => EnglishSequences.Keys
+        .Concat(JapaneseSequences.Keys)
+        .Concat(TokenizedSentences.Keys.Select(static k => k.Item1))
+        .Concat(Tokens.Keys.Select(static k => k.Item1));
 }
