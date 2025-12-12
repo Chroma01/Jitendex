@@ -69,7 +69,7 @@ internal sealed class DocumentDiff
     }
 
     private void DiffDictionaries<TKey, TValue>(Document docA, Document docB, string propertyName)
-        where TKey : notnull
+        where TKey : struct
         where TValue : notnull
     {
         var prop = typeof(Document).GetProperty(propertyName)!;
