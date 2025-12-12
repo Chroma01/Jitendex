@@ -31,11 +31,11 @@ internal sealed class DocumentDiff
         UpdateDocument = new Document(Date);
         DeleteDocument = new Document(Date);
 
-        DiffHashSets<int>(docA, docB, nameof(Document.Sequences));
-        DiffDictionaries<int, EnglishSequence>(docA, docB, nameof(Document.EnglishSequences));
-        DiffDictionaries<int, JapaneseSequence>(docA, docB, nameof(Document.JapaneseSequences));
-        DiffDictionaries<(int, int), TokenizedSentence>(docA, docB, nameof(Document.TokenizedSentences));
-        DiffDictionaries<(int, int, int), Token>(docA, docB, nameof(Document.Tokens));
+        DiffHashSetProperties<int>(docA, docB, propertyName: nameof(Document.Sequences));
+        DiffDictionaryProperties<int, EnglishSequence>(docA, docB, propertyName: nameof(Document.EnglishSequences));
+        DiffDictionaryProperties<int, JapaneseSequence>(docA, docB, propertyName: nameof(Document.JapaneseSequences));
+        DiffDictionaryProperties<(int, int), TokenizedSentence>(docA, docB, propertyName: nameof(Document.TokenizedSentences));
+        DiffDictionaryProperties<(int, int, int), Token>(docA, docB, propertyName: nameof(Document.Tokens));
     }
 
     public HashSet<int> GetTouchedSequenceIds()
@@ -44,7 +44,7 @@ internal sealed class DocumentDiff
         .Concat(DeleteDocument.GetTouchedSequenceIds())
         .ToHashSet();
 
-    private void DiffHashSets<T>(Document docA, Document docB, string propertyName) where T : notnull
+    private void DiffHashSetProperties<T>(Document docA, Document docB, string propertyName) where T : struct
     {
         var prop = typeof(Document).GetProperty(propertyName)!;
         var setA = (HashSet<T>)prop.GetValue(docA)!;
@@ -68,7 +68,7 @@ internal sealed class DocumentDiff
         }
     }
 
-    private void DiffDictionaries<TKey, TValue>(Document docA, Document docB, string propertyName)
+    private void DiffDictionaryProperties<TKey, TValue>(Document docA, Document docB, string propertyName)
         where TKey : struct
         where TValue : notnull
     {
