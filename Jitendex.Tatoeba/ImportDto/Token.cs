@@ -28,5 +28,5 @@ internal sealed record Token
     public required int? SenseNumber { get; init; }
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
-    public (int, int, int) Key => (SequenceId, SentenceId, Id);
+    public (int, int, int) Key() => (SequenceId, SentenceId, Id);
 }
