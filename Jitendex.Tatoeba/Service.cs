@@ -18,11 +18,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
+using Jitendex.Tatoeba.Dto;
 using Jitendex.Tatoeba.Readers;
 using Jitendex.Tatoeba.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
-using Jitendex.Tatoeba.Dto;
 
 namespace Jitendex.Tatoeba;
 
@@ -54,7 +54,7 @@ public static class Service
         }
     }
 
-    private static async Task<Dto.Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
+    private static async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
     {
         var previousDate = GetPreviousDate();
         if (previousDate == default)
@@ -83,7 +83,7 @@ public static class Service
             .LastOrDefault();
     }
 
-    private static async Task<Dto.Document> ReadAsync(FileInfo file, DateOnly date)
+    private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
     {
         using var loggerFactory = CreateLoggerFactory();
         var logger = loggerFactory.CreateLogger<TatoebaReader>();
