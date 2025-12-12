@@ -85,7 +85,7 @@ internal sealed class DocumentDiff
             {
                 deletes.Add(key, valueA);
             }
-            else if (!Equals(valueA, valueB))  // Hot spot!!!
+            else if (!valueA.Equals(valueB))  // Hot spot!!!
             {
                 updates.Add(key, valueB);
             }
