@@ -92,8 +92,10 @@ public static class Service
         await using BrotliStream bs = new(fs, CompressionMode.Decompress);
         using var streamReader = new StreamReader(bs);
 
-        var reader = new TatoebaReader(logger, streamReader, date);
-        return await reader.ReadAsync();
+        var reader = new TatoebaReader(logger, streamReader);
+        var document = await reader.ReadAsync(date);
+
+        return document;
     }
 
     private static ILoggerFactory CreateLoggerFactory() =>

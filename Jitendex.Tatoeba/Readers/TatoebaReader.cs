@@ -25,15 +25,14 @@ internal sealed class TatoebaReader
 {
     private readonly ILogger<TatoebaReader> _logger;
     private readonly StreamReader _reader;
-    private readonly DateOnly _fileDate;
 
-    public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader, DateOnly fileDate) =>
-        (_logger, _reader, _fileDate) =
-        (@logger, @reader, @fileDate);
+    public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader) =>
+        (_logger, _reader) =
+        (@logger, @reader);
 
-    public async Task<Document> ReadAsync()
+    public async Task<Document> ReadAsync(DateOnly date)
     {
-        Document document = new(_fileDate, expectedSequenceCount: 300_000);
+        Document document = new(date, expectedSequenceCount: 300_000);
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
