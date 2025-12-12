@@ -41,7 +41,7 @@ internal sealed class DocumentDiff
 
     public void DiffHashSets<T>(Document docA, Document docB, string propertyName) where T : notnull
     {
-        var prop = docA.GetType().GetProperty(propertyName)!;
+        var prop = typeof(Document).GetProperty(propertyName)!;
         var setA = (HashSet<T>)prop.GetValue(docA)!;
         var setB = (HashSet<T>)prop.GetValue(docB)!;
         var inserts = (HashSet<T>)prop.GetValue(InsertDocument)!;
@@ -67,7 +67,7 @@ internal sealed class DocumentDiff
         where TKey : notnull
         where TValue : notnull
     {
-        var prop = docA.GetType().GetProperty(propertyName)!;
+        var prop = typeof(Document).GetProperty(propertyName)!;
         var dictA = (Dictionary<TKey, TValue>)prop.GetValue(docA)!;
         var dictB = (Dictionary<TKey, TValue>)prop.GetValue(docB)!;
         var inserts = (Dictionary<TKey, TValue>)prop.GetValue(InsertDocument)!;
