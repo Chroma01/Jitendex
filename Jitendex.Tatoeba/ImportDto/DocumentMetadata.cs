@@ -19,5 +19,6 @@ namespace Jitendex.Tatoeba.ImportDto;
 
 internal sealed record DocumentMetadata
 {
-    public required DateOnly Date { get; init; }
+    public int Id { get; init; }
+    public DateOnly Date { get; init; }
 }

@@ -34,6 +34,8 @@ internal static class Database
 
     public static void Initialize(Document document)
     {
+        Console.Error.WriteLine($"Initializing database with data from {document.Date:yyyy-MM-dd}");
+
         using var context = new Context();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
@@ -57,6 +59,7 @@ internal static class Database
         using var context = new Context();
 
         var ids = diff.GetTouchedSequenceIds();
+        Console.Error.WriteLine($"Updating {ids.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
 
         var oldSequences = context.Sequences
             .AsNoTracking()

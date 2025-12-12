@@ -60,7 +60,7 @@ internal sealed class Document
         => Sequences.Select(id => new Sequence { Id = id, CreatedDate = Date });
 
     public DocumentMetadata GetMetadata()
-        => new DocumentMetadata { Date = Date };
+        => new() { Date = Date };
 
     public IEnumerable<int> GetTouchedSequenceIds()
         => EnglishSequences.Keys

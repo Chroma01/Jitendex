@@ -81,11 +81,11 @@ internal sealed class DocumentDiff
 
         foreach (var (key, valueA) in dictA)
         {
-            if (!dictB.TryGetValue(key, out var valueB))
+            if (!dictB.TryGetValue(key, out TValue? valueB))
             {
                 deletes.Add(key, valueA);
             }
-            else if (!valueA.Equals(valueB))
+            else if (!Equals(valueA, valueB))  // Hot spot!!!
             {
                 updates.Add(key, valueB);
             }

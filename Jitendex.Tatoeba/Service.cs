@@ -45,8 +45,6 @@ public static class Service
             var nextDocument = await ReadAsync(nextFile, nextDate);
             var diff = new DocumentDiff(previousDocument, nextDocument);
 
-            await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
-
             Database.Update(diff);
 
             previousDocument = nextDocument;
@@ -56,21 +54,20 @@ public static class Service
 
     private static async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
     {
+        Document document;
         var previousDate = GetPreviousDate();
         if (previousDate == default)
         {
             var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
-            var document = await ReadAsync(file!, date);
-            await Console.Error.WriteLineAsync($"Initializing database with data from {date:yyyy-MM-dd}");
+            document = await ReadAsync(file!, date);
             Database.Initialize(document);
-            return document;
         }
         else
         {
             var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
-            var document = await ReadAsync(file, previousDate);
-            return document;
+            document = await ReadAsync(file, previousDate);
         }
+        return document;
     }
 
     private static DateOnly GetPreviousDate()
