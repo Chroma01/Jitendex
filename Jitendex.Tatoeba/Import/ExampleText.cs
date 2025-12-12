@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 
-namespace Jitendex.Tatoeba.Readers;
+namespace Jitendex.Tatoeba.Import;
 
 internal readonly ref struct ExampleText
 {

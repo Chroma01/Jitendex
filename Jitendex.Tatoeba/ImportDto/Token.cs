@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Tatoeba.Dto;
+namespace Jitendex.Tatoeba.ImportDto;
 
 internal sealed record Token
 {

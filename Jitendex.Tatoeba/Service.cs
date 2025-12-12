@@ -18,8 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
-using Jitendex.Tatoeba.Dto;
-using Jitendex.Tatoeba.Readers;
+using Jitendex.Tatoeba.Import;
+using Jitendex.Tatoeba.ImportDto;
 using Jitendex.Tatoeba.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;

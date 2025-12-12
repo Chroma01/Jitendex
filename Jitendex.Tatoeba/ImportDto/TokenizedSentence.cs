@@ -15,10 +15,12 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Tatoeba.Dto;
+namespace Jitendex.Tatoeba.ImportDto;
 
-internal sealed record Sequence
+internal sealed record TokenizedSentence
 {
+    public required int JapaneseSequenceId { get; init; }
     public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
+    public required int EnglishSequenceId { get; init; }
+    public (int, int) Key => (JapaneseSequenceId, Id);
 }
