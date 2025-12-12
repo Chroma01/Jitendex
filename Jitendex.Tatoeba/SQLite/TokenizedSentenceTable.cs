@@ -29,20 +29,20 @@ internal sealed class TokenizedSentenceTable : Table<TokenizedSentence>
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(TokenizedSentence.JapaneseSequenceId),
-        nameof(TokenizedSentence.Id),
+        nameof(TokenizedSentence.Index),
         nameof(TokenizedSentence.EnglishSequenceId),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
         nameof(TokenizedSentence.JapaneseSequenceId),
-        nameof(TokenizedSentence.Id),
+        nameof(TokenizedSentence.Index),
     ];
 
     protected override SqliteParameter[] Parameters(TokenizedSentence sentence) =>
     [
         new("@0", sentence.JapaneseSequenceId),
-        new("@1", sentence.Id),
+        new("@1", sentence.Index),
         new("@2", sentence.EnglishSequenceId),
     ];
 }

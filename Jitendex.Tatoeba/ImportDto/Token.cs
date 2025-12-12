@@ -20,13 +20,13 @@ namespace Jitendex.Tatoeba.ImportDto;
 internal sealed record Token
 {
     public required int SequenceId { get; init; }
-    public required int SentenceId { get; init; }
-    public required int Id { get; init; }
+    public required int SentenceIndex { get; init; }
+    public required int Index { get; init; }
     public required string Headword { get; init; }
     public required string? Reading { get; init; }
     public required int? EntryId { get; init; }
     public required int? SenseNumber { get; init; }
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
-    public (int, int, int) Key() => (SequenceId, SentenceId, Id);
+    public (int, int, int) Key() => (SequenceId, SentenceIndex, Index);
 }

@@ -23,11 +23,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Tatoeba.Entity;
 
 [Table(nameof(TokenizedSentence))]
-[PrimaryKey(nameof(JapaneseSequenceId), nameof(Id))]
+[PrimaryKey(nameof(JapaneseSequenceId), nameof(Index))]
 public sealed class TokenizedSentence
 {
     public required int JapaneseSequenceId { get; init; }
-    public required int Id { get; init; }
+    public required int Index { get; init; }
     public required int EnglishSequenceId { get; set; }
 
     [JsonIgnore]
@@ -38,6 +38,6 @@ public sealed class TokenizedSentence
     [ForeignKey(nameof(EnglishSequenceId))]
     public EnglishSequence EnglishSentence { get; set; } = null!;
 
-    [InverseProperty(nameof(Token.Index))]
+    [InverseProperty(nameof(Token.TokenizedSentence))]
     public List<Token> Tokens { get; init; } = [];
 }

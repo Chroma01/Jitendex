@@ -23,12 +23,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Tatoeba.Entity;
 
 [Table(nameof(Token))]
-[PrimaryKey(nameof(SequenceId), nameof(SentenceId), nameof(Id))]
+[PrimaryKey(nameof(SequenceId), nameof(SentenceIndex), nameof(Index))]
 public sealed class Token
 {
     public required int SequenceId { get; init; }
-    public required int SentenceId { get; init; }
-    public required int Id { get; init; }
+    public required int SentenceIndex { get; init; }
+    public required int Index { get; init; }
 
     public required string Headword { get; set; }
     public required string? Reading { get; set; }
@@ -38,11 +38,11 @@ public sealed class Token
     public required bool IsPriority { get; set; }
 
     [JsonIgnore]
-    [ForeignKey($"{nameof(SequenceId)}, {nameof(SentenceId)}")]
-    public TokenizedSentence Index { get; init; } = null!;
+    [ForeignKey($"{nameof(SequenceId)}, {nameof(SentenceIndex)}")]
+    public TokenizedSentence TokenizedSentence { get; init; } = null!;
 
     public override string ToString() =>
-        $"{SequenceId}\t{SentenceId}\t{Id}\t{Headword}"
+        $"{SequenceId}\t{SentenceIndex}\t{Index}\t{Headword}"
         + '\t' + (Reading ?? "")
         + '\t' + (EntryId.HasValue ? EntryId : "")
         + '\t' + (SenseNumber.HasValue ? $"{SenseNumber:D2}" : "")

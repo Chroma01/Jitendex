@@ -66,7 +66,7 @@ internal sealed class TatoebaReader
         var sentenceTokenization = new TokenizedSentence
         {
             JapaneseSequenceId = japaneseSequence.Id,
-            Id = document.NextTokenizedSentenceIndex(japaneseSequence.Id),
+            Index = document.NextTokenizedSentenceIndex(japaneseSequence.Id),
             EnglishSequenceId = englishSequence.Id,
         };
 
@@ -79,8 +79,8 @@ internal sealed class TatoebaReader
             var token = new Token
             {
                 SequenceId = sentenceTokenization.JapaneseSequenceId,
-                SentenceId = sentenceTokenization.Id,
-                Id = document.NextTokenIndex(key),
+                SentenceIndex = sentenceTokenization.Index,
+                Index = document.NextTokenIndex(key),
                 Headword = elementText.GetHeadword(),
                 Reading = elementText.GetReading(),
                 EntryId = elementText.GetEntryId(),

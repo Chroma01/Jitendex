@@ -29,8 +29,8 @@ internal sealed class TokenTable : Table<Token>
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(Token.SequenceId),
-        nameof(Token.SentenceId),
-        nameof(Token.Id),
+        nameof(Token.SentenceIndex),
+        nameof(Token.Index),
         nameof(Token.Headword),
         nameof(Token.Reading),
         nameof(Token.EntryId),
@@ -42,15 +42,15 @@ internal sealed class TokenTable : Table<Token>
     protected override IReadOnlyList<string> KeyColNames =>
     [
         nameof(Token.SequenceId),
-        nameof(Token.SentenceId),
-        nameof(Token.Id),
+        nameof(Token.SentenceIndex),
+        nameof(Token.Index),
     ];
 
     protected override SqliteParameter[] Parameters(Token token) =>
     [
         new("@0", token.SequenceId),
-        new("@1", token.SentenceId),
-        new("@2", token.Id),
+        new("@1", token.SentenceIndex),
+        new("@2", token.Index),
         new("@3", token.Headword),
         new("@4", token.Reading.Nullable()),
         new("@5", token.EntryId.Nullable()),
