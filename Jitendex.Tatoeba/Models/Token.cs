@@ -22,13 +22,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba.Models;
 
-[Table(nameof(IndexElement))]
-[PrimaryKey(nameof(SentenceId), nameof(IndexOrder), nameof(Order))]
-public sealed class IndexElement
+[Table(nameof(Token))]
+[PrimaryKey(nameof(SequenceId), nameof(SentenceId), nameof(Id))]
+public sealed class Token
 {
+    public required int SequenceId { get; init; }
     public required int SentenceId { get; init; }
-    public required int IndexOrder { get; init; }
-    public required int Order { get; init; }
+    public required int Id { get; init; }
 
     public required string Headword { get; set; }
     public required string? Reading { get; set; }
@@ -38,35 +38,14 @@ public sealed class IndexElement
     public required bool IsPriority { get; set; }
 
     [JsonIgnore]
-    [ForeignKey($"{nameof(SentenceId)}, {nameof(IndexOrder)}")]
-    public SentenceIndex Index { get; init; } = null!;
+    [ForeignKey($"{nameof(SequenceId)}, {nameof(SentenceId)}")]
+    public TokenizedSentence Index { get; init; } = null!;
 
     public override string ToString() =>
-        $"{SentenceId}\t{IndexOrder}\t{Order}\t{Headword}"
+        $"{SequenceId}\t{SentenceId}\t{Id}\t{Headword}"
         + '\t' + (Reading ?? "")
         + '\t' + (EntryId.HasValue ? EntryId : "")
         + '\t' + (SenseNumber.HasValue ? $"{SenseNumber:D2}" : "")
         + '\t' + (SentenceForm ?? "")
         + '\t' + (IsPriority ? "1" : "0");
-
-    public override bool Equals(object? obj)
-        => obj is IndexElement element
-        && SentenceId == element.SentenceId
-        && IndexOrder == element.IndexOrder
-        && Order == element.Order
-        && Headword == element.Headword
-        && Reading == element.Reading
-        && EntryId == element.EntryId
-        && SenseNumber == element.SenseNumber
-        && SentenceForm == element.SentenceForm
-        && IsPriority == element.IsPriority;
-
-    public override int GetHashCode()
-        => HashCode.Combine
-        (
-            HashCode.Combine(SentenceId, IndexOrder, Order, Headword, Reading),
-            HashCode.Combine(EntryId, SenseNumber, SentenceForm, IsPriority)
-        );
-
-    internal (int, int, int) Key => (SentenceId, IndexOrder, Order);
 }

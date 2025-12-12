@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
-using Jitendex.Tatoeba.Models;
 using Jitendex.Tatoeba.Readers;
 using Jitendex.Tatoeba.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
@@ -31,28 +30,28 @@ public static class Service
     public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
     {
         var previousDocument = await GetPreviousDocumentAsync(archiveDirectory);
-        var previousDate = previousDocument.Metadata.Date;
+        var previousDate = previousDocument.Date;
 
-        while (true)
-        {
-            var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
+        // while (true)
+        // {
+        //     var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
 
-            if (nextFile is null)
-            {
-                break;
-            }
+        //     if (nextFile is null)
+        //     {
+        //         break;
+        //     }
 
-            var nextDocument = await ReadAsync(nextFile, nextDate);
+        //     var nextDocument = await ReadAsync(nextFile, nextDate);
 
-            await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
-            Database.Update(previousDocument, nextDocument);
+        //     await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
+        //     Database.Update(previousDocument, nextDocument);
 
-            previousDocument = nextDocument;
-            previousDate = nextDate;
-        }
+        //     previousDocument = nextDocument;
+        //     previousDate = nextDate;
+        // }
     }
 
-    private static async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
+    private static async Task<Dto.Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
     {
         var previousDate = GetPreviousDate();
         if (previousDate == default)
@@ -81,7 +80,7 @@ public static class Service
             .LastOrDefault();
     }
 
-    private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
+    private static async Task<Dto.Document> ReadAsync(FileInfo file, DateOnly date)
     {
         using var loggerFactory = CreateLoggerFactory();
         var logger = loggerFactory.CreateLogger<TatoebaReader>();

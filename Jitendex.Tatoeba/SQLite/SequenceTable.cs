@@ -17,7 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.Models;
+using Jitendex.Tatoeba.Dto;
 using Jitendex.SQLite;
 
 namespace Jitendex.Tatoeba.SQLite;

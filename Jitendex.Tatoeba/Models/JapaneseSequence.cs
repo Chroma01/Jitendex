@@ -22,30 +22,17 @@ using System.Text.Json.Serialization;
 
 namespace Jitendex.Tatoeba.Models;
 
-[Table(nameof(JapaneseSentence))]
-public sealed class JapaneseSentence
+[Table(nameof(JapaneseSequence))]
+public sealed class JapaneseSequence
 {
     [Key]
-    public required int SequenceId { get; init; }
+    public required int Id { get; init; }
     public required string Text { get; set; }
 
     [JsonIgnore]
-    [ForeignKey(nameof(SequenceId))]
+    [ForeignKey(nameof(Id))]
     public Sequence Sequence { get; init; } = null!;
 
-    [InverseProperty(nameof(SentenceIndex.Sentence))]
-    public List<SentenceIndex> Indices { get; init; } = [];
-
-    public override bool Equals(object? obj)
-        => obj is JapaneseSentence sentence
-        && SequenceId == sentence.SequenceId
-        && string.Equals(Text, sentence.Text, StringComparison.Ordinal)
-        && Enumerable.SequenceEqual(Indices, sentence.Indices);
-
-    public override int GetHashCode()
-        => Indices.Aggregate
-        (
-            seed: HashCode.Combine(SequenceId, Text),
-            func: static (hash, index) => HashCode.Combine(hash, index)
-        );
+    [InverseProperty(nameof(TokenizedSentence.JapaneseSentence))]
+    public List<TokenizedSentence> Indices { get; init; } = [];
 }

@@ -18,22 +18,22 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Jitendex.Tatoeba.Models;
 
-[Table(nameof(Sequence))]
-public sealed class Sequence
+[Table(nameof(EnglishSequence))]
+public sealed class EnglishSequence
 {
     [Key]
     public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
+    public required string Text { get; set; }
 
-    [InverseProperty(nameof(JapaneseSentence.Sequence))]
-    public JapaneseSequence? JapaneseSentence { get; set; }
+    [JsonIgnore]
+    [ForeignKey(nameof(Id))]
+    public Sequence Sequence { get; init; } = null!;
 
-    [InverseProperty(nameof(EnglishSentence.Sequence))]
-    public EnglishSequence? EnglishSentence { get; set; }
-
-    [InverseProperty(nameof(Revision.Sequence))]
-    public List<Revision> Revisions { get; init; } = [];
+    [JsonIgnore]
+    [InverseProperty(nameof(TokenizedSentence.EnglishSentence))]
+    public List<TokenizedSentence> Indices { get; init; } = [];
 }

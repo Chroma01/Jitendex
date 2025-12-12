@@ -17,7 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
-using Jitendex.Tatoeba.Models;
+using Jitendex.Tatoeba.Dto;
 
 namespace Jitendex.Tatoeba.Readers;
 
@@ -61,126 +61,91 @@ internal sealed class TatoebaReader
 
     private void MakeIndex(in ExampleText text, Document document)
     {
-        var japaneseSentence = GetJapaneseSentence(text, document);
-        var order = japaneseSentence.Indices.Count + 1;
-        var englishSentence = GetEnglishSentence(text, document);
+        var japaneseSequence = GetJapaneseSequence(text, document);
+        var englishSequence = GetEnglishSequence(text, document);
 
-        var index = new SentenceIndex
+        var sentenceTokenization = new TokenizedSentence
         {
-            SentenceId = japaneseSentence.SequenceId,
-            Order = order,
-            MeaningId = englishSentence.SequenceId,
-            Sentence = japaneseSentence,
-            Meaning = englishSentence,
+            JapaneseSequenceId = japaneseSequence.Id,
+            Id = document.NextTokenizedSentenceIndex(japaneseSequence.Id),
+            EnglishSequenceId = englishSequence.Id,
         };
 
-        japaneseSentence.Indices.Add(index);
-        englishSentence.Indices.Add(index);
+        var key = sentenceTokenization.Key;
+        document.TokenizedSentences.Add(key, sentenceTokenization);
 
         foreach (var range in text.ElementTextRanges())
         {
             var elementText = text.GetElementText(range);
-            var indexElement = new IndexElement
+            var token = new Token
             {
-                SentenceId = index.SentenceId,
-                IndexOrder = index.Order,
-                Order = index.Elements.Count + 1,
+                SequenceId = sentenceTokenization.JapaneseSequenceId,
+                SentenceId = sentenceTokenization.Id,
+                Id = document.NextTokenIndex(key),
                 Headword = elementText.GetHeadword(),
                 Reading = elementText.GetReading(),
                 EntryId = elementText.GetEntryId(),
                 SenseNumber = elementText.GetSenseNumber(),
                 SentenceForm = elementText.GetSentenceForm(),
                 IsPriority = elementText.GetIsPriority(),
-                Index = index,
             };
-            index.Elements.Add(indexElement);
-            document.IndexElements.Add(indexElement.Key, indexElement);
+            document.Tokens.Add(token.Key, token);
         }
-
-        document.SentenceIndices.Add(index.Key, index);
     }
 
-    private JapaneseSentence GetJapaneseSentence(in ExampleText text, Document document)
+    private JapaneseSequence GetJapaneseSequence(in ExampleText text, Document document)
     {
-        var sequence = new Sequence
-        {
-            Id = text.GetJapaneseSentenceId(),
-            CreatedDate = _fileDate,
-        };
+        var id = text.GetJapaneseSentenceId();
 
-        if (document.Sequences.TryGetValue(sequence.Id, out var oldSequence))
+        if (document.EnglishSequences.ContainsKey(id))
         {
-            sequence = oldSequence;
-        }
-        else
-        {
-            document.Sequences.Add(sequence.Id, sequence);
+            _logger.LogWarning("Sequence ID {Id} is used for different language sentences", id);
         }
 
-        if (sequence.EnglishSentence is not null)
+        var sentence = new JapaneseSequence
         {
-            _logger.LogWarning("Sequence ID {Id} is used for different language sentences", sequence.Id);
-        }
-
-        var sentence = new JapaneseSentence
-        {
-            SequenceId = sequence.Id,
+            Id = id,
             Text = text.GetJapaneseSentenceText(),
-            Sequence = sequence,
         };
 
-        if (sequence.JapaneseSentence is null)
+        if (!document.JapaneseSequences.TryGetValue(id, out var oldSentence))
         {
-            sequence.JapaneseSentence = sentence;
-            document.JapaneseSentences.Add(sequence.Id, sentence);
+            document.Sequences.Add(id);
+            document.JapaneseSequences.Add(id, sentence);
         }
-        else if (!string.Equals(sentence.Text, sequence.JapaneseSentence.Text, StringComparison.Ordinal))
+        else if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
         {
-            _logger.LogWarning("Japanese sentence #{ID} has more than one distinct text", sentence.SequenceId);
+            _logger.LogWarning("Japanese sentence #{ID} has more than one distinct text", id);
         }
 
-        return sequence.JapaneseSentence;
+        return sentence;
     }
 
-    private EnglishSentence GetEnglishSentence(in ExampleText text, Document document)
+    private EnglishSequence GetEnglishSequence(in ExampleText text, Document document)
     {
-        var sequence = new Sequence
+        var id = text.GetEnglishSentenceId();
+
+        if (document.JapaneseSequences.ContainsKey(id))
         {
-            Id = text.GetEnglishSentenceId(),
-            CreatedDate = _fileDate,
+            _logger.LogWarning("Sequence ID {Id} is used for different language sentences", id);
+        }
+
+        var sentence = new EnglishSequence
+        {
+            Id = id,
+            Text = text.GetEnglishSentenceText()
         };
 
-        if (document.Sequences.TryGetValue(sequence.Id, out var oldSequence))
+        if (!document.EnglishSequences.TryGetValue(id, out var oldSentence))
         {
-            sequence = oldSequence;
+            document.Sequences.Add(id);
+            document.EnglishSequences.Add(id, sentence);
         }
-        else
+        else if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
         {
-            document.Sequences.Add(sequence.Id, sequence);
-        }
-
-        if (sequence.JapaneseSentence is not null)
-        {
-            _logger.LogWarning("Sequence ID {Id} is used for different language sentences", sequence.Id);
+            _logger.LogWarning("English sentence #{ID} has more than one distinct text", id);
         }
 
-        var sentence = new EnglishSentence
-        {
-            SequenceId = sequence.Id,
-            Text = text.GetEnglishSentenceText(),
-            Sequence = sequence,
-        };
-
-        if (sequence.EnglishSentence is null)
-        {
-            sequence.EnglishSentence = sentence;
-            document.EnglishSentences.Add(sequence.Id, sentence);
-        }
-        else if (!string.Equals(sentence.Text, sequence.EnglishSentence.Text, StringComparison.Ordinal))
-        {
-            _logger.LogWarning("English sentence #{ID} has more than one distinct text", sentence.SequenceId);
-        }
-
-        return sequence.EnglishSentence;
+        return sentence;
     }
 }

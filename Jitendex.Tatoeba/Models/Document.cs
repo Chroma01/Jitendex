@@ -22,10 +22,10 @@ internal sealed class Document
 {
     public DocumentMetadata Metadata { get; init; }
     public Dictionary<int, Sequence> Sequences { get; init; }
-    public Dictionary<int, EnglishSentence> EnglishSentences { get; init; }
-    public Dictionary<int, JapaneseSentence> JapaneseSentences { get; init; }
-    public Dictionary<(int, int), SentenceIndex> SentenceIndices { get; init; }
-    public Dictionary<(int, int, int), IndexElement> IndexElements { get; init; }
+    public Dictionary<int, EnglishSequence> EnglishSentences { get; init; }
+    public Dictionary<int, JapaneseSequence> JapaneseSentences { get; init; }
+    public Dictionary<(int, int), TokenizedSentence> SentenceIndices { get; init; }
+    public Dictionary<(int, int, int), Token> IndexElements { get; init; }
 
     public Document(DateOnly date, int expectedSequenceCount = 0)
     {

@@ -26,9 +26,9 @@ public sealed class Context : SqliteContext
 {
     public DbSet<DocumentMetadata> Metadata { get; set; } = null!;
     public DbSet<Sequence> Sequences { get; set; } = null!;
-    public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
-    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
-    public DbSet<SentenceIndex> SentenceIndices { get; set; } = null!;
-    public DbSet<IndexElement> IndexElements { get; set; } = null!;
+    public DbSet<EnglishSequence> EnglishSequences { get; set; } = null!;
+    public DbSet<JapaneseSequence> JapaneseSequences { get; set; } = null!;
+    public DbSet<TokenizedSentence> TokenizedSentences { get; set; } = null!;
+    public DbSet<Token> Tokens { get; set; } = null!;
     public Context() : base("tatoeba.db") { }
 }

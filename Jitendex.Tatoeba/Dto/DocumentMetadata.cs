@@ -16,24 +16,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+namespace Jitendex.Tatoeba.Dto;
 
-namespace Jitendex.Tatoeba.Models;
-
-[Table(nameof(Sequence))]
-public sealed class Sequence
+internal sealed record DocumentMetadata
 {
-    [Key]
-    public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-
-    [InverseProperty(nameof(JapaneseSentence.Sequence))]
-    public JapaneseSequence? JapaneseSentence { get; set; }
-
-    [InverseProperty(nameof(EnglishSentence.Sequence))]
-    public EnglishSequence? EnglishSentence { get; set; }
-
-    [InverseProperty(nameof(Revision.Sequence))]
-    public List<Revision> Revisions { get; init; } = [];
+    public required DateOnly Date { get; init; }
 }

@@ -16,32 +16,28 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba.Models;
 
-[Table(nameof(EnglishSentence))]
-public sealed class EnglishSentence
+[Table(nameof(TokenizedSentence))]
+[PrimaryKey(nameof(JapaneseSequenceId), nameof(Id))]
+public sealed class TokenizedSentence
 {
-    [Key]
-    public required int SequenceId { get; init; }
-    public required string Text { get; set; }
+    public required int JapaneseSequenceId { get; init; }
+    public required int Id { get; init; }
+    public required int EnglishSequenceId { get; set; }
 
     [JsonIgnore]
-    [ForeignKey(nameof(SequenceId))]
-    public Sequence Sequence { get; init; } = null!;
+    [ForeignKey(nameof(JapaneseSequenceId))]
+    public JapaneseSequence JapaneseSentence { get; init; } = null!;
 
     [JsonIgnore]
-    [InverseProperty(nameof(SentenceIndex.Meaning))]
-    public List<SentenceIndex> Indices { get; init; } = [];
+    [ForeignKey(nameof(EnglishSequenceId))]
+    public EnglishSequence EnglishSentence { get; set; } = null!;
 
-    public override bool Equals(object? obj)
-        => obj is EnglishSentence sentence
-        && SequenceId == sentence.SequenceId
-        && string.Equals(Text, sentence.Text, StringComparison.Ordinal);
-
-    public override int GetHashCode()
-        => HashCode.Combine(SequenceId, Text);
+    [InverseProperty(nameof(Token.Index))]
+    public List<Token> Tokens { get; init; } = [];
 }

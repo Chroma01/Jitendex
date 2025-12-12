@@ -17,26 +17,24 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.Models;
+using Jitendex.Tatoeba.Dto;
 using Jitendex.SQLite;
 
 namespace Jitendex.Tatoeba.SQLite;
 
-internal sealed class SentenceIndexTable : Table<SentenceIndex>
+internal sealed class EnglishSentenceTable : Table<EnglishSequence>
 {
-    protected override string Name => nameof(SentenceIndex);
+    protected override string Name => nameof(EnglishSequence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(SentenceIndex.SentenceId),
-        nameof(SentenceIndex.Order),
-        nameof(SentenceIndex.MeaningId),
+        nameof(EnglishSequence.Id),
+        nameof(EnglishSequence.Text),
     ];
 
-    protected override SqliteParameter[] Parameters(SentenceIndex index) =>
+    protected override SqliteParameter[] Parameters(EnglishSequence sentence) =>
     [
-        new("@0", index.SentenceId),
-        new("@1", index.Order),
-        new("@2", index.MeaningId),
+        new("@0", sentence.Id),
+        new("@1", sentence.Text),
     ];
 }

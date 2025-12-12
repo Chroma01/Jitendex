@@ -94,7 +94,7 @@ internal sealed class DocumentDiff
         return diff;
     }
 
-    private static List<Operation<Sequence>> EnglishSentenceDiff(EnglishSentence a, EnglishSentence b)
+    private static List<Operation<Sequence>> EnglishSentenceDiff(EnglishSequence a, EnglishSequence b)
     {
         var diff = new JsonPatchDocument<Sequence>();
 
@@ -107,7 +107,7 @@ internal sealed class DocumentDiff
         return diff.Operations;
     }
 
-    private static List<Operation<Sequence>> JapaneseSentenceDiff(JapaneseSentence a, JapaneseSentence b)
+    private static List<Operation<Sequence>> JapaneseSentenceDiff(JapaneseSequence a, JapaneseSequence b)
     {
         var diff = new JsonPatchDocument<Sequence>();
 
@@ -142,35 +142,35 @@ internal sealed class DocumentDiff
         return diff.Operations;
     }
 
-    private static List<Operation<Sequence>> IndexDiff(SentenceIndex? a, SentenceIndex? b, int i)
+    private static List<Operation<Sequence>> IndexDiff(TokenizedSentence? a, TokenizedSentence? b, int i)
     {
         var diff = new JsonPatchDocument<Sequence>();
 
         if (a is not null && b is not null)
         {
-            if (a.MeaningId != b.MeaningId)
+            if (a.EnglishSequenceId != b.EnglishSequenceId)
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].MeaningId, value: a.MeaningId);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].MeaningId, value: b.MeaningId);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].EnglishSequenceId, value: a.EnglishSequenceId);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].EnglishSequenceId, value: b.EnglishSequenceId);
             }
 
-            if (!Enumerable.SequenceEqual(a.Elements, b.Elements))
+            if (!Enumerable.SequenceEqual(a.Tokens, b.Tokens))
             {
-                if (a.Elements.Count <= b.Elements.Count)
+                if (a.Tokens.Count <= b.Tokens.Count)
                 {
-                    for (int j = 0; j < b.Elements.Count; j++)
+                    for (int j = 0; j < b.Tokens.Count; j++)
                     {
-                        var x = j < a.Elements.Count ? a.Elements[j] : null;
-                        var y = b.Elements[j];
+                        var x = j < a.Tokens.Count ? a.Tokens[j] : null;
+                        var y = b.Tokens[j];
                         diff.Operations.AddRange(ElementDiff(x, y, i, j));
                     }
                 }
                 else
                 {
-                    for (int j = a.Elements.Count - 1; j >= 0; j--)
+                    for (int j = a.Tokens.Count - 1; j >= 0; j--)
                     {
-                        var x = a.Elements[j];
-                        var y = j < b.Elements.Count ? b.Elements[j] : null;
+                        var x = a.Tokens[j];
+                        var y = j < b.Tokens.Count ? b.Tokens[j] : null;
                         diff.Operations.AddRange(ElementDiff(x, y, i, j));
                     }
                 }
@@ -189,7 +189,7 @@ internal sealed class DocumentDiff
         return diff.Operations;
     }
 
-    private static List<Operation<Sequence>> ElementDiff(IndexElement? a, IndexElement? b, int i, int j)
+    private static List<Operation<Sequence>> ElementDiff(Token? a, Token? b, int i, int j)
     {
         var diff = new JsonPatchDocument<Sequence>();
 
@@ -197,48 +197,48 @@ internal sealed class DocumentDiff
         {
             if (!string.Equals(a.Headword, b.Headword, StringComparison.Ordinal))
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements[j].Headword, value: a.Headword);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Elements[j].Headword, value: b.Headword);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].Headword, value: a.Headword);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].Headword, value: b.Headword);
             }
 
             if (!string.Equals(a.Reading, b.Reading, StringComparison.Ordinal))
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements[j].Reading, value: a.Reading);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Elements[j].Reading, value: b.Reading);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].Reading, value: a.Reading);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].Reading, value: b.Reading);
             }
 
             if (a.EntryId != b.EntryId)
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements[j].EntryId, value: a.EntryId);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Elements[j].EntryId, value: b.EntryId);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].EntryId, value: a.EntryId);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].EntryId, value: b.EntryId);
             }
 
             if (a.SenseNumber != b.SenseNumber)
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements[j].SenseNumber, value: a.SenseNumber);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Elements[j].SenseNumber, value: b.SenseNumber);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].SenseNumber, value: a.SenseNumber);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].SenseNumber, value: b.SenseNumber);
             }
 
             if (!string.Equals(a.SentenceForm, b.SentenceForm, StringComparison.Ordinal))
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements[j].SentenceForm, value: a.SentenceForm);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Elements[j].SentenceForm, value: b.SentenceForm);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].SentenceForm, value: a.SentenceForm);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].SentenceForm, value: b.SentenceForm);
             }
 
             if (a.IsPriority != b.IsPriority)
             {
-                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements[j].IsPriority, value: a.IsPriority);
-                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Elements[j].IsPriority, value: b.IsPriority);
+                diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].IsPriority, value: a.IsPriority);
+                diff.Replace(path: x => x.JapaneseSentence!.Indices[i].Tokens[j].IsPriority, value: b.IsPriority);
             }
         }
         else if (a is not null)
         {
-            diff.Test(path: x => x.JapaneseSentence!.Indices[i].Elements!, value: a, position: j);
-            diff.Remove(path: x => x.JapaneseSentence!.Indices[i].Elements!, position: j);
+            diff.Test(path: x => x.JapaneseSentence!.Indices[i].Tokens!, value: a, position: j);
+            diff.Remove(path: x => x.JapaneseSentence!.Indices[i].Tokens!, position: j);
         }
         else if (b is not null)
         {
-            diff.Add(path: x => x.JapaneseSentence!.Indices[i].Elements!, value: b, position: j);
+            diff.Add(path: x => x.JapaneseSentence!.Indices[i].Tokens!, value: b, position: j);
         }
 
         return diff.Operations;

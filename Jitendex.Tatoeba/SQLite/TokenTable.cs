@@ -17,22 +17,38 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.SQLite;
 using Jitendex.Tatoeba.Dto;
+using Jitendex.SQLite;
 
 namespace Jitendex.Tatoeba.SQLite;
 
-internal sealed class DocumentMetadataTable : Table<DocumentMetadata>
+internal sealed class TokenTable : Table<Token>
 {
-    protected override string Name => nameof(DocumentMetadata);
+    protected override string Name => nameof(Token);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(DocumentMetadata.Date)
+        nameof(Token.SequenceId),
+        nameof(Token.SentenceId),
+        nameof(Token.Id),
+        nameof(Token.Headword),
+        nameof(Token.Reading),
+        nameof(Token.EntryId),
+        nameof(Token.SenseNumber),
+        nameof(Token.SentenceForm),
+        nameof(Token.IsPriority),
     ];
 
-    protected override SqliteParameter[] Parameters(DocumentMetadata metadata) =>
+    protected override SqliteParameter[] Parameters(Token token) =>
     [
-        new("@0", metadata.Date)
+        new("@0", token.SequenceId),
+        new("@1", token.SentenceId),
+        new("@2", token.Id),
+        new("@3", token.Headword),
+        new("@4", token.Reading.Nullable()),
+        new("@5", token.EntryId.Nullable()),
+        new("@6", token.SenseNumber.Nullable()),
+        new("@7", token.SentenceForm.Nullable()),
+        new("@8", token.IsPriority),
     ];
 }
