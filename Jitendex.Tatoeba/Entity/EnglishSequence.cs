@@ -16,20 +16,24 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
-namespace Jitendex.Tatoeba.Models;
+namespace Jitendex.Tatoeba.Entity;
 
-[Table(nameof(Revision))]
-[PrimaryKey(nameof(SequenceId), nameof(Number))]
-public sealed class Revision
+[Table(nameof(EnglishSequence))]
+public sealed class EnglishSequence
 {
-    public required int SequenceId { get; init; }
-    public required int Number { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-    public required string DiffJson { get; init; }
+    [Key]
+    public required int Id { get; init; }
+    public required string Text { get; set; }
 
-    [ForeignKey(nameof(SequenceId))]
+    [JsonIgnore]
+    [ForeignKey(nameof(Id))]
     public Sequence Sequence { get; init; } = null!;
+
+    [JsonIgnore]
+    [InverseProperty(nameof(TokenizedSentence.EnglishSentence))]
+    public List<TokenizedSentence> Indices { get; init; } = [];
 }

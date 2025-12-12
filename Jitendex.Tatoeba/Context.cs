@@ -17,8 +17,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Tatoeba.Models;
 using Jitendex.SQLite;
+using Jitendex.Tatoeba.Entity;
 
 namespace Jitendex.Tatoeba;
 

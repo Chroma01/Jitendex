@@ -20,7 +20,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Tatoeba.Models;
+namespace Jitendex.Tatoeba.Entity;
 
 [Table(nameof(Token))]
 [PrimaryKey(nameof(SequenceId), nameof(SentenceId), nameof(Id))]
