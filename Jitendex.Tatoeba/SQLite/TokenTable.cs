@@ -39,6 +39,13 @@ internal sealed class TokenTable : Table<Token>
         nameof(Token.IsPriority),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Token.SequenceId),
+        nameof(Token.SentenceId),
+        nameof(Token.Id),
+    ];
+
     protected override SqliteParameter[] Parameters(Token token) =>
     [
         new("@0", token.SequenceId),

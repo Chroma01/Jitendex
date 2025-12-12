@@ -33,6 +33,12 @@ internal sealed class TokenizedSentenceTable : Table<TokenizedSentence>
         nameof(TokenizedSentence.EnglishSequenceId),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(TokenizedSentence.JapaneseSequenceId),
+        nameof(TokenizedSentence.Id),
+    ];
+
     protected override SqliteParameter[] Parameters(TokenizedSentence sentence) =>
     [
         new("@0", sentence.JapaneseSequenceId),

@@ -31,6 +31,9 @@ internal sealed class DocumentMetadataTable : Table<DocumentMetadata>
         nameof(DocumentMetadata.Date)
     ];
 
+    protected override IReadOnlyList<string> KeyColNames
+        => throw new NotImplementedException();
+
     protected override SqliteParameter[] Parameters(DocumentMetadata metadata) =>
     [
         new("@0", metadata.Date)

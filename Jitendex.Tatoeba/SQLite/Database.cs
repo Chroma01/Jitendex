@@ -32,14 +32,9 @@ internal static class Database
     public static void Initialize(Document document)
     {
         using var context = new Context();
-
-        // Delete and recreate the database file.
         context.InitializeDatabase();
-
-        // For faster importing, write data to memory rather than to the disk.
         context.ExecuteFastNewDatabasePragma();
 
-        // Begin inserting data.
         using (var transaction = context.Database.BeginTransaction())
         {
             DocumentMetadataTable.InsertItem(context, document.GetMetadata());
@@ -51,7 +46,37 @@ internal static class Database
             transaction.Commit();
         }
 
-        // Write database to the disk.
+        context.SaveChanges();
+    }
+
+    public static void Update(DocumentDiff diff)
+    {
+        using var context = new Context();
+        context.ExecuteDeferForeignKeysPragma();
+
+        using (var transaction = context.Database.BeginTransaction())
+        {
+            DocumentMetadataTable.InsertItem(context, diff.InsertDocument.GetMetadata());
+            SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
+
+            EnglishSentenceTable.InsertItems(context, diff.InsertDocument.EnglishSequences.Values);
+            JapaneseSentenceTable.InsertItems(context, diff.InsertDocument.JapaneseSequences.Values);
+            TokenizedSentenceTable.InsertItems(context, diff.InsertDocument.TokenizedSentences.Values);
+            TokenTable.InsertItems(context, diff.InsertDocument.Tokens.Values);
+
+            EnglishSentenceTable.UpdateItems(context, diff.UpdateDocument.EnglishSequences.Values);
+            JapaneseSentenceTable.UpdateItems(context, diff.UpdateDocument.JapaneseSequences.Values);
+            TokenizedSentenceTable.UpdateItems(context, diff.UpdateDocument.TokenizedSentences.Values);
+            TokenTable.UpdateItems(context, diff.UpdateDocument.Tokens.Values);
+
+            TokenTable.DeleteItems(context, diff.DeleteDocument.Tokens.Values);
+            TokenizedSentenceTable.DeleteItems(context, diff.DeleteDocument.TokenizedSentences.Values);
+            JapaneseSentenceTable.DeleteItems(context, diff.DeleteDocument.JapaneseSequences.Values);
+            EnglishSentenceTable.DeleteItems(context, diff.DeleteDocument.EnglishSequences.Values);
+
+            transaction.Commit();
+        }
+
         context.SaveChanges();
     }
 }

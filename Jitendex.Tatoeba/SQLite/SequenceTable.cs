@@ -32,6 +32,9 @@ internal sealed class SequenceTable : Table<Sequence>
         nameof(Sequence.CreatedDate),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames
+        => throw new NotImplementedException();
+
     protected override SqliteParameter[] Parameters(Sequence sequence) =>
     [
         new("@0", sequence.Id),

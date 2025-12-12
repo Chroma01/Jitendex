@@ -32,6 +32,11 @@ internal sealed class EnglishSentenceTable : Table<EnglishSequence>
         nameof(EnglishSequence.Text),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(EnglishSequence.Id)
+    ];
+
     protected override SqliteParameter[] Parameters(EnglishSequence sentence) =>
     [
         new("@0", sentence.Id),

@@ -32,6 +32,11 @@ internal sealed class JapaneseSentenceTable : Table<JapaneseSequence>
         nameof(JapaneseSequence.Text),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(JapaneseSequence.Id)
+    ];
+
     protected override SqliteParameter[] Parameters(JapaneseSequence sentence) =>
     [
         new("@0", sentence.Id),

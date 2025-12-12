@@ -22,6 +22,7 @@ using Jitendex.Tatoeba.Readers;
 using Jitendex.Tatoeba.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
+using Jitendex.Tatoeba.Dto;
 
 namespace Jitendex.Tatoeba;
 
@@ -32,23 +33,25 @@ public static class Service
         var previousDocument = await GetPreviousDocumentAsync(archiveDirectory);
         var previousDate = previousDocument.Date;
 
-        // while (true)
-        // {
-        //     var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
+        while (true)
+        {
+            var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
 
-        //     if (nextFile is null)
-        //     {
-        //         break;
-        //     }
+            if (nextFile is null)
+            {
+                break;
+            }
 
-        //     var nextDocument = await ReadAsync(nextFile, nextDate);
+            var nextDocument = await ReadAsync(nextFile, nextDate);
+            var diff = new DocumentDiff(previousDocument, nextDocument);
 
-        //     await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
-        //     Database.Update(previousDocument, nextDocument);
+            await Console.Error.WriteLineAsync($"Updating database with data from {nextDate:yyyy-MM-dd}");
 
-        //     previousDocument = nextDocument;
-        //     previousDate = nextDate;
-        // }
+            Database.Update(diff);
+
+            previousDocument = nextDocument;
+            previousDate = nextDate;
+        }
     }
 
     private static async Task<Dto.Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)

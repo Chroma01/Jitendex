@@ -25,6 +25,7 @@ public abstract class Table<T>
 {
     protected abstract string Name { get; }
     protected abstract IReadOnlyList<string> ColumnNames { get; }
+    protected abstract IReadOnlyList<string> KeyColNames { get; }
     protected abstract SqliteParameter[] Parameters(T item);
 
     private string InsertCommandText =>
@@ -34,33 +35,25 @@ public abstract class Table<T>
         ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx:X}"))});
         """;
 
-    private string DeleteCommandText =>
+    private string InsertOrIgnoreCommandText =>
         $"""
-        DELETE FROM "{Name}";
+        INSERT OR IGNORE INTO "{Name}"
+        ({string.Join(',', ColumnNames.Select(static name => $"\"{name}\""))}) VALUES
+        ({string.Join(',', ColumnNames.Select(static (_, idx) => $"@{idx:X}"))});
         """;
 
-    public int InsertItem(SqliteContext db, T item)
-    {
-        using var command = db.Database.GetDbConnection().CreateCommand();
-        command.CommandText = InsertCommandText;
-        command.Parameters.AddRange(Parameters(item));
-        return command.ExecuteNonQuery();
-    }
+    private string UpdateCommandText =>
+        $"""
+        UPDATE "{Name}"
+        SET   {string.Join(',', ColumnNames.Select(static (name, idx) => $"\"{name}\" = @{idx:X}"))}
+        WHERE {string.Join(" AND ", KeyColNames.Select(static (name, idx) => $"\"{name}\" = @{idx:X}"))};
+        """;
 
-    public void InsertItems(SqliteContext db, IEnumerable<T> items)
-    {
-        using var command = db.Database.GetDbConnection().CreateCommand();
-        command.CommandText = InsertCommandText;
-        foreach (var item in items)
-        {
-            // Extremely hot path: millions of loops here for DB initializations.
-            // AddRange() & Clear() have shown to be more efficient than
-            // updating the command.Parameters values on every loop.
-            command.Parameters.AddRange(Parameters(item));
-            command.ExecuteNonQuery();
-            command.Parameters.Clear();
-        }
-    }
+    private string DeleteCommandText =>
+        $"""
+        DELETE FROM "{Name}"
+        WHERE {string.Join(" AND ", KeyColNames.Select(static (name, idx) => $"\"{name}\" = @{idx:X}"))};
+        """;
 
     public async Task InsertItemsAsync(SqliteContext db, IEnumerable<T> items)
     {
@@ -68,15 +61,48 @@ public abstract class Table<T>
         command.CommandText = InsertCommandText;
         foreach (var item in items)
         {
-            // Extremely hot path: millions of loops here for DB initializations.
-            // AddRange() & Clear() have shown to be more efficient than
-            // updating the command.Parameters values on every loop.
             command.Parameters.AddRange(Parameters(item));
             await command.ExecuteNonQueryAsync();
             command.Parameters.Clear();
         }
     }
 
-    public void Truncate(SqliteContext db)
-        => db.Database.ExecuteSqlRaw(DeleteCommandText);
+    public void InsertItem(SqliteContext db, T item)
+        => ExecuteNonQuery(db, [item], InsertCommandText);
+
+    public void InsertItems(SqliteContext db, IEnumerable<T> items)
+        => ExecuteNonQuery(db, items, InsertCommandText);
+
+    public void InsertOrIgnoreItems(SqliteContext db, IEnumerable<T> items)
+        => ExecuteNonQuery(db, items, InsertOrIgnoreCommandText, checkRows: false);
+
+    public void UpdateItems(SqliteContext db, IEnumerable<T> items)
+        => ExecuteNonQuery(db, items, UpdateCommandText);
+
+    public void DeleteItems(SqliteContext db, IEnumerable<T> items)
+        => ExecuteNonQuery(db, items, DeleteCommandText);
+
+    private void ExecuteNonQuery(SqliteContext db, IEnumerable<T> items, string commandText, bool checkRows = true)
+    {
+        using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = commandText;
+        foreach (var item in items)
+        {
+            // Extremely hot path: millions of loops here for DB initializations.
+            // AddRange() & Clear() have shown to be more efficient than
+            // updating the command.Parameters values on every loop.
+            command.Parameters.AddRange(Parameters(item));
+            int rowsAffected = command.ExecuteNonQuery();
+            if (rowsAffected != 1 && checkRows)
+            {
+                Console.Error.WriteLine(commandText);
+                foreach (var parameter in command.Parameters)
+                {
+                    Console.Error.WriteLine($"{parameter}");
+                }
+                throw new Exception($"{rowsAffected} rows affected (expected 1)");
+            }
+            command.Parameters.Clear();
+        }
+    }
 }
