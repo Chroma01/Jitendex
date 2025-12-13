@@ -23,6 +23,7 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
+    public HashSet<int> TouchedSequences { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -30,47 +31,31 @@ internal sealed class DocumentDiff
         InsertDocument = new Document(Date);
         UpdateDocument = new Document(Date);
         DeleteDocument = new Document(Date);
+        TouchedSequences = [];
 
-        DiffHashSetProperties<int>(docA, docB, propertyName: nameof(Document.Sequences));
+        FindNewSequences(docA, docB);
+
         DiffDictionaryProperties<int, EnglishSequence>(docA, docB, propertyName: nameof(Document.EnglishSequences));
         DiffDictionaryProperties<int, JapaneseSequence>(docA, docB, propertyName: nameof(Document.JapaneseSequences));
         DiffDictionaryProperties<(int, int), TokenizedSentence>(docA, docB, propertyName: nameof(Document.TokenizedSentences));
         DiffDictionaryProperties<(int, int, int), Token>(docA, docB, propertyName: nameof(Document.Tokens));
     }
 
-    public HashSet<int> GetTouchedSequenceIds()
-        => InsertDocument.GetTouchedSequenceIds()
-        .Concat(UpdateDocument.GetTouchedSequenceIds())
-        .Concat(DeleteDocument.GetTouchedSequenceIds())
-        .ToHashSet();
-
-    private void DiffHashSetProperties<T>(Document docA, Document docB, string propertyName) where T : struct
+    private void FindNewSequences(Document docA, Document docB)
     {
-        var prop = typeof(Document).GetProperty(propertyName)!;
-        var setA = (HashSet<T>)prop.GetValue(docA)!;
-        var setB = (HashSet<T>)prop.GetValue(docB)!;
-        var inserts = (HashSet<T>)prop.GetValue(InsertDocument)!;
-        var deletes = (HashSet<T>)prop.GetValue(DeleteDocument)!;
-
-        foreach (var key in setA)
+        foreach (var key in docB.Sequences)
         {
-            if (!setB.Contains(key))
+            if (!docA.Sequences.Contains(key))
             {
-                deletes.Add(key);
-            }
-        }
-        foreach (var key in setB)
-        {
-            if (!setA.Contains(key))
-            {
-                inserts.Add(key);
+                InsertDocument.Sequences.Add(key);
+                TouchedSequences.Add(key);
             }
         }
     }
 
     private void DiffDictionaryProperties<TKey, TValue>(Document docA, Document docB, string propertyName)
         where TKey : struct
-        where TValue : notnull
+        where TValue : notnull, ISequenced
     {
         var prop = typeof(Document).GetProperty(propertyName)!;
         var dictA = (Dictionary<TKey, TValue>)prop.GetValue(docA)!;
@@ -84,10 +69,12 @@ internal sealed class DocumentDiff
             if (!dictB.TryGetValue(key, out TValue? valueB))
             {
                 deletes.Add(key, valueA);
+                TouchedSequences.Add(valueA.GetSequence());
             }
             else if (!valueA.Equals(valueB))  // Hot spot!!!
             {
                 updates.Add(key, valueB);
+                TouchedSequences.Add(valueA.GetSequence());
             }
         }
         foreach (var (key, valueB) in dictB)
@@ -95,6 +82,7 @@ internal sealed class DocumentDiff
             if (!dictA.ContainsKey(key))
             {
                 inserts.Add(key, valueB);
+                TouchedSequences.Add(valueB.GetSequence());
             }
         }
     }

@@ -17,7 +17,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Tatoeba.ImportDto;
 
-internal sealed record Token
+internal sealed record Token : ISequenced
 {
     public required int SequenceId { get; init; }
     public required int SentenceIndex { get; init; }
@@ -28,5 +28,6 @@ internal sealed record Token
     public required int? SenseNumber { get; init; }
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
-    public (int, int, int) Key() => (SequenceId, SentenceIndex, Index);
+    public int GetSequence() => SequenceId;
+    public (int, int, int) GetKey() => (SequenceId, SentenceIndex, Index);
 }

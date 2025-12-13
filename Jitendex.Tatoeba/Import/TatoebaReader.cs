@@ -70,7 +70,7 @@ internal sealed class TatoebaReader
             EnglishSequenceId = englishSequence.Id,
         };
 
-        var key = sentenceTokenization.Key();
+        var key = sentenceTokenization.GetKey();
         document.TokenizedSentences.Add(key, sentenceTokenization);
 
         foreach (var range in text.ElementTextRanges())
@@ -88,7 +88,7 @@ internal sealed class TatoebaReader
                 SentenceForm = elementText.GetSentenceForm(),
                 IsPriority = elementText.GetIsPriority(),
             };
-            document.Tokens.Add(token.Key(), token);
+            document.Tokens.Add(token.GetKey(), token);
         }
     }
 

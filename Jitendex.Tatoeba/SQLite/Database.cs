@@ -55,11 +55,10 @@ internal static class Database
 
     public static void Update(DocumentDiff diff)
     {
-        using var context = new Context();
-        var ids = diff.GetTouchedSequenceIds();
-        var aSequences = LoadSequences(context, ids);
+        Console.Error.WriteLine($"Updating {diff.TouchedSequences.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
 
-        Console.Error.WriteLine($"Updating {ids.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
+        using var context = new Context();
+        var aSequences = LoadSequences(context, diff.TouchedSequences);
 
         using (var transaction = context.Database.BeginTransaction())
         {
@@ -86,10 +85,10 @@ internal static class Database
             transaction.Commit();
         }
 
-        var bSequences = LoadSequences(context, ids);
+        var bSequences = LoadSequences(context, diff.TouchedSequences);
 
         var sequences = context.Sequences
-            .Where(sequence => ids.Contains(sequence.Id))
+            .Where(sequence => diff.TouchedSequences.Contains(sequence.Id))
             .Include(static sequence => sequence.Revisions)
             .ToList();
 
