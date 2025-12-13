@@ -8,9 +8,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
     <PackageReference Include="System.CommandLine" Version="2.0.0" />
-    <PackageReference Include="MinimalPatch" Version="2025.11.28" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jitendex.AppDirectory\Jitendex.AppDirectory.csproj" />
+    <ProjectReference Include="..\Libraries\MinimalPatch\Jitendex.MinimalPatch\Jitendex.MinimalPatch.csproj" />
   </ItemGroup>
 </Project>

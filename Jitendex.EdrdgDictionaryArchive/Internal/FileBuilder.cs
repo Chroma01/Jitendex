@@ -17,7 +17,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
-using MinimalPatch;
+using Jitendex.MinimalPatch;
 
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 

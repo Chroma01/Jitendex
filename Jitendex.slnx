@@ -8,6 +8,9 @@
   <Folder Name="/Libraries/MinimalJsonDiff/">
     <Project Path="Libraries/MinimalJsonDiff/Jitendex.MinimalJsonDiff/Jitendex.MinimalJsonDiff.csproj" />
   </Folder>
+  <Folder Name="/Libraries/MinimalPatch/">
+    <Project Path="Libraries/MinimalPatch/Jitendex.MinimalPatch/Jitendex.MinimalPatch.csproj" />
+  </Folder>
   <Project Path="Jitendex.AppDirectory/Jitendex.AppDirectory.csproj" />
   <Project Path="Jitendex.Chise/Jitendex.Chise.csproj" />
   <Project Path="Jitendex.EdrdgDictionaryArchive/Jitendex.EdrdgDictionaryArchive.csproj" />

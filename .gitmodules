@@ -13,3 +13,6 @@
 [submodule "Libraries/MinimalJsonDiff"]
 	path = Libraries/MinimalJsonDiff
 	url = https://github.com/Jitendex/MinimalJsonDiff
+[submodule "Libraries/MinimalPatch"]
+	path = Libraries/MinimalPatch
+	url = https://github.com/Jitendex/MinimalPatch
