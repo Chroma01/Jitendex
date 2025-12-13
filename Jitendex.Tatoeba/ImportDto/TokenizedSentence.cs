@@ -17,11 +17,10 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Tatoeba.ImportDto;
 
-internal sealed record TokenizedSentence : ISequenced
+internal sealed record TokenizedSentence
 {
     public required int JapaneseSequenceId { get; init; }
     public required int Index { get; init; }
     public required int EnglishSequenceId { get; init; }
-    public int GetSequenceId() => JapaneseSequenceId;
     public (int, int) GetKey() => (JapaneseSequenceId, Index);
 }

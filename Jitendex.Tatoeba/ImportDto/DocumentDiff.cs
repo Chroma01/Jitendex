@@ -23,7 +23,7 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public HashSet<int> SequenceIds { get; init; }
+    public IReadOnlySet<int> SequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -31,7 +31,6 @@ internal sealed class DocumentDiff
         InsertDocument = new Document(Date);
         UpdateDocument = new Document(Date);
         DeleteDocument = new Document(Date);
-        SequenceIds = [];
 
         FindNewSequences(docA, docB);
 
@@ -39,6 +38,11 @@ internal sealed class DocumentDiff
         DiffDictionaryProperties<int, JapaneseSequence>(docA, docB, propertyName: nameof(Document.JapaneseSequences));
         DiffDictionaryProperties<(int, int), TokenizedSentence>(docA, docB, propertyName: nameof(Document.TokenizedSentences));
         DiffDictionaryProperties<(int, int, int), Token>(docA, docB, propertyName: nameof(Document.Tokens));
+
+        SequenceIds = InsertDocument.ConcatAllSequenceIds()
+            .Concat(UpdateDocument.ConcatAllSequenceIds())
+            .Concat(DeleteDocument.ConcatAllSequenceIds())
+            .ToHashSet();
     }
 
     private void FindNewSequences(Document docA, Document docB)
@@ -48,14 +52,13 @@ internal sealed class DocumentDiff
             if (!docA.Sequences.Contains(key))
             {
                 InsertDocument.Sequences.Add(key);
-                SequenceIds.Add(key);
             }
         }
     }
 
     private void DiffDictionaryProperties<TKey, TValue>(Document docA, Document docB, string propertyName)
         where TKey : struct
-        where TValue : notnull, ISequenced
+        where TValue : notnull
     {
         var prop = typeof(Document).GetProperty(propertyName)!;
         var dictA = (Dictionary<TKey, TValue>)prop.GetValue(docA)!;
@@ -69,12 +72,10 @@ internal sealed class DocumentDiff
             if (!dictB.TryGetValue(key, out TValue? valueB))
             {
                 deletes.Add(key, valueA);
-                SequenceIds.Add(valueA.GetSequenceId());
             }
             else if (!valueA.Equals(valueB))  // Hot spot!!!
             {
                 updates.Add(key, valueB);
-                SequenceIds.Add(valueA.GetSequenceId());
             }
         }
         foreach (var (key, valueB) in dictB)
@@ -82,7 +83,6 @@ internal sealed class DocumentDiff
             if (!dictA.ContainsKey(key))
             {
                 inserts.Add(key, valueB);
-                SequenceIds.Add(valueB.GetSequenceId());
             }
         }
     }

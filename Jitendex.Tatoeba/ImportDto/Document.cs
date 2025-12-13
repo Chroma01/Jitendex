@@ -61,4 +61,11 @@ internal sealed class Document
 
     public DocumentMetadata GetMetadata()
         => new() { Date = Date };
+
+    public IEnumerable<int> ConcatAllSequenceIds()
+        => Sequences
+            .Concat(EnglishSequences.Keys)
+            .Concat(JapaneseSequences.Keys)
+            .Concat(TokenizedSentences.Keys.Select(static key => key.Item1))
+            .Concat(Tokens.Keys.Select(static key => key.Item1));
 }

@@ -112,7 +112,7 @@ internal static class Database
         context.SaveChanges();
     }
 
-    private static Dictionary<int, Entity.Sequence> LoadSequences(Context context, HashSet<int> ids)
+    private static Dictionary<int, Entity.Sequence> LoadSequences(Context context, IReadOnlySet<int> ids)
         => context.Sequences.AsNoTracking()
         .Where(sequence => ids.Contains(sequence.Id))
         .Include(static sequence => sequence.EnglishSentence)

@@ -17,9 +17,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Tatoeba.ImportDto;
 
-internal sealed record JapaneseSequence : ISequenced
+internal sealed record JapaneseSequence
 {
     public required int Id { get; init; }
     public required string Text { get; init; }
-    public int GetSequenceId() => Id;
 }
