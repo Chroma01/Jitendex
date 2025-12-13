@@ -56,15 +56,15 @@ internal static class Database
     public static void Update(DocumentDiff diff)
     {
         using var context = new Context();
-
         var ids = diff.GetTouchedSequenceIds();
         var aSequences = LoadSequences(context, ids);
 
-        context.ExecuteDeferForeignKeysPragma();
         Console.Error.WriteLine($"Updating {ids.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
 
         using (var transaction = context.Database.BeginTransaction())
         {
+            context.ExecuteDeferForeignKeysPragma();
+
             DocumentMetadataTable.InsertItem(context, diff.InsertDocument.GetMetadata());
             SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
