@@ -58,18 +58,10 @@ internal static class Database
         using var context = new Context();
 
         var ids = diff.GetTouchedSequenceIds();
-        Console.Error.WriteLine($"Updating {ids.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
-
-        var oldSequences = context.Sequences
-            .AsNoTracking()
-            .Where(sequence => ids.Contains(sequence.Id))
-            .Include(sequence => sequence.EnglishSentence)
-            .Include(sequence => sequence.JapaneseSentence)
-            .ThenInclude(japaneseSentence => japaneseSentence!.TokenizedSentences)
-            .ThenInclude(tokenizedSentence => tokenizedSentence.Tokens)
-            .ToDictionary(s => s.Id);
+        var aSequences = LoadSequences(context, ids);
 
         context.ExecuteDeferForeignKeysPragma();
+        Console.Error.WriteLine($"Updating {ids.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
 
         using (var transaction = context.Database.BeginTransaction())
         {
@@ -94,41 +86,25 @@ internal static class Database
             transaction.Commit();
         }
 
-        var newSequences = context.Sequences
-            .AsNoTracking()
-            .Where(sequence => ids.Contains(sequence.Id))
-            .Include(sequence => sequence.EnglishSentence)
-            .Include(sequence => sequence.JapaneseSentence)
-            .ThenInclude(japaneseSentence => japaneseSentence!.TokenizedSentences)
-            .ThenInclude(tokenizedSentence => tokenizedSentence.Tokens)
-            .ToList();
-
-        var patches = new Dictionary<int, string>(ids.Count);
-
-        foreach (var newSeq in newSequences)
-        {
-            if (oldSequences.TryGetValue(newSeq.Id, out var oldSeq))
-            {
-                var patch = JsonDiffer.Diff(newSeq, oldSeq);
-                patches.Add(newSeq.Id, patch);
-            }
-        }
+        var bSequences = LoadSequences(context, ids);
 
         var sequences = context.Sequences
             .Where(sequence => ids.Contains(sequence.Id))
-            .Include(sequence => sequence.Revisions)
+            .Include(static sequence => sequence.Revisions)
             .ToList();
 
         foreach (var sequence in sequences)
         {
-            if (patches.TryGetValue(sequence.Id, out var patch))
+            if (aSequences.TryGetValue(sequence.Id, out var aSequence))
             {
+                var bSequence = bSequences[sequence.Id];
+                var baDiff = JsonDiffer.Diff(a: bSequence, b: aSequence);
                 sequence.Revisions.Add(new()
                 {
                     SequenceId = sequence.Id,
                     Number = sequence.Revisions.Count,
                     CreatedDate = diff.Date,
-                    DiffJson = patch,
+                    DiffJson = baDiff,
                     Sequence = sequence,
                 });
             }
@@ -136,4 +112,13 @@ internal static class Database
 
         context.SaveChanges();
     }
+
+    private static Dictionary<int, Entity.Sequence> LoadSequences(Context context, HashSet<int> ids)
+        => context.Sequences.AsNoTracking()
+        .Where(sequence => ids.Contains(sequence.Id))
+        .Include(static sequence => sequence.EnglishSentence)
+        .Include(static sequence => sequence.JapaneseSentence)
+        .ThenInclude(static japaneseSentence => japaneseSentence!.TokenizedSentences)
+        .ThenInclude(static tokenizedSentence => tokenizedSentence.Tokens)
+        .ToDictionary(static sequence => sequence.Id);
 }
