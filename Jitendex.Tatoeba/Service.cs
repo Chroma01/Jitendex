@@ -28,6 +28,8 @@ namespace Jitendex.Tatoeba;
 
 public static class Service
 {
+    private static bool DoVacuum = false;
+
     public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
     {
         var previousDocument = await GetPreviousDocumentAsync(archiveDirectory);
@@ -50,6 +52,12 @@ public static class Service
             previousDocument = nextDocument;
             previousDate = nextDate;
         }
+
+        if (DoVacuum)
+        {
+            using var db = new Context();
+            db.ExecuteVacuum();
+        }
     }
 
     private static async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
@@ -61,6 +69,7 @@ public static class Service
             var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
             document = await ReadAsync(file!, date);
             Database.Initialize(document);
+            DoVacuum = true;
         }
         else
         {
