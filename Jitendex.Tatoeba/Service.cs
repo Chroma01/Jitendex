@@ -23,21 +23,20 @@ using Jitendex.Tatoeba.ImportDto;
 using Jitendex.Tatoeba.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba;
 
 public static class Service
 {
-    private static bool DoVacuum = false;
-
     public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
     {
-        var previousDocument = await GetPreviousDocumentAsync(archiveDirectory);
-        var previousDate = previousDocument.Date;
+        var previousDate = GetPreviousDate();
+        var previousDocument = await GetPreviousDocumentAsync(previousDate, archiveDirectory);
 
         while (true)
         {
-            var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
+            var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDocument.Date, archiveDirectory);
 
             if (nextFile is null)
             {
@@ -50,33 +49,13 @@ public static class Service
             Database.Update(diff);
 
             previousDocument = nextDocument;
-            previousDate = nextDate;
         }
 
-        if (DoVacuum)
+        if (previousDate == default)
         {
             using var db = new Context();
             db.ExecuteVacuum();
         }
-    }
-
-    private static async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory)
-    {
-        Document document;
-        var previousDate = GetPreviousDate();
-        if (previousDate == default)
-        {
-            var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
-            document = await ReadAsync(file!, date);
-            Database.Initialize(document);
-            DoVacuum = true;
-        }
-        else
-        {
-            var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
-            document = await ReadAsync(file, previousDate);
-        }
-        return document;
     }
 
     private static DateOnly GetPreviousDate()
@@ -84,9 +63,27 @@ public static class Service
         using var db = new Context();
         db.Database.EnsureCreated();
         return db.Metadata
+            .AsNoTracking()
             .OrderBy(static x => x.Id)
             .Select(static x => x.Date)
             .LastOrDefault();
+    }
+
+    private static async Task<Document> GetPreviousDocumentAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
+    {
+        Document document;
+        if (previousDate == default)
+        {
+            var (file, date) = GetNextEdrdgFile(examples, previousDate, archiveDirectory);
+            document = await ReadAsync(file!, date);
+            Database.Initialize(document);
+        }
+        else
+        {
+            var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
+            document = await ReadAsync(file, previousDate);
+        }
+        return document;
     }
 
     private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
