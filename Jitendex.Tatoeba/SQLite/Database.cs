@@ -16,9 +16,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text.Json;
-using Json.Patch;
 using Microsoft.EntityFrameworkCore;
+using Jitendex.MinimalJsonDiff;
 using Jitendex.Tatoeba.ImportDto;
 
 namespace Jitendex.Tatoeba.SQLite;
@@ -105,16 +104,13 @@ internal static class Database
             .ToList();
 
         var patches = new Dictionary<int, string>(ids.Count);
-        var options = new JsonSerializerOptions { WriteIndented = true };
 
         foreach (var newSeq in newSequences)
         {
             if (oldSequences.TryGetValue(newSeq.Id, out var oldSeq))
             {
-                var original = JsonSerializer.SerializeToNode(newSeq);
-                var target = JsonSerializer.SerializeToNode(oldSeq);
-                var patch = original.CreatePatch(target);
-                patches.Add(newSeq.Id, JsonSerializer.Serialize(patch, options));
+                var patch = JsonDiffer.Diff(newSeq, oldSeq);
+                patches.Add(newSeq.Id, patch);
             }
         }
 

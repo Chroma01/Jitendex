@@ -10,3 +10,6 @@
 [submodule "Data/chise-ids"]
 	path = Data/chise-ids
 	url = https://github.com/Jitendex/CHISE-IDS
+[submodule "Libraries/MinimalJsonDiff"]
+	path = Libraries/MinimalJsonDiff
+	url = https://github.com/Jitendex/MinimalJsonDiff
