@@ -17,13 +17,13 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.IO.Compression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Jitendex.Tatoeba.Import;
 using Jitendex.Tatoeba.ImportDto;
 using Jitendex.Tatoeba.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
-using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba;
 
@@ -53,16 +53,16 @@ public static class Service
 
         if (previousDate == default)
         {
-            using var db = new Context();
-            db.ExecuteVacuum();
+            using var context = new Context();
+            context.ExecuteVacuum();
         }
     }
 
     private static DateOnly GetPreviousDate()
     {
-        using var db = new Context();
-        db.Database.EnsureCreated();
-        return db.Metadata
+        using var context = new Context();
+        context.Database.EnsureCreated();
+        return context.Metadata
             .AsNoTracking()
             .OrderBy(static x => x.Id)
             .Select(static x => x.Date)
