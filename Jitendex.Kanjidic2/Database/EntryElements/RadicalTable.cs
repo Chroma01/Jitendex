@@ -34,6 +34,11 @@ internal sealed class RadicalTable : Table<Radical>
         nameof(Radical.TypeName),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Radical.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Radical radical) =>
     [
         new("@0", radical.UnicodeScalarValue),

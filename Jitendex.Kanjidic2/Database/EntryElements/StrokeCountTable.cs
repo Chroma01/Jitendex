@@ -33,6 +33,11 @@ internal sealed class StrokeCountTable : Table<StrokeCount>
         nameof(StrokeCount.Value),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(StrokeCount.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(StrokeCount strokeCount) =>
     [
         new("@0", strokeCount.UnicodeScalarValue),

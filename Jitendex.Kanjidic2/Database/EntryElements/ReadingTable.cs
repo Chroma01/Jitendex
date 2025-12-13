@@ -34,6 +34,11 @@ internal sealed class ReadingTable : Table<Reading>
         nameof(Reading.TypeName),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Reading.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Reading reading) =>
     [
         new("@0", reading.UnicodeScalarValue),

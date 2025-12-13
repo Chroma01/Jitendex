@@ -35,6 +35,11 @@ internal sealed class QueryCodeTable : Table<QueryCode>
         nameof(QueryCode.Misclassification),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(QueryCode.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(QueryCode queryCode) =>
     [
         new("@0", queryCode.UnicodeScalarValue),

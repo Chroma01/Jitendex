@@ -33,6 +33,11 @@ internal sealed class NanoriTable : Table<Nanori>
         nameof(Nanori.Text),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Nanori.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Nanori nanori) =>
     [
         new("@0", nanori.UnicodeScalarValue),

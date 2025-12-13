@@ -34,6 +34,11 @@ internal sealed class VariantTable : Table<Variant>
         nameof(Variant.TypeName),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Variant.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Variant variant) =>
     [
         new("@0", variant.UnicodeScalarValue),

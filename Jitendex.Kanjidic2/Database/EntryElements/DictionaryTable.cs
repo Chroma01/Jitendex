@@ -36,6 +36,11 @@ internal sealed class DictionaryTable : Table<Dictionary>
         nameof(Dictionary.Page),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Dictionary.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Dictionary dictionary) =>
     [
         new("@0", dictionary.UnicodeScalarValue),

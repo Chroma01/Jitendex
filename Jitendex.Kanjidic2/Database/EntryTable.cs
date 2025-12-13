@@ -37,6 +37,11 @@ internal sealed class EntryTable : Table<Entry>
         nameof(Entry.IsCorrupt),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Entry.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Entry entry) =>
     [
         new("@0", entry.UnicodeScalarValue),

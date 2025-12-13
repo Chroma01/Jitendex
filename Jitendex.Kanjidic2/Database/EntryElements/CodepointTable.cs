@@ -34,6 +34,11 @@ internal sealed class CodepointTable : Table<Codepoint>
         nameof(Codepoint.TypeName),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Codepoint.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Codepoint codepoint) =>
     [
         new("@0", codepoint.UnicodeScalarValue),

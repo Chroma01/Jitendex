@@ -33,6 +33,11 @@ internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
         nameof(IKeyword.IsCorrupt),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(IKeyword.Name)
+    ];
+
     protected override SqliteParameter[] Parameters(T keyword) =>
     [
         new("@0", keyword.Name),

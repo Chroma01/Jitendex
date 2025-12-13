@@ -33,6 +33,11 @@ internal sealed class MeaningTable : Table<Meaning>
         nameof(Meaning.Text),
     ];
 
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Meaning.UnicodeScalarValue)
+    ];
+
     protected override SqliteParameter[] Parameters(Meaning meaning) =>
     [
         new("@0", meaning.UnicodeScalarValue),
