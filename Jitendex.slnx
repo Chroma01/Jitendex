@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Libraries/" />
+  <Folder Name="/Libraries/MinimalJsonDiff/">
+    <Project Path="Libraries/MinimalJsonDiff/Jitendex.MinimalJsonDiff/Jitendex.MinimalJsonDiff.csproj" />
+  </Folder>
+  <Project Path="Jitendex.AppDirectory/Jitendex.AppDirectory.csproj" />
+  <Project Path="Jitendex.Chise/Jitendex.Chise.csproj" />
+  <Project Path="Jitendex.EdrdgDictionaryArchive/Jitendex.EdrdgDictionaryArchive.csproj" />
+  <Project Path="Jitendex.Furigana.Test/Jitendex.Furigana.Test.csproj" />
+  <Project Path="Jitendex.Furigana/Jitendex.Furigana.csproj" />
+  <Project Path="Jitendex.Import/Jitendex.Import.csproj" />
+  <Project Path="Jitendex.JMdict/Jitendex.JMdict.csproj" />
+  <Project Path="Jitendex.Kanjidic2/Jitendex.Kanjidic2.csproj" />
+  <Project Path="Jitendex.KanjiVG/Jitendex.KanjiVG.csproj" />
+  <Project Path="Jitendex.SQLite/Jitendex.SQLite.csproj" />
+  <Project Path="Jitendex.Tatoeba/Jitendex.Tatoeba.csproj" />
+</Solution>
