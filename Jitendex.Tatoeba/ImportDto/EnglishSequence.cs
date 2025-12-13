@@ -21,5 +21,5 @@ internal sealed record EnglishSequence : ISequenced
 {
     public required int Id { get; init; }
     public required string Text { get; init; }
-    public int GetSequence() => Id;
+    public int GetSequenceId() => Id;
 }

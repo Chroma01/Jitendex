@@ -28,6 +28,6 @@ internal sealed record Token : ISequenced
     public required int? SenseNumber { get; init; }
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
-    public int GetSequence() => SequenceId;
+    public int GetSequenceId() => SequenceId;
     public (int, int, int) GetKey() => (SequenceId, SentenceIndex, Index);
 }

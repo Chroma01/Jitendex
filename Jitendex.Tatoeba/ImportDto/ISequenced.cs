@@ -19,5 +19,5 @@ namespace Jitendex.Tatoeba.ImportDto;
 
 internal interface ISequenced
 {
-    int GetSequence();
+    int GetSequenceId();
 }

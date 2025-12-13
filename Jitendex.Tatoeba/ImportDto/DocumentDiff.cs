@@ -23,7 +23,7 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public HashSet<int> TouchedSequences { get; init; }
+    public HashSet<int> SequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -31,7 +31,7 @@ internal sealed class DocumentDiff
         InsertDocument = new Document(Date);
         UpdateDocument = new Document(Date);
         DeleteDocument = new Document(Date);
-        TouchedSequences = [];
+        SequenceIds = [];
 
         FindNewSequences(docA, docB);
 
@@ -48,7 +48,7 @@ internal sealed class DocumentDiff
             if (!docA.Sequences.Contains(key))
             {
                 InsertDocument.Sequences.Add(key);
-                TouchedSequences.Add(key);
+                SequenceIds.Add(key);
             }
         }
     }
@@ -69,12 +69,12 @@ internal sealed class DocumentDiff
             if (!dictB.TryGetValue(key, out TValue? valueB))
             {
                 deletes.Add(key, valueA);
-                TouchedSequences.Add(valueA.GetSequence());
+                SequenceIds.Add(valueA.GetSequenceId());
             }
             else if (!valueA.Equals(valueB))  // Hot spot!!!
             {
                 updates.Add(key, valueB);
-                TouchedSequences.Add(valueA.GetSequence());
+                SequenceIds.Add(valueA.GetSequenceId());
             }
         }
         foreach (var (key, valueB) in dictB)
@@ -82,7 +82,7 @@ internal sealed class DocumentDiff
             if (!dictA.ContainsKey(key))
             {
                 inserts.Add(key, valueB);
-                TouchedSequences.Add(valueB.GetSequence());
+                SequenceIds.Add(valueB.GetSequenceId());
             }
         }
     }
