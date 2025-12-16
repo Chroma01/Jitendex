@@ -90,23 +90,23 @@ internal partial class EntryReader
 
     private bool IsEntryValid(Entry entry, string fileName)
     {
-        bool @return = true;
+        bool isValid = true;
         if (entry.Comment is null)
         {
             LogMissingGroup(nameof(entry.Comment), fileName);
-            @return = false;
+            isValid = false;
         }
         if (entry.ComponentGroup is null)
         {
             LogMissingGroup(nameof(entry.ComponentGroup), fileName);
-            @return = false;
+            isValid = false;
         }
         if (entry.StrokeNumberGroup is null)
         {
             LogMissingGroup(nameof(entry.StrokeNumberGroup), fileName);
-            @return = false;
+            isValid = false;
         }
-        return @return;
+        return isValid;
     }
 
     private (int, string) Parse(string fileName)
