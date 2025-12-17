@@ -1,5 +1,6 @@
 /*
 Copyright (c) 2025 Stephen Kraus
+SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
 
