@@ -27,7 +27,7 @@ internal sealed class FileCache
 
     public FileCache(FileType type)
     {
-        var cacheRoot = Cache.Get(EdrdgArchive);
+        var cacheRoot = Cache.Get(EdrdgArchiveDirectory);
         _directory = cacheRoot.CreateSubdirectory(type.DirectoryName.ToString());
     }
 

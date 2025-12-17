@@ -32,14 +32,14 @@ public static class Cache
     private static string Name(this CacheSubdirectory subdir)
         => subdir switch
         {
-            EdrdgArchive => "edrdg-dictionary-archive",
-            Sqlite => "sqlite",
+            EdrdgArchiveDirectory => "edrdg-dictionary-archive",
+            SqliteDirectory => "sqlite",
             _ => throw new ArgumentOutOfRangeException(nameof(subdir))
         };
 }
 
 public enum CacheSubdirectory : byte
 {
-    EdrdgArchive,
-    Sqlite,
+    EdrdgArchiveDirectory,
+    SqliteDirectory,
 }

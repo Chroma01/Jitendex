@@ -36,18 +36,18 @@ public static class DataHome
     private static string Name(this DataSubdirectory subdir)
         => subdir switch
         {
-            ChiseIds => "chise-ids",
-            EdrdgArchive => "edrdg-dictionary-archive",
-            JitendexData => "jitendex-data",
-            KanjiVG => "kanjivg",
+            ChiseIdsDirectory => "chise-ids",
+            EdrdgArchiveDirectory => "edrdg-dictionary-archive",
+            JitendexDataDirectory => "jitendex-data",
+            KanjiVGDirectory => "kanjivg",
             _ => throw new ArgumentOutOfRangeException(nameof(subdir))
         };
 }
 
 public enum DataSubdirectory : byte
 {
-    ChiseIds,
-    EdrdgArchive,
-    JitendexData,
-    KanjiVG,
+    ChiseIdsDirectory,
+    EdrdgArchiveDirectory,
+    JitendexDataDirectory,
+    KanjiVGDirectory,
 }

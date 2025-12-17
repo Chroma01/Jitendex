@@ -28,7 +28,7 @@ internal sealed class FileArchive
 
     public FileArchive(FileType type, DirectoryInfo? directoryInfo)
     {
-        var dataRoot = directoryInfo ?? DataHome.Get(EdrdgArchive);
+        var dataRoot = directoryInfo ?? DataHome.Get(EdrdgArchiveDirectory);
         _patchesDirectory = GetPatchesDirectory(dataRoot, type);
         BaseFile = GetBaseFile(dataRoot, type);
     }

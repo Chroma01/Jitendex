@@ -16,10 +16,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Jitendex.AppDirectory;
 using Jitendex.SQLite.EntityFrameworkCore;
+using static Jitendex.AppDirectory.CacheSubdirectory;
 
 namespace Jitendex.SQLite;
 
@@ -29,12 +30,17 @@ public abstract class SqliteContext : DbContext
 
     public SqliteContext(string dbFilename)
     {
-        var directory = Cache.Get(CacheSubdirectory.Sqlite);
-        _dbPath = Path.Join(directory.FullName, dbFilename);
+        var directory = AppDirectory.Cache.Get(SqliteDirectory);
+        var builder = new SqliteConnectionStringBuilder
+        {
+            DataSource = Path.Join(directory.FullName, dbFilename),
+            Pooling = true,
+        };
+        _dbPath = builder.ToString();
     }
 
     protected sealed override void OnConfiguring(DbContextOptionsBuilder options) => options
-        .UseSqlite($"Data Source={_dbPath}")
+        .UseSqlite(_dbPath)
         .ReplaceService<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>();
 
     /// <summary>

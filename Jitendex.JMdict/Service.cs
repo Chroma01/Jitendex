@@ -38,7 +38,7 @@ public static class Service
     }
 
     private static FileInfo? GetXrefFile(DirectoryInfo? jitendexDataDirectory)
-        => (jitendexDataDirectory ?? DataHome.Get(JitendexData))
+        => (jitendexDataDirectory ?? DataHome.Get(JitendexDataDirectory))
             .CreateSubdirectory("jmdict")
             .GetFiles("cross_reference_sequences.json") is var files and not []
                 ? files.First()
