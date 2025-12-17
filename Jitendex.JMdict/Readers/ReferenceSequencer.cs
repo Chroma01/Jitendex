@@ -266,15 +266,20 @@ internal partial class ReferenceSequencer
         return map;
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Reference spelling `{Spelling}` in entry {EntryId} is invalid for referenced entry {TargetEntryId}")]
-    private partial void LogInvalidSpelling(string spelling, int entryId, int targetEntryId);
+    partial void LogInvalidSpelling(string spelling, int entryId, int targetEntryId);
 
     [LoggerMessage(LogLevel.Warning,
     "Reference `{CacheKey}` could refer to {Count} possible entries: {EntryIds}")]
-    private partial void LogAmbiguousReference(string cacheKey, int count, int[] entryIds);
+    partial void LogAmbiguousReference(string cacheKey, int count, int[] entryIds);
 
     [LoggerMessage(LogLevel.Warning,
     "Reference `{CacheKey}` refers to an entry that does not exist.")]
-    private partial void LogImpossibleReference(string cacheKey);
+    partial void LogImpossibleReference(string cacheKey);
+
+#pragma warning restore IDE0060
+
 }

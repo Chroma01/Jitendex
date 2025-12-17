@@ -63,9 +63,13 @@ internal partial class DocumentTypes
         return newKeyword;
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Keyword name `{Name}` for type `{TypeName}` was not registered with a description before use.")]
-    private partial void LogUnregisteredKeywordName(string name, string typeName);
+    partial void LogUnregisteredKeywordName(string name, string typeName);
+
+#pragma warning restore IDE0060
 
     public Dictionary<string, CodepointType> CodepointTypes() => GetKeywords<CodepointType>();
     public Dictionary<string, DictionaryType> DictionaryTypes() => GetKeywords<DictionaryType>();

@@ -22,8 +22,13 @@ using Jitendex.KanjiVG.Models;
 
 namespace Jitendex.KanjiVG.Readers;
 
-internal partial class ComponentAttributesReader(ILogger<ComponentAttributesReader> logger)
+internal partial class ComponentAttributesReader
 {
+    private readonly ILogger<ComponentAttributesReader> _logger;
+
+    public ComponentAttributesReader(ILogger<ComponentAttributesReader> logger)
+        => _logger = logger;
+
     public ComponentAttributes Read(XmlReader xmlReader, ComponentGroup group)
     {
         var attributes = new ComponentAttributes
@@ -118,15 +123,20 @@ internal partial class ComponentAttributesReader(ILogger<ComponentAttributesRead
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
-    private partial void LogUnknownAttributeName(string name, string value, string file);
+    partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Value `{Value}` for attribute name `{Name}` in file `{File}` cannot be parsed")]
-    private partial void LogUnparsableText(string name, string value, string file);
+    partial void LogUnparsableText(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "File `{File}` component group `{GroupId}` contains a component with no ID attribute")]
-    private partial void LogMissingId(string file, string groupId);
+    partial void LogMissingId(string file, string groupId);
+
+#pragma warning restore IDE0060
+
 }

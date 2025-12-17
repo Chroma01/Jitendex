@@ -134,27 +134,32 @@ internal partial class StrokeNumberGroupReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unknown stroke number group attribute name `{Name}` with value `{Value}` in file `{File}`")]
-    private partial void LogUnknownAttributeName(string name, string value, string file);
+    partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Cannot find stroke number group `{AttributeName}` attribute in file `{File}`")]
-    private partial void LogMissingAttribute(string file, string attributeName);
+    partial void LogMissingAttribute(string file, string attributeName);
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]
-    public partial void LogUnexpectedTextNode(string file, string text);
+    partial void LogUnexpectedTextNode(string file, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
-    private partial void LogUnexpectedElementName(string name, string fileName, string parentId);
+    partial void LogUnexpectedElementName(string name, string fileName, string parentId);
 
     [LoggerMessage(LogLevel.Warning,
     "File `{FileName}` contains multiple stroke number groups")]
-    private partial void LogMultipleGroups(string fileName);
+    partial void LogMultipleGroups(string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Stroke number group ID `{Actual}` not equal to expected value `{Expected}`")]
-    private partial void LogWrongId(string file, string actual, string expected);
+    partial void LogWrongId(string file, string actual, string expected);
+
+#pragma warning restore IDE0060
+
 }

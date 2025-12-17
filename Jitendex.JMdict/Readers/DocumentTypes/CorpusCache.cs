@@ -21,11 +21,15 @@ using Jitendex.JMdict.Models;
 
 namespace Jitendex.JMdict.Readers.DocumentTypes;
 
-internal partial class CorpusCache(ILogger<CorpusCache> logger)
+internal partial class CorpusCache
 {
     public IEnumerable<Corpus> Corpora { get => _cache.Values; }
 
     private readonly Dictionary<CorpusId, Corpus> _cache = new(4);
+
+    private readonly ILogger<CorpusCache> _logger;
+
+    public CorpusCache(ILogger<CorpusCache> logger) => _logger = logger;
 
     public Corpus GetCorpus(Entry entry)
     {
@@ -61,7 +65,12 @@ internal partial class CorpusCache(ILogger<CorpusCache> logger)
                                    _ => CorpusId.Unknown,
     };
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{EntryId}` belongs to an unknown corpus.")]
-    private partial void LogUnknownCorpusEntry(int entryId);
+    partial void LogUnknownCorpusEntry(int entryId);
+
+#pragma warning restore IDE0060
+
 }

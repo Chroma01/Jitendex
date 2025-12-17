@@ -78,11 +78,16 @@ internal partial class GlossReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} gloss #{Order} contains a right single quotation mark: `{Text}`")]
-    private partial void LogRightSingleQuotationMark(int entryId, int senseOrder, int order, string text);
+    partial void LogRightSingleQuotationMark(int entryId, int senseOrder, int order, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} gloss #{Order} contains a zero-width space: `{Text}`")]
-    private partial void LogZeroWidthSpace(int entryId, int senseOrder, int order, string text);
+    partial void LogZeroWidthSpace(int entryId, int senseOrder, int order, string text);
+
+#pragma warning restore IDE0060
+
 }

@@ -82,8 +82,12 @@ internal partial class LanguageSourceReader
         sense.LanguageSources.Add(languageSource);
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` sense #{SenseOrder} has a language source WASEI attribute with an invalid value: `{Value}`")]
-    private partial void LogInvalidWaseiValue(int entryId, int senseOrder, string value);
+    partial void LogInvalidWaseiValue(int entryId, int senseOrder, string value);
+
+#pragma warning restore IDE0060
 
 }

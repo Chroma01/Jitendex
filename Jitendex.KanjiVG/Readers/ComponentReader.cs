@@ -196,15 +196,20 @@ internal partial class ComponentReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]
-    public partial void LogUnexpectedTextNode(string file, string text);
+    partial void LogUnexpectedTextNode(string file, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected component child name `{Name}` in file `{FileName}`, parent ID `{ParentId}`")]
-    private partial void LogUnexpectedComponentName(string name, string fileName, string parentId);
+    partial void LogUnexpectedComponentName(string name, string fileName, string parentId);
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Component ID `{Actual}` not equal to expected value `{Expected}`")]
-    private partial void LogWrongId(string file, string actual, string expected);
+    partial void LogWrongId(string file, string actual, string expected);
+
+#pragma warning restore IDE0060
+
 }

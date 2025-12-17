@@ -132,27 +132,32 @@ internal partial class StrokeNumberReader
     [GeneratedRegex(@"^matrix\(1 0 0 1 (-?[0-9.]+) (-?[0-9.]+)\)$", RegexOptions.None)]
     private static partial Regex TransformRegex();
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
-    private partial void LogUnknownAttributeName(string name, string value, string file);
+    partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Cannot find stroke number `{AttributeName}` attribute in file `{File}`")]
-    private partial void LogMissingAttribute(string file, string attributeName);
+    partial void LogMissingAttribute(string file, string attributeName);
 
     [LoggerMessage(LogLevel.Warning,
     "Stroke number text `{Text}` is not an integer")]
-    private partial void LogUnparsableStrokeNumber(string text);
+    partial void LogUnparsableStrokeNumber(string text);
 
     [LoggerMessage(LogLevel.Warning,
     "In file `{FileName}`, stroke number `{Number}` is not equal to its order `{Order}`")]
-    private partial void LogNumberOutOfOrder(string fileName, int number, int order);
+    partial void LogNumberOutOfOrder(string fileName, int number, int order);
 
     [LoggerMessage(LogLevel.Warning,
     "In file `{FileName}`, stroke number transform attribute `{Attribute}` is not in the expected format")]
-    private partial void LogMalformattedTransform(string fileName, string attribute);
+    partial void LogMalformattedTransform(string fileName, string attribute);
 
     [LoggerMessage(LogLevel.Warning,
     "In file `{FileName}`, stroke number {Axis}-axis translation `{Value}` is not a valid decimal number")]
-    private partial void LogMalformattedTranslation(string fileName, string axis, string value);
+    partial void LogMalformattedTranslation(string fileName, string axis, string value);
+
+#pragma warning restore IDE0060
+
 }

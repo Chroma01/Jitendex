@@ -103,23 +103,28 @@ internal partial class HeaderReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unexpected text node found in document preamble: `{Text}`")]
-    private partial void LogUnexpectedTextNode(string text);
+    partial void LogUnexpectedTextNode(string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element node found in document preamble: <{Name}>")]
-    private partial void LogUnexpectedElement(string name);
+    partial void LogUnexpectedElement(string name);
 
     [LoggerMessage(LogLevel.Warning,
     "No database version found in header")]
-    private partial void LogMissingDatabaseVersion();
+    partial void LogMissingDatabaseVersion();
 
     [LoggerMessage(LogLevel.Warning,
     "No file version found in header")]
-    private partial void LogMissingFileVersion();
+    partial void LogMissingFileVersion();
 
     [LoggerMessage(LogLevel.Warning,
     "No creation date found in header")]
-    private partial void LogMissingDateOfCreation();
+    partial void LogMissingDateOfCreation();
+
+#pragma warning restore IDE0060
+
 }

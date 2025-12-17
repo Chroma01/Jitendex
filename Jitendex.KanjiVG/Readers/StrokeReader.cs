@@ -110,19 +110,24 @@ internal partial class StrokeReader
         return attributes;
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
-    private partial void LogUnknownAttributeName(string name, string value, string file);
+    partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Stroke ID `{Id}` in file `{FileName}` is non-empty")]
-    private partial void LogNonEmptyElement(string id, string fileName);
+    partial void LogNonEmptyElement(string id, string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "Cannot find stroke attribute `{AttributeName}` in file `{File}`")]
-    private partial void LogMissingAttribute(string attributeName, string file);
+    partial void LogMissingAttribute(string attributeName, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Stroke ID `{Actual}` not equal to expected value `{Expected}`")]
-    private partial void LogWrongId(string file, string actual, string expected);
+    partial void LogWrongId(string file, string actual, string expected);
+
+#pragma warning restore IDE0060
+
 }

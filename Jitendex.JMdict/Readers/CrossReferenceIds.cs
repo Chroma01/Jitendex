@@ -77,7 +77,12 @@ internal partial class CrossReferenceIds
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Information,
-    "Key `{key}` in file `{File}` was not used by the reference sequencer")]
-    private partial void LogUnusedKey(string key, string file);
+    "Key `{Key}` in file `{File}` was not used by the reference sequencer")]
+    partial void LogUnusedKey(string key, string file);
+
+#pragma warning restore IDE0060
+
 }

@@ -151,7 +151,12 @@ internal partial class ReadingMeaningReader
         readingMeaning.Meanings.Add(meaning);
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a reading type attribute")]
-    private partial void LogMissingTypeName(Rune character);
+    partial void LogMissingTypeName(Rune character);
+
+#pragma warning restore IDE0060
+
 }

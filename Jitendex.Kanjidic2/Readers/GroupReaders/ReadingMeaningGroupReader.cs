@@ -106,7 +106,12 @@ internal partial class ReadingMeaningGroupReader
         group.Nanoris.Add(nanori);
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Entry for character `{Character}` has more than one <{XmlTagName}> child element.")]
-    private partial void LogUnexpectedGroup(Rune character, string xmlTagName);
+    partial void LogUnexpectedGroup(Rune character, string xmlTagName);
+
+#pragma warning restore IDE0060
+
 }

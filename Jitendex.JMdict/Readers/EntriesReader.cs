@@ -76,15 +76,19 @@ internal partial class EntriesReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element node found between entries: <{Name}>")]
-    private partial void LogUnexpectedElement(string name);
+    partial void LogUnexpectedElement(string name);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected text node found between entries: `{Text}`")]
-    private partial void LogUnexpectedTextNode(string text);
+    partial void LogUnexpectedTextNode(string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected document type node `{Name}`")]
-    private partial void LogUnexpectedDocumentType(string name);
+    partial void LogUnexpectedDocumentType(string name);
+
+#pragma warning restore IDE0060
 }

@@ -60,8 +60,12 @@ internal partial class KanjiFormRestrictionReader
         sense.KanjiFormRestrictions.Add(restriction);
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} contains an invalid kanji form restriction: `{Text}`")]
-    private partial void LogInvalidKanjiFormRestriction(int entryId, int senseOrder, string text);
+    partial void LogInvalidKanjiFormRestriction(int entryId, int senseOrder, string text);
+
+#pragma warning restore IDE0060
 
 }

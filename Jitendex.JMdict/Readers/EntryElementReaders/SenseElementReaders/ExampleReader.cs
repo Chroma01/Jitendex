@@ -179,27 +179,32 @@ internal partial class ExampleReader
         example.Source.Translation = translation;
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Error,
     "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has a non-numeric source key: `{Key}`")]
-    private partial void LogInvalidSourceKey(int entryId, int senseOrder, int exampleOrder, string key);
+    partial void LogInvalidSourceKey(int entryId, int senseOrder, int exampleOrder, string key);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} contains multiple <{ExampleSourceTagName}> elements")]
-    private partial void LogKeyRedefinition(int entryId, int senseOrder, int exampleOrder, string exampleSourceTagName);
+    partial void LogKeyRedefinition(int entryId, int senseOrder, int exampleOrder, string exampleSourceTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has no source type attribute")]
-    private partial void LogMissingSourceType(int entryId, int senseOrder, int exampleOrder);
+    partial void LogMissingSourceType(int entryId, int senseOrder, int exampleOrder);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has a sentence in an unexpected language: `{Language}`")]
-    private partial void LogUnexpectedLanguage(int entryId, int senseOrder, int exampleOrder, string? language);
+    partial void LogUnexpectedLanguage(int entryId, int senseOrder, int exampleOrder, string? language);
 
     [LoggerMessage(LogLevel.Warning,
     "Example source `{SourceTypeName}` key `{SourceKey}` has more than one text.")]
-    private partial void LogMultipleExamples(string sourceTypeName, int sourceKey);
+    partial void LogMultipleExamples(string sourceTypeName, int sourceKey);
 
     [LoggerMessage(LogLevel.Warning,
     "Example source `{SourceTypeName}` key `{SourceKey}` has more than one translation.")]
-    private partial void LogMultipleTranslations(string sourceTypeName, int sourceKey);
+    partial void LogMultipleTranslations(string sourceTypeName, int sourceKey);
+
+#pragma warning restore IDE0060
+
 }

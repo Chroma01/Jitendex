@@ -222,31 +222,36 @@ internal partial class EntryReader
     [GeneratedRegex(pattern: @"^(.+?)(?:-(.+?))?\.svg$", RegexOptions.None)]
     private static partial Regex FileNameRegex();
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]
-    public partial void LogUnexpectedTextNode(string file, string text);
+    partial void LogUnexpectedTextNode(string file, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element name `{Name}` in file `{FileName}`")]
-    private partial void LogUnexpectedElementName(string name, string fileName);
+    partial void LogUnexpectedElementName(string name, string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "No `{GroupName}` group found in file `{FileName}`")]
-    private partial void LogMissingGroup(string groupName, string fileName);
+    partial void LogMissingGroup(string groupName, string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "Group element in file `{FileName}` is missing an ID attribute")]
-    private partial void LogMissingGroupId(string fileName);
+    partial void LogMissingGroupId(string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected group element ID `{Id}` in file `{FileName}`")]
-    private partial void LogUnexpectedGroupIdPrefix(string id, string fileName);
+    partial void LogUnexpectedGroupIdPrefix(string id, string fileName);
 
     [LoggerMessage(LogLevel.Warning,
     "Unknown SVG attribute name `{Name}` with value `{Value}` in file `{File}`")]
-    private partial void LogUnknownAttributeName(string name, string value, string file);
+    partial void LogUnknownAttributeName(string name, string value, string file);
 
     [LoggerMessage(LogLevel.Warning,
     "Abnormal SVG `{Name}` attribute `{Value}` in file `{File}`")]
-    private partial void LogAbnormalSvgAttribute(string name, string? value, string file);
+    partial void LogAbnormalSvgAttribute(string name, string? value, string file);
+
+#pragma warning restore IDE0060
+
 }

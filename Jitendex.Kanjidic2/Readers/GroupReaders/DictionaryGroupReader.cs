@@ -148,15 +148,20 @@ internal partial class DictionaryGroupReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a dictionary type attribute")]
-    private partial void LogMissingTypeName(Rune character);
+    partial void LogMissingTypeName(Rune character);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a dictionary volume attribute that is non-numeric: `{Volume}`")]
-    private partial void LogNonNumericVolume(Rune character, string volume);
+    partial void LogNonNumericVolume(Rune character, string volume);
 
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a dictionary page attribute that is non-numeric: `{Page}`")]
-    private partial void LogNonNumericPage(Rune character, string page);
+    partial void LogNonNumericPage(Rune character, string page);
+
+#pragma warning restore IDE0060
+
 }

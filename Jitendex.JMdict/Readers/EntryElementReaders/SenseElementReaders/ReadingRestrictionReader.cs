@@ -60,8 +60,12 @@ internal partial class ReadingRestrictionReader
         sense.ReadingRestrictions.Add(restriction);
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} contains an invalid reading restriction: `{Text}`")]
-    private partial void LogInvalidReadingRestriction(int entryId, int senseOrder, string text);
+    partial void LogInvalidReadingRestriction(int entryId, int senseOrder, string text);
+
+#pragma warning restore IDE0060
 
 }

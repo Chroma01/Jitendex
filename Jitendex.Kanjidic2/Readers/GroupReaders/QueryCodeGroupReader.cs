@@ -114,7 +114,12 @@ internal partial class QueryCodeGroupReader
         return typeName;
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a query code type attribute")]
-    private partial void LogMissingTypeName(Rune character);
+    partial void LogMissingTypeName(Rune character);
+
+#pragma warning restore IDE0060
+
 }

@@ -185,23 +185,28 @@ internal partial class EntryReader
         entry.UnicodeScalarValue = runes.First().Value;
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Error,
     "Attempted to read <{XmlTagName}> child element before reading the entry primary key")]
-    private partial void LogPrematureElement(string xmlTagName);
+    partial void LogPrematureElement(string xmlTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry contains no text in <{XmlTagName}> child element")]
-    private partial void LogEmptyElement(string xmlTagName);
+    partial void LogEmptyElement(string xmlTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry contains more than one character in <{XmlTagName}> child element: `{Text}`")]
-    private partial void LogMultipleCharacters(string xmlTagName, string text);
+    partial void LogMultipleCharacters(string xmlTagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry for character `{Character}` has more than one <{XmlTagName}> child element")]
-    private partial void LogUnexpectedGroup(Rune character, string xmlTagName);
+    partial void LogUnexpectedGroup(Rune character, string xmlTagName);
 
     [LoggerMessage(LogLevel.Error,
     "Entry contains no <{XmlTagName}> element; no primary key can be assigned")]
-    private partial void LogMissingCharacter(string xmlTagName);
+    partial void LogMissingCharacter(string xmlTagName);
+
+#pragma warning restore IDE0060
+
 }

@@ -22,15 +22,29 @@ namespace Jitendex.JMdict.Readers;
 
 internal static partial class Log
 {
+    public static void UnexpectedChildElement(ILogger logger, string tagName, string parentTagName)
+        => LogUnexpectedChildElement(logger, tagName, parentTagName);
+
+    public static void UnexpectedTextNode(ILogger logger, string tagName, string text)
+        => LogUnexpectedTextNode(logger, tagName, text);
+
+    public static void DuplicateTag(ILogger logger, int entryId, string parentTagName, int order, string text, string tagName)
+        => LogDuplicateTag(logger, entryId, parentTagName, order, text, tagName);
+
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
-    public static partial void UnexpectedChildElement(ILogger logger, string tagName, string parentTagName);
+    static partial void LogUnexpectedChildElement(ILogger logger, string tagName, string parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
-    public static partial void UnexpectedTextNode(ILogger logger, string tagName, string text);
+    static partial void LogUnexpectedTextNode(ILogger logger, string tagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry {EntryId} <{ParentTagName}> #{Order} contains more than one <{TagName}> element with value `{Text}`")]
-    public static partial void DuplicateTag(ILogger logger, int entryId, string parentTagName, int order, string text, string tagName);
+    static partial void LogDuplicateTag(ILogger logger, int entryId, string parentTagName, int order, string text, string tagName);
+
+#pragma warning restore IDE0060
+
 }

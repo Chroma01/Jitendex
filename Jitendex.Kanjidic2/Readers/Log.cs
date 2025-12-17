@@ -23,15 +23,29 @@ namespace Jitendex.Kanjidic2.Readers;
 
 internal static partial class Log
 {
+    public static void UnexpectedChildElement(ILogger logger, Rune character, string tagName, string parentTagName)
+        => LogUnexpectedChildElement(logger, character, tagName, parentTagName);
+
+    public static void UnexpectedTextNode(ILogger logger, Rune character, string tagName, string text)
+        => LogUnexpectedTextNode(logger, character, tagName, text);
+
+    public static void Duplicate(ILogger logger, Rune character, string parentTagName, string text, string tagName)
+        => LogDuplicate(logger, character, parentTagName, text, tagName);
+
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "`{Character}`: Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
-    public static partial void UnexpectedChildElement(ILogger logger, Rune character, string tagName, string parentTagName);
+    static partial void LogUnexpectedChildElement(ILogger logger, Rune character, string tagName, string parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "`{Character}`: Unexpected XML text node found in element <{TagName}>: `{Text}`")]
-    public static partial void UnexpectedTextNode(ILogger logger, Rune character, string tagName, string text);
+    static partial void LogUnexpectedTextNode(ILogger logger, Rune character, string tagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{Character}` <{ParentTagName}> contains more than one <{TagName}> element with value `{Text}`")]
-    public static partial void Duplicate(ILogger logger, Rune character, string parentTagName, string text, string tagName);
+    static partial void LogDuplicate(ILogger logger, Rune character, string parentTagName, string text, string tagName);
+
+#pragma warning restore IDE0060
+
 }

@@ -21,11 +21,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Jitendex.JMdict.Readers.DocumentTypes;
 
-internal partial class KeywordCache(ILogger<KeywordCache> logger)
+internal partial class KeywordCache
 {
+    private readonly ILogger<KeywordCache> _logger;
     private readonly Dictionary<(Type, string), IKeyword> _cache = [];
     private readonly Dictionary<(Type, string), string> _nameToDescription = [];
     private readonly Dictionary<(Type, string), string> _descriptionToName = [];
+
+    public KeywordCache(ILogger<KeywordCache> logger)
+        => _logger = logger;
 
     public void Register<T>(string name, string description) where T : IKeyword
     {
@@ -75,13 +79,17 @@ internal partial class KeywordCache(ILogger<KeywordCache> logger)
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Warning,
     "Keyword name `{Name}` for type `{TypeName}` was not registered with a description before use.")]
-    private partial void LogUnregisteredKeywordName(string name, string typeName);
+    partial void LogUnregisteredKeywordName(string name, string typeName);
 
     [LoggerMessage(LogLevel.Warning,
     "Description `{Description}` for type `{TypeName}` was not registered with a keyword name before use.")]
-    private partial void LogUnregisteredKeywordDescription(string description, string typeName);
+    partial void LogUnregisteredKeywordDescription(string description, string typeName);
+
+#pragma warning restore IDE0060
 
     public IEnumerable<PriorityTag> PriorityTags() => GetKeywords<PriorityTag>();
     public IEnumerable<ReadingInfoTag> ReadingInfoTags() => GetKeywords<ReadingInfoTag>();

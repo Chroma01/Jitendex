@@ -118,15 +118,20 @@ internal partial class CrossReferenceReader
         return new ParsedReference(parsed.Item1, parsed.Item2, parsed.Item3);
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Error,
     "Entry `{EntryId}` from corpus `{CorpusName}` contains a cross reference, which is not supported")]
-    private partial void LogUnsupportedCorpus(int entryId, string corpusName);
+    partial void LogUnsupportedCorpus(int entryId, string corpusName);
 
     [LoggerMessage(LogLevel.Error,
     "Third value `{ThirdValue}` in reference text `{Text}` must be an integer")]
-    private partial void LogNonIntegerSenseOrder(string text, string thirdValue);
+    partial void LogNonIntegerSenseOrder(string text, string thirdValue);
 
     [LoggerMessage(LogLevel.Error,
     "Too many separator characters `{Separator}` in reference text `{Text}`")]
-    private partial void LogTooManySeparators(string text, char separator);
+    partial void LogTooManySeparators(string text, char separator);
+
+#pragma warning restore IDE0060
+
 }

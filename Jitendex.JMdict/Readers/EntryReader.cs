@@ -187,23 +187,28 @@ internal partial class EntryReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Error,
     "Attempted to read <{XmlTagName}> child element before reading the entry primary key")]
-    private partial void LogPrematureElement(string xmlTagName);
+    partial void LogPrematureElement(string xmlTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Kanji form `{KanjiFormText}` in entry {EntryId} has no associated readings")]
-    private partial void LogOrphanKanjiForm(int entryId, string kanjiFormText);
+    partial void LogOrphanKanjiForm(int entryId, string kanjiFormText);
 
     [LoggerMessage(LogLevel.Error,
     "Entry ID {EntryId} contains more than one <{TagName}> element")]
-    private partial void LogDuplicateEntryId(int entryId, string tagName);
+    partial void LogDuplicateEntryId(int entryId, string tagName);
 
     [LoggerMessage(LogLevel.Error,
     "Cannot parse entry ID from text `{Text}`")]
-    private partial void LogUnparsableId(string Text);
+    partial void LogUnparsableId(string Text);
 
     [LoggerMessage(LogLevel.Error,
     "Entry contains no <{XmlTagName}> element; no primary key can be assigned")]
-    private partial void LogMissingEntryId(string xmlTagName);
+    partial void LogMissingEntryId(string xmlTagName);
+
+#pragma warning restore IDE0060
+
 }

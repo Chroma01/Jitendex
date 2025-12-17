@@ -136,19 +136,24 @@ internal partial class ReadingReader
         }
     }
 
+#pragma warning disable IDE0060
+
     [LoggerMessage(LogLevel.Error,
     "Entry `{EntryId}` reading #{Order} does not contain a <{XmlTagName}> element")]
-    private partial void LogMissingElement(int entryId, int order, string xmlTagName);
+    partial void LogMissingElement(int entryId, int order, string xmlTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains no text")]
-    private partial void LogEmptyTextForm(int entryId, int order);
+    partial void LogEmptyTextForm(int entryId, int order);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} has redundant constraint / NoKanji / hidden information")]
-    private partial void LogRedundantReadingConstraints(int entryId, int order);
+    partial void LogRedundantReadingConstraints(int entryId, int order);
 
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains multiple <{XmlTagName}> elements")]
-    private partial void LogMultipleElements(int entryId, int order, string xmlTagName);
+    partial void LogMultipleElements(int entryId, int order, string xmlTagName);
+
+#pragma warning restore IDE0060
+
 }
