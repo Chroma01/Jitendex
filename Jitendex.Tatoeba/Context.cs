@@ -30,5 +30,6 @@ public sealed class Context : SqliteContext
     public DbSet<JapaneseSequence> JapaneseSequences { get; set; } = null!;
     public DbSet<TokenizedSentence> TokenizedSentences { get; set; } = null!;
     public DbSet<Token> Tokens { get; set; } = null!;
+    public DbSet<Revision> Revisions { get; set; } = null!;
     public Context() : base("tatoeba.db") { }
 }
