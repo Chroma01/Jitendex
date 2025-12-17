@@ -27,8 +27,9 @@ internal sealed class SqliteRelationalCommandBuilder : RelationalCommandBuilder
 
     public override IRelationalCommand Build() => new RelationalCommand
     (
-        Dependencies,
-        ToString().WithoutRowId(),
-        Parameters
+        dependencies: Dependencies,
+        commandText: ToString().WithoutRowId(),
+        logCommandText: string.Empty,
+        parameters: Parameters
     );
 }
