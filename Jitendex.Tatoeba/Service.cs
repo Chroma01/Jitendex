@@ -65,9 +65,10 @@ public static class Service
         context.Database.EnsureCreated();
         return context.Metadata
             .AsNoTracking()
-            .OrderBy(static x => x.Id)
-            .Select(static x => x.Date)
-            .LastOrDefault();
+            .OrderByDescending(x => x.Id)
+            .Take(1)
+            .Select(x => x.Date)
+            .FirstOrDefault();
     }
 
     private static async Task<Document> GetPreviousDocumentAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
