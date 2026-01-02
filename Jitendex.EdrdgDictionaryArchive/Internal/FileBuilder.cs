@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025, 2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -57,9 +57,9 @@ internal sealed class FileBuilder
         var (baseDate, baseFile, patchDates) = GetBuildBase(date);
 
         int length = baseFile.Length();
-        var @patchBuffer = (new char[length / 10]).AsSpan();
-        var originBuffer = (new char[length * 3 / 2]).AsSpan();
-        var outputBuffer = (new char[length * 3 / 2]).AsSpan();
+        Span<char> @patchBuffer = new char[length / 10];
+        Span<char> originBuffer = new char[length * 3 / 2];
+        Span<char> outputBuffer = new char[length * 3 / 2];
         baseFile.ReadInto(originBuffer);
 
         foreach (var patchDate in patchDates)
