@@ -43,13 +43,15 @@ internal sealed class FileBuilder
 
     public (FileInfo?, DateOnly) GetNextFile(DateOnly previousDate)
     {
-        var date = _archive.GetNextPatchDate(previousDate);
-        if (date == default)
+        if (_archive.GetNextPatchDate(previousDate) is DateOnly date)
         {
-            return (null, date);
+            var file = _cache.GetExistingFile(date) ?? BuildFile(date);
+            return (file, date);
         }
-        var file = _cache.GetExistingFile(date) ?? BuildFile(date);
-        return (file, date);
+        else
+        {
+            return (null, default);
+        }
     }
 
     private FileInfo BuildFile(DateOnly date)

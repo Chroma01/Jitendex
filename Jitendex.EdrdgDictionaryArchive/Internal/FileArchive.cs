@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025, 2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -67,7 +67,7 @@ internal sealed class FileArchive
         );
     }
 
-    public DateOnly GetNextPatchDate(DateOnly previousDate)
+    public DateOnly? GetNextPatchDate(DateOnly previousDate)
     {
         foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
         {
@@ -94,7 +94,7 @@ internal sealed class FileArchive
                 }
             }
         }
-        return default;
+        return null;
     }
 
     public List<DateOnly> GetPatchDates(DateOnly afterDate = default, DateOnly untilDate = default)
