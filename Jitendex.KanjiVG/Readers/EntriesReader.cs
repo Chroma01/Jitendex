@@ -59,12 +59,7 @@ internal partial class EntriesReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "File `{File}` contains {ComponentStrokes} stroke paths and {StrokeNumbers} stroke numbers")]
     partial void LogStrokeCountMismatch(string file, int componentStrokes, int strokeNumbers);
-
-#pragma warning restore IDE0060
-
 }

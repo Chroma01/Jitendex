@@ -149,8 +149,6 @@ internal partial class DictionaryGroupReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a dictionary type attribute")]
     partial void LogMissingTypeName(Rune character);
@@ -162,7 +160,4 @@ internal partial class DictionaryGroupReader
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a dictionary page attribute that is non-numeric: `{Page}`")]
     partial void LogNonNumericPage(Rune character, string page);
-
-#pragma warning restore IDE0060
-
 }

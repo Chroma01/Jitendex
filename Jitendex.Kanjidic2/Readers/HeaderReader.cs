@@ -104,8 +104,6 @@ internal partial class HeaderReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Unexpected text node found in document preamble: `{Text}`")]
     partial void LogUnexpectedTextNode(string text);
@@ -125,7 +123,4 @@ internal partial class HeaderReader
     [LoggerMessage(LogLevel.Warning,
     "No creation date found in header")]
     partial void LogMissingDateOfCreation();
-
-#pragma warning restore IDE0060
-
 }

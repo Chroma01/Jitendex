@@ -111,8 +111,6 @@ internal partial class StrokeReader
         return attributes;
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
     partial void LogUnknownAttributeName(string name, string value, string file);
@@ -128,7 +126,4 @@ internal partial class StrokeReader
     [LoggerMessage(LogLevel.Warning,
     "{File}: Stroke ID `{Actual}` not equal to expected value `{Expected}`")]
     partial void LogWrongId(string file, string actual, string expected);
-
-#pragma warning restore IDE0060
-
 }

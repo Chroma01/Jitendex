@@ -135,8 +135,6 @@ internal partial class StrokeNumberGroupReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Unknown stroke number group attribute name `{Name}` with value `{Value}` in file `{File}`")]
     partial void LogUnknownAttributeName(string name, string value, string file);
@@ -160,7 +158,4 @@ internal partial class StrokeNumberGroupReader
     [LoggerMessage(LogLevel.Warning,
     "{File}: Stroke number group ID `{Actual}` not equal to expected value `{Expected}`")]
     partial void LogWrongId(string file, string actual, string expected);
-
-#pragma warning restore IDE0060
-
 }

@@ -186,8 +186,6 @@ internal partial class EntryReader
         entry.UnicodeScalarValue = runes.First().Value;
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Error,
     "Attempted to read <{XmlTagName}> child element before reading the entry primary key")]
     partial void LogPrematureElement(string xmlTagName);
@@ -207,7 +205,4 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Error,
     "Entry contains no <{XmlTagName}> element; no primary key can be assigned")]
     partial void LogMissingCharacter(string xmlTagName);
-
-#pragma warning restore IDE0060
-
 }

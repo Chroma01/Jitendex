@@ -80,8 +80,6 @@ internal partial class KeywordCache
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Keyword name `{Name}` for type `{TypeName}` was not registered with a description before use.")]
     partial void LogUnregisteredKeywordName(string name, string typeName);
@@ -90,7 +88,6 @@ internal partial class KeywordCache
     "Description `{Description}` for type `{TypeName}` was not registered with a keyword name before use.")]
     partial void LogUnregisteredKeywordDescription(string description, string typeName);
 
-#pragma warning restore IDE0060
 
     public IEnumerable<PriorityTag> PriorityTags() => GetKeywords<PriorityTag>();
     public IEnumerable<ReadingInfoTag> ReadingInfoTags() => GetKeywords<ReadingInfoTag>();

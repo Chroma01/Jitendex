@@ -68,8 +68,6 @@ internal partial class RestrictionReader
         reading.Restrictions.Add(restriction);
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains an invalid kanji restriction: `{KanjiFormText}`")]
     partial void LogInvalidRestriction(int entryId, int order, string kanjiFormText);
@@ -77,7 +75,4 @@ internal partial class RestrictionReader
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains a restriction to a hidden kanji form: `{KanjiFormText}`")]
     partial void LogHiddenRestriction(int entryId, int order, string kanjiFormText);
-
-#pragma warning restore IDE0060
-
 }

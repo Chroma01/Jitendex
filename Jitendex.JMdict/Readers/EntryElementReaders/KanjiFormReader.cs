@@ -114,8 +114,6 @@ internal partial class KanjiFormReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Error,
     "Entry `{EntryId}` kanji form #{Order} does not contain a <{XmlTagName}> element")]
     partial void LogMissingElement(int entryId, int order, string xmlTagName);
@@ -127,7 +125,4 @@ internal partial class KanjiFormReader
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` kanji form #{Order} contains multiple <{XmlTagName}> elements")]
     partial void LogMultipleElements(int entryId, int order, string xmlTagName);
-
-#pragma warning restore IDE0060
-
 }

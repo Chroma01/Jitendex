@@ -137,8 +137,6 @@ internal partial class ReadingReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Error,
     "Entry `{EntryId}` reading #{Order} does not contain a <{XmlTagName}> element")]
     partial void LogMissingElement(int entryId, int order, string xmlTagName);
@@ -154,7 +152,4 @@ internal partial class ReadingReader
     [LoggerMessage(LogLevel.Warning,
     "Entry `{EntryId}` reading #{Order} contains multiple <{XmlTagName}> elements")]
     partial void LogMultipleElements(int entryId, int order, string xmlTagName);
-
-#pragma warning restore IDE0060
-
 }

@@ -197,8 +197,6 @@ internal partial class ComponentReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]
     partial void LogUnexpectedTextNode(string file, string text);
@@ -210,7 +208,4 @@ internal partial class ComponentReader
     [LoggerMessage(LogLevel.Warning,
     "{File}: Component ID `{Actual}` not equal to expected value `{Expected}`")]
     partial void LogWrongId(string file, string actual, string expected);
-
-#pragma warning restore IDE0060
-
 }

@@ -133,7 +133,6 @@ internal partial class StrokeNumberReader
     [GeneratedRegex(@"^matrix\(1 0 0 1 (-?[0-9.]+) (-?[0-9.]+)\)$", RegexOptions.None)]
     private static partial Regex TransformRegex();
 
-#pragma warning disable IDE0060
 
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
@@ -158,7 +157,4 @@ internal partial class StrokeNumberReader
     [LoggerMessage(LogLevel.Warning,
     "In file `{FileName}`, stroke number {Axis}-axis translation `{Value}` is not a valid decimal number")]
     partial void LogMalformattedTranslation(string fileName, string axis, string value);
-
-#pragma warning restore IDE0060
-
 }

@@ -223,7 +223,6 @@ internal partial class EntryReader
     [GeneratedRegex(pattern: @"^(.+?)(?:-(.+?))?\.svg$", RegexOptions.None)]
     private static partial Regex FileNameRegex();
 
-#pragma warning disable IDE0060
 
     [LoggerMessage(LogLevel.Warning,
     "{File}: Unexpected XML text node `{Text}`")]
@@ -252,7 +251,4 @@ internal partial class EntryReader
     [LoggerMessage(LogLevel.Warning,
     "Abnormal SVG `{Name}` attribute `{Value}` in file `{File}`")]
     partial void LogAbnormalSvgAttribute(string name, string? value, string file);
-
-#pragma warning restore IDE0060
-
 }

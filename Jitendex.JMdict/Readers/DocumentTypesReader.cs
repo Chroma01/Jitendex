@@ -58,8 +58,6 @@ internal partial class DocumentTypesReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Element <{xmlTagName}> encountered before the document type definitions have been parsed.")]
     partial void LogUnexpectedElement(string xmlTagName);
@@ -68,7 +66,6 @@ internal partial class DocumentTypesReader
     "Text node `{Text}` encountered before the document type definitions have been parsed.")]
     partial void LogUnexpectedText(string text);
 
-#pragma warning restore IDE0060
 
     [GeneratedRegex(@"<!ENTITY\s+(.*?)\s+""(.*?)"">", RegexOptions.None)]
     private static partial Regex DtdEntityRegex();

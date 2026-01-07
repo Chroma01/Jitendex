@@ -66,12 +66,8 @@ internal partial class CorpusCache
                                    _ => CorpusId.Unknown,
     };
 
-#pragma warning disable IDE0060
 
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{EntryId}` belongs to an unknown corpus.")]
     partial void LogUnknownCorpusEntry(int entryId);
-
-#pragma warning restore IDE0060
-
 }

@@ -67,8 +67,6 @@ internal partial class EntriesReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Unexpected text node found between entries: `{Text}`")]
     partial void LogUnexpectedTextNode(string text);
@@ -76,7 +74,4 @@ internal partial class EntriesReader
     [LoggerMessage(LogLevel.Warning,
     "Unexpected element node found between entries: <{Name}>")]
     partial void LogUnexpectedElement(string name);
-
-#pragma warning restore IDE0060
-
 }

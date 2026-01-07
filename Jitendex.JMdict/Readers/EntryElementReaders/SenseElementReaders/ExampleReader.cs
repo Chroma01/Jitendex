@@ -180,8 +180,6 @@ internal partial class ExampleReader
         example.Source.Translation = translation;
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Error,
     "Entry `{EntryId}` sense #{SenseOrder} example #{ExampleOrder} has a non-numeric source key: `{Key}`")]
     partial void LogInvalidSourceKey(int entryId, int senseOrder, int exampleOrder, string key);
@@ -205,7 +203,4 @@ internal partial class ExampleReader
     [LoggerMessage(LogLevel.Warning,
     "Example source `{SourceTypeName}` key `{SourceKey}` has more than one translation.")]
     partial void LogMultipleTranslations(string sourceTypeName, int sourceKey);
-
-#pragma warning restore IDE0060
-
 }

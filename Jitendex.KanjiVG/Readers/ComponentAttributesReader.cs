@@ -124,8 +124,6 @@ internal partial class ComponentAttributesReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Unknown component attribute name `{Name}` with value `{Value}` in file `{File}`")]
     partial void LogUnknownAttributeName(string name, string value, string file);
@@ -137,7 +135,4 @@ internal partial class ComponentAttributesReader
     [LoggerMessage(LogLevel.Warning,
     "File `{File}` component group `{GroupId}` contains a component with no ID attribute")]
     partial void LogMissingId(string file, string groupId);
-
-#pragma warning restore IDE0060
-
 }

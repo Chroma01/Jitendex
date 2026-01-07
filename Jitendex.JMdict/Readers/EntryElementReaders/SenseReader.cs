@@ -136,12 +136,7 @@ internal partial class SenseReader
         sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Entry ID `{entryId}` sense #{SenseOrder} contains multiple sense notes")]
     partial void LogTooManySenseNotes(int entryId, int senseOrder);
-
-#pragma warning restore IDE0060
-
 }

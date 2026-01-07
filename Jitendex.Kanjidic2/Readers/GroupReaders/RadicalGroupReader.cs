@@ -131,8 +131,6 @@ internal partial class RadicalGroupReader
         }
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a radical type attribute")]
     partial void LogMissingTypeName(Rune character);
@@ -140,7 +138,4 @@ internal partial class RadicalGroupReader
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` has a radical number that is non-numeric: `{Text}`")]
     partial void LogNonNumericRadicalNumber(Rune character, string text);
-
-#pragma warning restore IDE0060
-
 }

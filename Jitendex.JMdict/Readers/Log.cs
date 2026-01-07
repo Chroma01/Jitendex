@@ -32,7 +32,6 @@ internal static partial class Log
     public static void DuplicateTag(ILogger logger, int entryId, string parentTagName, int order, string text, string tagName)
         => LogDuplicateTag(logger, entryId, parentTagName, order, text, tagName);
 
-#pragma warning disable IDE0060
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
@@ -45,7 +44,4 @@ internal static partial class Log
     [LoggerMessage(LogLevel.Warning,
     "Entry {EntryId} <{ParentTagName}> #{Order} contains more than one <{TagName}> element with value `{Text}`")]
     static partial void LogDuplicateTag(ILogger logger, int entryId, string parentTagName, int order, string text, string tagName);
-
-#pragma warning restore IDE0060
-
 }

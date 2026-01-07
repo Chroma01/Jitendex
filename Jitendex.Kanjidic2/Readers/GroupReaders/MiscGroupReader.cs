@@ -197,8 +197,6 @@ internal partial class MiscGroupReader
         group.RadicalNames.Add(radicalName);
     }
 
-#pragma warning disable IDE0060
-
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` contains a non-numeric <{TagName}> value : `{Text}")]
     partial void LogNonNumeric(Rune character, string tagName, string text);
@@ -206,7 +204,4 @@ internal partial class MiscGroupReader
     [LoggerMessage(LogLevel.Warning,
     "Character `{Character}` is missing a variant type attribute")]
     partial void LogMissingTypeName(Rune character);
-
-#pragma warning restore IDE0060
-
 }
