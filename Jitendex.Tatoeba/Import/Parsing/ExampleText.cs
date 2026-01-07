@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Immutable;
 
-namespace Jitendex.Tatoeba.Import;
+namespace Jitendex.Tatoeba.Import.Parsing;
 
 internal readonly ref struct ExampleText
 {

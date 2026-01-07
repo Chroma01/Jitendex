@@ -18,9 +18,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
-using Jitendex.Tatoeba.ImportDto;
+using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Import;
+namespace Jitendex.Tatoeba.Import.Parsing;
 
 internal sealed class TatoebaReader
 {

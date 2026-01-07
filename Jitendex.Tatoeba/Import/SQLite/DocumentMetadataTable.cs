@@ -18,29 +18,25 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.ImportDto;
 using Jitendex.SQLite;
+using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.SQLite;
+namespace Jitendex.Tatoeba.Import.SQLite;
 
-internal sealed class JapaneseSentenceTable : Table<JapaneseSequence>
+internal sealed class DocumentMetadataTable : Table<DocumentMetadata>
 {
-    protected override string Name => nameof(JapaneseSequence);
+    protected override string Name => nameof(DocumentMetadata);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(JapaneseSequence.Id),
-        nameof(JapaneseSequence.Text),
+        nameof(DocumentMetadata.Date)
     ];
 
-    protected override IReadOnlyList<string> KeyColNames =>
-    [
-        nameof(JapaneseSequence.Id)
-    ];
+    protected override IReadOnlyList<string> KeyColNames
+        => throw new NotImplementedException();
 
-    protected override SqliteParameter[] Parameters(JapaneseSequence sentence) =>
+    protected override SqliteParameter[] Parameters(DocumentMetadata metadata) =>
     [
-        new("@0", sentence.Id),
-        new("@1", sentence.Text),
+        new("@0", metadata.Date)
     ];
 }

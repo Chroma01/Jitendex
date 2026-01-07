@@ -18,10 +18,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.ImportDto;
+using Jitendex.Tatoeba.Import.Models;
 using Jitendex.SQLite;
 
-namespace Jitendex.Tatoeba.SQLite;
+namespace Jitendex.Tatoeba.Import.SQLite;
 
 internal sealed class TokenTable : Table<Token>
 {

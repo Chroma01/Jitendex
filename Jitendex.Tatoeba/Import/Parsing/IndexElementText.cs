@@ -17,7 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Tatoeba.Import;
+namespace Jitendex.Tatoeba.Import.Parsing;
 
 internal readonly ref struct IndexElementText
 {

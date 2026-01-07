@@ -16,10 +16,18 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Tatoeba.ImportDto;
+namespace Jitendex.Tatoeba.Import.Models;
 
-internal sealed record Sequence
+internal sealed record Token
 {
-    public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
+    public required int SequenceId { get; init; }
+    public required int SentenceIndex { get; init; }
+    public required int Index { get; init; }
+    public required string Headword { get; init; }
+    public required string? Reading { get; init; }
+    public required int? EntryId { get; init; }
+    public required int? SenseNumber { get; init; }
+    public required string? SentenceForm { get; init; }
+    public required bool IsPriority { get; init; }
+    public (int, int, int) GetKey() => (SequenceId, SentenceIndex, Index);
 }
