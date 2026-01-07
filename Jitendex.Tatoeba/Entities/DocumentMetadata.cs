@@ -20,21 +20,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Jitendex.Tatoeba.Entity;
+namespace Jitendex.Tatoeba.Entities;
 
-[Table(nameof(Sequence))]
-public sealed class Sequence
+[Table(nameof(DocumentMetadata))]
+public sealed class DocumentMetadata
 {
     [Key]
     public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-
-    [InverseProperty(nameof(JapaneseSentence.Sequence))]
-    public JapaneseSequence? JapaneseSentence { get; set; }
-
-    [InverseProperty(nameof(EnglishSentence.Sequence))]
-    public EnglishSequence? EnglishSentence { get; set; }
-
-    [InverseProperty(nameof(Revision.Sequence))]
-    public List<Revision> Revisions { get; init; } = [];
+    public required DateOnly Date { get; init; }
 }

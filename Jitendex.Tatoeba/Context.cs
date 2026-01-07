@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Jitendex.SQLite;
-using Jitendex.Tatoeba.Entity;
+using Jitendex.Tatoeba.Entities;
 
 namespace Jitendex.Tatoeba;
 

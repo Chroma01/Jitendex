@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.Tatoeba.Entity;
+namespace Jitendex.Tatoeba.Entities;
 
 [Table(nameof(TokenizedSentence))]
 [PrimaryKey(nameof(JapaneseSequenceId), nameof(Index))]

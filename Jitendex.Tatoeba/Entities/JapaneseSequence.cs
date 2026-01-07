@@ -21,10 +21,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Jitendex.Tatoeba.Entity;
+namespace Jitendex.Tatoeba.Entities;
 
-[Table(nameof(EnglishSequence))]
-public sealed class EnglishSequence
+[Table(nameof(JapaneseSequence))]
+public sealed class JapaneseSequence
 {
     [Key]
     public required int Id { get; init; }
@@ -34,7 +34,6 @@ public sealed class EnglishSequence
     [ForeignKey(nameof(Id))]
     public Sequence Sequence { get; init; } = null!;
 
-    [JsonIgnore]
-    [InverseProperty(nameof(TokenizedSentence.EnglishSentence))]
-    public List<TokenizedSentence> Indices { get; init; } = [];
+    [InverseProperty(nameof(TokenizedSentence.JapaneseSentence))]
+    public List<TokenizedSentence> TokenizedSentences { get; init; } = [];
 }
