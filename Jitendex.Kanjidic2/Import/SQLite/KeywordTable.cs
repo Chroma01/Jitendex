@@ -17,21 +17,32 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Jitendex.Kanjidic2.Entities;
 using Jitendex.SQLite;
 
-namespace Jitendex.Kanjidic2;
+namespace Jitendex.Kanjidic2.Import.SQLite;
 
-public class Context : SqliteContext
+internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
 {
-    public DbSet<Entry> Entries { get; set; } = null!;
-    public DbSet<CodepointType> CodepointTypes { get; set; } = null!;
-    public DbSet<DictionaryType> DictionaryTypes { get; set; } = null!;
-    public DbSet<QueryCodeType> QueryCodeTypes { get; set; } = null!;
-    public DbSet<MisclassificationType> MisclassificationTypes { get; set; } = null!;
-    public DbSet<RadicalType> RadicalTypes { get; set; } = null!;
-    public DbSet<ReadingType> ReadingType { get; set; } = null!;
-    public DbSet<VariantType> VariantTypes { get; set; } = null!;
-    public Context() : base("kanjidic2.db") { }
+    protected override string Name => typeof(T).Name;
+
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(IKeyword.Name),
+        nameof(IKeyword.Description),
+        nameof(IKeyword.IsCorrupt),
+    ];
+
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(IKeyword.Name)
+    ];
+
+    protected override SqliteParameter[] Parameters(T keyword) =>
+    [
+        new("@0", keyword.Name),
+        new("@1", keyword.Description),
+        new("@2", keyword.IsCorrupt),
+    ];
 }

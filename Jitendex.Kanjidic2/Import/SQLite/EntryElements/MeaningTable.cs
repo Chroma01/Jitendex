@@ -17,21 +17,32 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
-using Jitendex.Kanjidic2.Entities;
+using Microsoft.Data.Sqlite;
+using Jitendex.Kanjidic2.Entities.EntryElements;
 using Jitendex.SQLite;
 
-namespace Jitendex.Kanjidic2;
+namespace Jitendex.Kanjidic2.Import.SQLite.EntryElements;
 
-public class Context : SqliteContext
+internal sealed class MeaningTable : Table<Meaning>
 {
-    public DbSet<Entry> Entries { get; set; } = null!;
-    public DbSet<CodepointType> CodepointTypes { get; set; } = null!;
-    public DbSet<DictionaryType> DictionaryTypes { get; set; } = null!;
-    public DbSet<QueryCodeType> QueryCodeTypes { get; set; } = null!;
-    public DbSet<MisclassificationType> MisclassificationTypes { get; set; } = null!;
-    public DbSet<RadicalType> RadicalTypes { get; set; } = null!;
-    public DbSet<ReadingType> ReadingType { get; set; } = null!;
-    public DbSet<VariantType> VariantTypes { get; set; } = null!;
-    public Context() : base("kanjidic2.db") { }
+    protected override string Name => nameof(Meaning);
+
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(Meaning.UnicodeScalarValue),
+        nameof(Meaning.Order),
+        nameof(Meaning.Text),
+    ];
+
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Meaning.UnicodeScalarValue)
+    ];
+
+    protected override SqliteParameter[] Parameters(Meaning meaning) =>
+    [
+        new("@0", meaning.UnicodeScalarValue),
+        new("@1", meaning.Order),
+        new("@2", meaning.Text),
+    ];
 }

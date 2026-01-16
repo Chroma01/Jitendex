@@ -17,21 +17,27 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Kanjidic2.Entities;
-using Jitendex.SQLite;
 
-namespace Jitendex.Kanjidic2;
+namespace Jitendex.Kanjidic2.Entities.EntryElements;
 
-public class Context : SqliteContext
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(Order))]
+public class Dictionary
 {
-    public DbSet<Entry> Entries { get; set; } = null!;
-    public DbSet<CodepointType> CodepointTypes { get; set; } = null!;
-    public DbSet<DictionaryType> DictionaryTypes { get; set; } = null!;
-    public DbSet<QueryCodeType> QueryCodeTypes { get; set; } = null!;
-    public DbSet<MisclassificationType> MisclassificationTypes { get; set; } = null!;
-    public DbSet<RadicalType> RadicalTypes { get; set; } = null!;
-    public DbSet<ReadingType> ReadingType { get; set; } = null!;
-    public DbSet<VariantType> VariantTypes { get; set; } = null!;
-    public Context() : base("kanjidic2.db") { }
+    public required int UnicodeScalarValue { get; set; }
+    public required int Order { get; set; }
+    public required string Text { get; set; }
+    public required string TypeName { get; set; }
+    public int? Volume { get; set; }
+    public int? Page { get; set; }
+
+    [ForeignKey(nameof(UnicodeScalarValue))]
+    public required Entry Entry { get; set; }
+
+    [ForeignKey(nameof(TypeName))]
+    public required DictionaryType Type { get; set; }
+
+    internal (int, int) Key => (UnicodeScalarValue, Order);
+    internal const string XmlTagName = "dic_ref";
 }
