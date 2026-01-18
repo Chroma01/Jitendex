@@ -25,7 +25,7 @@ namespace Jitendex.Tatoeba.Import.SQLite;
 
 internal static class Database
 {
-    private static readonly DocumentMetadataTable DocumentMetadataTable = new();
+    private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly SequenceTable SequenceTable = new();
     private static readonly JapaneseSentenceTable JapaneseSentenceTable = new();
     private static readonly EnglishSentenceTable EnglishSentenceTable = new();
@@ -42,7 +42,7 @@ internal static class Database
 
         using (var transaction = context.Database.BeginTransaction())
         {
-            DocumentMetadataTable.InsertItem(context, document.GetMetadata());
+            FileHeaderTable.InsertItem(context, document.GetFileHeader());
             SequenceTable.InsertItems(context, document.GetSequences());
             JapaneseSentenceTable.InsertItems(context, document.JapaneseSequences.Values);
             EnglishSentenceTable.InsertItems(context, document.EnglishSequences.Values);
@@ -65,7 +65,7 @@ internal static class Database
         {
             context.ExecuteDeferForeignKeysPragma();
 
-            DocumentMetadataTable.InsertItem(context, diff.InsertDocument.GetMetadata());
+            FileHeaderTable.InsertItem(context, diff.InsertDocument.GetFileHeader());
             SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
             EnglishSentenceTable.InsertItems(context, diff.InsertDocument.EnglishSequences.Values);

@@ -60,7 +60,7 @@ internal sealed class Document
     public IEnumerable<Sequence> GetSequences()
         => Sequences.Select(id => new Sequence { Id = id, CreatedDate = Date });
 
-    public DocumentMetadata GetMetadata()
+    public FileHeader GetFileHeader()
         => new() { Date = Date };
 
     public IEnumerable<int> ConcatAllSequenceIds()

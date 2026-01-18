@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Tatoeba.Import.Models;
 
-internal sealed record DocumentMetadata
+internal sealed record FileHeader
 {
     public int Id { get; init; }
     public DateOnly Date { get; init; }

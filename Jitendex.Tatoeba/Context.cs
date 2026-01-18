@@ -25,7 +25,7 @@ namespace Jitendex.Tatoeba;
 
 public sealed class Context : SqliteContext
 {
-    public DbSet<DocumentMetadata> Metadata { get; set; } = null!;
+    public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Sequence> Sequences { get; set; } = null!;
     public DbSet<EnglishSequence> EnglishSequences { get; set; } = null!;
     public DbSet<JapaneseSequence> JapaneseSequences { get; set; } = null!;

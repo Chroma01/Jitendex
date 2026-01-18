@@ -17,15 +17,26 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Sqlite;
+using Jitendex.SQLite;
+using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Entities;
+namespace Jitendex.Tatoeba.Import.SQLite;
 
-[Table(nameof(DocumentMetadata))]
-public sealed class DocumentMetadata
+internal sealed class FileHeaderTable : Table<FileHeader>
 {
-    [Key]
-    public required int Id { get; init; }
-    public required DateOnly Date { get; init; }
+    protected override string Name => nameof(FileHeader);
+
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(FileHeader.Date)
+    ];
+
+    protected override IReadOnlyList<string> KeyColNames
+        => throw new NotImplementedException();
+
+    protected override SqliteParameter[] Parameters(FileHeader header) =>
+    [
+        new("@0", header.Date)
+    ];
 }
