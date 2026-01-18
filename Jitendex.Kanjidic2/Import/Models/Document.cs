@@ -96,4 +96,26 @@ internal sealed class Document
         Meanings = new(expectedEntryCount * 2);
         Readings = new(expectedEntryCount * 7);
     }
+
+    public IEnumerable<int> ConcatAllEntryIds()
+        => Entries.Keys
+            .Concat(CodepointGroups.Keys.Select(static key => key.Item1))
+            .Concat(DictionaryGroups.Keys.Select(static key => key.Item1))
+            .Concat(MiscGroups.Keys.Select(static key => key.Item1))
+            .Concat(QueryCodeGroups.Keys.Select(static key => key.Item1))
+            .Concat(RadicalGroups.Keys.Select(static key => key.Item1))
+            .Concat(ReadingMeaningGroups.Keys.Select(static key => key.Item1))
+
+            .Concat(Codepoints.Keys.Select(static key => key.Item1))
+            .Concat(Dictionaries.Keys.Select(static key => key.Item1))
+            .Concat(Nanoris.Keys.Select(static key => key.Item1))
+            .Concat(QueryCodes.Keys.Select(static key => key.Item1))
+            .Concat(Radicals.Keys.Select(static key => key.Item1))
+            .Concat(RadicalNames.Keys.Select(static key => key.Item1))
+            .Concat(ReadingMeanings.Keys.Select(static key => key.Item1))
+            .Concat(StrokeCounts.Keys.Select(static key => key.Item1))
+            .Concat(Variants.Keys.Select(static key => key.Item1))
+
+            .Concat(Meanings.Keys.Select(static key => key.Item1))
+            .Concat(Readings.Keys.Select(static key => key.Item1));
 }
