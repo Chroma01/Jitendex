@@ -22,8 +22,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Kanjidic2.Entities;
 
-[Table(nameof(Header))]
-public sealed class Header
+[Table(nameof(FileHeader))]
+public sealed class FileHeader
 {
     [Key]
     public required int Id { get; init; }

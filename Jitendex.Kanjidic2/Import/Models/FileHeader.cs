@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Kanjidic2.Import.Models;
 
-internal sealed record Header
+internal sealed record FileHeader
 {
     public required string DatabaseVersion { get; set; }
     public required string FileVersion { get; set; }

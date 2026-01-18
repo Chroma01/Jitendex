@@ -113,7 +113,7 @@ internal partial class RadicalGroupReader
             var type = new RadicalType
             {
                 Name = typeName,
-                CreatedDate = document.Header.DateOfCreation,
+                CreatedDate = document.FileHeader.DateOfCreation,
             };
             document.RadicalTypes.Add(typeName, type);
         }

@@ -115,7 +115,7 @@ internal partial class DictionaryGroupReader
             var type = new DictionaryType
             {
                 Name = typeName,
-                CreatedDate = document.Header.DateOfCreation,
+                CreatedDate = document.FileHeader.DateOfCreation,
             };
             document.DictionaryTypes.Add(typeName, type);
         }

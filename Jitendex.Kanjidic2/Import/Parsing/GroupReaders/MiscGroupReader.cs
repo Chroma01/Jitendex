@@ -193,7 +193,7 @@ internal partial class MiscGroupReader
             var type = new VariantType
             {
                 Name = typeName,
-                CreatedDate = document.Header.DateOfCreation,
+                CreatedDate = document.FileHeader.DateOfCreation,
             };
             document.VariantTypes.Add(typeName, type);
         }

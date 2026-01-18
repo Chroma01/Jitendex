@@ -120,7 +120,7 @@ internal partial class ReadingMeaningReader
             var type = new ReadingType
             {
                 Name = typeName,
-                CreatedDate = document.Header.DateOfCreation,
+                CreatedDate = document.FileHeader.DateOfCreation,
             };
             document.ReadingTypes.Add(typeName, type);
         }

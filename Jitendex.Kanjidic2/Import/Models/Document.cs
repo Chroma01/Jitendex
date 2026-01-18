@@ -25,7 +25,7 @@ namespace Jitendex.Kanjidic2.Import.Models;
 
 internal sealed class Document
 {
-    public required Header Header { get; init; }
+    public required FileHeader FileHeader { get; init; }
     public Dictionary<int, Entry> Entries { get; init; }
 
     #region Keywords

@@ -46,7 +46,7 @@ internal partial class EntryReader
         var entry = new Entry
         {
             UnicodeScalarValue = default,
-            CreatedDate = document.Header.DateOfCreation
+            CreatedDate = document.FileHeader.DateOfCreation
         };
 
         var exit = false;

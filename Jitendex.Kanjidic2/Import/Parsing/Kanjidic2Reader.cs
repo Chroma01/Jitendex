@@ -34,7 +34,7 @@ internal class Kanjidic2Reader
     {
         var document = new Document
         {
-            Header = await _headerReader.ReadAsync()
+            FileHeader = await _headerReader.ReadAsync()
         };
 
         await _entriesReader.ReadAsync(document);

@@ -26,7 +26,7 @@ namespace Jitendex.Kanjidic2.Import.SQLite;
 
 internal static class Database
 {
-    private static readonly HeaderTable HeaderTable = new();
+    private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly EntryTable EntryTable = new();
 
     #region Keyword tables
@@ -73,7 +73,7 @@ internal static class Database
 
         using (var transaction = context.Database.BeginTransaction())
         {
-            HeaderTable.InsertItem(context, document.Header);
+            FileHeaderTable.InsertItem(context, document.FileHeader);
 
             CodepointTypeTable.InsertItems(context, document.CodepointTypes.Values);
             DictionaryTypeTable.InsertItems(context, document.DictionaryTypes.Values);

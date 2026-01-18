@@ -23,21 +23,21 @@ using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.SQLite;
 
-internal sealed class HeaderTable : Table<Header>
+internal sealed class FileHeaderTable : Table<FileHeader>
 {
-    protected override string Name => nameof(Header);
+    protected override string Name => nameof(FileHeader);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Header.DatabaseVersion),
-        nameof(Header.FileVersion),
-        nameof(Header.DateOfCreation),
+        nameof(FileHeader.DatabaseVersion),
+        nameof(FileHeader.FileVersion),
+        nameof(FileHeader.DateOfCreation),
     ];
 
     protected override IReadOnlyList<string> KeyColNames
         => throw new NotImplementedException();
 
-    protected override SqliteParameter[] Parameters(Header header) =>
+    protected override SqliteParameter[] Parameters(FileHeader header) =>
     [
         new("@0", header.DatabaseVersion),
         new("@1", header.FileVersion),

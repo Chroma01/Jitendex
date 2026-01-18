@@ -112,7 +112,7 @@ internal partial class CodepointGroupReader
             var type = new CodepointType
             {
                 Name = typeName,
-                CreatedDate = document.Header.DateOfCreation,
+                CreatedDate = document.FileHeader.DateOfCreation,
             };
             document.CodepointTypes.Add(typeName, type);
         }
