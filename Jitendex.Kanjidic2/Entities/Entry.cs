@@ -36,4 +36,6 @@ public sealed class Entry
     public List<QueryCodeGroup> QueryCodeGroups { get; init; } = [];
     public List<RadicalGroup> RadicalGroups { get; init; } = [];
     public List<ReadingMeaningGroup> ReadingMeaningGroups { get; init; } = [];
+
+    public List<Revision> Revisions { get; init; } = [];
 }
