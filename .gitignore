@@ -1,3 +1,4 @@
 bin/
 obj/
 nuget.config
+.vscode
