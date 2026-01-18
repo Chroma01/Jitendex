@@ -20,9 +20,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities.Groups;
-using Jitendex.Kanjidic2.Entities.EntryElements;
-using Jitendex.Kanjidic2.Entities;
+using Jitendex.Kanjidic2.Import.Models;
+using Jitendex.Kanjidic2.Import.Models.Groups;
+using Jitendex.Kanjidic2.Import.Models.GroupElements;
+using Jitendex.Kanjidic2.Import.Models.SubgroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -30,19 +31,24 @@ internal partial class ReadingMeaningReader
 {
     private readonly ILogger<ReadingMeaningReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly Dictionary<(int, int), int> _usedReadingMeaningOrders = [];
+    private readonly Dictionary<(int, int, int), int> _usedReadingOrders = [];
+    private readonly Dictionary<(int, int, int), int> _usedMeaningOrders = [];
 
-    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
-    public async Task<ReadingMeaning> ReadAsync(ReadingMeaningGroup group)
+    public async Task ReadAsync(Document document, Entry entry, ReadingMeaningGroup group)
     {
         var readingMeaning = new ReadingMeaning
         {
-            UnicodeScalarValue = group.UnicodeScalarValue,
-            Entry = group.Entry,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
+            GroupOrder = group.Order,
+            Order = _usedReadingMeaningOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
         };
+
+        _usedReadingMeaningOrders[group.Key()] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -50,85 +56,90 @@ internal partial class ReadingMeaningReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(readingMeaning);
+                    await ReadChildElementAsync(document, entry, group, readingMeaning);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, group.Entry.ToRune(), ReadingMeaning.XmlTagName, text);
-                    group.Entry.IsCorrupt = true;
+                    Log.UnexpectedTextNode(_logger, entry.ToRune(), ReadingMeaning.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == ReadingMeaning.XmlTagName;
                     break;
             }
         }
-        return readingMeaning;
+
+        document.ReadingMeanings.Add(readingMeaning.Key(), readingMeaning);
     }
 
-    private async Task ReadChildElementAsync(ReadingMeaning readingMeaning)
+    private async Task ReadChildElementAsync(Document document, Entry entry, ReadingMeaningGroup group, ReadingMeaning readingMeaning)
     {
         switch (_xmlReader.Name)
         {
             case Reading.XmlTagName:
-                await ReadReading(readingMeaning);
+                await ReadReading(document, entry, group, readingMeaning);
                 break;
             case Meaning.XmlTagName:
-                await ReadMeaning(readingMeaning);
+                await ReadMeaning(document, entry, group, readingMeaning);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, readingMeaning.Entry.ToRune(), _xmlReader.Name, ReadingMeaning.XmlTagName);
-                readingMeaning.Entry.IsCorrupt = true;
+                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, ReadingMeaning.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadReading(ReadingMeaning readingMeaning)
+    private async Task ReadReading(Document document, Entry entry, ReadingMeaningGroup group, ReadingMeaning readingMeaning)
     {
-        var typeName = GetTypeName(readingMeaning);
-        var type = _docTypes.GetByName<ReadingType>(typeName);
-
         var reading = new Reading
         {
             UnicodeScalarValue = readingMeaning.UnicodeScalarValue,
-            Order = readingMeaning.Readings.Count + 1,
-            TypeName = type.Name,
+            GroupOrder = group.Order,
+            ReadingMeaningOrder = readingMeaning.Order,
+            Order = _usedReadingOrders.TryGetValue(readingMeaning.Key(), out var order) ? order + 1 : 0,
+            TypeName = GetReadingTypeName(document, entry),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = readingMeaning.Entry,
-            Type = type,
         };
-
-        if (readingMeaning.Readings.Any(r => r.Text == reading.Text && r.TypeName == type.Name))
-        {
-            Log.Duplicate(_logger, readingMeaning.Entry.ToRune(), ReadingMeaning.XmlTagName, type.Name, Reading.XmlTagName);
-            readingMeaning.Entry.IsCorrupt = true;
-        }
-
-        readingMeaning.Readings.Add(reading);
+        _usedReadingOrders[readingMeaning.Key()] = reading.Order;
+        document.Readings.Add(reading.Key(), reading);
     }
 
-    private string? GetTypeName(ReadingMeaning readingMeaning)
+    private string GetReadingTypeName(Document document, Entry entry)
     {
-        var typeName = _xmlReader.GetAttribute("r_type");
-        if (string.IsNullOrWhiteSpace(typeName))
+        string typeName;
+        var attribute = _xmlReader.GetAttribute("r_type");
+        if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(readingMeaning.Entry.ToRune());
-            readingMeaning.Entry.IsCorrupt = true;
+            LogMissingTypeName(entry.ToRune());
+            typeName = string.Empty;
+        }
+        else
+        {
+            typeName = attribute;
+        }
+        if (!document.ReadingTypes.ContainsKey(typeName))
+        {
+            var type = new ReadingType
+            {
+                Name = typeName,
+                CreatedDate = document.Header.DateOfCreation,
+            };
+            document.ReadingTypes.Add(typeName, type);
         }
         return typeName;
     }
 
-    private async Task ReadMeaning(ReadingMeaning readingMeaning)
+    private async Task ReadMeaning(Document document, Entry entry, ReadingMeaningGroup group, ReadingMeaning readingMeaning)
     {
+        var language = _xmlReader.GetAttribute("m_lang") ?? "en";
         var meaning = new Meaning
         {
-            UnicodeScalarValue = readingMeaning.UnicodeScalarValue,
-            Order = readingMeaning.Meanings.Count + 1,
-            Language = _xmlReader.GetAttribute("m_lang") ?? "en",
+            UnicodeScalarValue = entry.UnicodeScalarValue,
+            GroupOrder = group.Order,
+            ReadingMeaningOrder = readingMeaning.Order,
+            Order = _usedMeaningOrders.TryGetValue(readingMeaning.Key(), out var order) ? order + 1 : 0,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = readingMeaning.Entry,
         };
 
-        if (meaning.Language != "en")
+        if (language != "en")
         {
             return;
         }
@@ -143,13 +154,8 @@ internal partial class ReadingMeaningReader
             return;
         }
 
-        if (readingMeaning.Meanings.Any(m => m.Text == meaning.Text))
-        {
-            Log.Duplicate(_logger, readingMeaning.Entry.ToRune(), ReadingMeaning.XmlTagName, meaning.Text, Meaning.XmlTagName);
-            readingMeaning.Entry.IsCorrupt = true;
-        }
-
-        readingMeaning.Meanings.Add(meaning);
+        _usedMeaningOrders[readingMeaning.Key()] = meaning.Order;
+        document.Meanings.Add(meaning.Key(), meaning);
     }
 
     [LoggerMessage(LogLevel.Warning,

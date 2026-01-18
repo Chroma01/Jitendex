@@ -20,9 +20,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities;
-using Jitendex.Kanjidic2.Entities.Groups;
-using Jitendex.Kanjidic2.Entities.EntryElements;
+using Jitendex.Kanjidic2.Import.Models;
+using Jitendex.Kanjidic2.Import.Models.Groups;
+using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -30,18 +30,19 @@ internal partial class DictionaryGroupReader
 {
     private readonly ILogger<DictionaryGroupReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly Dictionary<int, int> _usedDictionaryGroupOrders = [];
+    private readonly Dictionary<(int, int), int> _usedDictionaryOrders = [];
 
-    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
-    public async Task<DictionaryGroup> ReadAsync(Entry entry)
+    public async Task ReadAsync(Document document, Entry entry)
     {
         var group = new DictionaryGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
-            Entry = entry,
+            Order = _usedDictionaryGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
         };
 
         var exit = false;
@@ -50,66 +51,78 @@ internal partial class DictionaryGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(group);
+                    await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, entry.ToRune(), DictionaryGroup.XmlTagName, text);
-                    entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == DictionaryGroup.XmlTagName;
                     break;
             }
         }
-        return group;
+
+        document.DictionaryGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(DictionaryGroup group)
+    private async Task ReadChildElementAsync(Document document, Entry entry, DictionaryGroup group)
     {
         switch (_xmlReader.Name)
         {
             case Dictionary.XmlTagName:
-                await ReadDictionary(group);
+                await ReadDictionary(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, DictionaryGroup.XmlTagName);
-                group.Entry.IsCorrupt = true;
+                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, DictionaryGroup.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadDictionary(DictionaryGroup group)
+    private async Task ReadDictionary(Document document, Entry entry, DictionaryGroup group)
     {
-        var typeName = GetTypeName(group);
-        var type = _docTypes.GetByName<DictionaryType>(typeName);
-
         var dictionary = new Dictionary
         {
             UnicodeScalarValue = group.UnicodeScalarValue,
-            Order = group.Dictionaries.Count + 1,
-            TypeName = type.Name,
-            Volume = GetDictionaryVolume(group),
-            Page = GetDictionaryPage(group),
+            GroupOrder = group.Order,
+            Order = _usedDictionaryOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            TypeName = GetTypeName(document, entry),
+            Volume = GetDictionaryVolume(entry),
+            Page = GetDictionaryPage(entry),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = group.Entry,
-            Type = type,
         };
-        group.Dictionaries.Add(dictionary);
+
+        _usedDictionaryOrders[group.Key()] = dictionary.Order;
+
+        document.Dictionaries.Add(dictionary.Key(), dictionary);
     }
 
-    private string? GetTypeName(DictionaryGroup group)
+    private string GetTypeName(Document document, Entry entry)
     {
-        var typeName = _xmlReader.GetAttribute("dr_type");
-        if (string.IsNullOrWhiteSpace(typeName))
+        string typeName;
+        var attribute = _xmlReader.GetAttribute("dr_type");
+        if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(group.Entry.ToRune());
-            group.Entry.IsCorrupt = true;
+            LogMissingTypeName(entry.ToRune());
+            typeName = string.Empty;
+        }
+        else
+        {
+            typeName = attribute;
+        }
+        if (!document.DictionaryTypes.ContainsKey(typeName))
+        {
+            var type = new DictionaryType
+            {
+                Name = typeName,
+                CreatedDate = document.Header.DateOfCreation,
+            };
+            document.DictionaryTypes.Add(typeName, type);
         }
         return typeName;
     }
 
-    private int? GetDictionaryVolume(DictionaryGroup group)
+    private int? GetDictionaryVolume(Entry entry)
     {
         var volume = _xmlReader.GetAttribute("m_vol");
         if (volume is null)
@@ -123,13 +136,12 @@ internal partial class DictionaryGroupReader
         }
         else
         {
-            LogNonNumericVolume(group.Entry.ToRune(), volume);
-            group.Entry.IsCorrupt = true;
+            LogNonNumericVolume(entry.ToRune(), volume);
             return null;
         }
     }
 
-    private int? GetDictionaryPage(DictionaryGroup group)
+    private int? GetDictionaryPage(Entry entry)
     {
         var page = _xmlReader.GetAttribute("m_page");
         if (page is null)
@@ -143,8 +155,7 @@ internal partial class DictionaryGroupReader
         }
         else
         {
-            LogNonNumericPage(group.Entry.ToRune(), page);
-            group.Entry.IsCorrupt = true;
+            LogNonNumericPage(entry.ToRune(), page);
             return null;
         }
     }

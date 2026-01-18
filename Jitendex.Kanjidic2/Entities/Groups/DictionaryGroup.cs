@@ -17,21 +17,20 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.Kanjidic2.Entities.EntryElements;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Kanjidic2.Entities.GroupElements;
 
 namespace Jitendex.Kanjidic2.Entities.Groups;
 
-[NotMapped]
-internal class DictionaryGroup
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(Order))]
+public sealed class DictionaryGroup
 {
-    [Key]
-    public required int UnicodeScalarValue { get; set; }
-    public List<Dictionary> Dictionaries { get; set; } = [];
+    public required int UnicodeScalarValue { get; init; }
+    public required int Order { get; init; }
 
     [ForeignKey(nameof(UnicodeScalarValue))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; init; }
 
-    internal const string XmlTagName = "dic_number";
+    public List<Dictionary> Dictionaries { get; init; } = [];
 }

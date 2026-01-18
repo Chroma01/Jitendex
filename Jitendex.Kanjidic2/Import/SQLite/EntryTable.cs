@@ -18,8 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Kanjidic2.Entities;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.SQLite;
 
@@ -30,12 +30,7 @@ internal sealed class EntryTable : Table<Entry>
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(Entry.UnicodeScalarValue),
-        nameof(Entry.Grade),
-        nameof(Entry.Frequency),
-        nameof(Entry.JlptLevel),
-        nameof(Entry.IsKokuji),
-        nameof(Entry.IsGhost),
-        nameof(Entry.IsCorrupt),
+        nameof(Entry.CreatedDate),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
@@ -46,11 +41,6 @@ internal sealed class EntryTable : Table<Entry>
     protected override SqliteParameter[] Parameters(Entry entry) =>
     [
         new("@0", entry.UnicodeScalarValue),
-        new("@1", entry.Grade.Nullable()),
-        new("@2", entry.Frequency.Nullable()),
-        new("@3", entry.JlptLevel.Nullable()),
-        new("@4", entry.IsKokuji),
-        new("@5", entry.IsGhost),
-        new("@6", entry.IsCorrupt),
+        new("@1", entry.CreatedDate),
     ];
 }

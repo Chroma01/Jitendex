@@ -20,9 +20,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities;
-using Jitendex.Kanjidic2.Entities.Groups;
-using Jitendex.Kanjidic2.Entities.EntryElements;
+using Jitendex.Kanjidic2.Import.Models;
+using Jitendex.Kanjidic2.Import.Models.Groups;
+using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -31,19 +31,22 @@ internal partial class ReadingMeaningGroupReader
     private readonly ILogger<ReadingMeaningGroupReader> _logger;
     private readonly XmlReader _xmlReader;
     private readonly ReadingMeaningReader _readingMeaningReader;
+    private readonly Dictionary<int, int> _usedGroupOrders = [];
+    private readonly Dictionary<(int, int), int> _usedOrders = [];
 
     public ReadingMeaningGroupReader(ILogger<ReadingMeaningGroupReader> logger, XmlReader xmlReader, ReadingMeaningReader readingMeaningReader) =>
         (_logger, _xmlReader, _readingMeaningReader) =
         (@logger, @xmlReader, @readingMeaningReader);
 
-    public async Task<ReadingMeaningGroup> ReadAsync(Entry entry)
+    public async Task ReadAsync(Document document, Entry entry)
     {
         var group = new ReadingMeaningGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
-            ReadingMeaning = null,
-            Entry = entry,
+            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
         };
+
+        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -51,60 +54,48 @@ internal partial class ReadingMeaningGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(group);
+                    await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, entry.ToRune(), ReadingMeaningGroup.XmlTagName, text);
-                    entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == ReadingMeaningGroup.XmlTagName;
                     break;
             }
         }
-        return group;
+
+        document.ReadingMeaningGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(ReadingMeaningGroup group)
+    private async Task ReadChildElementAsync(Document document, Entry entry, ReadingMeaningGroup group)
     {
         switch (_xmlReader.Name)
         {
             case ReadingMeaning.XmlTagName:
-                if (group.ReadingMeaning != null)
-                {
-                    group.Entry.IsCorrupt = true;
-                    LogUnexpectedGroup(group.Entry.ToRune(), ReadingMeaning.XmlTagName);
-                }
-                group.ReadingMeaning = await _readingMeaningReader.ReadAsync(group);
+                await _readingMeaningReader.ReadAsync(document, entry, group);
                 break;
             case Nanori.XmlTagName:
-                await ReadNanori(group);
+                await ReadNanori(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
-                group.Entry.IsCorrupt = true;
+                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadNanori(ReadingMeaningGroup group)
+    private async Task ReadNanori(Document document, Entry entry, ReadingMeaningGroup group)
     {
         var nanori = new Nanori
         {
-            UnicodeScalarValue = group.UnicodeScalarValue,
-            Order = group.Nanoris.Count + 1,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
+            GroupOrder = group.Order,
+            Order = _usedOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = group.Entry,
         };
-
-        if (group.Nanoris.Any(n => n.Text == nanori.Text))
-        {
-            Log.Duplicate(_logger, group.Entry.ToRune(), ReadingMeaningGroup.XmlTagName, nanori.Text, Nanori.XmlTagName);
-            group.Entry.IsCorrupt = true;
-        }
-
-        group.Nanoris.Add(nanori);
+        _usedOrders[group.Key()] = nanori.Order;
+        document.Nanoris.Add(nanori.Key(), nanori);
     }
 
     [LoggerMessage(LogLevel.Warning,

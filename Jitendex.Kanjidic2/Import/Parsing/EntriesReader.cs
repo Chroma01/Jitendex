@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities;
+using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;
 
@@ -33,16 +33,14 @@ internal partial class EntriesReader
         (_logger, _xmlReader, _entryReader) =
         (@logger, @xmlReader, @entryReader);
 
-    public async Task<List<Entry>> ReadAsync()
+    public async Task ReadAsync(Document document)
     {
-        var entries = new List<Entry>();
-
         while (await _xmlReader.ReadAsync())
         {
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(entries);
+                    await ReadChildElementAsync(document);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
@@ -50,16 +48,14 @@ internal partial class EntriesReader
                     break;
             }
         }
-
-        return entries;
     }
 
-    private async Task ReadChildElementAsync(List<Entry> entries)
+    private async Task ReadChildElementAsync(Document document)
     {
         switch (_xmlReader.Name)
         {
             case Entry.XmlTagName:
-                await _entryReader.ReadAsync(entries);
+                await _entryReader.ReadAsync(document);
                 break;
             default:
                 LogUnexpectedElement(_xmlReader.Name);

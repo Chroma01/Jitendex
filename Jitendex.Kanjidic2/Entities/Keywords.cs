@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -19,80 +19,70 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Jitendex.Kanjidic2.Entities.GroupElements;
+using Jitendex.Kanjidic2.Entities.SubgroupElements;
 
 namespace Jitendex.Kanjidic2.Entities;
 
-internal interface ICorruptable
-{
-    bool IsCorrupt { get; set; }
-}
-
-internal interface IKeyword : ICorruptable
-{
-    string Name { get; set; }
-    string Description { get; set; }
-}
-
 [Table(nameof(CodepointType))]
-public class CodepointType : IKeyword
+public sealed class CodepointType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<Codepoint> Codepoints { get; init; } = [];
 }
 
 [Table(nameof(DictionaryType))]
-public class DictionaryType : IKeyword
+public sealed class DictionaryType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<Dictionary> Dictionaries { get; init; } = [];
 }
 
 [Table(nameof(QueryCodeType))]
-public class QueryCodeType : IKeyword
+public sealed class QueryCodeType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<QueryCode> QueryCodes { get; init; } = [];
 }
 
 [Table(nameof(MisclassificationType))]
-public class MisclassificationType : IKeyword
+public sealed class MisclassificationType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<QueryCode> QueryCodes { get; init; } = [];
 }
 
 [Table(nameof(RadicalType))]
-public class RadicalType : IKeyword
+public sealed class RadicalType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<Radical> Radicals { get; init; } = [];
 }
 
 [Table(nameof(ReadingType))]
-public class ReadingType : IKeyword
+public sealed class ReadingType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<Reading> Readings { get; init; } = [];
 }
 
 [Table(nameof(VariantType))]
-public class VariantType : IKeyword
+public sealed class VariantType
 {
     [Key]
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public bool IsCorrupt { get; set; }
+    public required string Name { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public List<Variant> Variants { get; init; } = [];
 }

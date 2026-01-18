@@ -17,27 +17,25 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.Kanjidic2.Entities.EntryElements;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Kanjidic2.Entities.GroupElements;
 
 namespace Jitendex.Kanjidic2.Entities.Groups;
 
-[NotMapped]
-internal class MiscGroup
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(Order))]
+public sealed class MiscGroup
 {
-    [Key]
-    public required int UnicodeScalarValue { get; set; }
+    public required int UnicodeScalarValue { get; init; }
+    public required int Order { get; init; }
     public int? Grade { get; set; }
     public int? Frequency { get; set; }
     public int? JlptLevel { get; set; }
 
-    public List<StrokeCount> StrokeCounts { get; set; } = [];
-    public List<Variant> Variants { get; set; } = [];
-    public List<RadicalName> RadicalNames { get; set; } = [];
-
     [ForeignKey(nameof(UnicodeScalarValue))]
-    public virtual Entry Entry { get; set; } = null!;
+    public required Entry Entry { get; init; }
 
-    internal const string XmlTagName = "misc";
+    public List<RadicalName> RadicalNames { get; init; } = [];
+    public List<StrokeCount> StrokeCounts { get; init; } = [];
+    public List<Variant> Variants { get; init; } = [];
 }

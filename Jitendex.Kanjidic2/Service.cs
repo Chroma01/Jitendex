@@ -17,8 +17,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Kanjidic2.Database;
-using Jitendex.Kanjidic2.Readers;
+using Jitendex.Kanjidic2.Import.SQLite;
+using Jitendex.Kanjidic2.Import.Parsing;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
 
@@ -33,6 +33,6 @@ public static class Service
         var reader = ReaderProvider.GetReader(file);
         var document = await reader.ReadAsync();
 
-        await DatabaseInitializer.WriteAsync(document);
+        Database.Initialize(document);
     }
 }

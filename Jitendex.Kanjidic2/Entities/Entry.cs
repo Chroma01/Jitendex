@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -19,62 +19,21 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 using Jitendex.Kanjidic2.Entities.Groups;
-using Jitendex.Kanjidic2.Entities.EntryElements;
 
 namespace Jitendex.Kanjidic2.Entities;
 
-[Table("Entry")]
-public class Entry : ICorruptable
+[Table(nameof(Entry))]
+public sealed class Entry
 {
     [Key]
-    public required int UnicodeScalarValue { get; set; }
+    public required int UnicodeScalarValue { get; init; }
+    public required DateOnly CreatedDate { get; init; }
 
-    // Codepoint Group
-    public List<Codepoint> Codepoints { get; set; } = [];
-
-    // Dictionary Group
-    public List<Dictionary> Dictionaries { get; set; } = [];
-
-    // Misc Group
-    public int? Grade { get; set; }
-    public int? Frequency { get; set; }
-    public int? JlptLevel { get; set; }
-    public List<StrokeCount> StrokeCounts { get; set; } = [];
-    public List<Variant> Variants { get; set; } = [];
-    public List<RadicalName> RadicalNames { get; set; } = [];
-
-    // Query Code Group
-    public List<QueryCode> QueryCodes { get; set; } = [];
-
-    // Radical Group
-    public List<Radical> Radicals { get; set; } = [];
-
-    // Reading Meaning Group
-    public bool IsKokuji { get; set; }
-    public bool IsGhost { get; set; }
-    public List<Reading> Readings { get; set; } = [];
-    public List<Meaning> Meanings { get; set; } = [];
-    public List<Nanori> Nanoris { get; set; } = [];
-
-    [NotMapped]
-    internal CodepointGroup? CodepointGroup = null;
-    [NotMapped]
-    internal DictionaryGroup? DictionaryGroup = null;
-    [NotMapped]
-    internal MiscGroup? MiscGroup = null;
-    [NotMapped]
-    internal QueryCodeGroup? QueryCodeGroup = null;
-    [NotMapped]
-    internal RadicalGroup? RadicalGroup = null;
-    [NotMapped]
-    internal ReadingMeaningGroup? ReadingMeaningGroup = null;
-
-    public bool IsCorrupt { get; set; }
-
-    public Rune ToRune() => new(UnicodeScalarValue);
-
-    internal const string XmlTagName = "character";
-    internal const string Character_XmlTagName = "literal";
+    public List<CodepointGroup> CodepointGroups { get; init; } = [];
+    public List<DictionaryGroup> DictionaryGroups { get; init; } = [];
+    public List<MiscGroup> MiscGroups { get; init; } = [];
+    public List<QueryCodeGroup> QueryCodeGroups { get; init; } = [];
+    public List<RadicalGroup> RadicalGroups { get; init; } = [];
+    public List<ReadingMeaningGroup> ReadingMeaningGroups { get; init; } = [];
 }

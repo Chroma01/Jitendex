@@ -51,9 +51,6 @@ internal static class ReaderProvider
                 return XmlReader.Create(b, readerSettings);
             })
 
-        // Global document types.
-        .AddSingleton<DocumentTypes>()
-
         // Top-level readers.
         .AddTransient<HeaderReader>()
         .AddTransient<EntriesReader>()

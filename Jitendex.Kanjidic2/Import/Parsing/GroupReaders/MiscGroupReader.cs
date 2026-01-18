@@ -20,33 +20,34 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities;
-using Jitendex.Kanjidic2.Entities.Groups;
-using Jitendex.Kanjidic2.Entities.EntryElements;
+using Jitendex.Kanjidic2.Import.Models;
+using Jitendex.Kanjidic2.Import.Models.Groups;
+using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class MiscGroupReader
 {
-    private const string GradeXmlTagName = "grade";
-    private const string FrequencyXmlTagName = "freq";
-    private const string JlptXmlTagName = "jlpt";
-
     private readonly ILogger<MiscGroupReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly Dictionary<int, int> _usedGroupOrders = [];
+    private readonly Dictionary<(int, int), int> _usedStrokeCountOrders = [];
+    private readonly Dictionary<(int, int), int> _usedVariantOrders = [];
+    private readonly Dictionary<(int, int), int> _usedRadicalNameOrders = [];
 
-    public MiscGroupReader(ILogger<MiscGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public MiscGroupReader(ILogger<MiscGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
-    public async Task<MiscGroup> ReadAsync(Entry entry)
+    public async Task ReadAsync(Document document, Entry entry)
     {
         var group = new MiscGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
-            Entry = entry,
+            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
         };
+
+        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -54,51 +55,50 @@ internal partial class MiscGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(group);
+                    await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, entry.ToRune(), MiscGroup.XmlTagName, text);
-                    entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == MiscGroup.XmlTagName;
                     break;
             }
         }
-        return group;
+
+        document.MiscGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(MiscGroup group)
+    private async Task ReadChildElementAsync(Document document, Entry entry, MiscGroup group)
     {
         switch (_xmlReader.Name)
         {
-            case GradeXmlTagName:
-                await ReadGrade(group);
+            case MiscGroup.Grade_XmlTagName:
+                await ReadGrade(entry, group);
                 break;
-            case FrequencyXmlTagName:
-                await ReadFrequency(group);
+            case MiscGroup.Frequency_XmlTagName:
+                await ReadFrequency(entry, group);
                 break;
-            case JlptXmlTagName:
-                await ReadJlpt(group);
+            case MiscGroup.Jlpt_XmlTagName:
+                await ReadJlpt(entry, group);
                 break;
             case StrokeCount.XmlTagName:
-                await ReadStrokeCount(group);
+                await ReadStrokeCount(document, entry, group);
                 break;
             case Variant.XmlTagName:
-                await ReadVariant(group);
+                await ReadVariant(document, entry, group);
                 break;
             case RadicalName.XmlTagName:
-                await ReadRadicalName(group);
+                await ReadRadicalName(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, MiscGroup.XmlTagName);
-                group.Entry.IsCorrupt = true;
+                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, MiscGroup.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadGrade(MiscGroup group)
+    private async Task ReadGrade(Entry entry, MiscGroup group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -107,12 +107,11 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Entry.ToRune(), GradeXmlTagName, text);
-            group.Entry.IsCorrupt = true;
+            LogNonNumeric(entry.ToRune(), MiscGroup.Grade_XmlTagName, text);
         }
     }
 
-    private async Task ReadFrequency(MiscGroup group)
+    private async Task ReadFrequency(Entry entry, MiscGroup group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -121,12 +120,11 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Entry.ToRune(), FrequencyXmlTagName, text);
-            group.Entry.IsCorrupt = true;
+            LogNonNumeric(entry.ToRune(), MiscGroup.Frequency_XmlTagName, text);
         }
     }
 
-    private async Task ReadJlpt(MiscGroup group)
+    private async Task ReadJlpt(Entry entry, MiscGroup group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -135,12 +133,11 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Entry.ToRune(), JlptXmlTagName, text);
-            group.Entry.IsCorrupt = true;
+            LogNonNumeric(entry.ToRune(), MiscGroup.Jlpt_XmlTagName, text);
         }
     }
 
-    private async Task ReadStrokeCount(MiscGroup group)
+    private async Task ReadStrokeCount(Document document, Entry entry, MiscGroup group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         int value;
@@ -150,51 +147,70 @@ internal partial class MiscGroupReader
         }
         else
         {
-            LogNonNumeric(group.Entry.ToRune(), StrokeCount.XmlTagName, text);
-            group.Entry.IsCorrupt = true;
+            LogNonNumeric(entry.ToRune(), StrokeCount.XmlTagName, text);
             return;
         }
         var strokeCount = new StrokeCount
         {
             UnicodeScalarValue = group.UnicodeScalarValue,
-            Order = group.StrokeCounts.Count + 1,
+            GroupOrder = group.Order,
+            Order = _usedStrokeCountOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
             Value = value,
-            Entry = group.Entry,
         };
-        group.StrokeCounts.Add(strokeCount);
+        _usedStrokeCountOrders[group.Key()] = strokeCount.Order;
+        document.StrokeCounts.Add(strokeCount.Key(), strokeCount);
     }
 
-    private async Task ReadVariant(MiscGroup group)
+    private async Task ReadVariant(Document document, Entry entry, MiscGroup group)
     {
-        var typeName = _xmlReader.GetAttribute("var_type");
-        if (string.IsNullOrWhiteSpace(typeName))
-        {
-            LogMissingTypeName(group.Entry.ToRune());
-            group.Entry.IsCorrupt = true;
-        }
-        var type = _docTypes.GetByName<VariantType>(typeName);
         var variant = new Variant
         {
-            UnicodeScalarValue = group.UnicodeScalarValue,
-            Order = group.Variants.Count + 1,
-            TypeName = type.Name,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
+            GroupOrder = group.Order,
+            Order = _usedVariantOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            TypeName = GetVariantTypeName(document, entry),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = group.Entry,
-            Type = type,
         };
-        group.Variants.Add(variant);
+        _usedVariantOrders[group.Key()] = variant.Order;
+        document.Variants.Add(variant.Key(), variant);
     }
 
-    private async Task ReadRadicalName(MiscGroup group)
+    private string GetVariantTypeName(Document document, Entry entry)
+    {
+        string typeName;
+        var attribute = _xmlReader.GetAttribute(Variant.TypeName_XmlAttrName);
+        if (string.IsNullOrWhiteSpace(attribute))
+        {
+            LogMissingTypeName(entry.ToRune());
+            typeName = string.Empty;
+        }
+        else
+        {
+            typeName = attribute;
+        }
+        if (!document.VariantTypes.ContainsKey(typeName))
+        {
+            var type = new VariantType
+            {
+                Name = typeName,
+                CreatedDate = document.Header.DateOfCreation,
+            };
+            document.VariantTypes.Add(typeName, type);
+        }
+        return typeName;
+    }
+
+    private async Task ReadRadicalName(Document document, Entry entry, MiscGroup group)
     {
         var radicalName = new RadicalName
         {
-            UnicodeScalarValue = group.UnicodeScalarValue,
-            Order = group.RadicalNames.Count + 1,
+            UnicodeScalarValue = entry.UnicodeScalarValue,
+            GroupOrder = group.Order,
+            Order = _usedRadicalNameOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = group.Entry,
         };
-        group.RadicalNames.Add(radicalName);
+        _usedRadicalNameOrders[group.Key()] = radicalName.Order;
+        document.RadicalNames.Add(radicalName.Key(), radicalName);
     }
 
     [LoggerMessage(LogLevel.Warning,

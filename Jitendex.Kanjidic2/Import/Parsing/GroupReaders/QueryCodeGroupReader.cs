@@ -20,9 +20,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities;
-using Jitendex.Kanjidic2.Entities.Groups;
-using Jitendex.Kanjidic2.Entities.EntryElements;
+using Jitendex.Kanjidic2.Import.Models;
+using Jitendex.Kanjidic2.Import.Models.Groups;
+using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -30,19 +30,22 @@ internal partial class QueryCodeGroupReader
 {
     private readonly ILogger<QueryCodeGroupReader> _logger;
     private readonly XmlReader _xmlReader;
-    private readonly DocumentTypes _docTypes;
+    private readonly Dictionary<int, int> _usedGroupOrders = [];
+    private readonly Dictionary<(int, int), int> _usedOrders = [];
 
-    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader, DocumentTypes docTypes) =>
-        (_logger, _xmlReader, _docTypes) =
-        (@logger, @xmlReader, @docTypes);
+    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
 
-    public async Task<QueryCodeGroup> ReadAsync(Entry entry)
+    public async Task ReadAsync(Document document, Entry entry)
     {
         var group = new QueryCodeGroup
         {
             UnicodeScalarValue = entry.UnicodeScalarValue,
-            Entry = entry,
+            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
         };
+
+        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -50,67 +53,89 @@ internal partial class QueryCodeGroupReader
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(group);
+                    await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
                     Log.UnexpectedTextNode(_logger, entry.ToRune(), QueryCodeGroup.XmlTagName, text);
-                    entry.IsCorrupt = true;
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == QueryCodeGroup.XmlTagName;
                     break;
             }
         }
-        return group;
+
+        document.QueryCodeGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(QueryCodeGroup group)
+    private async Task ReadChildElementAsync(Document document, Entry entry, QueryCodeGroup group)
     {
         switch (_xmlReader.Name)
         {
             case QueryCode.XmlTagName:
-                await ReadQueryCode(group);
+                await ReadQueryCode(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, group.Entry.ToRune(), _xmlReader.Name, QueryCodeGroup.XmlTagName);
-                group.Entry.IsCorrupt = true;
+                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, QueryCodeGroup.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadQueryCode(QueryCodeGroup group)
+    private async Task ReadQueryCode(Document document, Entry entry, QueryCodeGroup group)
     {
-        var typeName = GetTypeName(group);
-        var type = _docTypes.GetByName<QueryCodeType>(typeName);
-
-        var misclassification = _xmlReader.GetAttribute("skip_misclass");
-        var misclassificationType = misclassification is not null
-            ? _docTypes.GetByName<MisclassificationType>(misclassification)
-            : null;
-
         var queryCode = new QueryCode
         {
             UnicodeScalarValue = group.UnicodeScalarValue,
-            Order = group.QueryCodes.Count + 1,
-            TypeName = type.Name,
-            Misclassification = misclassification,
+            GroupOrder = group.Order,
+            Order = _usedOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            TypeName = GetTypeName(document, entry),
+            Misclassification = GetMisclassification(document),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
-            Entry = group.Entry,
-            Type = type,
-            MisclassificationType = misclassificationType,
         };
-
-        group.QueryCodes.Add(queryCode);
+        _usedOrders[group.Key()] = queryCode.Order;
+        document.QueryCodes.Add(queryCode.Key(), queryCode);
     }
 
-    private string? GetTypeName(QueryCodeGroup group)
+    private string GetTypeName(Document document, Entry entry)
     {
-        var typeName = _xmlReader.GetAttribute("qc_type");
+        string typeName;
+        var attribute = _xmlReader.GetAttribute("qc_type");
+        if (string.IsNullOrWhiteSpace(attribute))
+        {
+            LogMissingTypeName(entry.ToRune());
+            typeName = string.Empty;
+        }
+        else
+        {
+            typeName = attribute;
+        }
+        if (!document.QueryCodeTypes.ContainsKey(typeName))
+        {
+            var type = new QueryCodeType
+            {
+                Name = typeName,
+                CreatedDate = document.Header.DateOfCreation,
+            };
+            document.QueryCodeTypes.Add(typeName, type);
+        }
+        return typeName;
+    }
+
+    private string? GetMisclassification(Document document)
+    {
+        var typeName = _xmlReader.GetAttribute("skip_misclass");
         if (string.IsNullOrWhiteSpace(typeName))
         {
-            LogMissingTypeName(group.Entry.ToRune());
-            group.Entry.IsCorrupt = true;
+            return null;
+        }
+        if (!document.MisclassificationTypes.ContainsKey(typeName))
+        {
+            var type = new MisclassificationType
+            {
+                Name = typeName,
+                CreatedDate = document.Header.DateOfCreation,
+            };
+            document.MisclassificationTypes.Add(typeName, type);
         }
         return typeName;
     }

@@ -18,8 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Kanjidic2.Entities;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.SQLite;
 
@@ -30,8 +30,7 @@ internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
     protected override IReadOnlyList<string> ColumnNames =>
     [
         nameof(IKeyword.Name),
-        nameof(IKeyword.Description),
-        nameof(IKeyword.IsCorrupt),
+        nameof(IKeyword.CreatedDate),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
@@ -42,7 +41,6 @@ internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
     protected override SqliteParameter[] Parameters(T keyword) =>
     [
         new("@0", keyword.Name),
-        new("@1", keyword.Description),
-        new("@2", keyword.IsCorrupt),
+        new("@1", keyword.CreatedDate),
     ];
 }

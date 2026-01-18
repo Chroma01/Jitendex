@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -23,15 +23,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Jitendex.Kanjidic2.Entities;
 
 [Table(nameof(Header))]
-public class Header
+public sealed class Header
 {
     [Key]
+    public required int Id { get; init; }
     public required string DatabaseVersion { get; set; }
     public required string FileVersion { get; set; }
-    public required string DateOfCreation { get; set; }
-
-    internal const string XmlTagName = "header";
-    internal const string file_XmlTagName = "file_version";
-    internal const string database_XmlTagName = "database_version";
-    internal const string date_XmlTagName = "date_of_creation";
+    public required DateOnly DateOfCreation { get; set; }
 }

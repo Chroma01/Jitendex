@@ -1,0 +1,41 @@
+/*
+Copyright (c) 2025 Stephen Kraus
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Kanjidic2.Entities.Groups;
+using Jitendex.Kanjidic2.Entities.SubgroupElements;
+
+namespace Jitendex.Kanjidic2.Entities.GroupElements;
+
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(GroupOrder), nameof(Order))]
+public sealed class ReadingMeaning
+{
+    public required int UnicodeScalarValue { get; init; }
+    public required int GroupOrder { get; init; }
+    public required int Order { get; init; }
+    public required bool IsKokuji { get; set; }
+    public required bool IsGhost { get; set; }
+
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(GroupOrder)}")]
+    public required ReadingMeaningGroup Group { get; init; }
+
+    public List<Meaning> Meanings { get; init; } = [];
+    public List<Reading> Readings { get; init; } = [];
+}

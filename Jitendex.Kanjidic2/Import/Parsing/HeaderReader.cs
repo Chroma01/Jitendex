@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Jitendex.Kanjidic2.Entities;
+using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;
 
@@ -38,7 +38,7 @@ internal partial class HeaderReader
         {
             DatabaseVersion = null!,
             FileVersion = null!,
-            DateOfCreation = null!,
+            DateOfCreation = default,
         };
 
         var exit = false;
@@ -72,10 +72,9 @@ internal partial class HeaderReader
             LogMissingFileVersion();
             header.FileVersion = Guid.NewGuid().ToString();
         }
-        if (header.DateOfCreation is null)
+        if (header.DateOfCreation.Equals(default))
         {
             LogMissingDateOfCreation();
-            header.DateOfCreation = Guid.NewGuid().ToString();
         }
 
         return header;
@@ -96,7 +95,15 @@ internal partial class HeaderReader
                 header.FileVersion = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
             case Header.date_XmlTagName:
-                header.DateOfCreation = await _xmlReader.ReadElementContentAsStringAsync();
+                var content = await _xmlReader.ReadElementContentAsStringAsync();
+                if (DateOnly.TryParse(content, out var date))
+                {
+                    header.DateOfCreation = date;
+                }
+                else
+                {
+                    LogUnparsableDate(content);
+                }
                 break;
             default:
                 LogUnexpectedElement(_xmlReader.Name);
@@ -104,23 +111,21 @@ internal partial class HeaderReader
         }
     }
 
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected text node found in document preamble: `{Text}`")]
+    [LoggerMessage(LogLevel.Warning, "Unexpected text node found in document preamble: `{Text}`")]
     partial void LogUnexpectedTextNode(string text);
 
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected element node found in document preamble: <{Name}>")]
+    [LoggerMessage(LogLevel.Warning, "Unexpected element node found in document preamble: <{Name}>")]
     partial void LogUnexpectedElement(string name);
 
-    [LoggerMessage(LogLevel.Warning,
-    "No database version found in header")]
+    [LoggerMessage(LogLevel.Warning, "No database version found in header")]
     partial void LogMissingDatabaseVersion();
 
-    [LoggerMessage(LogLevel.Warning,
-    "No file version found in header")]
+    [LoggerMessage(LogLevel.Warning, "No file version found in header")]
     partial void LogMissingFileVersion();
 
-    [LoggerMessage(LogLevel.Warning,
-    "No creation date found in header")]
+    [LoggerMessage(LogLevel.Warning, "No creation date found in header")]
     partial void LogMissingDateOfCreation();
+
+    [LoggerMessage(LogLevel.Warning, "Cannot parse creation date: <{Date}>")]
+    partial void LogUnparsableDate(string date);
 }
