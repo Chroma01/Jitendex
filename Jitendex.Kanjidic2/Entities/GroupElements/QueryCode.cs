@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Entities.Groups;
 
@@ -33,12 +34,15 @@ public sealed class QueryCode
     public required string TypeName { get; set; }
     public string? Misclassification { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(GroupOrder)}")]
-    public required QueryCodeGroup Group { get; init; }
+    public QueryCodeGroup Group { get; init; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TypeName))]
-    public required QueryCodeType Type { get; set; }
+    public QueryCodeType Type { get; set; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(Misclassification))]
     public MisclassificationType? MisclassificationType { get; set; }
 }

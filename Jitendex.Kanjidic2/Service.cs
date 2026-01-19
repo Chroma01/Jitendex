@@ -17,8 +17,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Kanjidic2.Import.SQLite;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Parsing;
+using Jitendex.Kanjidic2.Import.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
 
@@ -26,13 +28,68 @@ namespace Jitendex.Kanjidic2;
 
 public static class Service
 {
-    public static async Task RunAsync(DateOnly date = default, DirectoryInfo? archiveDirectory = null)
+    public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
     {
-        var file = GetEdrdgFile(kanjidic2, date, archiveDirectory);
+        var previousDate = GetPreviousDate();
+        var previousDocument = await GetPreviousDocumentAsync(previousDate, archiveDirectory);
 
+        while (true)
+        {
+            var (nextFile, _) = GetNextEdrdgFile(kanjidic2, previousDocument.FileHeader.DateOfCreation, archiveDirectory);
+
+            if (nextFile is null)
+            {
+                break;
+            }
+
+            var nextDocument = await ReadAsync(nextFile);
+            var diff = new DocumentDiff(previousDocument, nextDocument);
+
+            Database.Update(diff);
+
+            previousDocument = nextDocument;
+        }
+
+        if (previousDate == default)
+        {
+            using var context = new Context();
+            context.ExecuteVacuum();
+        }
+    }
+
+    private static DateOnly GetPreviousDate()
+    {
+        using var context = new Context();
+        context.Database.EnsureCreated();
+        return context.FileHeaders
+            .AsNoTracking()
+            .OrderByDescending(x => x.Id)
+            .Take(1)
+            .Select(x => x.DateOfCreation)
+            .FirstOrDefault();
+    }
+
+    private static async Task<Document> GetPreviousDocumentAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
+    {
+        Document document;
+        if (previousDate == default)
+        {
+            var (file, _) = GetNextEdrdgFile(kanjidic2, previousDate, archiveDirectory);
+            document = await ReadAsync(file!);
+            Database.Initialize(document);
+        }
+        else
+        {
+            var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
+            document = await ReadAsync(file);
+        }
+        return document;
+    }
+
+    private static async Task<Document> ReadAsync(FileInfo file)
+    {
         var reader = ReaderProvider.GetReader(file);
         var document = await reader.ReadAsync();
-
-        Database.Initialize(document);
+        return document;
     }
 }

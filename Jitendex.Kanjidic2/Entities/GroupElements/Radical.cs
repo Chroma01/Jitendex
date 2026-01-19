@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Entities.Groups;
 
@@ -32,9 +33,11 @@ public sealed class Radical
     public required int Number { get; set; }
     public required string TypeName { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(GroupOrder)}")]
-    public required RadicalGroup Group { get; init; }
+    public RadicalGroup Group { get; init; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TypeName))]
-    public required RadicalType Type { get; set; }
+    public RadicalType Type { get; set; } = null!;
 }

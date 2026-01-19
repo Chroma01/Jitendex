@@ -25,11 +25,6 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        Option<DateOnly> dateOption = new("--date")
-        {
-            Description = "Date of the kanjidic2.xml file to retrieve"
-        };
-
         Option<DirectoryInfo> archiveDirOption = new("--archive-path")
         {
             Description = "Path to the edrdg-dictionary-archive directory",
@@ -37,8 +32,7 @@ public static class Program
 
         var rootCommand = new RootCommand("Jitendex.Kanjidic2: Import a Kanjidic2 XML document")
         {
-            dateOption,
-            archiveDirOption,
+            archiveDirOption
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -51,9 +45,8 @@ public static class Program
             return 1;
         }
 
-        await Service.RunAsync
+        await Service.UpdateAsync
         (
-            date: parseResult.GetValue(dateOption),
             archiveDirectory: parseResult.GetValue(archiveDirOption)
         );
 

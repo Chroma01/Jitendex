@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Entities.Groups;
 using Jitendex.Kanjidic2.Entities.SubgroupElements;
@@ -33,8 +34,9 @@ public sealed class ReadingMeaning
     public required bool IsKokuji { get; set; }
     public required bool IsGhost { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(GroupOrder)}")]
-    public required ReadingMeaningGroup Group { get; init; }
+    public ReadingMeaningGroup Group { get; init; } = null!;
 
     public List<Meaning> Meanings { get; init; } = [];
     public List<Reading> Readings { get; init; } = [];

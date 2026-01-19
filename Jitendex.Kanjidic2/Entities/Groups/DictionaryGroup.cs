@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Entities.GroupElements;
 
@@ -29,8 +30,9 @@ public sealed class DictionaryGroup
     public required int UnicodeScalarValue { get; init; }
     public required int Order { get; init; }
 
+    [JsonIgnore]
     [ForeignKey(nameof(UnicodeScalarValue))]
-    public required Entry Entry { get; init; }
+    public Entry Entry { get; init; } = null!;
 
     public List<Dictionary> Dictionaries { get; init; } = [];
 }

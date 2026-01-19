@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Entities.Groups;
 
@@ -32,9 +33,11 @@ public sealed class Variant
     public required string Text { get; set; }
     public required string TypeName { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(GroupOrder)}")]
-    public required MiscGroup Group { get; init; }
+    public MiscGroup Group { get; init; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TypeName))]
-    public required VariantType Type { get; set; }
+    public VariantType Type { get; set; } = null!;
 }
