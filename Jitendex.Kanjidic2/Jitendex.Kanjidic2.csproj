@@ -13,5 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Jitendex.SQLite\Jitendex.SQLite.csproj" />
     <ProjectReference Include="..\Jitendex.EdrdgDictionaryArchive\Jitendex.EdrdgDictionaryArchive.csproj" />
+    <ProjectReference Include="..\Libraries\MinimalJsonDiff\Jitendex.MinimalJsonDiff\Jitendex.MinimalJsonDiff.csproj" />
   </ItemGroup>
 </Project>

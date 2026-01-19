@@ -17,6 +17,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.EntityFrameworkCore;
+using Jitendex.MinimalJsonDiff;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.SQLite.Groups;
 using Jitendex.Kanjidic2.Import.SQLite.GroupElements;
@@ -110,4 +112,138 @@ internal static class Database
 
         context.SaveChanges();
     }
+
+    public static void Update(DocumentDiff diff)
+    {
+        Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.DateOfCreation:yyyy-MM-dd}");
+
+        using var context = new Context();
+        var aEntries = LoadEntries(context, diff.EntryIds);
+
+        using (var transaction = context.Database.BeginTransaction())
+        {
+            context.ExecuteDeferForeignKeysPragma();
+
+            FileHeaderTable.InsertItem(context, diff.InsertDocument.FileHeader);
+
+            CodepointTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.CodepointTypes.Values);
+            DictionaryTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.DictionaryTypes.Values);
+            QueryCodeTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.QueryCodeTypes.Values);
+            MisclassificationTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.MisclassificationTypes.Values);
+            RadicalTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.RadicalTypes.Values);
+            ReadingTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.ReadingTypes.Values);
+            VariantTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.VariantTypes.Values);
+
+            EntryTable.InsertOrIgnoreItems(context, diff.InsertDocument.Entries.Values);
+
+            CodepointGroupTable.InsertItems(context, diff.InsertDocument.CodepointGroups.Values);
+            DictionaryGroupTable.InsertItems(context, diff.InsertDocument.DictionaryGroups.Values);
+            MiscGroupTable.InsertItems(context, diff.InsertDocument.MiscGroups.Values);
+            QueryCodeGroupTable.InsertItems(context, diff.InsertDocument.QueryCodeGroups.Values);
+            RadicalGroupTable.InsertItems(context, diff.InsertDocument.RadicalGroups.Values);
+            ReadingMeaningGroupTable.InsertItems(context, diff.InsertDocument.ReadingMeaningGroups.Values);
+            CodepointTable.InsertItems(context, diff.InsertDocument.Codepoints.Values);
+            DictionaryTable.InsertItems(context, diff.InsertDocument.Dictionaries.Values);
+            NanoriTable.InsertItems(context, diff.InsertDocument.Nanoris.Values);
+            QueryCodeTable.InsertItems(context, diff.InsertDocument.QueryCodes.Values);
+            RadicalTable.InsertItems(context, diff.InsertDocument.Radicals.Values);
+            RadicalNameTable.InsertItems(context, diff.InsertDocument.RadicalNames.Values);
+            ReadingMeaningTable.InsertItems(context, diff.InsertDocument.ReadingMeanings.Values);
+            StrokeCountTable.InsertItems(context, diff.InsertDocument.StrokeCounts.Values);
+            VariantTable.InsertItems(context, diff.InsertDocument.Variants.Values);
+            MeaningTable.InsertItems(context, diff.InsertDocument.Meanings.Values);
+            ReadingTable.InsertItems(context, diff.InsertDocument.Readings.Values);
+
+            CodepointGroupTable.UpdateItems(context, diff.UpdateDocument.CodepointGroups.Values);
+            DictionaryGroupTable.UpdateItems(context, diff.UpdateDocument.DictionaryGroups.Values);
+            MiscGroupTable.UpdateItems(context, diff.UpdateDocument.MiscGroups.Values);
+            QueryCodeGroupTable.UpdateItems(context, diff.UpdateDocument.QueryCodeGroups.Values);
+            RadicalGroupTable.UpdateItems(context, diff.UpdateDocument.RadicalGroups.Values);
+            ReadingMeaningGroupTable.UpdateItems(context, diff.UpdateDocument.ReadingMeaningGroups.Values);
+            CodepointTable.UpdateItems(context, diff.UpdateDocument.Codepoints.Values);
+            DictionaryTable.UpdateItems(context, diff.UpdateDocument.Dictionaries.Values);
+            NanoriTable.UpdateItems(context, diff.UpdateDocument.Nanoris.Values);
+            QueryCodeTable.UpdateItems(context, diff.UpdateDocument.QueryCodes.Values);
+            RadicalTable.UpdateItems(context, diff.UpdateDocument.Radicals.Values);
+            RadicalNameTable.UpdateItems(context, diff.UpdateDocument.RadicalNames.Values);
+            ReadingMeaningTable.UpdateItems(context, diff.UpdateDocument.ReadingMeanings.Values);
+            StrokeCountTable.UpdateItems(context, diff.UpdateDocument.StrokeCounts.Values);
+            VariantTable.UpdateItems(context, diff.UpdateDocument.Variants.Values);
+            MeaningTable.UpdateItems(context, diff.UpdateDocument.Meanings.Values);
+            ReadingTable.UpdateItems(context, diff.UpdateDocument.Readings.Values);
+
+            ReadingTable.DeleteItems(context, diff.DeleteDocument.Readings.Values);
+            MeaningTable.DeleteItems(context, diff.DeleteDocument.Meanings.Values);
+            VariantTable.DeleteItems(context, diff.DeleteDocument.Variants.Values);
+            StrokeCountTable.DeleteItems(context, diff.DeleteDocument.StrokeCounts.Values);
+            ReadingMeaningTable.DeleteItems(context, diff.DeleteDocument.ReadingMeanings.Values);
+            RadicalNameTable.DeleteItems(context, diff.DeleteDocument.RadicalNames.Values);
+            RadicalTable.DeleteItems(context, diff.DeleteDocument.Radicals.Values);
+            QueryCodeTable.DeleteItems(context, diff.DeleteDocument.QueryCodes.Values);
+            NanoriTable.DeleteItems(context, diff.DeleteDocument.Nanoris.Values);
+            DictionaryTable.DeleteItems(context, diff.DeleteDocument.Dictionaries.Values);
+            CodepointTable.DeleteItems(context, diff.DeleteDocument.Codepoints.Values);
+            ReadingMeaningGroupTable.DeleteItems(context, diff.DeleteDocument.ReadingMeaningGroups.Values);
+            RadicalGroupTable.DeleteItems(context, diff.DeleteDocument.RadicalGroups.Values);
+            QueryCodeGroupTable.DeleteItems(context, diff.DeleteDocument.QueryCodeGroups.Values);
+            MiscGroupTable.DeleteItems(context, diff.DeleteDocument.MiscGroups.Values);
+            DictionaryGroupTable.DeleteItems(context, diff.DeleteDocument.DictionaryGroups.Values);
+            CodepointGroupTable.DeleteItems(context, diff.DeleteDocument.CodepointGroups.Values);
+
+            transaction.Commit();
+        }
+
+        var bEntries = LoadEntries(context, diff.EntryIds);
+
+        var entries = context.Entries
+            .Where(entry => diff.EntryIds.Contains(entry.UnicodeScalarValue))
+            .Include(static entry => entry.Revisions)
+            .ToList();
+
+        foreach (var entry in entries)
+        {
+            if (aEntries.TryGetValue(entry.UnicodeScalarValue, out var aSequence))
+            {
+                var bSequence = bEntries[entry.UnicodeScalarValue];
+                var baDiff = JsonDiffer.Diff(a: bSequence, b: aSequence);
+                entry.Revisions.Add(new()
+                {
+                    EntryId = entry.UnicodeScalarValue,
+                    Number = entry.Revisions.Count,
+                    CreatedDate = diff.FileHeader.DateOfCreation,
+                    DiffJson = baDiff,
+                    Entry = entry,
+                });
+            }
+        }
+
+        context.SaveChanges();
+    }
+
+    private static Dictionary<int, Entities.Entry> LoadEntries(Context context, IReadOnlySet<int> ids)
+        => context.Entries.AsNoTracking().AsSplitQuery()
+        .Where(entry => ids.Contains(entry.UnicodeScalarValue))
+        .Include(static entry => entry.CodepointGroups)
+            .ThenInclude(static group => group.Codepoints)
+        .Include(static entry => entry.DictionaryGroups)
+            .ThenInclude(static group => group.Dictionaries)
+        .Include(static entry => entry.MiscGroups)
+            .ThenInclude(static group => group.RadicalNames)
+        .Include(static entry => entry.MiscGroups)
+            .ThenInclude(static group => group.StrokeCounts)
+        .Include(static entry => entry.MiscGroups)
+            .ThenInclude(static group => group.Variants)
+        .Include(static entry => entry.QueryCodeGroups)
+            .ThenInclude(static group => group.QueryCodes)
+        .Include(static entry => entry.RadicalGroups)
+            .ThenInclude(static group => group.Radicals)
+        .Include(static entry => entry.ReadingMeaningGroups)
+            .ThenInclude(static group => group.Nanoris)
+        .Include(static entry => entry.ReadingMeaningGroups)
+            .ThenInclude(static group => group.ReadingMeanings)
+                .ThenInclude(static rm => rm.Meanings)
+        .Include(static entry => entry.ReadingMeaningGroups)
+            .ThenInclude(static group => group.ReadingMeanings)
+                .ThenInclude(static rm => rm.Readings)
+        .ToDictionary(static entry => entry.UnicodeScalarValue);
 }
