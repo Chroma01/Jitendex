@@ -69,6 +69,8 @@ internal static class Database
 
     public static void Initialize(Document document)
     {
+        Console.Error.WriteLine($"Initializing database with data from {document.FileHeader.Date:yyyy-MM-dd}");
+
         using var context = new Context();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
@@ -202,10 +204,10 @@ internal static class Database
 
         foreach (var entry in entries)
         {
-            if (aEntries.TryGetValue(entry.UnicodeScalarValue, out var aSequence))
+            if (aEntries.TryGetValue(entry.UnicodeScalarValue, out var aEntry))
             {
-                var bSequence = bEntries[entry.UnicodeScalarValue];
-                var baDiff = JsonDiffer.Diff(a: bSequence, b: aSequence);
+                var bEntry = bEntries[entry.UnicodeScalarValue];
+                var baDiff = JsonDiffer.Diff(a: bEntry, b: aEntry);
                 entry.Revisions.Add(new()
                 {
                     EntryId = entry.UnicodeScalarValue,
