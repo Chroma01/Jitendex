@@ -29,5 +29,5 @@ public sealed class FileHeader
     public required int Id { get; init; }
     public required string DatabaseVersion { get; set; }
     public required string FileVersion { get; set; }
-    public required DateOnly DateOfCreation { get; set; }
+    public required DateOnly Date { get; set; }
 }

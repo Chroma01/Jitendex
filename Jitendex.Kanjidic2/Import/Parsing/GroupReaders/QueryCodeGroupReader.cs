@@ -114,7 +114,7 @@ internal partial class QueryCodeGroupReader
             var type = new QueryCodeType
             {
                 Name = typeName,
-                CreatedDate = document.FileHeader.DateOfCreation,
+                CreatedDate = document.FileHeader.Date,
             };
             document.QueryCodeTypes.Add(typeName, type);
         }
@@ -133,7 +133,7 @@ internal partial class QueryCodeGroupReader
             var type = new MisclassificationType
             {
                 Name = typeName,
-                CreatedDate = document.FileHeader.DateOfCreation,
+                CreatedDate = document.FileHeader.Date,
             };
             document.MisclassificationTypes.Add(typeName, type);
         }

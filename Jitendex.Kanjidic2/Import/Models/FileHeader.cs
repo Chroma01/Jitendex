@@ -23,7 +23,7 @@ internal sealed record FileHeader
 {
     public required string DatabaseVersion { get; set; }
     public required string FileVersion { get; set; }
-    public required DateOnly DateOfCreation { get; set; }
+    public required DateOnly Date { get; set; }
 
     public const string XmlTagName = "header";
     public const string file_XmlTagName = "file_version";

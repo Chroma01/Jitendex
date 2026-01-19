@@ -35,7 +35,7 @@ public static class Service
 
         while (true)
         {
-            var (nextFile, _) = GetNextEdrdgFile(kanjidic2, previousDocument.FileHeader.DateOfCreation, archiveDirectory);
+            var (nextFile, _) = GetNextEdrdgFile(kanjidic2, previousDocument.FileHeader.Date, archiveDirectory);
 
             if (nextFile is null)
             {
@@ -65,7 +65,7 @@ public static class Service
             .AsNoTracking()
             .OrderByDescending(x => x.Id)
             .Take(1)
-            .Select(x => x.DateOfCreation)
+            .Select(x => x.Date)
             .FirstOrDefault();
     }
 

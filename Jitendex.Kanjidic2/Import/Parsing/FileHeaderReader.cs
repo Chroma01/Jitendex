@@ -38,7 +38,7 @@ internal partial class HeaderReader
         {
             DatabaseVersion = null!,
             FileVersion = null!,
-            DateOfCreation = default,
+            Date = default,
         };
 
         var exit = false;
@@ -72,7 +72,7 @@ internal partial class HeaderReader
             LogMissingFileVersion();
             header.FileVersion = Guid.NewGuid().ToString();
         }
-        if (header.DateOfCreation.Equals(default))
+        if (header.Date.Equals(default))
         {
             LogMissingDateOfCreation();
         }
@@ -98,7 +98,7 @@ internal partial class HeaderReader
                 var content = await _xmlReader.ReadElementContentAsStringAsync();
                 if (DateOnly.TryParse(content, out var date))
                 {
-                    header.DateOfCreation = date;
+                    header.Date = date;
                 }
                 else
                 {

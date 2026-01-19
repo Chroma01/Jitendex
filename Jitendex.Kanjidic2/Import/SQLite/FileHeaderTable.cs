@@ -31,7 +31,7 @@ internal sealed class FileHeaderTable : Table<FileHeader>
     [
         nameof(FileHeader.DatabaseVersion),
         nameof(FileHeader.FileVersion),
-        nameof(FileHeader.DateOfCreation),
+        nameof(FileHeader.Date),
     ];
 
     protected override IReadOnlyList<string> KeyColNames
@@ -41,6 +41,6 @@ internal sealed class FileHeaderTable : Table<FileHeader>
     [
         new("@0", header.DatabaseVersion),
         new("@1", header.FileVersion),
-        new("@2", header.DateOfCreation),
+        new("@2", header.Date),
     ];
 }

@@ -115,7 +115,7 @@ internal static class Database
 
     public static void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.DateOfCreation:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
 
         using var context = new Context();
         var aEntries = LoadEntries(context, diff.EntryIds);
@@ -210,7 +210,7 @@ internal static class Database
                 {
                     EntryId = entry.UnicodeScalarValue,
                     Number = entry.Revisions.Count,
-                    CreatedDate = diff.FileHeader.DateOfCreation,
+                    CreatedDate = diff.FileHeader.Date,
                     DiffJson = baDiff,
                     Entry = entry,
                 });
