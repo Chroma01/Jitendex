@@ -31,16 +31,6 @@ internal static class Database
     private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly EntryTable EntryTable = new();
 
-    #region Keyword tables
-    private static readonly KeywordTable<CodepointType> CodepointTypeTable = new();
-    private static readonly KeywordTable<DictionaryType> DictionaryTypeTable = new();
-    private static readonly KeywordTable<QueryCodeType> QueryCodeTypeTable = new();
-    private static readonly KeywordTable<MisclassificationType> MisclassificationTypeTable = new();
-    private static readonly KeywordTable<RadicalType> RadicalTypeTable = new();
-    private static readonly KeywordTable<ReadingType> ReadingTypeTable = new();
-    private static readonly KeywordTable<VariantType> VariantTypeTable = new();
-    #endregion
-
     #region Group Tables
     private static readonly CodepointGroupTable CodepointGroupTable = new();
     private static readonly DictionaryGroupTable DictionaryGroupTable = new();
@@ -65,6 +55,16 @@ internal static class Database
     #region Subgroup Element Tables
     private static readonly MeaningTable MeaningTable = new();
     private static readonly ReadingTable ReadingTable = new();
+    #endregion
+
+    #region Keyword tables
+    private static readonly KeywordTable<CodepointType> CodepointTypeTable = new();
+    private static readonly KeywordTable<DictionaryType> DictionaryTypeTable = new();
+    private static readonly KeywordTable<QueryCodeType> QueryCodeTypeTable = new();
+    private static readonly KeywordTable<MisclassificationType> MisclassificationTypeTable = new();
+    private static readonly KeywordTable<RadicalType> RadicalTypeTable = new();
+    private static readonly KeywordTable<ReadingType> ReadingTypeTable = new();
+    private static readonly KeywordTable<VariantType> VariantTypeTable = new();
     #endregion
 
     public static void Initialize(Document document)

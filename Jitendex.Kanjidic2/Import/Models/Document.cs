@@ -66,14 +66,6 @@ internal sealed class Document
 
     public Document(int expectedEntryCount = 13_200)
     {
-        CodepointTypes = [];
-        DictionaryTypes = [];
-        QueryCodeTypes = [];
-        MisclassificationTypes = [];
-        RadicalTypes = [];
-        ReadingTypes = [];
-        VariantTypes = [];
-
         Entries = new(expectedEntryCount);
 
         CodepointGroups = new(expectedEntryCount);
