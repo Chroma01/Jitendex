@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,15 +18,15 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Models;
-using Jitendex.JMdict.Models.EntryElements;
+using Jitendex.JMdict.Entities;
+using Jitendex.JMdict.Entities.EntryElements;
 using Jitendex.SQLite;
 
 namespace Jitendex.JMdict;
 
 public class Context : SqliteContext
 {
-    public DbSet<Corpus> Corpora { get; set; } = null!;
+    public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Entry> Entries { get; set; } = null!;
 
     public DbSet<Reading> Readings { get; set; } = null!;
@@ -45,9 +45,6 @@ public class Context : SqliteContext
     public DbSet<CrossReferenceType> CrossReferenceTypes { get; set; } = null!;
     public DbSet<LanguageSourceType> LanguageSourceTypes { get; set; } = null!;
     public DbSet<Language> Languages { get; set; } = null!;
-
-    public DbSet<ExampleSourceType> ExampleSourceTypes { get; set; } = null!;
-    public DbSet<ExampleSource> ExampleSources { get; set; } = null!;
 
     public Context() : base("jmdict.db") { }
 }

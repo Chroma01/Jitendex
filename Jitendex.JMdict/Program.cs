@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -25,26 +25,14 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        Option<DateOnly> dateOption = new("--date")
-        {
-            Description = "Date of the JMdict file to retrieve"
-        };
-
         Option<DirectoryInfo> archiveDirOption = new("--archive-path")
         {
             Description = "Path to the edrdg-dictionary-archive directory",
         };
 
-        Option<DirectoryInfo> jitendexDataDirOption = new("--jitendex-data-path")
-        {
-            Description = "Path to the jitendex-data directory",
-        };
-
         var rootCommand = new RootCommand("Jitendex.JMdict: Import a JMdict XML document")
         {
-            dateOption,
-            archiveDirOption,
-            jitendexDataDirOption,
+            archiveDirOption
         };
 
         var parseResult = rootCommand.Parse(args);
@@ -57,11 +45,9 @@ public static class Program
             return 1;
         }
 
-        await Service.RunAsync
+        await Service.UpdateAsync
         (
-            date: parseResult.GetValue(dateOption),
-            archiveDirectory: parseResult.GetValue(archiveDirOption),
-            jitendexDataDirectory: parseResult.GetValue(jitendexDataDirOption)
+            archiveDirectory: parseResult.GetValue(archiveDirOption)
         );
 
         return 0;

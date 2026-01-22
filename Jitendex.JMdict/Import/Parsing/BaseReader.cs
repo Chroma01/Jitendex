@@ -1,0 +1,45 @@
+/*
+Copyright (c) 2025-2026 Stephen Kraus
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System.Xml;
+using Microsoft.Extensions.Logging;
+
+namespace Jitendex.JMdict.Import.Parsing;
+
+internal abstract partial class BaseReader<T> where T : BaseReader<T>
+{
+    protected readonly ILogger<T> _logger;
+    protected readonly XmlReader _xmlReader;
+
+    public BaseReader(ILogger<T> logger, XmlReader xmlReader) =>
+        (_logger, _xmlReader) =
+        (@logger, @xmlReader);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
+    protected partial void UnexpectedChildElement(string tagName, string parentTagName);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
+    protected partial void UnexpectedTextNode(string tagName, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Entry {EntryId} <{ParentTagName}> #{Order} contains more than one <{TagName}> element with value `{Text}`")]
+    protected partial void DuplicateTag(int entryId, string parentTagName, int order, string text, string tagName);
+}
