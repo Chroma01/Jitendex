@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -17,20 +17,30 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
+using Jitendex.SQLite;
+using Jitendex.JMdict.Import.Models;
 
-namespace Jitendex.JMdict.Entities;
+namespace Jitendex.JMdict.Import.SQLite;
 
-[Table(nameof(Revision))]
-[PrimaryKey(nameof(SequenceId), nameof(Number))]
-public sealed class Revision
+internal sealed class SequenceTable : Table<Sequence>
 {
-    public required int SequenceId { get; init; }
-    public required int Number { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-    public required string DiffJson { get; init; }
+    protected override string Name => nameof(Sequence);
 
-    [ForeignKey(nameof(SequenceId))]
-    public Sequence Sequence { get; init; } = null!;
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(Sequence.Id),
+        nameof(Sequence.CreatedDate),
+    ];
+
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Sequence.Id)
+    ];
+
+    protected override SqliteParameter[] Parameters(Sequence sequence) =>
+    [
+        new("@0", sequence.Id),
+        new("@1", sequence.CreatedDate),
+    ];
 }

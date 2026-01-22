@@ -30,6 +30,7 @@ namespace Jitendex.JMdict;
 public class Context : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
+    public DbSet<Sequence> Sequences { get; set; } = null!;
     public DbSet<Revision> Revisions { get; set; } = null!;
     public DbSet<Entry> Entries { get; set; } = null!;
 

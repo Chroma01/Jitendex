@@ -30,6 +30,7 @@ namespace Jitendex.JMdict.Import.SQLite;
 internal static class Database
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
+    private static readonly SequenceTable SequenceTable = new();
     private static readonly EntryTable EntryTable = new();
 
     #region Entry Element Tables
@@ -99,6 +100,7 @@ internal static class Database
             PriorityTagTable.InsertItems(context, document.PriorityTags.Values);
             LanguageTable.InsertItems(context, document.Languages.Values);
 
+            SequenceTable.InsertItems(context, document.Sequences());
             EntryTable.InsertItems(context, document.Entries.Values);
 
             KanjiFormTable.InsertItems(context, document.KanjiForms.Values);
@@ -130,15 +132,19 @@ internal static class Database
 
     public static void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Updating {diff.Sequences.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
+
         using var context = new Context();
-        var aEntries = LoadEntries(context, diff.EntryIds);
+        var ids = new HashSet<int>(diff.Sequences.Keys);
+        var aSequences = LoadSequences(context, ids);
 
         using (var transaction = context.Database.BeginTransaction())
         {
             context.ExecuteDeferForeignKeysPragma();
 
             FileHeaderTable.InsertItem(context, diff.InsertDocument.FileHeader);
+
+            SequenceTable.InsertOrIgnoreItems(context, diff.Sequences.Values);
 
             ReadingInfoTagTable.InsertOrIgnoreItems(context, diff.InsertDocument.ReadingInfoTags.Values);
             KanjiFormInfoTagTable.InsertOrIgnoreItems(context, diff.InsertDocument.KanjiFormInfoTags.Values);
@@ -152,8 +158,7 @@ internal static class Database
             PriorityTagTable.InsertOrIgnoreItems(context, diff.InsertDocument.PriorityTags.Values);
             LanguageTable.InsertOrIgnoreItems(context, diff.InsertDocument.Languages.Values);
 
-            EntryTable.InsertOrIgnoreItems(context, diff.InsertDocument.Entries.Values);
-
+            EntryTable.InsertItems(context, diff.InsertDocument.Entries.Values);
             KanjiFormTable.InsertItems(context, diff.InsertDocument.KanjiForms.Values);
             ReadingTable.InsertItems(context, diff.InsertDocument.Readings.Values);
             SenseTable.InsertItems(context, diff.InsertDocument.Senses.Values);
@@ -172,6 +177,7 @@ internal static class Database
             PartOfSpeechTable.InsertItems(context, diff.InsertDocument.PartsOfSpeech.Values);
             ReadingRestrictionTable.InsertItems(context, diff.InsertDocument.ReadingRestrictions.Values);
 
+            EntryTable.UpdateItems(context, diff.UpdateDocument.Entries.Values);
             KanjiFormTable.UpdateItems(context, diff.UpdateDocument.KanjiForms.Values);
             ReadingTable.UpdateItems(context, diff.UpdateDocument.Readings.Values);
             SenseTable.UpdateItems(context, diff.UpdateDocument.Senses.Values);
@@ -207,30 +213,31 @@ internal static class Database
             SenseTable.DeleteItems(context, diff.DeleteDocument.Senses.Values);
             ReadingTable.DeleteItems(context, diff.DeleteDocument.Readings.Values);
             KanjiFormTable.DeleteItems(context, diff.DeleteDocument.KanjiForms.Values);
+            EntryTable.DeleteItems(context, diff.DeleteDocument.Entries.Values);
 
             transaction.Commit();
         }
 
-        var bEntries = LoadEntries(context, diff.EntryIds);
+        var bSequences = LoadSequences(context, ids);
 
-        var entries = context.Entries
-            .Where(entry => diff.EntryIds.Contains(entry.Id))
-            .Include(static entry => entry.Revisions)
+        var sequences = context.Sequences
+            .Where(seq => ids.Contains(seq.Id))
+            .Include(static seq => seq.Revisions)
             .ToList();
 
-        foreach (var entry in entries)
+        foreach (var seq in sequences)
         {
-            if (aEntries.TryGetValue(entry.Id, out var aEntry))
+            if (aSequences.TryGetValue(seq.Id, out var aSeq))
             {
-                var bEntry = bEntries[entry.Id];
-                var baDiff = JsonDiffer.Diff(a: bEntry, b: aEntry);
-                entry.Revisions.Add(new()
+                var bSeq = bSequences[seq.Id];
+                var baDiff = JsonDiffer.Diff(a: bSeq, b: aSeq);
+                seq.Revisions.Add(new()
                 {
-                    EntryId = entry.Id,
-                    Number = entry.Revisions.Count,
+                    SequenceId = seq.Id,
+                    Number = seq.Revisions.Count,
                     CreatedDate = diff.FileHeader.Date,
                     DiffJson = baDiff,
-                    Entry = entry,
+                    Sequence = seq,
                 });
             }
         }
@@ -238,27 +245,25 @@ internal static class Database
         context.SaveChanges();
     }
 
-    private static Dictionary<int, Entities.Entry> LoadEntries(Context context, IReadOnlySet<int> ids)
+    private static Dictionary<int, Entities.Sequence> LoadSequences(Context context, IReadOnlySet<int> ids)
         => ids.Chunk(200)
-            .SelectMany(idsChunk => context.Entries
+            .SelectMany(idsChunk => context.Sequences
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Where(e => idsChunk.Contains(e.Id))
-                .Include(static e => e.KanjiForms).ThenInclude(static k => k.Infos)
-                .Include(static e => e.KanjiForms).ThenInclude(static k => k.Priorities)
-
-                .Include(static e => e.Readings).ThenInclude(static r => r.Infos)
-                .Include(static e => e.Readings).ThenInclude(static r => r.Priorities)
-                .Include(static e => e.Readings).ThenInclude(static r => r.Restrictions)
-
-                .Include(static e => e.Senses).ThenInclude(static s => s.CrossReferences)
-                .Include(static e => e.Senses).ThenInclude(static s => s.Dialects)
-                .Include(static e => e.Senses).ThenInclude(static s => s.Fields)
-                .Include(static e => e.Senses).ThenInclude(static s => s.Glosses)
-                .Include(static e => e.Senses).ThenInclude(static s => s.KanjiFormRestrictions)
-                .Include(static e => e.Senses).ThenInclude(static s => s.LanguageSources)
-                .Include(static e => e.Senses).ThenInclude(static s => s.Miscs)
-                .Include(static e => e.Senses).ThenInclude(static s => s.PartsOfSpeech)
-                .Include(static e => e.Senses).ThenInclude(static s => s.ReadingRestrictions))
+                .Include(s => s.Entry!).ThenInclude(e => e.KanjiForms).ThenInclude(static k => k.Infos)
+                .Include(s => s.Entry!).ThenInclude(e => e.KanjiForms).ThenInclude(static k => k.Priorities)
+                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(static r => r.Infos)
+                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(static r => r.Priorities)
+                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(static r => r.Restrictions)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.CrossReferences)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Dialects)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Fields)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Glosses)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.KanjiFormRestrictions)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.LanguageSources)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Miscs)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.PartsOfSpeech)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.ReadingRestrictions))
             .ToDictionary(e => e.Id);
 }

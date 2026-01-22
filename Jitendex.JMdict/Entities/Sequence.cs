@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,19 +18,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace Jitendex.JMdict.Entities;
 
-[Table(nameof(Revision))]
-[PrimaryKey(nameof(SequenceId), nameof(Number))]
-public sealed class Revision
+[Table(nameof(Sequence))]
+public sealed class Sequence
 {
-    public required int SequenceId { get; init; }
-    public required int Number { get; init; }
+    public required int Id { get; init; }
     public required DateOnly CreatedDate { get; init; }
-    public required string DiffJson { get; init; }
 
-    [ForeignKey(nameof(SequenceId))]
-    public Sequence Sequence { get; init; } = null!;
+    [InverseProperty(nameof(Entry.Sequence))]
+    public Entry? Entry { get; set; }
+
+    [JsonIgnore]
+    public List<Revision> Revisions { get; set; } = [];
 }

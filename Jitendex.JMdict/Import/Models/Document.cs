@@ -147,6 +147,13 @@ internal sealed class Document
         return i;
     }
 
+    public IEnumerable<Sequence> Sequences()
+        => Entries.Select(e => new Sequence
+        {
+            Id = e.Key,
+            CreatedDate = FileHeader.Date,
+        });
+
     public IEnumerable<int> ConcatAllEntryIds()
         => Entries.Keys
             .Concat(KanjiForms.Keys.Select(static key => key.Item1))

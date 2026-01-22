@@ -29,7 +29,7 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public IReadOnlySet<int> EntryIds { get; init; }
+    public Dictionary<int, Sequence> Sequences { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -50,7 +50,7 @@ internal sealed class DocumentDiff
         FindNew<string, PriorityTag>(docA, docB, propertyName: nameof(Document.PriorityTags));
         FindNew<string, Language>(docA, docB, propertyName: nameof(Document.Languages));
 
-        FindNew<int, Entry>(docA, docB, propertyName: nameof(Document.Entries));
+        DiffDictionaryProperties<int, Entry>(docA, docB, propertyName: nameof(Document.Entries));
 
         DiffDictionaryProperties<(int, int), KanjiForm>(docA, docB, propertyName: nameof(Document.KanjiForms));
         DiffDictionaryProperties<(int, int), Reading>(docA, docB, propertyName: nameof(Document.Readings));
@@ -73,10 +73,16 @@ internal sealed class DocumentDiff
         DiffDictionaryProperties<(int, int, int), PartOfSpeech>(docA, docB, propertyName: nameof(Document.PartsOfSpeech));
         DiffDictionaryProperties<(int, int, int), ReadingRestriction>(docA, docB, propertyName: nameof(Document.ReadingRestrictions));
 
-        EntryIds = InsertDocument.ConcatAllEntryIds()
+        Sequences = InsertDocument.ConcatAllEntryIds()
             .Concat(UpdateDocument.ConcatAllEntryIds())
             .Concat(DeleteDocument.ConcatAllEntryIds())
-            .ToHashSet();
+            .Distinct()
+            .Select(id => new Sequence
+            {
+                Id = id,
+                CreatedDate = FileHeader.Date,
+            })
+            .ToDictionary(s => s.Id);
     }
 
     private void FindNew<TKey, TValue>(Document docA, Document docB, string propertyName) where TKey : notnull
