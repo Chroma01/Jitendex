@@ -24,7 +24,6 @@ using Jitendex.JMdict.Import.SQLite.EntryElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.KanjiFormElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.JMdict.Import.SQLite;
 
@@ -132,13 +131,9 @@ internal static class Database
     public static void Update(DocumentDiff diff)
     {
         Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
-
         using var context = new Context();
-
-        Console.Error.WriteLine($"Loading entries from database");
         var aEntries = LoadEntries(context, diff.EntryIds);
 
-        Console.Error.WriteLine($"Beginning transaction");
         using (var transaction = context.Database.BeginTransaction())
         {
             context.ExecuteDeferForeignKeysPragma();
@@ -216,7 +211,6 @@ internal static class Database
             transaction.Commit();
         }
 
-        Console.Error.WriteLine($"Loading updated entries from database");
         var bEntries = LoadEntries(context, diff.EntryIds);
 
         var entries = context.Entries
@@ -245,69 +239,26 @@ internal static class Database
     }
 
     private static Dictionary<int, Entities.Entry> LoadEntries(Context context, IReadOnlySet<int> ids)
-    {
-        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        => ids.Chunk(200)
+            .SelectMany(idsChunk => context.Entries
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Where(e => idsChunk.Contains(e.Id))
+                .Include(static e => e.KanjiForms).ThenInclude(static k => k.Infos)
+                .Include(static e => e.KanjiForms).ThenInclude(static k => k.Priorities)
 
-        var entries = context.Entries
-            .Where(entry => ids.Contains(entry.Id))
-            .ToDictionary(static e => e.Id);
+                .Include(static e => e.Readings).ThenInclude(static r => r.Infos)
+                .Include(static e => e.Readings).ThenInclude(static r => r.Priorities)
+                .Include(static e => e.Readings).ThenInclude(static r => r.Restrictions)
 
-        var kanjiForms = context.KanjiForms
-            .Where(k => ids.Contains(k.EntryId))
-            .ToDictionary(static k => k.Key());
-
-        var readings = context.Readings
-            .Where(r => ids.Contains(r.EntryId))
-            .ToDictionary(static r => r.Key());
-
-        var senses = context.Senses
-            .Where(s => ids.Contains(s.EntryId))
-            .ToDictionary(static s => s.Key());
-
-        // Entry Elements
-        foreach (var kanjiForm in kanjiForms.Values)
-            entries[kanjiForm.EntryId].KanjiForms.Add(kanjiForm);
-        foreach (var reading in readings.Values)
-            entries[reading.EntryId].Readings.Add(reading);
-        foreach (var sense in senses.Values)
-            entries[sense.EntryId].Senses.Add(sense);
-
-        // Kanji Form Elements
-        foreach (var x in context.KanjiFormInfos.Where(y => ids.Contains(y.EntryId)).ToList())
-            kanjiForms[x.ParentKey()].Infos.Add(x);
-        foreach (var x in context.KanjiFormPriorities.Where(y => ids.Contains(y.EntryId)).ToList())
-            kanjiForms[x.ParentKey()].Priorities.Add(x);
-
-        // Reading ELements
-        foreach (var x in context.ReadingInfos.Where(y => ids.Contains(y.EntryId)).ToList())
-            readings[x.ParentKey()].Infos.Add(x);
-        foreach (var x in context.ReadingPriorities.Where(y => ids.Contains(y.EntryId)).ToList())
-            readings[x.ParentKey()].Priorities.Add(x);
-        foreach (var x in context.Restrictions.Where(y => ids.Contains(y.EntryId)).ToList())
-            readings[x.ParentKey()].Restrictions.Add(x);
-
-        // Sense Elements
-        foreach (var x in context.CrossReferences.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].CrossReferences.Add(x);
-        foreach (var x in context.Dialects.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].Dialects.Add(x);
-        foreach (var x in context.Fields.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].Fields.Add(x);
-        foreach (var x in context.Glosses.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].Glosses.Add(x);
-        foreach (var x in context.KanjiFormRestrictions.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].KanjiFormRestrictions.Add(x);
-        foreach (var x in context.LanguageSources.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].LanguageSources.Add(x);
-        foreach (var x in context.Miscs.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].Miscs.Add(x);
-        foreach (var x in context.PartsOfSpeech.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].PartsOfSpeech.Add(x);
-        foreach (var x in context.ReadingRestrictions.Where(y => ids.Contains(y.EntryId)).ToList())
-            senses[x.ParentKey()].ReadingRestrictions.Add(x);
-
-        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-
-        return entries;
-    }
+                .Include(static e => e.Senses).ThenInclude(static s => s.CrossReferences)
+                .Include(static e => e.Senses).ThenInclude(static s => s.Dialects)
+                .Include(static e => e.Senses).ThenInclude(static s => s.Fields)
+                .Include(static e => e.Senses).ThenInclude(static s => s.Glosses)
+                .Include(static e => e.Senses).ThenInclude(static s => s.KanjiFormRestrictions)
+                .Include(static e => e.Senses).ThenInclude(static s => s.LanguageSources)
+                .Include(static e => e.Senses).ThenInclude(static s => s.Miscs)
+                .Include(static e => e.Senses).ThenInclude(static s => s.PartsOfSpeech)
+                .Include(static e => e.Senses).ThenInclude(static s => s.ReadingRestrictions))
+            .ToDictionary(e => e.Id);
 }
