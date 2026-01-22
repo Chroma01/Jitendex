@@ -21,5 +21,5 @@ namespace Jitendex.JMdict.Import.Models;
 
 internal sealed record FileHeader
 {
-    public required DateOnly Date { get; set; }
+    public required DateOnly Date { get; init; }
 }

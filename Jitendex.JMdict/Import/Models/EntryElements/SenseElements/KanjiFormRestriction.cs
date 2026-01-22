@@ -21,10 +21,10 @@ namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 internal sealed record KanjiFormRestriction
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
-    public required string KanjiFormText { get; set; }
+    public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
+    public required int Order { get; init; }
+    public required string KanjiFormText { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
 

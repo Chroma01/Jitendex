@@ -21,14 +21,14 @@ namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 internal sealed record CrossReference
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
-    public required string TypeName { get; set; }
+    public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
+    public required int Order { get; init; }
+    public required string TypeName { get; init; }
 
-    public required string RefText1 { get; set; }
-    public required string? RefText2 { get; set; }
-    public required int RefSenseOrder { get; set; }
+    public required string RefText1 { get; init; }
+    public required string? RefText2 { get; init; }
+    public required int RefSenseOrder { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
 

@@ -21,8 +21,8 @@ namespace Jitendex.JMdict.Import.Models.EntryElements;
 
 internal sealed record KanjiForm
 {
-    public required int EntryId { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int Order { get; init; }
     public required string Text { get; set; }
 
     public (int, int) Key() => (EntryId, Order);

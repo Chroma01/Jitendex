@@ -21,14 +21,14 @@ namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 internal sealed record LanguageSource
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
+    public required int Order { get; init; }
 
-    public required string? Text { get; set; }
-    public required string LanguageCode { get; set; }
-    public required string TypeName { get; set; }
-    public required bool IsWasei { get; set; }
+    public required string? Text { get; init; }
+    public required string LanguageCode { get; init; }
+    public required string TypeName { get; init; }
+    public required bool IsWasei { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
 
