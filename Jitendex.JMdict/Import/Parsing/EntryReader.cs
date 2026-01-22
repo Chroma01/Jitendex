@@ -30,7 +30,6 @@ internal partial class EntryReader : BaseReader<EntryReader>
     private readonly KanjiFormReader _kanjiFormReader;
     private readonly ReadingReader _readingReader;
     private readonly SenseReader _senseReader;
-    private static readonly Range JmdictEntryRange = 1_000_000..3_000_000;
 
     public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader)
         : base(logger, xmlReader)
@@ -65,13 +64,13 @@ internal partial class EntryReader : BaseReader<EntryReader>
             }
         }
 
-        if (entry.IsJmdictEntry())
-        {
-            document.Entries.Add(entry.Id, entry);
-        }
-        else if (entry.Id.Equals(default))
+        if (entry.Id.Equals(default))
         {
             LogMissingEntryId(Entry.Id_XmlTagName);
+        }
+        else if (entry.IsJmdictEntry())
+        {
+            document.Entries.Add(entry.Id, entry);
         }
     }
 
@@ -114,13 +113,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
     private async Task ReadEntryId(Entry entry)
     {
-        if (!entry.Id.Equals(default))
-        {
-            LogDuplicateEntryId(entry.Id, Entry.Id_XmlTagName);
-        }
-
         var idText = await _xmlReader.ReadElementContentAsStringAsync();
-
         if (int.TryParse(idText, out int id))
         {
             entry.Id = id;
@@ -134,10 +127,6 @@ internal partial class EntryReader : BaseReader<EntryReader>
     [LoggerMessage(LogLevel.Error,
     "Attempted to read <{XmlTagName}> child element before reading the entry primary key")]
     partial void LogPrematureElement(string xmlTagName);
-
-    [LoggerMessage(LogLevel.Error,
-    "Entry ID {EntryId} contains more than one <{TagName}> element")]
-    partial void LogDuplicateEntryId(int entryId, string tagName);
 
     [LoggerMessage(LogLevel.Error,
     "Cannot parse entry ID from text `{Text}`")]
