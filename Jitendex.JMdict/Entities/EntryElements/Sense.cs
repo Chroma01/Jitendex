@@ -18,11 +18,13 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Entities.EntryElements;
 
+[Table(nameof(Sense))]
 [PrimaryKey(nameof(EntryId), nameof(Order))]
 public sealed class Sense
 {
@@ -42,6 +44,9 @@ public sealed class Sense
     public List<LanguageSource> LanguageSources { get; set; } = [];
     public List<CrossReference> CrossReferences { get; set; } = [];
 
+    [JsonIgnore]
     [ForeignKey(nameof(EntryId))]
-    public required Entry Entry { get; set; }
+    public Entry Entry { get; set; } = null!;
+
+    public (int, int) Key() => (EntryId, Order);
 }

@@ -18,20 +18,51 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
+using Jitendex.SQLite;
 using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Entities.EntryElements;
-using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
+using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
+using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict;
 
 public class Context : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
+    public DbSet<Revision> Revisions { get; set; } = null!;
     public DbSet<Entry> Entries { get; set; } = null!;
 
-    public DbSet<Reading> Readings { get; set; } = null!;
+    #region Entry Elements
     public DbSet<KanjiForm> KanjiForms { get; set; } = null!;
+    public DbSet<Reading> Readings { get; set; } = null!;
+    public DbSet<Sense> Senses { get; set; } = null!;
+    #endregion
 
+    #region Kanji Form Elements
+    public DbSet<KanjiFormInfo> KanjiFormInfos { get; set; } = null!;
+    public DbSet<KanjiFormPriority> KanjiFormPriorities { get; set; } = null!;
+    #endregion
+
+    #region Reading Elements
+    public DbSet<ReadingInfo> ReadingInfos { get; set; } = null!;
+    public DbSet<ReadingPriority> ReadingPriorities { get; set; } = null!;
+    public DbSet<Restriction> Restrictions { get; set; } = null!;
+    #endregion
+
+    #region Sense Elements
+    public DbSet<CrossReference> CrossReferences { get; set; } = null!;
+    public DbSet<Dialect> Dialects { get; set; } = null!;
+    public DbSet<Field> Fields { get; set; } = null!;
+    public DbSet<Gloss> Glosses { get; set; } = null!;
+    public DbSet<KanjiFormRestriction> KanjiFormRestrictions { get; set; } = null!;
+    public DbSet<LanguageSource> LanguageSources { get; set; } = null!;
+    public DbSet<Misc> Miscs { get; set; } = null!;
+    public DbSet<PartOfSpeech> PartsOfSpeech { get; set; } = null!;
+    public DbSet<ReadingRestriction> ReadingRestrictions { get; set; } = null!;
+    #endregion
+
+    #region Keywords
     public DbSet<PriorityTag> PriorityTags { get; set; } = null!;
     public DbSet<ReadingInfoTag> ReadingInfoTags { get; set; } = null!;
     public DbSet<KanjiFormInfoTag> KanjiFormInfoTags { get; set; } = null!;
@@ -45,6 +76,7 @@ public class Context : SqliteContext
     public DbSet<CrossReferenceType> CrossReferenceTypes { get; set; } = null!;
     public DbSet<LanguageSourceType> LanguageSourceTypes { get; set; } = null!;
     public DbSet<Language> Languages { get; set; } = null!;
+    #endregion
 
     public Context() : base("jmdict.db") { }
 }

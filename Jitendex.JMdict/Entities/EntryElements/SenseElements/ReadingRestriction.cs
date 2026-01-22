@@ -18,10 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
 
+[Table(nameof(ReadingRestriction))]
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public sealed class ReadingRestriction
 {
@@ -30,6 +32,9 @@ public sealed class ReadingRestriction
     public required int Order { get; set; }
     public required string ReadingText { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public required Sense Sense { get; set; }
+    public Sense Sense { get; set; } = null!;
+
+    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

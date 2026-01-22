@@ -18,10 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.ReadingElements;
 
+[Table(nameof(ReadingPriority))]
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]
 public sealed class ReadingPriority
 {
@@ -30,9 +32,13 @@ public sealed class ReadingPriority
     public required int Order { get; set; }
     public required string TagName { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public required Reading Reading { get; set; }
+    public Reading Reading { get; set; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TagName))]
-    public required PriorityTag Tag { get; set; }
+    public PriorityTag Tag { get; set; } = null!;
+
+    public (int, int) ParentKey() => (EntryId, ReadingOrder);
 }

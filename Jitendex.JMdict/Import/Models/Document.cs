@@ -74,7 +74,7 @@ internal sealed class Document
 
     public Dictionary<string, string> KeywordDescriptionToName { get; init; } = [];
 
-    public Document(int expectedEntryCount = 300_000)
+    public Document(int expectedEntryCount = 250_000)
     {
         Entries = new(expectedEntryCount);
 
@@ -82,12 +82,12 @@ internal sealed class Document
         Readings = new(expectedEntryCount);
         Senses = new(expectedEntryCount);
 
-        KanjiFormInfos = new(expectedEntryCount / 10);
-        KanjiFormPriorities = new(expectedEntryCount / 5);
+        KanjiFormInfos = new(expectedEntryCount / 20);
+        KanjiFormPriorities = new(expectedEntryCount / 4);
 
         ReadingInfos = new(expectedEntryCount / 30);
         ReadingPriorities = new(expectedEntryCount / 4);
-        Restrictions = new(expectedEntryCount / 100);
+        Restrictions = new(expectedEntryCount / 25);
 
         CrossReferences = new(expectedEntryCount / 5);
         Dialects = new(expectedEntryCount / 100);
@@ -146,4 +146,24 @@ internal sealed class Document
         }
         return i;
     }
+
+    public IEnumerable<int> ConcatAllEntryIds()
+        => Entries.Keys
+            .Concat(KanjiForms.Keys.Select(static key => key.Item1))
+            .Concat(Readings.Keys.Select(static key => key.Item1))
+            .Concat(Senses.Keys.Select(static key => key.Item1))
+            .Concat(KanjiFormInfos.Keys.Select(static key => key.Item1))
+            .Concat(KanjiFormPriorities.Keys.Select(static key => key.Item1))
+            .Concat(ReadingInfos.Keys.Select(static key => key.Item1))
+            .Concat(ReadingPriorities.Keys.Select(static key => key.Item1))
+            .Concat(Restrictions.Keys.Select(static key => key.Item1))
+            .Concat(CrossReferences.Keys.Select(static key => key.Item1))
+            .Concat(Dialects.Keys.Select(static key => key.Item1))
+            .Concat(Fields.Keys.Select(static key => key.Item1))
+            .Concat(Glosses.Keys.Select(static key => key.Item1))
+            .Concat(KanjiFormRestrictions.Keys.Select(static key => key.Item1))
+            .Concat(LanguageSources.Keys.Select(static key => key.Item1))
+            .Concat(Miscs.Keys.Select(static key => key.Item1))
+            .Concat(PartsOfSpeech.Keys.Select(static key => key.Item1))
+            .Concat(ReadingRestrictions.Keys.Select(static key => key.Item1));
 }

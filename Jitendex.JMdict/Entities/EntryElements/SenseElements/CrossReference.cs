@@ -18,10 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
 
+[Table(nameof(CrossReference))]
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public sealed class CrossReference
 {
@@ -34,11 +36,13 @@ public sealed class CrossReference
     public required string? RefText2 { get; set; }
     public required int RefSenseOrder { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public required Sense Sense { get; set; }
+    public Sense Sense { get; set; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TypeName))]
-    public required CrossReferenceType Type { get; set; }
+    public CrossReferenceType Type { get; set; } = null!;
 
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.
@@ -46,4 +50,6 @@ public sealed class CrossReference
     public string RawKey() => RefText2 is null ?
         $"{EntryId}・{SenseOrder}・{RefText1}・{RefSenseOrder}" :
         $"{EntryId}・{SenseOrder}・{RefText1}【{RefText2}】・{RefSenseOrder}";
+
+    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

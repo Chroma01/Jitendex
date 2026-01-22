@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025-2026 Stephen Kraus
+Copyright (c) 2025 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,29 +18,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Entities;
 
-[Table(nameof(Gloss))]
-[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public sealed class Gloss
+[Table(nameof(Revision))]
+[PrimaryKey(nameof(EntryId), nameof(Number))]
+public sealed class Revision
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int Number { get; init; }
+    public required DateOnly CreatedDate { get; init; }
+    public required string DiffJson { get; init; }
 
-    public required string TypeName { get; set; }
-    public required string Text { get; set; }
-
-    [JsonIgnore]
-    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public Sense Sense { get; set; } = null!;
-
-    [JsonIgnore]
-    [ForeignKey(nameof(TypeName))]
-    public GlossType Type { get; set; } = null!;
-
-    public (int, int) ParentKey() => (EntryId, SenseOrder);
+    [ForeignKey(nameof(EntryId))]
+    public Entry Entry { get; init; } = null!;
 }

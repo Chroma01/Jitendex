@@ -18,10 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
 
+[Table(nameof(KanjiFormInfo))]
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
 public sealed class KanjiFormInfo
 {
@@ -30,9 +32,13 @@ public sealed class KanjiFormInfo
     public required int Order { get; set; }
     public required string TagName { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public required KanjiForm KanjiForm { get; set; }
+    public KanjiForm KanjiForm { get; set; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TagName))]
-    public required KanjiFormInfoTag Tag { get; set; }
+    public KanjiFormInfoTag Tag { get; set; } = null!;
+
+    public (int, int) ParentKey() => (EntryId, KanjiFormOrder);
 }

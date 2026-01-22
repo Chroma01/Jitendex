@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
 
@@ -32,12 +33,14 @@ public class Reading
     public required string Text { get; set; }
     public required bool NoKanji { get; set; }
 
-    public List<ReadingInfo> Infos { get; } = [];
-    public List<ReadingPriority> Priorities { get; } = [];
-    public List<Restriction> Restrictions { get; } = [];
+    public List<ReadingInfo> Infos { get; init; } = [];
+    public List<ReadingPriority> Priorities { get; init; } = [];
+    public List<Restriction> Restrictions { get; init; } = [];
 
+    [JsonIgnore]
     [ForeignKey(nameof(EntryId))]
-    public required Entry Entry { get; set; }
+    public Entry Entry { get; set; } = null!;
 
+    public (int, int) Key() => (EntryId, Order);
     public bool IsHidden() => Infos.Any(static x => x.TagName == "sk");
 }

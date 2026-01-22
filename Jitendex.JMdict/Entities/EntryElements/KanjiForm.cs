@@ -18,6 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
 
@@ -31,11 +32,13 @@ public sealed class KanjiForm
     public required int Order { get; set; }
     public required string Text { get; set; }
 
-    public List<KanjiFormInfo> Infos { get; } = [];
-    public List<KanjiFormPriority> Priorities { get; } = [];
+    public List<KanjiFormInfo> Infos { get; init; } = [];
+    public List<KanjiFormPriority> Priorities { get; init; } = [];
 
+    [JsonIgnore]
     [ForeignKey(nameof(EntryId))]
-    public required Entry Entry { get; set; }
+    public Entry Entry { get; set; } = null!;
 
+    public (int, int) Key() => (EntryId, Order);
     public bool IsHidden() => Infos.Any(static x => x.TagName == "sK");
 }

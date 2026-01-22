@@ -29,4 +29,6 @@ public sealed class Entry
     public List<Reading> Readings { get; set; } = [];
     public List<KanjiForm> KanjiForms { get; set; } = [];
     public List<Sense> Senses { get; set; } = [];
+
+    public List<Revision> Revisions { get; set; } = [];
 }

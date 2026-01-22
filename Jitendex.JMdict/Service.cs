@@ -30,25 +30,25 @@ public static class Service
 {
     public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
     {
-        var previousDate = (DateOnly)default; // GetPreviousDate();
+        var previousDate = GetPreviousDate();
         var previousDocument = await GetPreviousDocumentAsync(previousDate, archiveDirectory);
 
-        // while (true)
-        // {
-        //     var (nextFile, _) = GetNextEdrdgFile(kanjidic2, previousDocument.FileHeader.Date, archiveDirectory);
+        while (true)
+        {
+            var (nextFile, nextDate) = GetNextEdrdgFile(JMdict_e_examp, previousDocument.FileHeader.Date, archiveDirectory);
 
-        //     if (nextFile is null)
-        //     {
-        //         break;
-        //     }
+            if (nextFile is null)
+            {
+                break;
+            }
 
-        //     var nextDocument = await ReadAsync(nextFile);
-        //     var diff = new DocumentDiff(previousDocument, nextDocument);
+            var nextDocument = await ReadAsync(nextFile, nextDate);
+            var diff = new DocumentDiff(previousDocument, nextDocument);
 
-        //     Database.Update(diff);
+            Database.Update(diff);
 
-        //     previousDocument = nextDocument;
-        // }
+            previousDocument = nextDocument;
+        }
 
         if (previousDate == default)
         {

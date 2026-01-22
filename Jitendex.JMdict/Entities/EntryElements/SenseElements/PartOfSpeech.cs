@@ -18,10 +18,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
 
+[Table(nameof(PartOfSpeech))]
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public sealed class PartOfSpeech
 {
@@ -30,9 +32,13 @@ public sealed class PartOfSpeech
     public required int Order { get; set; }
     public required string TagName { get; set; }
 
+    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public required Sense Sense { get; set; }
+    public Sense Sense { get; set; } = null!;
 
+    [JsonIgnore]
     [ForeignKey(nameof(TagName))]
-    public required PartOfSpeechTag Tag { get; set; }
+    public PartOfSpeechTag Tag { get; set; } = null!;
+
+    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

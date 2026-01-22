@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
-internal class Restriction
+internal sealed record Restriction
 {
     public required int EntryId { get; init; }
     public required int ReadingOrder { get; init; }
