@@ -29,15 +29,15 @@ internal partial class RestrictionReader : BaseReader<RestrictionReader>
 {
     public RestrictionReader(ILogger<RestrictionReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Reading reading)
+    public async Task ReadAsync(Document document, ReadingElement reading)
     {
         var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
 
-        var restriction = new Restriction
+        var restriction = new RestrictionElement
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            Order = document.NextOrder(reading.Key(), nameof(Restriction)),
+            Order = document.NextOrder(reading.Key(), nameof(RestrictionElement)),
             KanjiFormText = kanjiFormText,
         };
 

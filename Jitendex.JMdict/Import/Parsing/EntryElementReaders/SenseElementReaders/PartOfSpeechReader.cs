@@ -29,7 +29,7 @@ internal class PartOfSpeechReader : BaseReader<PartOfSpeechReader>
 {
     public PartOfSpeechReader(ILogger<PartOfSpeechReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document,Sense sense)
+    public async Task ReadAsync(Document document,SenseElement sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
 
@@ -41,19 +41,19 @@ internal class PartOfSpeechReader : BaseReader<PartOfSpeechReader>
 
         if (!document.PartOfSpeechTags.ContainsKey(tagName))
         {
-            var tag = new PartOfSpeechTag
+            var tag = new PartOfSpeechTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.PartOfSpeechTags.Add(tagName, tag);
         }
 
-        var partOfSpeech = new PartOfSpeech
+        var partOfSpeech = new PartOfSpeechElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(PartOfSpeech)),
+            Order = document.NextOrder(sense.Key(), nameof(PartOfSpeechElement)),
             TagName = tagName,
         };
 

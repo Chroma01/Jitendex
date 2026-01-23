@@ -39,12 +39,12 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
         _priorityReader = priorityReader;
     }
 
-    public async Task ReadAsync(Document document, Entry entry)
+    public async Task ReadAsync(Document document, EntryElement entry)
     {
-        var reading = new Reading
+        var reading = new ReadingElement
         {
             EntryId = entry.Id,
-            Order = document.NextOrder(entry.Id, nameof(Reading)),
+            Order = document.NextOrder(entry.Id, nameof(ReadingElement)),
             Text = null!,
             NoKanji = false,
         };
@@ -59,10 +59,10 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    UnexpectedTextNode(Reading.XmlTagName, text);
+                    UnexpectedTextNode(ReadingElement.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == Reading.XmlTagName;
+                    exit = _xmlReader.Name == ReadingElement.XmlTagName;
                     break;
             }
         }
@@ -73,40 +73,40 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
         }
         else
         {
-            LogMissingElement(reading.EntryId, reading.Order, Reading.Text_XmlTagName);
+            LogMissingElement(reading.EntryId, reading.Order, ReadingElement.Text_XmlTagName);
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, Reading reading)
+    private async Task ReadChildElementAsync(Document document, ReadingElement reading)
     {
         switch (_xmlReader.Name)
         {
-            case Reading.Text_XmlTagName:
+            case ReadingElement.Text_XmlTagName:
                 await ReadReadingText(reading);
                 break;
-            case Reading.NoKanji_XmlTagName:
+            case ReadingElement.NoKanji_XmlTagName:
                 reading.NoKanji = true;
                 break;
-            case Restriction.XmlTagName:
+            case RestrictionElement.XmlTagName:
                 await _restrictionReader.ReadAsync(document, reading);
                 break;
-            case ReadingInfo.XmlTagName:
+            case ReadingInfoElement.XmlTagName:
                 await _infoReader.ReadAsync(document, reading);
                 break;
-            case ReadingPriority.XmlTagName:
+            case ReadingPriorityElement.XmlTagName:
                 await _priorityReader.ReadAsync(document, reading);
                 break;
             default:
-                UnexpectedChildElement(_xmlReader.Name, Reading.XmlTagName);
+                UnexpectedChildElement(_xmlReader.Name, ReadingElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadReadingText(Reading reading)
+    private async Task ReadReadingText(ReadingElement reading)
     {
         if (reading.Text is not null)
         {
-            LogMultipleElements(reading.EntryId, reading.Order, Reading.Text_XmlTagName);
+            LogMultipleElements(reading.EntryId, reading.Order, ReadingElement.Text_XmlTagName);
         }
 
         reading.Text = await _xmlReader.ReadElementContentAsStringAsync();

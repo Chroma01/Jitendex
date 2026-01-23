@@ -35,7 +35,7 @@ public static class Service
 
         while (true)
         {
-            var (nextFile, nextDate) = GetNextEdrdgFile(JMdict_e_examp, previousDocument.FileHeader.Date, archiveDirectory);
+            var (nextFile, nextDate) = GetNextEdrdgFile(JMdict_e_examp, previousDocument.Header.Date, archiveDirectory);
 
             if (nextFile is null)
             {

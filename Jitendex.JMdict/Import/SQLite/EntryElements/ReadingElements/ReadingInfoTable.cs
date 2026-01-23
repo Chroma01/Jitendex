@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
 using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
 
-internal sealed class ReadingInfoTable : Table<ReadingInfo>
+internal sealed class ReadingInfoTable : Table<ReadingInfoElement>
 {
     protected override string Name => nameof(ReadingInfo);
 
@@ -42,7 +43,7 @@ internal sealed class ReadingInfoTable : Table<ReadingInfo>
         nameof(ReadingInfo.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(ReadingInfo info) =>
+    protected override SqliteParameter[] Parameters(ReadingInfoElement info) =>
     [
         new("@0", info.EntryId),
         new("@1", info.ReadingOrder),

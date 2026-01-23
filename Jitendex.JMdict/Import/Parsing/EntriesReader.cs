@@ -56,7 +56,7 @@ internal partial class EntriesReader : BaseReader<EntriesReader>
     {
         switch (_xmlReader.Name)
         {
-            case Entry.XmlTagName:
+            case EntryElement.XmlTagName:
                 await _entryReader.ReadAsync(document);
                 break;
             default:

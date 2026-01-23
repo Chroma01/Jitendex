@@ -30,15 +30,15 @@ internal partial class ReadingRestrictionReader : BaseReader<ReadingRestrictionR
 {
     public ReadingRestrictionReader(ILogger<ReadingRestrictionReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
 
-        var restriction = new ReadingRestriction
+        var restriction = new ReadingRestrictionElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(ReadingRestriction)),
+            Order = document.NextOrder(sense.Key(), nameof(ReadingRestrictionElement)),
             ReadingText = text,
         };
 

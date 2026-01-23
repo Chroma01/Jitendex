@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Import.Models;
 
 namespace Jitendex.JMdict.Import.SQLite;
 
-internal sealed class SequenceTable : Table<Sequence>
+internal sealed class SequenceTable : Table<DocumentSequence>
 {
     protected override string Name => nameof(Sequence);
 
@@ -38,7 +39,7 @@ internal sealed class SequenceTable : Table<Sequence>
         nameof(Sequence.Id)
     ];
 
-    protected override SqliteParameter[] Parameters(Sequence sequence) =>
+    protected override SqliteParameter[] Parameters(DocumentSequence sequence) =>
     [
         new("@0", sequence.Id),
         new("@1", sequence.CreatedDate),

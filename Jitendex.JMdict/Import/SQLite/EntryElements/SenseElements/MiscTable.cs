@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
-internal sealed class MiscTable : Table<Misc>
+internal sealed class MiscTable : Table<MiscElement>
 {
     protected override string Name => nameof(Misc);
 
@@ -42,7 +43,7 @@ internal sealed class MiscTable : Table<Misc>
         nameof(Misc.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(Misc misc) =>
+    protected override SqliteParameter[] Parameters(MiscElement misc) =>
     [
         new("@0", misc.EntryId),
         new("@1", misc.SenseOrder),

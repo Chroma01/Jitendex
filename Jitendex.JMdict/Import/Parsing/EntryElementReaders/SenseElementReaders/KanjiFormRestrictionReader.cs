@@ -29,15 +29,15 @@ internal partial class KanjiFormRestrictionReader : BaseReader<KanjiFormRestrict
 {
     public KanjiFormRestrictionReader(ILogger<KanjiFormRestrictionReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
 
-        var restriction = new KanjiFormRestriction
+        var restriction = new KanjiFormRestrictionElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(KanjiFormRestriction)),
+            Order = document.NextOrder(sense.Key(), nameof(KanjiFormRestrictionElement)),
             KanjiFormText = text,
         };
 

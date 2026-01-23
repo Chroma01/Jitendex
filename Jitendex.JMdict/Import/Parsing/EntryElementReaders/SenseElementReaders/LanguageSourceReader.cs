@@ -29,15 +29,15 @@ internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
 {
     public LanguageSourceReader(ILogger<LanguageSourceReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
         if (!document.LanguageSourceTypes.ContainsKey(typeName))
         {
-            var tag = new LanguageSourceType
+            var tag = new LanguageSourceTypeElement
             {
                 Name = typeName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.LanguageSourceTypes.Add(typeName, tag);
         }
@@ -45,10 +45,10 @@ internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
         var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
         if (!document.Languages.ContainsKey(languageCode))
         {
-            var tag = new Language
+            var tag = new LanguageElement
             {
                 Name = languageCode,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.Languages.Add(languageCode, tag);
         }
@@ -63,11 +63,11 @@ internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
             ? null
             : await _xmlReader.ReadElementContentAsStringAsync();
 
-        var languageSource = new LanguageSource
+        var languageSource = new LanguageSourceElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(LanguageSource)),
+            Order = document.NextOrder(sense.Key(), nameof(LanguageSourceElement)),
             Text = text,
             LanguageCode = languageCode,
             TypeName = typeName,

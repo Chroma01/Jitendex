@@ -29,7 +29,7 @@ internal class FieldReader : BaseReader<FieldReader>
 {
     public FieldReader(ILogger<FieldReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
 
@@ -41,19 +41,19 @@ internal class FieldReader : BaseReader<FieldReader>
 
         if (!document.FieldTags.ContainsKey(tagName))
         {
-            var tag = new FieldTag
+            var tag = new FieldTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.FieldTags.Add(tagName, tag);
         }
 
-        var field = new Field
+        var field = new FieldElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(Field)),
+            Order = document.NextOrder(sense.Key(), nameof(FieldElement)),
             TagName = tagName,
         };
 

@@ -38,7 +38,7 @@ internal partial class JmdictReader : BaseReader<JmdictReader>
     {
         var document = new Document
         {
-            FileHeader = new() { Date = fileDate }
+            Header = new() { Date = fileDate }
         };
 
         await _docTypeReader.ReadAsync(document);

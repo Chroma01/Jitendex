@@ -31,15 +31,15 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
 
     private record ParsedReference(string Text1, string? Text2, int SenseOrder);
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var typeName = _xmlReader.Name;
         if (!document.CrossReferenceTypes.ContainsKey(typeName))
         {
-            var tag = new CrossReferenceType
+            var tag = new CrossReferenceTypeElement
             {
                 Name = typeName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.CrossReferenceTypes.Add(typeName, tag);
         }
@@ -51,11 +51,11 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
             return;
         }
 
-        var xref = new CrossReference
+        var xref = new CrossReferenceElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(CrossReference)),
+            Order = document.NextOrder(sense.Key(), nameof(CrossReferenceElement)),
             TypeName = typeName,
             RefText1 = parsedRef.Text1,
             RefText2 = parsedRef.Text2,

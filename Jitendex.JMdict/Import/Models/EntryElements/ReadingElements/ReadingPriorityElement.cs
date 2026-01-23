@@ -17,18 +17,16 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
-internal sealed record Gloss
+internal sealed record ReadingPriorityElement
 {
     public required int EntryId { get; init; }
-    public required int SenseOrder { get; init; }
+    public required int ReadingOrder { get; init; }
     public required int Order { get; init; }
+    public required string TagName { get; init; }
 
-    public required string TypeName { get; init; }
-    public required string Text { get; init; }
+    public (int, int, int) Key() => (EntryId, ReadingOrder, Order);
 
-    public (int, int, int) Key() => (EntryId, SenseOrder, Order);
-
-    public const string XmlTagName = "gloss";
+    public const string XmlTagName = "re_pri";
 }

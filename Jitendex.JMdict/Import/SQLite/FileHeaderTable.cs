@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Import.Models;
 
 namespace Jitendex.JMdict.Import.SQLite;
 
-internal sealed class FileHeaderTable : Table<FileHeader>
+internal sealed class FileHeaderTable : Table<DocumentHeader>
 {
     protected override string Name => nameof(FileHeader);
 
@@ -35,7 +36,7 @@ internal sealed class FileHeaderTable : Table<FileHeader>
     protected override IReadOnlyList<string> KeyColNames
         => throw new NotImplementedException();
 
-    protected override SqliteParameter[] Parameters(FileHeader header) =>
+    protected override SqliteParameter[] Parameters(DocumentHeader header) =>
     [
         new("@0", header.Date)
     ];

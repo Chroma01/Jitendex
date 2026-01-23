@@ -17,18 +17,21 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.JMdict.Import.Models.EntryElements;
+namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
-internal sealed record Reading
+internal sealed record CrossReferenceElement
 {
     public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
     public required int Order { get; init; }
-    public required string Text { get; set; }
-    public required bool NoKanji { get; set; }
+    public required string TypeName { get; init; }
 
-    public (int, int) Key() => (EntryId, Order);
+    public required string RefText1 { get; init; }
+    public required string? RefText2 { get; init; }
+    public required int RefSenseOrder { get; init; }
 
-    public const string XmlTagName = "r_ele";
-    public const string Text_XmlTagName = "reb";
-    public const string NoKanji_XmlTagName = "re_nokanji";
+    public (int, int, int) Key() => (EntryId, SenseOrder, Order);
+
+    public const string XmlTagName = "xref";
+    public const string XmlTagName_Antonym = "ant";
 }

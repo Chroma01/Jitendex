@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
-internal sealed record PartOfSpeech
+internal sealed record MiscElement
 {
     public required int EntryId { get; init; }
     public required int SenseOrder { get; init; }
@@ -28,5 +28,5 @@ internal sealed record PartOfSpeech
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
 
-    public const string XmlTagName = "pos";
+    public const string XmlTagName = "misc";
 }

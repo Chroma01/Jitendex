@@ -29,25 +29,25 @@ internal class KPriorityReader : BaseReader<KPriorityReader>
 {
     public KPriorityReader(ILogger<KPriorityReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, KanjiForm kanjiForm)
+    public async Task ReadAsync(Document document, KanjiFormElement kanjiForm)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.PriorityTags.ContainsKey(tagName))
         {
-            var tag = new PriorityTag
+            var tag = new PriorityTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.PriorityTags.Add(tagName, tag);
         }
 
-        var priority = new KanjiFormPriority
+        var priority = new KanjiFormPriorityElement
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            Order = document.NextOrder(kanjiForm.Key(), nameof(KanjiFormPriority)),
+            Order = document.NextOrder(kanjiForm.Key(), nameof(KanjiFormPriorityElement)),
             TagName = tagName,
         };
 

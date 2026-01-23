@@ -43,12 +43,12 @@ internal partial class SenseReader : BaseReader<SenseReader>
         (_kRestrictionReader, _rRestrictionReader, _crossReferenceReader, _dialectReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
         (@kRestrictionReader, @rRestrictionReader, @crossReferenceReader, @dialectReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
-    public async Task ReadAsync(Document document, Entry entry)
+    public async Task ReadAsync(Document document, EntryElement entry)
     {
-        var sense = new Sense
+        var sense = new SenseElement
         {
             EntryId = entry.Id,
-            Order = document.NextOrder(entry.Id, nameof(Sense)),
+            Order = document.NextOrder(entry.Id, nameof(SenseElement)),
         };
 
         var exit = false;
@@ -61,10 +61,10 @@ internal partial class SenseReader : BaseReader<SenseReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    UnexpectedTextNode(Sense.XmlTagName, text);
+                    UnexpectedTextNode(SenseElement.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == Sense.XmlTagName;
+                    exit = _xmlReader.Name == SenseElement.XmlTagName;
                     break;
             }
         }
@@ -72,51 +72,51 @@ internal partial class SenseReader : BaseReader<SenseReader>
         document.Senses.Add(sense.Key(), sense);
     }
 
-    private async Task ReadChildElementAsync(Document document, Sense sense)
+    private async Task ReadChildElementAsync(Document document, SenseElement sense)
     {
         switch (_xmlReader.Name)
         {
-            case KanjiFormRestriction.XmlTagName:
+            case KanjiFormRestrictionElement.XmlTagName:
                 await _kRestrictionReader.ReadAsync(document, sense);
                 break;
-            case ReadingRestriction.XmlTagName:
+            case ReadingRestrictionElement.XmlTagName:
                 await _rRestrictionReader.ReadAsync(document, sense);
                 break;
-            case Gloss.XmlTagName:
+            case GlossElement.XmlTagName:
                 await _glossReader.ReadAsync(document, sense);
                 break;
-            case PartOfSpeech.XmlTagName:
+            case PartOfSpeechElement.XmlTagName:
                 await _partOfSpeechReader.ReadAsync(document, sense);
                 break;
-            case Field.XmlTagName:
+            case FieldElement.XmlTagName:
                 await _fieldReader.ReadAsync(document, sense);
                 break;
-            case Misc.XmlTagName:
+            case MiscElement.XmlTagName:
                 await _miscReader.ReadAsync(document, sense);
                 break;
-            case Dialect.XmlTagName:
+            case DialectElement.XmlTagName:
                 await _dialectReader.ReadAsync(document, sense);
                 break;
-            case LanguageSource.XmlTagName:
+            case LanguageSourceElement.XmlTagName:
                 await _languageSourceReader.ReadAsync(document, sense);
                 break;
-            case CrossReference.XmlTagName:
-            case CrossReference.XmlTagName_Antonym:
+            case CrossReferenceElement.XmlTagName:
+            case CrossReferenceElement.XmlTagName_Antonym:
                 await _crossReferenceReader.ReadAsync(document, sense);
                 break;
-            case Sense.Note_XmlTagName:
+            case SenseElement.Note_XmlTagName:
                 await ReadSenseNote(sense);
                 break;
             case "example":
                 await _xmlReader.SkipAsync();
                 break;
             default:
-                UnexpectedChildElement(_xmlReader.Name, Sense.XmlTagName);
+                UnexpectedChildElement(_xmlReader.Name, SenseElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadSenseNote(Sense sense)
+    private async Task ReadSenseNote(SenseElement sense)
     {
         // The XML schema allows for more than one note per sense,
         // but in practice there is only one or none.

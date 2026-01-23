@@ -19,14 +19,16 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
-internal sealed record KanjiFormRestriction
+internal sealed record GlossElement
 {
     public required int EntryId { get; init; }
     public required int SenseOrder { get; init; }
     public required int Order { get; init; }
-    public required string KanjiFormText { get; init; }
+
+    public required string TypeName { get; init; }
+    public required string Text { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
 
-    public const string XmlTagName = "stagk";
+    public const string XmlTagName = "gloss";
 }

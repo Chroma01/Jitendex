@@ -29,7 +29,7 @@ internal class KInfoReader : BaseReader<KInfoReader>
 {
     public KInfoReader(ILogger<KInfoReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, KanjiForm kanjiForm)
+    public async Task ReadAsync(Document document, KanjiFormElement kanjiForm)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
 
@@ -41,19 +41,19 @@ internal class KInfoReader : BaseReader<KInfoReader>
 
         if (!document.KanjiFormInfoTags.ContainsKey(tagName))
         {
-            var tag = new KanjiFormInfoTag
+            var tag = new KanjiFormInfoTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.KanjiFormInfoTags.Add(tagName, tag);
         }
 
-        var info = new KanjiFormInfo
+        var info = new KanjiFormInfoElement
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            Order = document.NextOrder(kanjiForm.Key(), nameof(KanjiFormInfo)),
+            Order = document.NextOrder(kanjiForm.Key(), nameof(KanjiFormInfoElement)),
             TagName = tagName,
         };
 

@@ -41,7 +41,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
     public async Task ReadAsync(Document document)
     {
-        var entry = new Entry
+        var entry = new EntryElement
         {
             Id = default
         };
@@ -56,17 +56,17 @@ internal partial class EntryReader : BaseReader<EntryReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    UnexpectedTextNode(Entry.XmlTagName, text);
+                    UnexpectedTextNode(EntryElement.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == Entry.XmlTagName;
+                    exit = _xmlReader.Name == EntryElement.XmlTagName;
                     break;
             }
         }
 
         if (entry.Id.Equals(default))
         {
-            LogMissingEntryId(Entry.Id_XmlTagName);
+            LogMissingEntryId(EntryElement.Id_XmlTagName);
         }
         else if (entry.IsJmdictEntry())
         {
@@ -74,11 +74,11 @@ internal partial class EntryReader : BaseReader<EntryReader>
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry)
     {
         if (entry.Id.Equals(default))
         {
-            if (string.Equals(_xmlReader.Name, Entry.Id_XmlTagName, StringComparison.Ordinal))
+            if (string.Equals(_xmlReader.Name, EntryElement.Id_XmlTagName, StringComparison.Ordinal))
             {
                 await ReadEntryId(entry);
             }
@@ -96,22 +96,22 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
         switch (_xmlReader.Name)
         {
-            case KanjiForm.XmlTagName:
+            case KanjiFormElement.XmlTagName:
                 await _kanjiFormReader.ReadAsync(document, entry);
                 break;
-            case Reading.XmlTagName:
+            case ReadingElement.XmlTagName:
                 await _readingReader.ReadAsync(document, entry);
                 break;
-            case Sense.XmlTagName:
+            case SenseElement.XmlTagName:
                 await _senseReader.ReadAsync(document, entry);
                 break;
             default:
-                UnexpectedChildElement(_xmlReader.Name, Entry.XmlTagName);
+                UnexpectedChildElement(_xmlReader.Name, EntryElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadEntryId(Entry entry)
+    private async Task ReadEntryId(EntryElement entry)
     {
         var idText = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(idText, out int id))

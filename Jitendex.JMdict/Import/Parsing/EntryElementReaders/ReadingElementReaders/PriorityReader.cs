@@ -29,25 +29,25 @@ internal class RPriorityReader : BaseReader<RPriorityReader>
 {
     public RPriorityReader(ILogger<RPriorityReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Reading reading)
+    public async Task ReadAsync(Document document, ReadingElement reading)
     {
         var tagName = await _xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.PriorityTags.ContainsKey(tagName))
         {
-            var tag = new PriorityTag
+            var tag = new PriorityTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.PriorityTags.Add(tagName, tag);
         }
 
-        var priority = new ReadingPriority
+        var priority = new ReadingPriorityElement
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            Order = document.NextOrder(reading.Key(), nameof(ReadingPriority)),
+            Order = document.NextOrder(reading.Key(), nameof(ReadingPriorityElement)),
             TagName = tagName,
         };
 

@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Import.Models;
 
 namespace Jitendex.JMdict.Import.SQLite;
 
-internal sealed class EntryTable : Table<Entry>
+internal sealed class EntryTable : Table<EntryElement>
 {
     protected override string Name => nameof(Entry);
 
@@ -37,7 +38,7 @@ internal sealed class EntryTable : Table<Entry>
         nameof(Entry.Id)
     ];
 
-    protected override SqliteParameter[] Parameters(Entry entry) =>
+    protected override SqliteParameter[] Parameters(EntryElement entry) =>
     [
         new("@0", entry.Id)
     ];

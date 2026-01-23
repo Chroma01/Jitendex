@@ -29,7 +29,7 @@ internal class DialectReader : BaseReader<DialectReader>
 {
     public DialectReader(ILogger<DialectReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
 
@@ -41,19 +41,19 @@ internal class DialectReader : BaseReader<DialectReader>
 
         if (!document.DialectTags.ContainsKey(tagName))
         {
-            var tag = new DialectTag
+            var tag = new DialectTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.DialectTags.Add(tagName, tag);
         }
 
-        var dialect = new Dialect
+        var dialect = new DialectElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(Dialect)),
+            Order = document.NextOrder(sense.Key(), nameof(DialectElement)),
             TagName = tagName,
         };
 

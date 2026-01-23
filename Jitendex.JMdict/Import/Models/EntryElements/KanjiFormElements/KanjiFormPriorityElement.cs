@@ -17,16 +17,16 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Import.Models.EntryElements.KanjiFormElements;
 
-internal sealed record ReadingRestriction
+internal sealed record KanjiFormPriorityElement
 {
     public required int EntryId { get; init; }
-    public required int SenseOrder { get; init; }
+    public required int KanjiFormOrder { get; init; }
     public required int Order { get; init; }
-    public required string ReadingText { get; init; }
+    public required string TagName { get; init; }
 
-    public (int, int, int) Key() => (EntryId, SenseOrder, Order);
+    public (int, int, int) Key() => (EntryId, KanjiFormOrder, Order);
 
-    public const string XmlTagName = "stagr";
+    public const string XmlTagName = "ke_pri";
 }

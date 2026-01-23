@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements;
 using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements;
 
-internal sealed class KanjiFormTable : Table<KanjiForm>
+internal sealed class KanjiFormTable : Table<KanjiFormElement>
 {
     protected override string Name => nameof(KanjiForm);
 
@@ -40,7 +41,7 @@ internal sealed class KanjiFormTable : Table<KanjiForm>
         nameof(KanjiForm.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(KanjiForm kanjiForm) =>
+    protected override SqliteParameter[] Parameters(KanjiFormElement kanjiForm) =>
     [
         new("@0", kanjiForm.EntryId),
         new("@1", kanjiForm.Order),

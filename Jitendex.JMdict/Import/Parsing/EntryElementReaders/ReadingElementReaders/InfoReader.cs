@@ -29,7 +29,7 @@ internal class RInfoReader : BaseReader<RInfoReader>
 {
     public RInfoReader(ILogger<RInfoReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Reading reading)
+    public async Task ReadAsync(Document document, ReadingElement reading)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
 
@@ -41,19 +41,19 @@ internal class RInfoReader : BaseReader<RInfoReader>
 
         if (!document.ReadingInfoTags.ContainsKey(tagName))
         {
-            var tag = new ReadingInfoTag
+            var tag = new ReadingInfoTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.ReadingInfoTags.Add(tagName, tag);
         }
 
-        var info = new ReadingInfo
+        var info = new ReadingInfoElement
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            Order = document.NextOrder(reading.Key(), nameof(ReadingInfo)),
+            Order = document.NextOrder(reading.Key(), nameof(ReadingInfoElement)),
             TagName = tagName,
         };
 

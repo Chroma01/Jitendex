@@ -29,7 +29,7 @@ internal class MiscReader : BaseReader<MiscReader>
 {
     public MiscReader(ILogger<MiscReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var description = await _xmlReader.ReadElementContentAsStringAsync();
 
@@ -41,19 +41,19 @@ internal class MiscReader : BaseReader<MiscReader>
 
         if (!document.MiscTags.ContainsKey(tagName))
         {
-            var tag = new MiscTag
+            var tag = new MiscTagElement
             {
                 Name = tagName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.MiscTags.Add(tagName, tag);
         }
 
-        var misc = new Misc
+        var misc = new MiscElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(Misc)),
+            Order = document.NextOrder(sense.Key(), nameof(MiscElement)),
             TagName = tagName,
         };
 

@@ -17,16 +17,9 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.JMdict.Import.Models.EntryElements;
+namespace Jitendex.JMdict.Import.Models;
 
-internal sealed record Sense
+internal sealed record DocumentHeader
 {
-    public required int EntryId { get; init; }
-    public required int Order { get; init; }
-    public string? Note { get; set; }
-
-    public (int, int) Key() => (EntryId, Order);
-
-    public const string XmlTagName = "sense";
-    public const string Note_XmlTagName = "s_inf";
+    public required DateOnly Date { get; init; }
 }

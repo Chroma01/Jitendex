@@ -29,25 +29,25 @@ internal partial class GlossReader : BaseReader<GlossReader>
 {
     public GlossReader(ILogger<GlossReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, Sense sense)
+    public async Task ReadAsync(Document document, SenseElement sense)
     {
         var typeName = _xmlReader.GetAttribute("g_type") ?? string.Empty;
 
         if (!document.GlossTypes.ContainsKey(typeName))
         {
-            var tag = new GlossType
+            var tag = new GlossTypeElement
             {
                 Name = typeName,
-                CreatedDate = document.FileHeader.Date,
+                CreatedDate = document.Header.Date,
             };
             document.GlossTypes.Add(typeName, tag);
         }
 
-        var gloss = new Gloss
+        var gloss = new GlossElement
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(Gloss)),
+            Order = document.NextOrder(sense.Key(), nameof(GlossElement)),
             TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };

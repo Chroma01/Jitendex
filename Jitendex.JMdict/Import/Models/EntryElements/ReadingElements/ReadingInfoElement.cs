@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
-internal sealed record ReadingPriority
+internal sealed record ReadingInfoElement
 {
     public required int EntryId { get; init; }
     public required int ReadingOrder { get; init; }
@@ -28,5 +28,5 @@ internal sealed record ReadingPriority
 
     public (int, int, int) Key() => (EntryId, ReadingOrder, Order);
 
-    public const string XmlTagName = "re_pri";
+    public const string XmlTagName = "re_inf";
 }

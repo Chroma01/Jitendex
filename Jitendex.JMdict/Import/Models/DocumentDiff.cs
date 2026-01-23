@@ -25,59 +25,59 @@ namespace Jitendex.JMdict.Import.Models;
 
 internal sealed class DocumentDiff
 {
-    public FileHeader FileHeader { get; init; }
+    public DocumentHeader FileHeader { get; init; }
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public Dictionary<int, Sequence> Sequences { get; init; }
+    public Dictionary<int, DocumentSequence> Sequences { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
-        FileHeader = docB.FileHeader;
-        InsertDocument = new Document(0) { FileHeader = docB.FileHeader };
-        UpdateDocument = new Document(0) { FileHeader = docB.FileHeader };
-        DeleteDocument = new Document(0) { FileHeader = docB.FileHeader };
+        FileHeader = docB.Header;
+        InsertDocument = new Document(0) { Header = docB.Header };
+        UpdateDocument = new Document(0) { Header = docB.Header };
+        DeleteDocument = new Document(0) { Header = docB.Header };
 
-        FindNew<string, ReadingInfoTag>(docA, docB, propertyName: nameof(Document.ReadingInfoTags));
-        FindNew<string, KanjiFormInfoTag>(docA, docB, propertyName: nameof(Document.KanjiFormInfoTags));
-        FindNew<string, PartOfSpeechTag>(docA, docB, propertyName: nameof(Document.PartOfSpeechTags));
-        FindNew<string, FieldTag>(docA, docB, propertyName: nameof(Document.FieldTags));
-        FindNew<string, MiscTag>(docA, docB, propertyName: nameof(Document.MiscTags));
-        FindNew<string, DialectTag>(docA, docB, propertyName: nameof(Document.DialectTags));
-        FindNew<string, GlossType>(docA, docB, propertyName: nameof(Document.GlossTypes));
-        FindNew<string, CrossReferenceType>(docA, docB, propertyName: nameof(Document.CrossReferenceTypes));
-        FindNew<string, LanguageSourceType>(docA, docB, propertyName: nameof(Document.LanguageSourceTypes));
-        FindNew<string, PriorityTag>(docA, docB, propertyName: nameof(Document.PriorityTags));
-        FindNew<string, Language>(docA, docB, propertyName: nameof(Document.Languages));
+        FindNew<string, ReadingInfoTagElement>(docA, docB, propertyName: nameof(Document.ReadingInfoTags));
+        FindNew<string, KanjiFormInfoTagElement>(docA, docB, propertyName: nameof(Document.KanjiFormInfoTags));
+        FindNew<string, PartOfSpeechTagElement>(docA, docB, propertyName: nameof(Document.PartOfSpeechTags));
+        FindNew<string, FieldTagElement>(docA, docB, propertyName: nameof(Document.FieldTags));
+        FindNew<string, MiscTagElement>(docA, docB, propertyName: nameof(Document.MiscTags));
+        FindNew<string, DialectTagElement>(docA, docB, propertyName: nameof(Document.DialectTags));
+        FindNew<string, GlossTypeElement>(docA, docB, propertyName: nameof(Document.GlossTypes));
+        FindNew<string, CrossReferenceTypeElement>(docA, docB, propertyName: nameof(Document.CrossReferenceTypes));
+        FindNew<string, LanguageSourceTypeElement>(docA, docB, propertyName: nameof(Document.LanguageSourceTypes));
+        FindNew<string, PriorityTagElement>(docA, docB, propertyName: nameof(Document.PriorityTags));
+        FindNew<string, LanguageElement>(docA, docB, propertyName: nameof(Document.Languages));
 
-        DiffDictionaryProperties<int, Entry>(docA, docB, propertyName: nameof(Document.Entries));
+        DiffDictionaryProperties<int, EntryElement>(docA, docB, propertyName: nameof(Document.Entries));
 
-        DiffDictionaryProperties<(int, int), KanjiForm>(docA, docB, propertyName: nameof(Document.KanjiForms));
-        DiffDictionaryProperties<(int, int), Reading>(docA, docB, propertyName: nameof(Document.Readings));
-        DiffDictionaryProperties<(int, int), Sense>(docA, docB, propertyName: nameof(Document.Senses));
+        DiffDictionaryProperties<(int, int), KanjiFormElement>(docA, docB, propertyName: nameof(Document.KanjiForms));
+        DiffDictionaryProperties<(int, int), ReadingElement>(docA, docB, propertyName: nameof(Document.Readings));
+        DiffDictionaryProperties<(int, int), SenseElement>(docA, docB, propertyName: nameof(Document.Senses));
 
-        DiffDictionaryProperties<(int, int, int), KanjiFormInfo>(docA, docB, propertyName: nameof(Document.KanjiFormInfos));
-        DiffDictionaryProperties<(int, int, int), KanjiFormPriority>(docA, docB, propertyName: nameof(Document.KanjiFormPriorities));
+        DiffDictionaryProperties<(int, int, int), KanjiFormInfoElement>(docA, docB, propertyName: nameof(Document.KanjiFormInfos));
+        DiffDictionaryProperties<(int, int, int), KanjiFormPriorityElement>(docA, docB, propertyName: nameof(Document.KanjiFormPriorities));
 
-        DiffDictionaryProperties<(int, int, int), ReadingInfo>(docA, docB, propertyName: nameof(Document.ReadingInfos));
-        DiffDictionaryProperties<(int, int, int), ReadingPriority>(docA, docB, propertyName: nameof(Document.ReadingPriorities));
-        DiffDictionaryProperties<(int, int, int), Restriction>(docA, docB, propertyName: nameof(Document.Restrictions));
+        DiffDictionaryProperties<(int, int, int), ReadingInfoElement>(docA, docB, propertyName: nameof(Document.ReadingInfos));
+        DiffDictionaryProperties<(int, int, int), ReadingPriorityElement>(docA, docB, propertyName: nameof(Document.ReadingPriorities));
+        DiffDictionaryProperties<(int, int, int), RestrictionElement>(docA, docB, propertyName: nameof(Document.Restrictions));
 
-        DiffDictionaryProperties<(int, int, int), CrossReference>(docA, docB, propertyName: nameof(Document.CrossReferences));
-        DiffDictionaryProperties<(int, int, int), Dialect>(docA, docB, propertyName: nameof(Document.Dialects));
-        DiffDictionaryProperties<(int, int, int), Field>(docA, docB, propertyName: nameof(Document.Fields));
-        DiffDictionaryProperties<(int, int, int), Gloss>(docA, docB, propertyName: nameof(Document.Glosses));
-        DiffDictionaryProperties<(int, int, int), KanjiFormRestriction>(docA, docB, propertyName: nameof(Document.KanjiFormRestrictions));
-        DiffDictionaryProperties<(int, int, int), LanguageSource>(docA, docB, propertyName: nameof(Document.LanguageSources));
-        DiffDictionaryProperties<(int, int, int), Misc>(docA, docB, propertyName: nameof(Document.Miscs));
-        DiffDictionaryProperties<(int, int, int), PartOfSpeech>(docA, docB, propertyName: nameof(Document.PartsOfSpeech));
-        DiffDictionaryProperties<(int, int, int), ReadingRestriction>(docA, docB, propertyName: nameof(Document.ReadingRestrictions));
+        DiffDictionaryProperties<(int, int, int), CrossReferenceElement>(docA, docB, propertyName: nameof(Document.CrossReferences));
+        DiffDictionaryProperties<(int, int, int), DialectElement>(docA, docB, propertyName: nameof(Document.Dialects));
+        DiffDictionaryProperties<(int, int, int), FieldElement>(docA, docB, propertyName: nameof(Document.Fields));
+        DiffDictionaryProperties<(int, int, int), GlossElement>(docA, docB, propertyName: nameof(Document.Glosses));
+        DiffDictionaryProperties<(int, int, int), KanjiFormRestrictionElement>(docA, docB, propertyName: nameof(Document.KanjiFormRestrictions));
+        DiffDictionaryProperties<(int, int, int), LanguageSourceElement>(docA, docB, propertyName: nameof(Document.LanguageSources));
+        DiffDictionaryProperties<(int, int, int), MiscElement>(docA, docB, propertyName: nameof(Document.Miscs));
+        DiffDictionaryProperties<(int, int, int), PartOfSpeechElement>(docA, docB, propertyName: nameof(Document.PartsOfSpeech));
+        DiffDictionaryProperties<(int, int, int), ReadingRestrictionElement>(docA, docB, propertyName: nameof(Document.ReadingRestrictions));
 
         Sequences = InsertDocument.ConcatAllEntryIds()
             .Concat(UpdateDocument.ConcatAllEntryIds())
             .Concat(DeleteDocument.ConcatAllEntryIds())
             .Distinct()
-            .Select(id => new Sequence
+            .Select(id => new DocumentSequence
             {
                 Id = id,
                 CreatedDate = FileHeader.Date,

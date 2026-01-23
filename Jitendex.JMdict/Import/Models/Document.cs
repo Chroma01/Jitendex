@@ -26,50 +26,50 @@ namespace Jitendex.JMdict.Import.Models;
 
 internal sealed class Document
 {
-    public required FileHeader FileHeader { get; init; }
-    public Dictionary<int, Entry> Entries { get; init; }
+    public required DocumentHeader Header { get; init; }
+    public Dictionary<int, EntryElement> Entries { get; init; }
 
     #region Entry Elements
-    public Dictionary<(int, int), KanjiForm> KanjiForms { get; init; }
-    public Dictionary<(int, int), Reading> Readings { get; init; }
-    public Dictionary<(int, int), Sense> Senses { get; init; }
+    public Dictionary<(int, int), KanjiFormElement> KanjiForms { get; init; }
+    public Dictionary<(int, int), ReadingElement> Readings { get; init; }
+    public Dictionary<(int, int), SenseElement> Senses { get; init; }
     #endregion
 
     #region Kanji Form Elements
-    public Dictionary<(int, int, int), KanjiFormInfo> KanjiFormInfos { get; init; }
-    public Dictionary<(int, int, int), KanjiFormPriority> KanjiFormPriorities { get; init; }
+    public Dictionary<(int, int, int), KanjiFormInfoElement> KanjiFormInfos { get; init; }
+    public Dictionary<(int, int, int), KanjiFormPriorityElement> KanjiFormPriorities { get; init; }
     #endregion
 
     #region Reading Elements
-    public Dictionary<(int, int, int), ReadingInfo> ReadingInfos { get; init; }
-    public Dictionary<(int, int, int), ReadingPriority> ReadingPriorities { get; init; }
-    public Dictionary<(int, int, int), Restriction> Restrictions { get; init; }
+    public Dictionary<(int, int, int), ReadingInfoElement> ReadingInfos { get; init; }
+    public Dictionary<(int, int, int), ReadingPriorityElement> ReadingPriorities { get; init; }
+    public Dictionary<(int, int, int), RestrictionElement> Restrictions { get; init; }
     #endregion
 
     #region Sense Elements
-    public Dictionary<(int, int, int), CrossReference> CrossReferences { get; init; }
-    public Dictionary<(int, int, int), Dialect> Dialects { get; init; }
-    public Dictionary<(int, int, int), Field> Fields { get; init; }
-    public Dictionary<(int, int, int), Gloss> Glosses { get; init; }
-    public Dictionary<(int, int, int), KanjiFormRestriction> KanjiFormRestrictions { get; init; }
-    public Dictionary<(int, int, int), LanguageSource> LanguageSources { get; init; }
-    public Dictionary<(int, int, int), Misc> Miscs { get; init; }
-    public Dictionary<(int, int, int), PartOfSpeech> PartsOfSpeech { get; init; }
-    public Dictionary<(int, int, int), ReadingRestriction> ReadingRestrictions { get; init; }
+    public Dictionary<(int, int, int), CrossReferenceElement> CrossReferences { get; init; }
+    public Dictionary<(int, int, int), DialectElement> Dialects { get; init; }
+    public Dictionary<(int, int, int), FieldElement> Fields { get; init; }
+    public Dictionary<(int, int, int), GlossElement> Glosses { get; init; }
+    public Dictionary<(int, int, int), KanjiFormRestrictionElement> KanjiFormRestrictions { get; init; }
+    public Dictionary<(int, int, int), LanguageSourceElement> LanguageSources { get; init; }
+    public Dictionary<(int, int, int), MiscElement> Miscs { get; init; }
+    public Dictionary<(int, int, int), PartOfSpeechElement> PartsOfSpeech { get; init; }
+    public Dictionary<(int, int, int), ReadingRestrictionElement> ReadingRestrictions { get; init; }
     #endregion
 
     #region Keywords
-    public Dictionary<string, PriorityTag> PriorityTags { get; init; } = [];
-    public Dictionary<string, ReadingInfoTag> ReadingInfoTags { get; init; } = [];
-    public Dictionary<string, KanjiFormInfoTag> KanjiFormInfoTags { get; init; } = [];
-    public Dictionary<string, PartOfSpeechTag> PartOfSpeechTags { get; init; } = [];
-    public Dictionary<string, FieldTag> FieldTags { get; init; } = [];
-    public Dictionary<string, MiscTag> MiscTags { get; init; } = [];
-    public Dictionary<string, DialectTag> DialectTags { get; init; } = [];
-    public Dictionary<string, GlossType> GlossTypes { get; init; } = [];
-    public Dictionary<string, CrossReferenceType> CrossReferenceTypes { get; init; } = [];
-    public Dictionary<string, LanguageSourceType> LanguageSourceTypes { get; init; } = [];
-    public Dictionary<string, Language> Languages { get; init; } = [];
+    public Dictionary<string, PriorityTagElement> PriorityTags { get; init; } = [];
+    public Dictionary<string, ReadingInfoTagElement> ReadingInfoTags { get; init; } = [];
+    public Dictionary<string, KanjiFormInfoTagElement> KanjiFormInfoTags { get; init; } = [];
+    public Dictionary<string, PartOfSpeechTagElement> PartOfSpeechTags { get; init; } = [];
+    public Dictionary<string, FieldTagElement> FieldTags { get; init; } = [];
+    public Dictionary<string, MiscTagElement> MiscTags { get; init; } = [];
+    public Dictionary<string, DialectTagElement> DialectTags { get; init; } = [];
+    public Dictionary<string, GlossTypeElement> GlossTypes { get; init; } = [];
+    public Dictionary<string, CrossReferenceTypeElement> CrossReferenceTypes { get; init; } = [];
+    public Dictionary<string, LanguageSourceTypeElement> LanguageSourceTypes { get; init; } = [];
+    public Dictionary<string, LanguageElement> Languages { get; init; } = [];
     #endregion
 
     public Dictionary<string, string> KeywordDescriptionToName { get; init; } = [];
@@ -102,28 +102,28 @@ internal sealed class Document
 
     public int NextOrder(int key, string typeName) => typeName switch
     {
-        nameof(KanjiForm) => NextOrder(key, KanjiForms),
-        nameof(Reading) => NextOrder(key, Readings),
-        nameof(Sense) => NextOrder(key, Senses),
+        nameof(KanjiFormElement) => NextOrder(key, KanjiForms),
+        nameof(ReadingElement) => NextOrder(key, Readings),
+        nameof(SenseElement) => NextOrder(key, Senses),
         _ => throw new ArgumentOutOfRangeException(nameof(typeName))
     };
 
     public int NextOrder((int, int) key, string typeName) => typeName switch
     {
-        nameof(KanjiFormInfo) => NextOrder(key, KanjiFormInfos),
-        nameof(KanjiFormPriority) => NextOrder(key, KanjiFormPriorities),
-        nameof(ReadingInfo) => NextOrder(key, ReadingInfos),
-        nameof(ReadingPriority) => NextOrder(key, ReadingPriorities),
-        nameof(Restriction) => NextOrder(key, Restrictions),
-        nameof(CrossReference) => NextOrder(key, CrossReferences),
-        nameof(Dialect) => NextOrder(key, Dialects),
-        nameof(Field) => NextOrder(key, Fields),
-        nameof(Gloss) => NextOrder(key, Glosses),
-        nameof(KanjiFormRestriction) => NextOrder(key, KanjiFormRestrictions),
-        nameof(LanguageSource) => NextOrder(key, LanguageSources),
-        nameof(Misc) => NextOrder(key, Miscs),
-        nameof(PartOfSpeech) => NextOrder(key, PartsOfSpeech),
-        nameof(ReadingRestriction) => NextOrder(key, ReadingRestrictions),
+        nameof(KanjiFormInfoElement) => NextOrder(key, KanjiFormInfos),
+        nameof(KanjiFormPriorityElement) => NextOrder(key, KanjiFormPriorities),
+        nameof(ReadingInfoElement) => NextOrder(key, ReadingInfos),
+        nameof(ReadingPriorityElement) => NextOrder(key, ReadingPriorities),
+        nameof(RestrictionElement) => NextOrder(key, Restrictions),
+        nameof(CrossReferenceElement) => NextOrder(key, CrossReferences),
+        nameof(DialectElement) => NextOrder(key, Dialects),
+        nameof(FieldElement) => NextOrder(key, Fields),
+        nameof(GlossElement) => NextOrder(key, Glosses),
+        nameof(KanjiFormRestrictionElement) => NextOrder(key, KanjiFormRestrictions),
+        nameof(LanguageSourceElement) => NextOrder(key, LanguageSources),
+        nameof(MiscElement) => NextOrder(key, Miscs),
+        nameof(PartOfSpeechElement) => NextOrder(key, PartsOfSpeech),
+        nameof(ReadingRestrictionElement) => NextOrder(key, ReadingRestrictions),
         _ => throw new ArgumentOutOfRangeException(nameof(typeName))
     };
 
@@ -147,11 +147,11 @@ internal sealed class Document
         return i;
     }
 
-    public IEnumerable<Sequence> Sequences()
-        => Entries.Select(e => new Sequence
+    public IEnumerable<DocumentSequence> Sequences()
+        => Entries.Select(e => new DocumentSequence
         {
             Id = e.Key,
-            CreatedDate = FileHeader.Date,
+            CreatedDate = Header.Date,
         });
 
     public IEnumerable<int> ConcatAllEntryIds()

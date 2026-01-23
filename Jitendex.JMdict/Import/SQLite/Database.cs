@@ -19,6 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Jitendex.MinimalJsonDiff;
+using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.SQLite.EntryElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.KanjiFormElements;
@@ -63,22 +64,22 @@ internal static class Database
     #endregion
 
     #region Keyword Tables
-    private static readonly KeywordTable<ReadingInfoTag> ReadingInfoTagTable = new();
-    private static readonly KeywordTable<KanjiFormInfoTag> KanjiFormInfoTagTable = new();
-    private static readonly KeywordTable<PartOfSpeechTag> PartOfSpeechTagTable = new();
-    private static readonly KeywordTable<FieldTag> FieldTagTable = new();
-    private static readonly KeywordTable<MiscTag> MiscTagTable = new();
-    private static readonly KeywordTable<DialectTag> DialectTagTable = new();
-    private static readonly KeywordTable<GlossType> GlossTypeTable = new();
-    private static readonly KeywordTable<CrossReferenceType> CrossReferenceTypeTable = new();
-    private static readonly KeywordTable<LanguageSourceType> LanguageSourceTypeTable = new();
-    private static readonly KeywordTable<PriorityTag> PriorityTagTable = new();
-    private static readonly KeywordTable<Language> LanguageTable = new();
+    private static readonly KeywordTable<ReadingInfoTagElement> ReadingInfoTagTable = new();
+    private static readonly KeywordTable<KanjiFormInfoTagElement> KanjiFormInfoTagTable = new();
+    private static readonly KeywordTable<PartOfSpeechTagElement> PartOfSpeechTagTable = new();
+    private static readonly KeywordTable<FieldTagElement> FieldTagTable = new();
+    private static readonly KeywordTable<MiscTagElement> MiscTagTable = new();
+    private static readonly KeywordTable<DialectTagElement> DialectTagTable = new();
+    private static readonly KeywordTable<GlossTypeElement> GlossTypeTable = new();
+    private static readonly KeywordTable<CrossReferenceTypeElement> CrossReferenceTypeTable = new();
+    private static readonly KeywordTable<LanguageSourceTypeElement> LanguageSourceTypeTable = new();
+    private static readonly KeywordTable<PriorityTagElement> PriorityTagTable = new();
+    private static readonly KeywordTable<LanguageElement> LanguageTable = new();
     #endregion
 
     public static void Initialize(Document document)
     {
-        Console.Error.WriteLine($"Initializing database with data from {document.FileHeader.Date:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
 
         using var context = new Context();
         context.InitializeDatabase();
@@ -86,7 +87,7 @@ internal static class Database
 
         using (var transaction = context.Database.BeginTransaction())
         {
-            FileHeaderTable.InsertItem(context, document.FileHeader);
+            FileHeaderTable.InsertItem(context, document.Header);
 
             ReadingInfoTagTable.InsertItems(context, document.ReadingInfoTags.Values);
             KanjiFormInfoTagTable.InsertItems(context, document.KanjiFormInfoTags.Values);
@@ -142,7 +143,7 @@ internal static class Database
         {
             context.ExecuteDeferForeignKeysPragma();
 
-            FileHeaderTable.InsertItem(context, diff.InsertDocument.FileHeader);
+            FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
 
             SequenceTable.InsertOrIgnoreItems(context, diff.Sequences.Values);
 
@@ -245,25 +246,25 @@ internal static class Database
         context.SaveChanges();
     }
 
-    private static Dictionary<int, Entities.Sequence> LoadSequences(Context context, IReadOnlySet<int> ids)
+    private static Dictionary<int, Sequence> LoadSequences(Context context, IReadOnlySet<int> ids)
         => ids.Chunk(200)
             .SelectMany(idsChunk => context.Sequences
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Where(e => idsChunk.Contains(e.Id))
-                .Include(s => s.Entry!).ThenInclude(e => e.KanjiForms).ThenInclude(static k => k.Infos)
-                .Include(s => s.Entry!).ThenInclude(e => e.KanjiForms).ThenInclude(static k => k.Priorities)
-                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(static r => r.Infos)
-                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(static r => r.Priorities)
-                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(static r => r.Restrictions)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.CrossReferences)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Dialects)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Fields)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Glosses)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.KanjiFormRestrictions)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.LanguageSources)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.Miscs)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.PartsOfSpeech)
-                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(static s => s.ReadingRestrictions))
+                .Include(s => s.Entry!).ThenInclude(e => e.KanjiForms).ThenInclude(k => k.Infos)
+                .Include(s => s.Entry!).ThenInclude(e => e.KanjiForms).ThenInclude(k => k.Priorities)
+                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(r => r.Infos)
+                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(r => r.Priorities)
+                .Include(s => s.Entry!).ThenInclude(e => e.Readings).ThenInclude(r => r.Restrictions)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.CrossReferences)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.Dialects)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.Fields)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.Glosses)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.KanjiFormRestrictions)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.LanguageSources)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.Miscs)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.PartsOfSpeech)
+                .Include(s => s.Entry!).ThenInclude(e => e.Senses).ThenInclude(s => s.ReadingRestrictions))
             .ToDictionary(e => e.Id);
 }

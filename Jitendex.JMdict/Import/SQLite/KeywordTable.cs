@@ -19,13 +19,14 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Import.Models;
 
 namespace Jitendex.JMdict.Import.SQLite;
 
-internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
+internal sealed class KeywordTable<T> : Table<T> where T : IKeywordElement
 {
-    protected override string Name => typeof(T).Name;
+    protected override string Name => T.EntityName;
 
     protected override IReadOnlyList<string> ColumnNames =>
     [

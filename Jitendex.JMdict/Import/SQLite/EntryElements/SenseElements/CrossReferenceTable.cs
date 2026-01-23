@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
-internal sealed class CrossReferenceTable : Table<CrossReference>
+internal sealed class CrossReferenceTable : Table<CrossReferenceElement>
 {
     protected override string Name => nameof(CrossReference);
 
@@ -45,7 +46,7 @@ internal sealed class CrossReferenceTable : Table<CrossReference>
         nameof(CrossReference.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(CrossReference xref) =>
+    protected override SqliteParameter[] Parameters(CrossReferenceElement xref) =>
     [
         new("@0", xref.EntryId),
         new("@1", xref.SenseOrder),

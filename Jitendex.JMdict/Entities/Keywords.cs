@@ -26,8 +26,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.JMdict.Entities;
 
+public interface IKeyword
+{
+    string Name { get; init; }
+    DateOnly CreatedDate { get; init; }
+}
+
 [Table(nameof(ReadingInfoTag))]
-public class ReadingInfoTag
+public class ReadingInfoTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -38,7 +44,7 @@ public class ReadingInfoTag
 }
 
 [Table(nameof(KanjiFormInfoTag))]
-public class KanjiFormInfoTag
+public class KanjiFormInfoTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -49,7 +55,7 @@ public class KanjiFormInfoTag
 }
 
 [Table(nameof(PartOfSpeechTag))]
-public class PartOfSpeechTag
+public class PartOfSpeechTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -60,7 +66,7 @@ public class PartOfSpeechTag
 }
 
 [Table(nameof(FieldTag))]
-public class FieldTag
+public class FieldTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -71,7 +77,7 @@ public class FieldTag
 }
 
 [Table(nameof(MiscTag))]
-public class MiscTag
+public class MiscTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -82,7 +88,7 @@ public class MiscTag
 }
 
 [Table(nameof(DialectTag))]
-public class DialectTag
+public class DialectTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -93,7 +99,7 @@ public class DialectTag
 }
 
 [Table(nameof(GlossType))]
-public class GlossType
+public class GlossType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -104,7 +110,7 @@ public class GlossType
 }
 
 [Table(nameof(CrossReferenceType))]
-public class CrossReferenceType
+public class CrossReferenceType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -115,7 +121,7 @@ public class CrossReferenceType
 }
 
 [Table(nameof(LanguageSourceType))]
-public class LanguageSourceType
+public class LanguageSourceType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -126,7 +132,7 @@ public class LanguageSourceType
 }
 
 [Table(nameof(PriorityTag))]
-public class PriorityTag
+public class PriorityTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -150,7 +156,7 @@ public class PriorityTag
 }
 
 [Table(nameof(Language))]
-public class Language
+public class Language : IKeyword
 {
     [Key]
     public required string Name { get; init; }

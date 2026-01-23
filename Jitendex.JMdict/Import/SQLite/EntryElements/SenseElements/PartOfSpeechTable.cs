@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
-internal sealed class PartOfSpeechTable : Table<PartOfSpeech>
+internal sealed class PartOfSpeechTable : Table<PartOfSpeechElement>
 {
     protected override string Name => nameof(PartOfSpeech);
 
@@ -42,7 +43,7 @@ internal sealed class PartOfSpeechTable : Table<PartOfSpeech>
         nameof(PartOfSpeech.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(PartOfSpeech pos) =>
+    protected override SqliteParameter[] Parameters(PartOfSpeechElement pos) =>
     [
         new("@0", pos.EntryId),
         new("@1", pos.SenseOrder),

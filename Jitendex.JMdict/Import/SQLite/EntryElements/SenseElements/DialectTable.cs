@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
-internal sealed class DialectTable : Table<Dialect>
+internal sealed class DialectTable : Table<DialectElement>
 {
     protected override string Name => nameof(Dialect);
 
@@ -42,7 +43,7 @@ internal sealed class DialectTable : Table<Dialect>
         nameof(Dialect.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(Dialect dialect) =>
+    protected override SqliteParameter[] Parameters(DialectElement dialect) =>
     [
         new("@0", dialect.EntryId),
         new("@1", dialect.SenseOrder),
