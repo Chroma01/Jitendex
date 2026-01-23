@@ -41,11 +41,7 @@ internal class DialectReader : BaseReader<DialectReader>
 
         if (!document.DialectTags.ContainsKey(tagName))
         {
-            var tag = new DialectTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new DialectTagElement(tagName, document.Header.Date);
             document.DialectTags.Add(tagName, tag);
         }
 

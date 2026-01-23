@@ -35,11 +35,7 @@ internal partial class GlossReader : BaseReader<GlossReader>
 
         if (!document.GlossTypes.ContainsKey(typeName))
         {
-            var tag = new GlossTypeElement
-            {
-                Name = typeName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new GlossTypeElement(typeName, document.Header.Date);
             document.GlossTypes.Add(typeName, tag);
         }
 

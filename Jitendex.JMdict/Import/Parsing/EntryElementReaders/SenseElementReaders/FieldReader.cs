@@ -41,11 +41,7 @@ internal class FieldReader : BaseReader<FieldReader>
 
         if (!document.FieldTags.ContainsKey(tagName))
         {
-            var tag = new FieldTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new FieldTagElement(tagName, document.Header.Date);
             document.FieldTags.Add(tagName, tag);
         }
 

@@ -41,11 +41,7 @@ internal class PartOfSpeechReader : BaseReader<PartOfSpeechReader>
 
         if (!document.PartOfSpeechTags.ContainsKey(tagName))
         {
-            var tag = new PartOfSpeechTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new PartOfSpeechTagElement(tagName, document.Header.Date);
             document.PartOfSpeechTags.Add(tagName, tag);
         }
 

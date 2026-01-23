@@ -34,22 +34,14 @@ internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
         var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
         if (!document.LanguageSourceTypes.ContainsKey(typeName))
         {
-            var tag = new LanguageSourceTypeElement
-            {
-                Name = typeName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new LanguageSourceTypeElement(typeName, document.Header.Date);
             document.LanguageSourceTypes.Add(typeName, tag);
         }
 
         var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
         if (!document.Languages.ContainsKey(languageCode))
         {
-            var tag = new LanguageElement
-            {
-                Name = languageCode,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new LanguageElement(languageCode, document.Header.Date);
             document.Languages.Add(languageCode, tag);
         }
 

@@ -26,7 +26,7 @@ namespace Jitendex.JMdict.Import.SQLite;
 
 internal sealed class KeywordTable<T> : Table<T> where T : IKeywordElement
 {
-    protected override string Name => ElementNameToEntityName(nameof(T));
+    protected override string Name => ElementNameToEntityName(typeof(T).Name);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
@@ -42,7 +42,7 @@ internal sealed class KeywordTable<T> : Table<T> where T : IKeywordElement
     protected override SqliteParameter[] Parameters(T keyword) =>
     [
         new("@0", keyword.Name),
-        new("@1", keyword.CreatedDate),
+        new("@1", keyword.Date),
     ];
 
     private static string ElementNameToEntityName(string elementName) => elementName switch
@@ -58,6 +58,6 @@ internal sealed class KeywordTable<T> : Table<T> where T : IKeywordElement
         nameof(LanguageSourceTypeElement) => nameof(LanguageSourceType),
         nameof(PriorityTagElement) => nameof(PriorityTag),
         nameof(LanguageElement) => nameof(Language),
-        _ => throw new ArgumentOutOfRangeException(nameof(elementName))
+        _ => throw new ArgumentOutOfRangeException(nameof(elementName), $"Value: `{elementName}`")
     };
 }

@@ -35,11 +35,7 @@ internal class KPriorityReader : BaseReader<KPriorityReader>
 
         if (!document.PriorityTags.ContainsKey(tagName))
         {
-            var tag = new PriorityTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new PriorityTagElement(tagName, document.Header.Date);
             document.PriorityTags.Add(tagName, tag);
         }
 

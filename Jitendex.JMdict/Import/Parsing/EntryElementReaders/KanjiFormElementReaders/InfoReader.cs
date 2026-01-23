@@ -41,11 +41,7 @@ internal class KInfoReader : BaseReader<KInfoReader>
 
         if (!document.KanjiFormInfoTags.ContainsKey(tagName))
         {
-            var tag = new KanjiFormInfoTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new KanjiFormInfoTagElement(tagName, document.Header.Date);
             document.KanjiFormInfoTags.Add(tagName, tag);
         }
 

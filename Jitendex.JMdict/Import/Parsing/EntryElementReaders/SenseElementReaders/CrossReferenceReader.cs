@@ -36,11 +36,7 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
         var typeName = _xmlReader.Name;
         if (!document.CrossReferenceTypes.ContainsKey(typeName))
         {
-            var tag = new CrossReferenceTypeElement
-            {
-                Name = typeName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new CrossReferenceTypeElement(typeName, document.Header.Date);
             document.CrossReferenceTypes.Add(typeName, tag);
         }
 

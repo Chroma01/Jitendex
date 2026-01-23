@@ -41,11 +41,7 @@ internal class MiscReader : BaseReader<MiscReader>
 
         if (!document.MiscTags.ContainsKey(tagName))
         {
-            var tag = new MiscTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new MiscTagElement(tagName, document.Header.Date);
             document.MiscTags.Add(tagName, tag);
         }
 

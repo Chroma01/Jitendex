@@ -41,11 +41,7 @@ internal class RInfoReader : BaseReader<RInfoReader>
 
         if (!document.ReadingInfoTags.ContainsKey(tagName))
         {
-            var tag = new ReadingInfoTagElement
-            {
-                Name = tagName,
-                CreatedDate = document.Header.Date,
-            };
+            var tag = new ReadingInfoTagElement(tagName, document.Header.Date);
             document.ReadingInfoTags.Add(tagName, tag);
         }
 
