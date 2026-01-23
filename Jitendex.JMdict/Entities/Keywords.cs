@@ -19,6 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
+using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
+using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.JMdict.Entities;
@@ -29,6 +32,9 @@ public class ReadingInfoTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(ReadingInfo.Tag))]
+    public List<ReadingInfo> Infos { get; init; } = [];
 }
 
 [Table(nameof(KanjiFormInfoTag))]
@@ -37,6 +43,9 @@ public class KanjiFormInfoTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(KanjiFormInfo.Tag))]
+    public List<KanjiFormInfo> Infos { get; init; } = [];
 }
 
 [Table(nameof(PartOfSpeechTag))]
@@ -45,6 +54,9 @@ public class PartOfSpeechTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(PartOfSpeech.Tag))]
+    public List<PartOfSpeech> PartsOfSpeech { get; init; } = [];
 }
 
 [Table(nameof(FieldTag))]
@@ -53,6 +65,9 @@ public class FieldTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(Field.Tag))]
+    public List<Field> Fields { get; init; } = [];
 }
 
 [Table(nameof(MiscTag))]
@@ -61,6 +76,9 @@ public class MiscTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(Misc.Tag))]
+    public List<Misc> Miscs { get; init; } = [];
 }
 
 [Table(nameof(DialectTag))]
@@ -69,6 +87,9 @@ public class DialectTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(Dialect.Tag))]
+    public List<Dialect> Dialects { get; init; } = [];
 }
 
 [Table(nameof(GlossType))]
@@ -77,6 +98,9 @@ public class GlossType
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(Gloss.Type))]
+    public List<Gloss> Glosses { get; init; } = [];
 }
 
 [Table(nameof(CrossReferenceType))]
@@ -85,6 +109,9 @@ public class CrossReferenceType
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(CrossReference.Type))]
+    public List<CrossReference> CrossReferences { get; init; } = [];
 }
 
 [Table(nameof(LanguageSourceType))]
@@ -93,6 +120,9 @@ public class LanguageSourceType
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(LanguageSource.Type))]
+    public List<LanguageSource> LanguageSources { get; init; } = [];
 }
 
 [Table(nameof(PriorityTag))]
@@ -101,6 +131,13 @@ public class PriorityTag
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(KanjiFormPriority.Tag))]
+    public List<KanjiFormPriority> KanjiFormPriorities { get; init; } = [];
+
+    [InverseProperty(nameof(ReadingPriority.Tag))]
+    public List<ReadingPriority> ReadingPriorities { get; init; } = [];
+
     public bool IsHighPriority() => Name switch
     {
         "gai1" or
@@ -118,4 +155,7 @@ public class Language
     [Key]
     public required string Name { get; init; }
     public required DateOnly CreatedDate { get; init; }
+
+    [InverseProperty(nameof(LanguageSource.Language))]
+    public List<LanguageSource> LanguageSources { get; init; } = [];
 }
