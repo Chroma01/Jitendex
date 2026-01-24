@@ -31,7 +31,6 @@ public static class DtoMapper
             .AsNoTracking()
             .AsSplitQuery()
             .Where(seq => sequenceIds.Contains(seq.Id))
-            .OrderBy(static seq => seq.Id)
             .Select(static seq => new SequenceDto(seq.Id, seq.CreatedDate)
             {
                 Entry = seq.Entry == null ? null : new EntryDto
