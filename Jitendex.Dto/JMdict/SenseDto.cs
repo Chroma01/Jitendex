@@ -59,6 +59,6 @@ public sealed record GlossDto(string TypeName, string Text)
 public sealed record CrossReferenceDto(string TypeName, string RefText1, string? RefText2, int RefSenseOrder)
 {
     public override string ToString() => RefText2 is not null
-        ? $"⇒{TypeName}: {RefText1}・{RefText2}・{RefSenseOrder}"
-        : $"⇒{TypeName}: {RefText1}・{RefSenseOrder}";
+        ? $"⇒{TypeName}: {RefText1}・{RefText2}・{RefSenseOrder + 1}"
+        : $"⇒{TypeName}: {RefText1}・{RefSenseOrder + 1}";
 }
