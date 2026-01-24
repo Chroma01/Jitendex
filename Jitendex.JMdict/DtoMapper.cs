@@ -30,99 +30,99 @@ public static class DtoMapper
         => context.Sequences
             .AsNoTracking()
             .AsSplitQuery()
-            .Where(s => sequenceIds.Contains(s.Id))
-            .OrderBy(static s => s.Id)
+            .Where(seq => sequenceIds.Contains(seq.Id))
+            .OrderBy(static seq => seq.Id)
             .Select(static seq => new SequenceDto(seq.Id, seq.CreatedDate)
             {
                 Entry = seq.Entry == null ? null : new EntryDto
                 {
                     KanjiForms = seq.Entry.KanjiForms
                         .AsQueryable()
-                        .OrderBy(static k => k.Order)
+                        .OrderBy(static kanjiForm => kanjiForm.Order)
                         .Select(KanjiFormProjection)
                         .ToList(),
                     Readings = seq.Entry.Readings
                         .AsQueryable()
-                        .OrderBy(static r => r.Order)
+                        .OrderBy(static reading => reading.Order)
                         .Select(ReadingProjection)
                         .ToList(),
                     Senses = seq.Entry.Senses
                         .AsQueryable()
-                        .OrderBy(static s => s.Order)
+                        .OrderBy(static sense => sense.Order)
                         .Select(SenseProjection)
                         .ToList()
                 }
             })
-            .ToDictionary(static s => s.Id);
+            .ToDictionary(static dto => dto.Id);
 
     private static readonly Expression<Func<KanjiForm, KanjiFormDto>> KanjiFormProjection =
-        static k => new KanjiFormDto(k.Text)
+        static kanjiForm => new KanjiFormDto(kanjiForm.Text)
         {
-            Infos = k.Infos
-                .OrderBy(static x => x.Order)
-                .Select(static x => new KanjiFormInfoDto(x.TagName))
+            Infos = kanjiForm.Infos
+                .OrderBy(static info => info.Order)
+                .Select(static info => new KanjiFormInfoDto(info.TagName))
                 .ToList(),
-            Priorities = k.Priorities
-                .OrderBy(static x => x.Order)
-                .Select(static x => new KanjiFormPriorityDto(x.TagName))
+            Priorities = kanjiForm.Priorities
+                .OrderBy(static prio => prio.Order)
+                .Select(static prio => new KanjiFormPriorityDto(prio.TagName))
                 .ToList(),
         };
 
     private static readonly Expression<Func<Reading, ReadingDto>> ReadingProjection =
-        static r => new ReadingDto(r.Text, r.NoKanji)
+        static reading => new ReadingDto(reading.Text, reading.NoKanji)
         {
-            Infos = r.Infos
-                .OrderBy(static x => x.Order)
-                .Select(static x => new ReadingInfoDto(x.TagName))
+            Infos = reading.Infos
+                .OrderBy(static info => info.Order)
+                .Select(static info => new ReadingInfoDto(info.TagName))
                 .ToList(),
-            Priorities = r.Priorities
-                .OrderBy(static x => x.Order)
-                .Select(static x => new ReadingPriorityDto(x.TagName))
+            Priorities = reading.Priorities
+                .OrderBy(static prio => prio.Order)
+                .Select(static prio => new ReadingPriorityDto(prio.TagName))
                 .ToList(),
-            Restrictions = r.Restrictions
-                .OrderBy(static x => x.Order)
-                .Select(static x => new RestrictionDto(x.KanjiFormText))
+            Restrictions = reading.Restrictions
+                .OrderBy(static rstr => rstr.Order)
+                .Select(static rstr => new RestrictionDto(rstr.KanjiFormText))
                 .ToList(),
         };
 
     private static readonly Expression<Func<Sense, SenseDto>> SenseProjection =
-        static s => new SenseDto(s.Note)
+        static sense => new SenseDto(sense.Note)
         {
-            CrossReferences = s.CrossReferences
+            CrossReferences = sense.CrossReferences
                 .OrderBy(static x => x.Order)
                 .Select(static x => new CrossReferenceDto(x.TypeName, x.RefText1, x.RefText2, x.SenseOrder))
                 .ToList(),
-            Dialects = s.Dialects
-                .OrderBy(static x => x.Order)
-                .Select(static x => new DialectDto(x.TagName))
+            Dialects = sense.Dialects
+                .OrderBy(static dia => dia.Order)
+                .Select(static dia => new DialectDto(dia.TagName))
                 .ToList(),
-            Fields = s.Fields
-                .OrderBy(static x => x.Order)
-                .Select(static x => new FieldDto(x.TagName))
+            Fields = sense.Fields
+                .OrderBy(static fld => fld.Order)
+                .Select(static fld => new FieldDto(fld.TagName))
                 .ToList(),
-            Glosses = s.Glosses
-                .OrderBy(static x => x.Order)
-                .Select(static x => new GlossDto(x.TypeName, x.Text))
+            Glosses = sense.Glosses
+                .OrderBy(static gloss => gloss.Order)
+                .Select(static gloss => new GlossDto(gloss.TypeName, gloss.Text))
                 .ToList(),
-            KanjiFormRestrictions = s.KanjiFormRestrictions
-                .OrderBy(static x => x.Order)
-                .Select(static x => new KanjiFormRestrictionDto(x.KanjiFormText))
+            KanjiFormRestrictions = sense.KanjiFormRestrictions
+                .OrderBy(static rstr => rstr.Order)
+                .Select(static rstr => new KanjiFormRestrictionDto(rstr.KanjiFormText))
                 .ToList(),
-            LanguageSources = s.LanguageSources
-                .OrderBy(static x => x.Order)
-                .Select(static x => new LanguageSourceDto(x.Text, x.LanguageCode, x.TypeName, x.IsWasei))
+            LanguageSources = sense.LanguageSources
+                .OrderBy(static l => l.Order)
+                .Select(static l => new LanguageSourceDto(l.Text, l.LanguageCode, l.TypeName, l.IsWasei))
                 .ToList(),
-            Miscs = s.Miscs
-                .OrderBy(static x => x.Order)
-                .Select(static x => new MiscDto(x.TagName))
+            Miscs = sense.Miscs
+                .OrderBy(static m => m.Order)
+                .Select(static m => new MiscDto(m.TagName))
                 .ToList(),
-            PartsOfSpeech = s.PartsOfSpeech
-                .OrderBy(static x => x.Order)
-                .Select(static x => new PartOfSpeechDto(x.TagName))
+            PartsOfSpeech = sense.PartsOfSpeech
+                .OrderBy(static pos => pos.Order)
+                .Select(static pos => new PartOfSpeechDto(pos.TagName))
                 .ToList(),
-            ReadingRestrictions = s.ReadingRestrictions
-                .OrderBy(static x => x.Order)
-                .Select(static x => new ReadingRestrictionDto(x.ReadingText))
+            ReadingRestrictions = sense.ReadingRestrictions
+                .OrderBy(static rstr => rstr.Order)
+                .Select(static restr => new ReadingRestrictionDto(restr.ReadingText))
                 .ToList(),
         };
 }
