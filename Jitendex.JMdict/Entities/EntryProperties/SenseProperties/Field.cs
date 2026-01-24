@@ -20,19 +20,22 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.JMdict.Entities.EntryElements.ReadingElements;
+namespace Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
-[Table(nameof(Restriction))]
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]
-public sealed class Restriction
+[Table(nameof(Field))]
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
+public sealed class Field
 {
     public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
+    public required int SenseOrder { get; set; }
     public required int Order { get; set; }
-    public required string KanjiFormText { get; set; }
+    public required string TagName { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public Reading Reading { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public Sense Sense { get; set; } = null!;
 
-    public (int, int) ParentKey() => (EntryId, ReadingOrder);
+    [ForeignKey(nameof(TagName))]
+    public FieldTag Tag { get; set; } = null!;
+
+    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

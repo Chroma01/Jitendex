@@ -20,10 +20,10 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.EntityFrameworkCore;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities;
-using Jitendex.JMdict.Entities.EntryElements;
-using Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
-using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
-using Jitendex.JMdict.Entities.EntryElements.SenseElements;
+using Jitendex.JMdict.Entities.EntryProperties;
+using Jitendex.JMdict.Entities.EntryProperties.KanjiFormProperties;
+using Jitendex.JMdict.Entities.EntryProperties.ReadingProperties;
+using Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
 namespace Jitendex.JMdict;
 

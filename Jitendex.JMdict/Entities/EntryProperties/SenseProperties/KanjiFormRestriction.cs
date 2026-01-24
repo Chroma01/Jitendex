@@ -20,22 +20,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
+namespace Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
-[Table(nameof(KanjiFormInfo))]
-[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
-public sealed class KanjiFormInfo
+[Table(nameof(KanjiFormRestriction))]
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
+public sealed class KanjiFormRestriction
 {
     public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
+    public required int SenseOrder { get; set; }
     public required int Order { get; set; }
-    public required string TagName { get; set; }
+    public required string KanjiFormText { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public KanjiForm KanjiForm { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public Sense Sense { get; set; } = null!;
 
-    [ForeignKey(nameof(TagName))]
-    public KanjiFormInfoTag Tag { get; set; } = null!;
-
-    public (int, int) ParentKey() => (EntryId, KanjiFormOrder);
+    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

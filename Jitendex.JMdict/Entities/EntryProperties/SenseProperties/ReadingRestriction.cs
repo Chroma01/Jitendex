@@ -19,26 +19,20 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
 
-namespace Jitendex.JMdict.Entities.EntryElements;
+namespace Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
-[Table(nameof(Reading))]
-[PrimaryKey(nameof(EntryId), nameof(Order))]
-public class Reading
+[Table(nameof(ReadingRestriction))]
+[PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
+public sealed class ReadingRestriction
 {
     public required int EntryId { get; set; }
+    public required int SenseOrder { get; set; }
     public required int Order { get; set; }
-    public required string Text { get; set; }
-    public required bool NoKanji { get; set; }
+    public required string ReadingText { get; set; }
 
-    public List<ReadingInfo> Infos { get; init; } = [];
-    public List<ReadingPriority> Priorities { get; init; } = [];
-    public List<Restriction> Restrictions { get; init; } = [];
+    [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
+    public Sense Sense { get; set; } = null!;
 
-    [ForeignKey(nameof(EntryId))]
-    public Entry Entry { get; set; } = null!;
-
-    public (int, int) Key() => (EntryId, Order);
-    public bool IsHidden() => Infos.Any(static x => x.TagName == "sk");
+    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

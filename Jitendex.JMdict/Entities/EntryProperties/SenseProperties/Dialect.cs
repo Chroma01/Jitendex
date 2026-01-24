@@ -20,11 +20,11 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
-[Table(nameof(PartOfSpeech))]
+[Table(nameof(Dialect))]
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public sealed class PartOfSpeech
+public sealed class Dialect
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
@@ -35,7 +35,7 @@ public sealed class PartOfSpeech
     public Sense Sense { get; set; } = null!;
 
     [ForeignKey(nameof(TagName))]
-    public PartOfSpeechTag Tag { get; set; } = null!;
+    public DialectTag Tag { get; set; } = null!;
 
     public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

@@ -20,22 +20,33 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
+namespace Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
-[Table(nameof(Field))]
+[Table(nameof(CrossReference))]
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
-public sealed class Field
+public sealed class CrossReference
 {
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
-    public required string TagName { get; set; }
+    public required string TypeName { get; set; }
+
+    public required string RefText1 { get; set; }
+    public required string? RefText2 { get; set; }
+    public required int RefSenseOrder { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public Sense Sense { get; set; } = null!;
 
-    [ForeignKey(nameof(TagName))]
-    public FieldTag Tag { get; set; } = null!;
+    [ForeignKey(nameof(TypeName))]
+    public CrossReferenceType Type { get; set; } = null!;
+
+    /// <summary>
+    /// Stable and unique identifier for this reference in the raw data.
+    /// </summary>
+    public string RawKey() => RefText2 is null ?
+        $"{EntryId}・{SenseOrder}・{RefText1}・{RefSenseOrder}" :
+        $"{EntryId}・{SenseOrder}・{RefText1}【{RefText2}】・{RefSenseOrder}";
 
     public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

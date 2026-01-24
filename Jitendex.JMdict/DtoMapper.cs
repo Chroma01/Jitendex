@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Dto.JMdict;
-using Jitendex.JMdict.Entities.EntryElements;
+using Jitendex.JMdict.Entities.EntryProperties;
 
 namespace Jitendex.JMdict;
 

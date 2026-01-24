@@ -19,9 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
-using Jitendex.JMdict.Entities.EntryElements.ReadingElements;
-using Jitendex.JMdict.Entities.EntryElements.SenseElements;
+using Jitendex.JMdict.Entities.EntryProperties.KanjiFormProperties;
+using Jitendex.JMdict.Entities.EntryProperties.ReadingProperties;
+using Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Jitendex.JMdict.Entities;

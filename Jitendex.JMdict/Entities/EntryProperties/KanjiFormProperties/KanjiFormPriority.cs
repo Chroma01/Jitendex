@@ -19,24 +19,23 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Entities.EntryElements.KanjiFormElements;
 
-namespace Jitendex.JMdict.Entities.EntryElements;
+namespace Jitendex.JMdict.Entities.EntryProperties.KanjiFormProperties;
 
-[Table(nameof(KanjiForm))]
-[PrimaryKey(nameof(EntryId), nameof(Order))]
-public sealed class KanjiForm
+[Table(nameof(KanjiFormPriority))]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
+public sealed class KanjiFormPriority
 {
     public required int EntryId { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required int Order { get; set; }
-    public required string Text { get; set; }
+    public required string TagName { get; set; }
 
-    public List<KanjiFormInfo> Infos { get; init; } = [];
-    public List<KanjiFormPriority> Priorities { get; init; } = [];
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public KanjiForm KanjiForm { get; set; } = null!;
 
-    [ForeignKey(nameof(EntryId))]
-    public Entry Entry { get; set; } = null!;
+    [ForeignKey(nameof(TagName))]
+    public PriorityTag Tag { get; set; } = null!;
 
-    public (int, int) Key() => (EntryId, Order);
-    public bool IsHidden() => Infos.Any(static x => x.TagName == "sK");
+    public (int, int) ParentKey() => (EntryId, KanjiFormOrder);
 }
