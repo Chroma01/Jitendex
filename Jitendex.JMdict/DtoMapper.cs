@@ -59,11 +59,11 @@ public static class DtoMapper
         {
             Infos = kanjiForm.Infos
                 .OrderBy(static info => info.Order)
-                .Select(static info => new KanjiFormInfoDto(info.TagName))
+                .Select(static info => info.TagName)
                 .ToList(),
             Priorities = kanjiForm.Priorities
                 .OrderBy(static prio => prio.Order)
-                .Select(static prio => new KanjiFormPriorityDto(prio.TagName))
+                .Select(static prio => prio.TagName)
                 .ToList(),
         };
 
@@ -72,15 +72,15 @@ public static class DtoMapper
         {
             Infos = reading.Infos
                 .OrderBy(static info => info.Order)
-                .Select(static info => new ReadingInfoDto(info.TagName))
+                .Select(static info => info.TagName)
                 .ToList(),
             Priorities = reading.Priorities
                 .OrderBy(static prio => prio.Order)
-                .Select(static prio => new ReadingPriorityDto(prio.TagName))
+                .Select(static prio => prio.TagName)
                 .ToList(),
             Restrictions = reading.Restrictions
                 .OrderBy(static rstr => rstr.Order)
-                .Select(static rstr => new RestrictionDto(rstr.KanjiFormText))
+                .Select(static rstr => rstr.KanjiFormText)
                 .ToList(),
         };
 
@@ -93,11 +93,11 @@ public static class DtoMapper
                 .ToList(),
             Dialects = sense.Dialects
                 .OrderBy(static dia => dia.Order)
-                .Select(static dia => new DialectDto(dia.TagName))
+                .Select(static dia => dia.TagName)
                 .ToList(),
             Fields = sense.Fields
                 .OrderBy(static fld => fld.Order)
-                .Select(static fld => new FieldDto(fld.TagName))
+                .Select(static fld => fld.TagName)
                 .ToList(),
             Glosses = sense.Glosses
                 .OrderBy(static gloss => gloss.Order)
@@ -105,7 +105,7 @@ public static class DtoMapper
                 .ToList(),
             KanjiFormRestrictions = sense.KanjiFormRestrictions
                 .OrderBy(static rstr => rstr.Order)
-                .Select(static rstr => new KanjiFormRestrictionDto(rstr.KanjiFormText))
+                .Select(static rstr => rstr.KanjiFormText)
                 .ToList(),
             LanguageSources = sense.LanguageSources
                 .OrderBy(static l => l.Order)
@@ -113,15 +113,15 @@ public static class DtoMapper
                 .ToList(),
             Miscs = sense.Miscs
                 .OrderBy(static m => m.Order)
-                .Select(static m => new MiscDto(m.TagName))
+                .Select(static m => m.TagName)
                 .ToList(),
             PartsOfSpeech = sense.PartsOfSpeech
                 .OrderBy(static pos => pos.Order)
-                .Select(static pos => new PartOfSpeechDto(pos.TagName))
+                .Select(static pos => pos.TagName)
                 .ToList(),
             ReadingRestrictions = sense.ReadingRestrictions
                 .OrderBy(static rstr => rstr.Order)
-                .Select(static restr => new ReadingRestrictionDto(restr.ReadingText))
+                .Select(static restr => restr.ReadingText)
                 .ToList(),
         };
 }
