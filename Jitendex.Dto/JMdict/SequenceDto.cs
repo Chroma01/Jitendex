@@ -22,6 +22,7 @@ public sealed record SequenceDto(int Id, DateOnly Date)
 {
     public EntryDto? Entry { get; init; } = null;
     public List<RevisionDto> Revisions { get; init; } = [];
+
     public override string ToString() => Entry is null
         ? $"Entry #{Id}\n< deleted >"
         : $"Entry #{Id}\n{Entry}";

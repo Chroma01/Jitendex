@@ -23,6 +23,7 @@ public sealed record ReadingDto(string Text, bool NoKanji)
     public List<string> Infos { get; init; } = [];
     public List<string> Priorities { get; init; } = [];
     public List<string> Restrictions { get; init; } = [];
+
     public override string ToString() => Text
         + (Infos.Count > 0 ? $" [{string.Join(", ", Infos)}]" : string.Empty)
         + (Priorities.Count > 0 ? $" [{string.Join(", ", Priorities)}]" : string.Empty)

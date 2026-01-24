@@ -29,6 +29,7 @@ public sealed record SenseDto(string? Note)
     public List<LanguageSourceDto> LanguageSources { get; init; } = [];
     public List<GlossDto> Glosses { get; init; } = [];
     public List<CrossReferenceDto> CrossReferences { get; init; } = [];
+
     public override string ToString() =>
           (PartsOfSpeech.Count > 0 ? $" [{string.Join(", ", PartsOfSpeech)}]" : string.Empty)
         + (Miscs.Count > 0 ? $" [{string.Join(", ", Miscs)}]" : string.Empty)

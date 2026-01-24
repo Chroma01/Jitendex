@@ -23,6 +23,7 @@ public sealed record EntryDto
     public List<KanjiFormDto> KanjiForms { get; init; } = [];
     public List<ReadingDto> Readings { get; init; } = [];
     public List<SenseDto> Senses { get; init; } = [];
+
     public override string ToString() => (KanjiForms.Count > 0 ?
         $"""
         Kanji Forms
