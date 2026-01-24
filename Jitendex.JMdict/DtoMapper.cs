@@ -26,7 +26,7 @@ namespace Jitendex.JMdict;
 
 public static class DtoMapper
 {
-    public static Dictionary<int, SequenceDto> LoadSequencesWithoutRevisions(Context context, IReadOnlySet<int> sequenceIds)
+    public static Dictionary<int, SequenceDto> LoadSequencesWithoutRevisions(Context context, IReadOnlyCollection<int> sequenceIds)
         => context.Sequences
             .AsNoTracking()
             .AsSplitQuery()

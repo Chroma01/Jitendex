@@ -135,7 +135,7 @@ internal static class Database
         Console.Error.WriteLine($"Updating {diff.Sequences.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
 
         using var context = new Context();
-        var ids = new HashSet<int>(diff.Sequences.Keys);
+        var ids = (IReadOnlyCollection<int>)diff.Sequences.Keys;
         var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, ids);
 
         using (var transaction = context.Database.BeginTransaction())
