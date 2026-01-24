@@ -19,7 +19,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
 using Jitendex.MinimalJsonDiff;
-using Jitendex.Dto.JMdict;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.SQLite.EntryElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.KanjiFormElements;
@@ -137,7 +136,7 @@ internal static class Database
 
         using var context = new Context();
         var ids = new HashSet<int>(diff.Sequences.Keys);
-        var aSequences = LoadSequences(context, ids);
+        var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, ids);
 
         using (var transaction = context.Database.BeginTransaction())
         {
@@ -219,7 +218,7 @@ internal static class Database
             transaction.Commit();
         }
 
-        var bSequences = LoadSequences(context, ids);
+        var bSequences = DtoMapper.LoadSequencesWithoutRevisions(context, ids);
 
         var sequences = context.Sequences
             .Where(seq => ids.Contains(seq.Id))
@@ -245,91 +244,4 @@ internal static class Database
 
         context.SaveChanges();
     }
-
-    private static Dictionary<int, SequenceDto> LoadSequences(Context context, IReadOnlySet<int> ids)
-        => context.Sequences
-            .AsNoTracking()
-            .Where(s => ids.Contains(s.Id))
-            .OrderBy(static s => s.Id)
-            .Select(static s => new SequenceDto(s.Id, s.CreatedDate)
-            {
-                Entry = s.Entry == null ? null : new EntryDto
-                {
-                    KanjiForms = s.Entry.KanjiForms
-                        .OrderBy(static k => k.Order)
-                        .Select(static k => new KanjiFormDto(k.Text)
-                        {
-                            Infos = k.Infos
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new KanjiFormInfoDto(x.TagName))
-                                .ToList(),
-                            Priorities = k.Priorities
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new KanjiFormPriorityDto(x.TagName))
-                                .ToList(),
-                        })
-                        .ToList(),
-                    Readings = s.Entry.Readings
-                        .OrderBy(static r => r.Order)
-                        .Select(static r => new ReadingDto(r.Text, r.NoKanji)
-                        {
-                            Infos = r.Infos
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new ReadingInfoDto(x.TagName))
-                                .ToList(),
-                            Priorities = r.Priorities
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new ReadingPriorityDto(x.TagName))
-                                .ToList(),
-                            Restrictions = r.Restrictions
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new RestrictionDto(x.KanjiFormText))
-                                .ToList(),
-                        })
-                        .ToList(),
-                    Senses = s.Entry.Senses
-                        .OrderBy(static s => s.Order)
-                        .Select(static s => new SenseDto(s.Note)
-                        {
-                            CrossReferences = s.CrossReferences
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new CrossReferenceDto(x.TypeName, x.RefText1, x.RefText2, x.SenseOrder))
-                                .ToList(),
-                            Dialects = s.Dialects
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new DialectDto(x.TagName))
-                                .ToList(),
-                            Fields = s.Fields
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new FieldDto(x.TagName))
-                                .ToList(),
-                            Glosses = s.Glosses
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new GlossDto(x.TypeName, x.Text))
-                                .ToList(),
-                            KanjiFormRestrictions = s.KanjiFormRestrictions
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new KanjiFormRestrictionDto(x.KanjiFormText))
-                                .ToList(),
-                            LanguageSources = s.LanguageSources
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new LanguageSourceDto(x.Text, x.LanguageCode, x.TypeName, x.IsWasei))
-                                .ToList(),
-                            Miscs = s.Miscs
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new MiscDto(x.TagName))
-                                .ToList(),
-                            PartsOfSpeech = s.PartsOfSpeech
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new PartOfSpeechDto(x.TagName))
-                                .ToList(),
-                            ReadingRestrictions = s.ReadingRestrictions
-                                .OrderBy(static x => x.Order)
-                                .Select(static x => new ReadingRestrictionDto(x.ReadingText))
-                                .ToList(),
-                        })
-                        .ToList()
-                }
-            })
-            .ToDictionary(s => s.Id);
 }
