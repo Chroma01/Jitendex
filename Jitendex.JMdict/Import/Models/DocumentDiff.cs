@@ -82,7 +82,7 @@ internal sealed class DocumentDiff
                 Id = id,
                 CreatedDate = FileHeader.Date,
             })
-            .ToDictionary(s => s.Id);
+            .ToDictionary(static s => s.Id);
     }
 
     private void FindNew<TKey, TValue>(Document docA, Document docB, string propertyName) where TKey : notnull
@@ -111,14 +111,15 @@ internal sealed class DocumentDiff
         var inserts = (Dictionary<TKey, TValue>)prop.GetValue(InsertDocument)!;
         var updates = (Dictionary<TKey, TValue>)prop.GetValue(UpdateDocument)!;
         var deletes = (Dictionary<TKey, TValue>)prop.GetValue(DeleteDocument)!;
+        var comparer = EqualityComparer<TValue>.Default;
 
         foreach (var (key, valueA) in dictA)
         {
-            if (!dictB.TryGetValue(key, out TValue? valueB))
+            if (!dictB.TryGetValue(key, out var valueB))
             {
                 deletes.Add(key, valueA);
             }
-            else if (!valueA.Equals(valueB))  // Hot spot!!!
+            else if (!comparer.Equals(valueA, valueB))  // Hot spot!!!
             {
                 updates.Add(key, valueB);
             }
