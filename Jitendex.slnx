@@ -13,6 +13,7 @@
   </Folder>
   <Project Path="Jitendex.AppDirectory/Jitendex.AppDirectory.csproj" />
   <Project Path="Jitendex.Chise/Jitendex.Chise.csproj" />
+  <Project Path="Jitendex.Dto/Jitendex.Dto.csproj" />
   <Project Path="Jitendex.EdrdgDictionaryArchive/Jitendex.EdrdgDictionaryArchive.csproj" />
   <Project Path="Jitendex.Furigana.Test/Jitendex.Furigana.Test.csproj" />
   <Project Path="Jitendex.Furigana/Jitendex.Furigana.csproj" />
