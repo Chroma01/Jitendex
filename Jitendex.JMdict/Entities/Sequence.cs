@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Jitendex.JMdict.Entities;
 
@@ -31,6 +30,6 @@ public sealed class Sequence
     [InverseProperty(nameof(Entry.Sequence))]
     public Entry? Entry { get; set; }
 
-    [JsonIgnore]
+    [InverseProperty(nameof(Revision.Sequence))]
     public List<Revision> Revisions { get; set; } = [];
 }

@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
@@ -36,11 +35,9 @@ public sealed class CrossReference
     public required string? RefText2 { get; set; }
     public required int RefSenseOrder { get; set; }
 
-    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public Sense Sense { get; set; } = null!;
 
-    [JsonIgnore]
     [ForeignKey(nameof(TypeName))]
     public CrossReferenceType Type { get; set; } = null!;
 

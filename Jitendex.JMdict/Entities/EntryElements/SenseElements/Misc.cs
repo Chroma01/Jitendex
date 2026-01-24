@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
@@ -32,11 +31,9 @@ public sealed class Misc
     public required int Order { get; set; }
     public required string TagName { get; set; }
 
-    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public Sense Sense { get; set; } = null!;
 
-    [JsonIgnore]
     [ForeignKey(nameof(TagName))]
     public MiscTag Tag { get; set; } = null!;
 

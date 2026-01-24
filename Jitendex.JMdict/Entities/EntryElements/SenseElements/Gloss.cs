@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.SenseElements;
@@ -30,15 +29,12 @@ public sealed class Gloss
     public required int EntryId { get; set; }
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
-
     public required string TypeName { get; set; }
     public required string Text { get; set; }
 
-    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public Sense Sense { get; set; } = null!;
 
-    [JsonIgnore]
     [ForeignKey(nameof(TypeName))]
     public GlossType Type { get; set; } = null!;
 

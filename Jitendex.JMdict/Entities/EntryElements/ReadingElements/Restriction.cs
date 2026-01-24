@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities.EntryElements.ReadingElements;
@@ -32,7 +31,6 @@ public sealed class Restriction
     public required int Order { get; set; }
     public required string KanjiFormText { get; set; }
 
-    [JsonIgnore]
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
     public Reading Reading { get; set; } = null!;
 

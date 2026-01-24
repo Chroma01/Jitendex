@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Entities.EntryElements.SenseElements;
 
@@ -44,7 +43,6 @@ public sealed class Sense
     public List<LanguageSource> LanguageSources { get; set; } = [];
     public List<CrossReference> CrossReferences { get; set; } = [];
 
-    [JsonIgnore]
     [ForeignKey(nameof(EntryId))]
     public Entry Entry { get; set; } = null!;
 

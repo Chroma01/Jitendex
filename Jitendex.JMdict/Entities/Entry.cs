@@ -18,7 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Jitendex.JMdict.Entities.EntryElements;
 
 namespace Jitendex.JMdict.Entities;
@@ -31,7 +30,6 @@ public sealed class Entry
     public List<KanjiForm> KanjiForms { get; set; } = [];
     public List<Sense> Senses { get; set; } = [];
 
-    [JsonIgnore]
     [ForeignKey(nameof(Id))]
     public Sequence Sequence { get; set; } = null!;
 }
