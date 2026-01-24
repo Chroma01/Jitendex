@@ -28,7 +28,6 @@ public static class DtoMapper
 {
     public static Dictionary<int, SequenceDto> LoadSequencesWithoutRevisions(Context context, IReadOnlyCollection<int> sequenceIds)
         => context.Sequences
-            .AsNoTracking()
             .AsSplitQuery()
             .Where(seq => sequenceIds.Contains(seq.Id))
             .Select(static seq => new SequenceDto(seq.Id, seq.CreatedDate)
