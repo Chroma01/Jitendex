@@ -92,11 +92,11 @@ internal sealed class DocumentDiff
         var dictB = (Dictionary<TKey, TValue>)prop.GetValue(docB)!;
         var inserts = (Dictionary<TKey, TValue>)prop.GetValue(InsertDocument)!;
 
-        foreach (var (key, entry) in dictB)
+        foreach (var (key, value) in dictB)
         {
             if (!dictA.ContainsKey(key))
             {
-                inserts.Add(key, entry);
+                inserts.Add(key, value);
             }
         }
     }
