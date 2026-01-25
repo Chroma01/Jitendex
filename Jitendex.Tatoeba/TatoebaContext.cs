@@ -23,7 +23,7 @@ using Jitendex.Tatoeba.Entities;
 
 namespace Jitendex.Tatoeba;
 
-public sealed class Context : SqliteContext
+public sealed class TatoebaContext : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Sequence> Sequences { get; set; } = null!;
@@ -32,5 +32,5 @@ public sealed class Context : SqliteContext
     public DbSet<Segmentation> Segmentations { get; set; } = null!;
     public DbSet<Token> Tokens { get; set; } = null!;
     public DbSet<Revision> Revisions { get; set; } = null!;
-    public Context() : base("tatoeba.db") { }
+    public TatoebaContext() : base("tatoeba.db") { }
 }

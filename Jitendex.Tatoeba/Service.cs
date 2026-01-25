@@ -54,14 +54,14 @@ public static class Service
 
         if (previousDate == default)
         {
-            using var context = new Context();
+            using var context = new TatoebaContext();
             context.ExecuteVacuum();
         }
     }
 
     private static DateOnly GetPreviousDate()
     {
-        using var context = new Context();
+        using var context = new TatoebaContext();
         context.Database.EnsureCreated();
         return context.FileHeaders
             .AsNoTracking()

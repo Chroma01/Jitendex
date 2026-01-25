@@ -26,7 +26,7 @@ namespace Jitendex.Tatoeba;
 
 public static class DtoMapper
 {
-    public static Dictionary<int, SequenceDto> LoadSequencesWithoutRevisions(Context context, IReadOnlySet<int> sequenceIds)
+    public static Dictionary<int, SequenceDto> LoadSequencesWithoutRevisions(TatoebaContext context, IReadOnlySet<int> sequenceIds)
         => context.Sequences
             .AsSplitQuery()
             .Where(seq => sequenceIds.Contains(seq.Id))
