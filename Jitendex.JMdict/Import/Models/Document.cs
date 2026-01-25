@@ -100,53 +100,6 @@ internal sealed class Document
         ReadingRestrictions = new(expectedEntryCount / 100);
     }
 
-    public int NextOrder(int key, string typeName) => typeName switch
-    {
-        nameof(KanjiFormElement) => NextOrder(key, KanjiForms),
-        nameof(ReadingElement) => NextOrder(key, Readings),
-        nameof(SenseElement) => NextOrder(key, Senses),
-        _ => throw new ArgumentOutOfRangeException(nameof(typeName))
-    };
-
-    public int NextOrder((int, int) key, string typeName) => typeName switch
-    {
-        nameof(KanjiFormInfoElement) => NextOrder(key, KanjiFormInfos),
-        nameof(KanjiFormPriorityElement) => NextOrder(key, KanjiFormPriorities),
-        nameof(ReadingInfoElement) => NextOrder(key, ReadingInfos),
-        nameof(ReadingPriorityElement) => NextOrder(key, ReadingPriorities),
-        nameof(RestrictionElement) => NextOrder(key, Restrictions),
-        nameof(CrossReferenceElement) => NextOrder(key, CrossReferences),
-        nameof(DialectElement) => NextOrder(key, Dialects),
-        nameof(FieldElement) => NextOrder(key, Fields),
-        nameof(GlossElement) => NextOrder(key, Glosses),
-        nameof(KanjiFormRestrictionElement) => NextOrder(key, KanjiFormRestrictions),
-        nameof(LanguageSourceElement) => NextOrder(key, LanguageSources),
-        nameof(MiscElement) => NextOrder(key, Miscs),
-        nameof(PartOfSpeechElement) => NextOrder(key, PartsOfSpeech),
-        nameof(ReadingRestrictionElement) => NextOrder(key, ReadingRestrictions),
-        _ => throw new ArgumentOutOfRangeException(nameof(typeName))
-    };
-
-    private int NextOrder<T>(int parentKey, Dictionary<(int, int), T> dic)
-    {
-        int i = 0;
-        while (dic.ContainsKey((parentKey, i)))
-        {
-            i++;
-        }
-        return i;
-    }
-
-    private int NextOrder<T>((int, int) parentKey, Dictionary<(int, int, int), T> dic)
-    {
-        int i = 0;
-        while (dic.ContainsKey((parentKey.Item1, parentKey.Item2, i)))
-        {
-            i++;
-        }
-        return i;
-    }
-
     public IEnumerable<DocumentSequence> GetSequences()
         => Entries.Select(e => new DocumentSequence
         {

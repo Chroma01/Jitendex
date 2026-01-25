@@ -49,7 +49,7 @@ internal class PartOfSpeechReader : BaseReader<PartOfSpeechReader>
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(PartOfSpeechElement)),
+            Order = document.PartsOfSpeech.NextOrder(sense.Key()),
             TagName = tagName,
         };
 

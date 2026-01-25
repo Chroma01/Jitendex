@@ -43,7 +43,7 @@ internal class RPriorityReader : BaseReader<RPriorityReader>
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            Order = document.NextOrder(reading.Key(), nameof(ReadingPriorityElement)),
+            Order = document.ReadingPriorities.NextOrder(reading.Key()),
             TagName = tagName,
         };
 

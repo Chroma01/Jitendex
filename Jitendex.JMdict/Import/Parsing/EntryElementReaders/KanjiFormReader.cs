@@ -40,7 +40,7 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
         var kanjiForm = new KanjiFormElement
         {
             EntryId = entry.Id,
-            Order = document.NextOrder(entry.Id, nameof(KanjiFormElement)),
+            Order = document.KanjiForms.NextOrder(entry.Id),
             Text = null!,
         };
 

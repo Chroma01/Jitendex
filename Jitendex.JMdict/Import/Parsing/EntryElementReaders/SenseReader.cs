@@ -48,7 +48,7 @@ internal partial class SenseReader : BaseReader<SenseReader>
         var sense = new SenseElement
         {
             EntryId = entry.Id,
-            Order = document.NextOrder(entry.Id, nameof(SenseElement)),
+            Order = document.Senses.NextOrder(entry.Id),
         };
 
         var exit = false;

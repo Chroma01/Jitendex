@@ -43,7 +43,7 @@ internal class KPriorityReader : BaseReader<KPriorityReader>
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            Order = document.NextOrder(kanjiForm.Key(), nameof(KanjiFormPriorityElement)),
+            Order = document.KanjiFormPriorities.NextOrder(kanjiForm.Key()),
             TagName = tagName,
         };
 

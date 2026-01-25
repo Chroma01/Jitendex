@@ -51,7 +51,7 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(CrossReferenceElement)),
+            Order = document.CrossReferences.NextOrder(sense.Key()),
             TypeName = typeName,
             RefText1 = parsedRef.Text1,
             RefText2 = parsedRef.Text2,

@@ -49,7 +49,7 @@ internal class MiscReader : BaseReader<MiscReader>
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(MiscElement)),
+            Order = document.Miscs.NextOrder(sense.Key()),
             TagName = tagName,
         };
 

@@ -44,7 +44,7 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
         var reading = new ReadingElement
         {
             EntryId = entry.Id,
-            Order = document.NextOrder(entry.Id, nameof(ReadingElement)),
+            Order = document.Readings.NextOrder(entry.Id),
             Text = null!,
             NoKanji = false,
         };

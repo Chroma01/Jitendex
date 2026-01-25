@@ -43,7 +43,7 @@ internal partial class GlossReader : BaseReader<GlossReader>
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(GlossElement)),
+            Order = document.Glosses.NextOrder(sense.Key()),
             TypeName = typeName,
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };

@@ -49,7 +49,7 @@ internal class FieldReader : BaseReader<FieldReader>
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(FieldElement)),
+            Order = document.Fields.NextOrder(sense.Key()),
             TagName = tagName,
         };
 

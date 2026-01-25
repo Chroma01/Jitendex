@@ -49,7 +49,7 @@ internal class RInfoReader : BaseReader<RInfoReader>
         {
             EntryId = reading.EntryId,
             ReadingOrder = reading.Order,
-            Order = document.NextOrder(reading.Key(), nameof(ReadingInfoElement)),
+            Order = document.ReadingInfos.NextOrder(reading.Key()),
             TagName = tagName,
         };
 

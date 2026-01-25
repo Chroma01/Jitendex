@@ -49,7 +49,7 @@ internal class KInfoReader : BaseReader<KInfoReader>
         {
             EntryId = kanjiForm.EntryId,
             KanjiFormOrder = kanjiForm.Order,
-            Order = document.NextOrder(kanjiForm.Key(), nameof(KanjiFormInfoElement)),
+            Order = document.KanjiFormInfos.NextOrder(kanjiForm.Key()),
             TagName = tagName,
         };
 

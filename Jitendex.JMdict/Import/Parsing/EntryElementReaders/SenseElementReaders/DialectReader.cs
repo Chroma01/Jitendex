@@ -49,7 +49,7 @@ internal class DialectReader : BaseReader<DialectReader>
         {
             EntryId = sense.EntryId,
             SenseOrder = sense.Order,
-            Order = document.NextOrder(sense.Key(), nameof(DialectElement)),
+            Order = document.Dialects.NextOrder(sense.Key()),
             TagName = tagName,
         };
 
