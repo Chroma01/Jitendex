@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -27,9 +27,9 @@ public sealed class Context : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Sequence> Sequences { get; set; } = null!;
-    public DbSet<EnglishSequence> EnglishSequences { get; set; } = null!;
-    public DbSet<JapaneseSequence> JapaneseSequences { get; set; } = null!;
-    public DbSet<TokenizedSentence> TokenizedSentences { get; set; } = null!;
+    public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
+    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
+    public DbSet<Segmentation> Segmentations { get; set; } = null!;
     public DbSet<Token> Tokens { get; set; } = null!;
     public DbSet<Revision> Revisions { get; set; } = null!;
     public Context() : base("tatoeba.db") { }

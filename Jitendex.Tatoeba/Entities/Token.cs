@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,35 +18,25 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba.Entities;
 
 [Table(nameof(Token))]
-[PrimaryKey(nameof(SequenceId), nameof(SentenceIndex), nameof(Index))]
+[PrimaryKey(nameof(SentenceId), nameof(SegmentationIndex), nameof(Index))]
 public sealed class Token
 {
-    public required int SequenceId { get; init; }
-    public required int SentenceIndex { get; init; }
+    public required int SentenceId { get; init; }
+    public required int SegmentationIndex { get; init; }
     public required int Index { get; init; }
 
     public required string Headword { get; set; }
     public required string? Reading { get; set; }
-    public required int? EntryId { get; set; }
+    public required int? JmdictEntryId { get; set; }
     public required int? SenseNumber { get; set; }
     public required string? SentenceForm { get; set; }
     public required bool IsPriority { get; set; }
 
-    [JsonIgnore]
-    [ForeignKey($"{nameof(SequenceId)}, {nameof(SentenceIndex)}")]
-    public TokenizedSentence TokenizedSentence { get; init; } = null!;
-
-    public override string ToString() =>
-        $"{SequenceId}\t{SentenceIndex}\t{Index}\t{Headword}"
-        + '\t' + (Reading ?? "")
-        + '\t' + (EntryId.HasValue ? EntryId : "")
-        + '\t' + (SenseNumber.HasValue ? $"{SenseNumber:D2}" : "")
-        + '\t' + (SentenceForm ?? "")
-        + '\t' + (IsPriority ? "1" : "0");
+    [ForeignKey($"{nameof(SentenceId)}, {nameof(SegmentationIndex)}")]
+    public required Segmentation Segmentation { get; init; }
 }

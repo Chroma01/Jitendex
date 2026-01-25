@@ -22,16 +22,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Tatoeba.Entities;
 
-[Table(nameof(Sequence))]
-public sealed class Sequence
+[Table(nameof(EnglishSentence))]
+public sealed class EnglishSentence
 {
     [Key]
-    public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
+    public required int EntryId { get; init; }
+    public required string Text { get; set; }
 
-    [InverseProperty(nameof(Entry.Sequence))]
-    public Entry? Entry { get; set; }
+    [ForeignKey(nameof(EntryId))]
+    public required Entry Entry { get; init; }
 
-    [InverseProperty(nameof(Revision.Sequence))]
-    public List<Revision> Revisions { get; init; } = [];
+    [InverseProperty(nameof(Segmentation.EnglishSentence))]
+    public List<Segmentation> Segmentations { get; init; } = [];
 }

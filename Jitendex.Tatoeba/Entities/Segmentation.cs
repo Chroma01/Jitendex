@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -17,23 +17,25 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.Tatoeba.Entities;
 
-[Table(nameof(JapaneseSequence))]
-public sealed class JapaneseSequence
+[Table(nameof(Segmentation))]
+[PrimaryKey(nameof(JapaneseSentenceId), nameof(Index))]
+public sealed class Segmentation
 {
-    [Key]
-    public required int Id { get; init; }
-    public required string Text { get; set; }
+    public required int JapaneseSentenceId { get; init; }
+    public required int Index { get; init; }
+    public required int EnglishSentenceId { get; set; }
 
-    [JsonIgnore]
-    [ForeignKey(nameof(Id))]
-    public Sequence Sequence { get; init; } = null!;
+    [ForeignKey(nameof(JapaneseSentenceId))]
+    public required JapaneseSentence JapaneseSentence { get; init; }
 
-    [InverseProperty(nameof(TokenizedSentence.JapaneseSentence))]
-    public List<TokenizedSentence> TokenizedSentences { get; init; } = [];
+    [ForeignKey(nameof(EnglishSentenceId))]
+    public required EnglishSentence EnglishSentence { get; set; }
+
+    [InverseProperty(nameof(Token.Segmentation))]
+    public List<Token> Tokens { get; init; } = [];
 }

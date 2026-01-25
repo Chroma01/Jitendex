@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -33,7 +33,7 @@ internal sealed class TatoebaReader
 
     public async Task<Document> ReadAsync(DateOnly date)
     {
-        Document document = new(date, expectedSequenceCount: 300_000);
+        Document document = new(date, expectedSentenceCount: 300_000);
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
@@ -61,30 +61,26 @@ internal sealed class TatoebaReader
 
     private void MakeIndex(in ExampleText text, Document document)
     {
-        var japaneseSequence = GetJapaneseSequence(text, document);
-        var englishSequence = GetEnglishSequence(text, document);
+        var jp = GetJapaneseSentence(text, document);
+        var en = GetEnglishSentence(text, document);
+        var index = document.NextSegmentationIndex(jp.EntryId);
 
-        var sentenceTokenization = new TokenizedSentence
-        {
-            JapaneseSequenceId = japaneseSequence.Id,
-            Index = document.NextTokenizedSentenceIndex(japaneseSequence.Id),
-            EnglishSequenceId = englishSequence.Id,
-        };
+        var segmentation = new SegmentationElement(jp.EntryId, index, en.EntryId);
 
-        var key = sentenceTokenization.GetKey();
-        document.TokenizedSentences.Add(key, sentenceTokenization);
+        var key = segmentation.GetKey();
+        document.Segmentations.Add(key, segmentation);
 
         foreach (var range in text.ElementTextRanges())
         {
             var elementText = text.GetElementText(range);
-            var token = new Token
+            var token = new TokenElement
             {
-                SequenceId = sentenceTokenization.JapaneseSequenceId,
-                SentenceIndex = sentenceTokenization.Index,
+                TatoebaId = segmentation.JapaneseId,
+                SegmentationIndex = segmentation.Index,
                 Index = document.NextTokenIndex(key),
                 Headword = elementText.GetHeadword(),
                 Reading = elementText.GetReading(),
-                EntryId = elementText.GetEntryId(),
+                JmdictEntryId = elementText.GetEntryId(),
                 SenseNumber = elementText.GetSenseNumber(),
                 SentenceForm = elementText.GetSentenceForm(),
                 IsPriority = elementText.GetIsPriority(),
@@ -93,25 +89,21 @@ internal sealed class TatoebaReader
         }
     }
 
-    private JapaneseSequence GetJapaneseSequence(in ExampleText text, Document document)
+    private JapaneseSentenceElement GetJapaneseSentence(in ExampleText text, Document document)
     {
         var id = text.GetJapaneseSentenceId();
+        document.Entries.TryAdd(id, new EntryElement(id));
 
-        if (document.EnglishSequences.ContainsKey(id))
+        if (document.EnglishSentences.ContainsKey(id))
         {
             _logger.LogWarning("Sequence ID {Id} is used for different language sentences", id);
         }
 
-        var sentence = new JapaneseSequence
-        {
-            Id = id,
-            Text = text.GetJapaneseSentenceText(),
-        };
+        var sentence = new JapaneseSentenceElement(id, text.GetJapaneseSentenceText());
 
-        if (!document.JapaneseSequences.TryGetValue(id, out var oldSentence))
+        if (!document.JapaneseSentences.TryGetValue(id, out var oldSentence))
         {
-            document.Sequences.Add(id);
-            document.JapaneseSequences.Add(id, sentence);
+            document.JapaneseSentences.Add(id, sentence);
         }
         else if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
         {
@@ -121,25 +113,21 @@ internal sealed class TatoebaReader
         return sentence;
     }
 
-    private EnglishSequence GetEnglishSequence(in ExampleText text, Document document)
+    private EnglishSentenceElement GetEnglishSentence(in ExampleText text, Document document)
     {
         var id = text.GetEnglishSentenceId();
+        document.Entries.TryAdd(id, new EntryElement(id));
 
-        if (document.JapaneseSequences.ContainsKey(id))
+        if (document.JapaneseSentences.ContainsKey(id))
         {
             _logger.LogWarning("Sequence ID {Id} is used for different language sentences", id);
         }
 
-        var sentence = new EnglishSequence
-        {
-            Id = id,
-            Text = text.GetEnglishSentenceText()
-        };
+        var sentence = new EnglishSentenceElement(id, text.GetEnglishSentenceText());
 
-        if (!document.EnglishSequences.TryGetValue(id, out var oldSentence))
+        if (!document.EnglishSentences.TryGetValue(id, out var oldSentence))
         {
-            document.Sequences.Add(id);
-            document.EnglishSequences.Add(id, sentence);
+            document.EnglishSentences.Add(id, sentence);
         }
         else if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
         {

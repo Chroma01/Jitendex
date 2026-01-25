@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,29 +18,30 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.Import.Models;
 using Jitendex.SQLite;
+using Jitendex.Tatoeba.Entities;
+using Jitendex.Tatoeba.Import.Models;
 
 namespace Jitendex.Tatoeba.Import.SQLite;
 
-internal sealed class EnglishSentenceTable : Table<EnglishSequence>
+internal sealed class EnglishSentenceTable : Table<EnglishSentenceElement>
 {
-    protected override string Name => nameof(EnglishSequence);
+    protected override string Name => nameof(EnglishSentence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(EnglishSequence.Id),
-        nameof(EnglishSequence.Text),
+        nameof(EnglishSentence.EntryId),
+        nameof(EnglishSentence.Text),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(EnglishSequence.Id)
+        nameof(EnglishSentence.EntryId)
     ];
 
-    protected override SqliteParameter[] Parameters(EnglishSequence sentence) =>
+    protected override SqliteParameter[] Parameters(EnglishSentenceElement sentence) =>
     [
-        new("@0", sentence.Id),
+        new("@0", sentence.EntryId),
         new("@1", sentence.Text),
     ];
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -24,37 +24,25 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public IReadOnlySet<int> SequenceIds { get; init; }
+    public IReadOnlyCollection<int> SequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
-        Date = docB.Date;
+        Date = docB.Header.Date;
         InsertDocument = new Document(Date);
         UpdateDocument = new Document(Date);
         DeleteDocument = new Document(Date);
 
-        FindNewSequences(docA, docB);
+        DiffDictionaryProperties<int, EntryElement>(docA, docB, propertyName: nameof(Document.Entries));
+        DiffDictionaryProperties<int, EnglishSentenceElement>(docA, docB, propertyName: nameof(Document.EnglishSentences));
+        DiffDictionaryProperties<int, JapaneseSentenceElement>(docA, docB, propertyName: nameof(Document.JapaneseSentences));
+        DiffDictionaryProperties<(int, int), SegmentationElement>(docA, docB, propertyName: nameof(Document.Segmentations));
+        DiffDictionaryProperties<(int, int, int), TokenElement>(docA, docB, propertyName: nameof(Document.Tokens));
 
-        DiffDictionaryProperties<int, EnglishSequence>(docA, docB, propertyName: nameof(Document.EnglishSequences));
-        DiffDictionaryProperties<int, JapaneseSequence>(docA, docB, propertyName: nameof(Document.JapaneseSequences));
-        DiffDictionaryProperties<(int, int), TokenizedSentence>(docA, docB, propertyName: nameof(Document.TokenizedSentences));
-        DiffDictionaryProperties<(int, int, int), Token>(docA, docB, propertyName: nameof(Document.Tokens));
-
-        SequenceIds = InsertDocument.ConcatAllSequenceIds()
+        SequenceIds = [.. InsertDocument.ConcatAllSequenceIds()
             .Concat(UpdateDocument.ConcatAllSequenceIds())
             .Concat(DeleteDocument.ConcatAllSequenceIds())
-            .ToHashSet();
-    }
-
-    private void FindNewSequences(Document docA, Document docB)
-    {
-        foreach (var key in docB.Sequences)
-        {
-            if (!docA.Sequences.Contains(key))
-            {
-                InsertDocument.Sequences.Add(key);
-            }
-        }
+            .Distinct()];
     }
 
     private void DiffDictionaryProperties<TKey, TValue>(Document docA, Document docB, string propertyName)

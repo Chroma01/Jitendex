@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -20,27 +20,27 @@ namespace Jitendex.Tatoeba.Import.Models;
 
 internal sealed class Document
 {
-    public DateOnly Date { get; init; }
-    public HashSet<int> Sequences { get; init; }
-    public Dictionary<int, EnglishSequence> EnglishSequences { get; init; }
-    public Dictionary<int, JapaneseSequence> JapaneseSequences { get; init; }
-    public Dictionary<(int, int), TokenizedSentence> TokenizedSentences { get; init; }
-    public Dictionary<(int, int, int), Token> Tokens { get; init; }
+    public DocumentHeader Header { get; init; }
+    public Dictionary<int, EntryElement> Entries { get; init; }
+    public Dictionary<int, EnglishSentenceElement> EnglishSentences { get; init; }
+    public Dictionary<int, JapaneseSentenceElement> JapaneseSentences { get; init; }
+    public Dictionary<(int, int), SegmentationElement> Segmentations { get; init; }
+    public Dictionary<(int, int, int), TokenElement> Tokens { get; init; }
 
-    public Document(DateOnly date, int expectedSequenceCount = 0)
+    public Document(DateOnly date, int expectedSentenceCount = 0)
     {
-        Date = date;
-        Sequences = new(expectedSequenceCount);
-        EnglishSequences = new(expectedSequenceCount / 2);
-        JapaneseSequences = new(expectedSequenceCount / 2);
-        TokenizedSentences = new(expectedSequenceCount / 2);
-        Tokens = new(expectedSequenceCount * 4);
+        Header = new(date);
+        Entries = new(expectedSentenceCount);
+        EnglishSentences = new(expectedSentenceCount / 2);
+        JapaneseSentences = new(expectedSentenceCount / 2);
+        Segmentations = new(expectedSentenceCount / 2);
+        Tokens = new(expectedSentenceCount * 4);
     }
 
-    public int NextTokenizedSentenceIndex(int id)
+    public int NextSegmentationIndex(int id)
     {
         int index = 0;
-        while (TokenizedSentences.ContainsKey((id, index)))
+        while (Segmentations.ContainsKey((id, index)))
         {
             index++;
         }
@@ -57,16 +57,13 @@ internal sealed class Document
         return index;
     }
 
-    public IEnumerable<Sequence> GetSequences()
-        => Sequences.Select(id => new Sequence { Id = id, CreatedDate = Date });
-
-    public FileHeader GetFileHeader()
-        => new() { Date = Date };
+    public IEnumerable<SequenceElement> GetSequences()
+        => Entries.Select(e => new SequenceElement(e.Key, Header.Date));
 
     public IEnumerable<int> ConcatAllSequenceIds()
-        => Sequences
-            .Concat(EnglishSequences.Keys)
-            .Concat(JapaneseSequences.Keys)
-            .Concat(TokenizedSentences.Keys.Select(static key => key.Item1))
+        => Entries.Keys
+            .Concat(EnglishSentences.Keys)
+            .Concat(JapaneseSentences.Keys)
+            .Concat(Segmentations.Keys.Select(static key => key.Item1))
             .Concat(Tokens.Keys.Select(static key => key.Item1));
 }

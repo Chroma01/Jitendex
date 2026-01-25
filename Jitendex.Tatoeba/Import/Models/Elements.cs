@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,16 +18,27 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Tatoeba.Import.Models;
 
-internal sealed record Token
+internal sealed record DocumentHeader(DateOnly Date);
+internal sealed record SequenceElement(int Id, DateOnly CreatedDate);
+internal sealed record EntryElement(int SequenceId);
+internal sealed record EnglishSentenceElement(int EntryId, string Text);
+internal sealed record JapaneseSentenceElement(int EntryId, string Text);
+
+internal sealed record SegmentationElement(int JapaneseId, int Index, int EnglishId)
 {
-    public required int SequenceId { get; init; }
-    public required int SentenceIndex { get; init; }
+    public (int, int) GetKey() => (JapaneseId, Index);
+}
+
+internal sealed record TokenElement
+{
+    public required int TatoebaId { get; init; }
+    public required int SegmentationIndex { get; init; }
     public required int Index { get; init; }
     public required string Headword { get; init; }
     public required string? Reading { get; init; }
-    public required int? EntryId { get; init; }
+    public required int? JmdictEntryId { get; init; }
     public required int? SenseNumber { get; init; }
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
-    public (int, int, int) GetKey() => (SequenceId, SentenceIndex, Index);
+    public (int, int, int) GetKey() => (TatoebaId, SegmentationIndex, Index);
 }

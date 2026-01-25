@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -27,14 +27,15 @@ internal static class Database
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly SequenceTable SequenceTable = new();
+    private static readonly EntryTable EntryTable = new();
     private static readonly JapaneseSentenceTable JapaneseSentenceTable = new();
     private static readonly EnglishSentenceTable EnglishSentenceTable = new();
-    private static readonly TokenizedSentenceTable TokenizedSentenceTable = new();
+    private static readonly SegmentationTable SegmentationTable = new();
     private static readonly TokenTable TokenTable = new();
 
     public static void Initialize(Document document)
     {
-        Console.Error.WriteLine($"Initializing database with data from {document.Date:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
 
         using var context = new Context();
         context.InitializeDatabase();
@@ -42,11 +43,12 @@ internal static class Database
 
         using (var transaction = context.Database.BeginTransaction())
         {
-            FileHeaderTable.InsertItem(context, document.GetFileHeader());
+            FileHeaderTable.InsertItem(context, document.Header);
             SequenceTable.InsertItems(context, document.GetSequences());
-            JapaneseSentenceTable.InsertItems(context, document.JapaneseSequences.Values);
-            EnglishSentenceTable.InsertItems(context, document.EnglishSequences.Values);
-            TokenizedSentenceTable.InsertItems(context, document.TokenizedSentences.Values);
+            EntryTable.InsertItems(context, document.Entries.Values);
+            JapaneseSentenceTable.InsertItems(context, document.JapaneseSentences.Values);
+            EnglishSentenceTable.InsertItems(context, document.EnglishSentences.Values);
+            SegmentationTable.InsertItems(context, document.Segmentations.Values);
             TokenTable.InsertItems(context, document.Tokens.Values);
             transaction.Commit();
         }
@@ -59,34 +61,37 @@ internal static class Database
         Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
 
         using var context = new Context();
-        var aSequences = LoadSequences(context, diff.SequenceIds);
+        var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         using (var transaction = context.Database.BeginTransaction())
         {
             context.ExecuteDeferForeignKeysPragma();
 
-            FileHeaderTable.InsertItem(context, diff.InsertDocument.GetFileHeader());
+            FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
             SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
-            EnglishSentenceTable.InsertItems(context, diff.InsertDocument.EnglishSequences.Values);
-            JapaneseSentenceTable.InsertItems(context, diff.InsertDocument.JapaneseSequences.Values);
-            TokenizedSentenceTable.InsertItems(context, diff.InsertDocument.TokenizedSentences.Values);
+            EntryTable.InsertItems(context, diff.InsertDocument.Entries.Values);
+            EnglishSentenceTable.InsertItems(context, diff.InsertDocument.EnglishSentences.Values);
+            JapaneseSentenceTable.InsertItems(context, diff.InsertDocument.JapaneseSentences.Values);
+            SegmentationTable.InsertItems(context, diff.InsertDocument.Segmentations.Values);
             TokenTable.InsertItems(context, diff.InsertDocument.Tokens.Values);
 
-            EnglishSentenceTable.UpdateItems(context, diff.UpdateDocument.EnglishSequences.Values);
-            JapaneseSentenceTable.UpdateItems(context, diff.UpdateDocument.JapaneseSequences.Values);
-            TokenizedSentenceTable.UpdateItems(context, diff.UpdateDocument.TokenizedSentences.Values);
+            EntryTable.UpdateItems(context, diff.UpdateDocument.Entries.Values);
+            EnglishSentenceTable.UpdateItems(context, diff.UpdateDocument.EnglishSentences.Values);
+            JapaneseSentenceTable.UpdateItems(context, diff.UpdateDocument.JapaneseSentences.Values);
+            SegmentationTable.UpdateItems(context, diff.UpdateDocument.Segmentations.Values);
             TokenTable.UpdateItems(context, diff.UpdateDocument.Tokens.Values);
 
             TokenTable.DeleteItems(context, diff.DeleteDocument.Tokens.Values);
-            TokenizedSentenceTable.DeleteItems(context, diff.DeleteDocument.TokenizedSentences.Values);
-            JapaneseSentenceTable.DeleteItems(context, diff.DeleteDocument.JapaneseSequences.Values);
-            EnglishSentenceTable.DeleteItems(context, diff.DeleteDocument.EnglishSequences.Values);
+            SegmentationTable.DeleteItems(context, diff.DeleteDocument.Segmentations.Values);
+            JapaneseSentenceTable.DeleteItems(context, diff.DeleteDocument.JapaneseSentences.Values);
+            EnglishSentenceTable.DeleteItems(context, diff.DeleteDocument.EnglishSentences.Values);
+            EntryTable.DeleteItems(context, diff.DeleteDocument.Entries.Values);
 
             transaction.Commit();
         }
 
-        var bSequences = LoadSequences(context, diff.SequenceIds);
+        var bSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         var sequences = context.Sequences
             .Where(sequence => diff.SequenceIds.Contains(sequence.Id))
@@ -112,13 +117,4 @@ internal static class Database
 
         context.SaveChanges();
     }
-
-    private static Dictionary<int, Entities.Sequence> LoadSequences(Context context, IReadOnlySet<int> ids)
-        => context.Sequences.AsNoTracking()
-        .Where(sequence => ids.Contains(sequence.Id))
-        .Include(static sequence => sequence.EnglishSentence)
-        .Include(static sequence => sequence.JapaneseSentence)
-        .ThenInclude(static japaneseSentence => japaneseSentence!.TokenizedSentences)
-        .ThenInclude(static tokenizedSentence => tokenizedSentence.Tokens)
-        .ToDictionary(static sequence => sequence.Id);
 }

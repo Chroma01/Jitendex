@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -19,22 +19,21 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Jitendex.Tatoeba.Entities;
 
-[Table(nameof(EnglishSequence))]
-public sealed class EnglishSequence
+[Table(nameof(Entry))]
+public sealed class Entry
 {
     [Key]
-    public required int Id { get; init; }
-    public required string Text { get; set; }
+    public required int SequenceId { get; init; }
 
-    [JsonIgnore]
-    [ForeignKey(nameof(Id))]
-    public Sequence Sequence { get; init; } = null!;
+    [InverseProperty(nameof(JapaneseSentence.Entry))]
+    public JapaneseSentence? JapaneseSentence { get; set; }
 
-    [JsonIgnore]
-    [InverseProperty(nameof(TokenizedSentence.EnglishSentence))]
-    public List<TokenizedSentence> Indices { get; init; } = [];
+    [InverseProperty(nameof(EnglishSentence.Entry))]
+    public EnglishSentence? EnglishSentence { get; set; }
+
+    [ForeignKey(nameof(SequenceId))]
+    public required Sequence Sequence { get; init; }
 }

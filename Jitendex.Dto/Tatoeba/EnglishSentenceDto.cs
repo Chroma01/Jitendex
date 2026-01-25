@@ -1,11 +1,11 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
 
-Jitendex is free software: you can redistribute it and/or modify it under the terms
-of the GNU Affero General Public License as published by the Free Software Foundation,
+Jitendex is free software: you can redistribute it and/or modify it under the terms of
+the GNU Affero General Public License as published by the Free Software Foundation,
 either version 3 of the License or (at your option) any later version.
 
 Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -16,10 +16,10 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Tatoeba.Import.Models;
+namespace Jitendex.Dto.Tatoeba;
 
-internal sealed record Sequence
+public sealed record EnglishSentenceDto(int Id)
 {
-    public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
+    public required string Text { get; set; }
+    public override string ToString() => $"#{Id}: {Text}";
 }

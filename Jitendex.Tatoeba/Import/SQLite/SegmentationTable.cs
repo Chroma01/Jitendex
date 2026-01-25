@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -18,32 +18,33 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Data.Sqlite;
-using Jitendex.Tatoeba.Import.Models;
 using Jitendex.SQLite;
+using Jitendex.Tatoeba.Entities;
+using Jitendex.Tatoeba.Import.Models;
 
 namespace Jitendex.Tatoeba.Import.SQLite;
 
-internal sealed class TokenizedSentenceTable : Table<TokenizedSentence>
+internal sealed class SegmentationTable : Table<SegmentationElement>
 {
-    protected override string Name => nameof(TokenizedSentence);
+    protected override string Name => nameof(Segmentation);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(TokenizedSentence.JapaneseSequenceId),
-        nameof(TokenizedSentence.Index),
-        nameof(TokenizedSentence.EnglishSequenceId),
+        nameof(Segmentation.JapaneseSentenceId),
+        nameof(Segmentation.Index),
+        nameof(Segmentation.EnglishSentenceId),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(TokenizedSentence.JapaneseSequenceId),
-        nameof(TokenizedSentence.Index),
+        nameof(Segmentation.JapaneseSentenceId),
+        nameof(Segmentation.Index),
     ];
 
-    protected override SqliteParameter[] Parameters(TokenizedSentence sentence) =>
+    protected override SqliteParameter[] Parameters(SegmentationElement sentence) =>
     [
-        new("@0", sentence.JapaneseSequenceId),
+        new("@0", sentence.JapaneseId),
         new("@1", sentence.Index),
-        new("@2", sentence.EnglishSequenceId),
+        new("@2", sentence.EnglishId),
     ];
 }
