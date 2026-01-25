@@ -24,7 +24,7 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public IReadOnlyCollection<int> SequenceIds { get; init; }
+    public IReadOnlySet<int> SequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -39,10 +39,10 @@ internal sealed class DocumentDiff
         DiffDictionaryProperties<(int, int), SegmentationElement>(docA, docB, propertyName: nameof(Document.Segmentations));
         DiffDictionaryProperties<(int, int, int), TokenElement>(docA, docB, propertyName: nameof(Document.Tokens));
 
-        SequenceIds = [.. InsertDocument.ConcatAllSequenceIds()
+        SequenceIds = InsertDocument.ConcatAllSequenceIds()
             .Concat(UpdateDocument.ConcatAllSequenceIds())
             .Concat(DeleteDocument.ConcatAllSequenceIds())
-            .Distinct()];
+            .ToHashSet();
     }
 
     private void DiffDictionaryProperties<TKey, TValue>(Document docA, Document docB, string propertyName)
