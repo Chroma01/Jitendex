@@ -71,7 +71,7 @@ internal static class Database
     {
         Console.Error.WriteLine($"Initializing database with data from {document.FileHeader.Date:yyyy-MM-dd}");
 
-        using var context = new Context();
+        using var context = new Kanjidic2Context();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
 
@@ -119,7 +119,7 @@ internal static class Database
     {
         Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
 
-        using var context = new Context();
+        using var context = new Kanjidic2Context();
         var aEntries = LoadEntries(context, diff.EntryIds);
 
         using (var transaction = context.Database.BeginTransaction())

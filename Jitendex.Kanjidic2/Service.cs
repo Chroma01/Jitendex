@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Parsing;
 using Jitendex.Kanjidic2.Import.SQLite;
@@ -52,14 +51,14 @@ public static class Service
 
         if (previousDate == default)
         {
-            using var context = new Context();
+            using var context = new Kanjidic2Context();
             context.ExecuteVacuum();
         }
     }
 
     private static DateOnly GetPreviousDate()
     {
-        using var context = new Context();
+        using var context = new Kanjidic2Context();
         context.Database.EnsureCreated();
         return context.FileHeaders
             .OrderByDescending(x => x.Id)

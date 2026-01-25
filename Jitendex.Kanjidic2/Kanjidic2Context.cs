@@ -23,7 +23,7 @@ using Jitendex.SQLite;
 
 namespace Jitendex.Kanjidic2;
 
-public class Context : SqliteContext
+public class Kanjidic2Context : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Entry> Entries { get; set; } = null!;
@@ -38,5 +38,5 @@ public class Context : SqliteContext
     public DbSet<VariantType> VariantTypes { get; set; } = null!;
     #endregion
 
-    public Context() : base("kanjidic2.db") { }
+    public Kanjidic2Context() : base("kanjidic2.db") { }
 }
