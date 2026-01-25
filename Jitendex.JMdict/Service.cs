@@ -52,14 +52,14 @@ public static class Service
 
         if (previousDate == default)
         {
-            using var context = new Context();
+            using var context = new JmdictContext();
             context.ExecuteVacuum();
         }
     }
 
     private static DateOnly GetPreviousDate()
     {
-        using var context = new Context();
+        using var context = new JmdictContext();
         context.Database.EnsureCreated();
         return context.FileHeaders
             .OrderByDescending(static x => x.Id)

@@ -80,7 +80,7 @@ internal static class Database
     {
         Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
 
-        using var context = new Context();
+        using var context = new JmdictContext();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
 
@@ -130,7 +130,7 @@ internal static class Database
     {
         Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
 
-        using var context = new Context();
+        using var context = new JmdictContext();
         var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         using (var transaction = context.Database.BeginTransaction())

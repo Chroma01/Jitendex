@@ -27,7 +27,7 @@ using Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
 
 namespace Jitendex.JMdict;
 
-public class Context : SqliteContext
+public class JmdictContext : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Sequence> Sequences { get; set; } = null!;
@@ -79,5 +79,5 @@ public class Context : SqliteContext
     public DbSet<Language> Languages { get; set; } = null!;
     #endregion
 
-    public Context() : base("jmdict.db") { }
+    public JmdictContext() : base("jmdict.db") { }
 }
