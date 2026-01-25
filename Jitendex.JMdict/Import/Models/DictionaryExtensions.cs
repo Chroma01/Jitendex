@@ -38,4 +38,10 @@ internal static class DictionaryExtentions
         }
         return i;
     }
+
+    public static IEnumerable<int> EntryIds<T>(this Dictionary<(int, int), T> dictionary)
+        => dictionary.Keys.Select(static k => k.Item1);
+
+    public static IEnumerable<int> EntryIds<T>(this Dictionary<(int, int, int), T> dictionary)
+        => dictionary.Keys.Select(static k => k.Item1);
 }
