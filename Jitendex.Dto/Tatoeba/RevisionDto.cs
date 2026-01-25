@@ -22,5 +22,6 @@ public sealed record RevisionDto
 {
     public required int Number { get; init; }
     public required DateOnly CreatedDate { get; init; }
+    public required bool IsPriority { get; init; }
     public required string DiffJson { get; init; }
 }
