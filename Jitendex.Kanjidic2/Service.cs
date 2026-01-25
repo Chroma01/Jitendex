@@ -62,7 +62,6 @@ public static class Service
         using var context = new Context();
         context.Database.EnsureCreated();
         return context.FileHeaders
-            .AsNoTracking()
             .OrderByDescending(x => x.Id)
             .Take(1)
             .Select(x => x.Date)
