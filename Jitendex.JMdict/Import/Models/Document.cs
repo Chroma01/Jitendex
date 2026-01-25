@@ -147,7 +147,7 @@ internal sealed class Document
         return i;
     }
 
-    public IEnumerable<DocumentSequence> Sequences()
+    public IEnumerable<DocumentSequence> GetSequences()
         => Entries.Select(e => new DocumentSequence
         {
             Id = e.Key,

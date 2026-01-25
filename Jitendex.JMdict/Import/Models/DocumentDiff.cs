@@ -29,7 +29,7 @@ internal sealed class DocumentDiff
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public Dictionary<int, DocumentSequence> Sequences { get; init; }
+    public IReadOnlySet<int> SequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -73,16 +73,10 @@ internal sealed class DocumentDiff
         DiffDictionaryProperties<(int, int, int), PartOfSpeechElement>(docA, docB, nameof(Document.PartsOfSpeech));
         DiffDictionaryProperties<(int, int, int), ReadingRestrictionElement>(docA, docB, nameof(Document.ReadingRestrictions));
 
-        Sequences = InsertDocument.ConcatAllEntryIds()
+        SequenceIds = InsertDocument.ConcatAllEntryIds()
             .Concat(UpdateDocument.ConcatAllEntryIds())
             .Concat(DeleteDocument.ConcatAllEntryIds())
-            .Distinct()
-            .Select(id => new DocumentSequence
-            {
-                Id = id,
-                CreatedDate = FileHeader.Date,
-            })
-            .ToDictionary(static s => s.Id);
+            .ToHashSet();
     }
 
     private void FindNew<TKey, TValue>(Document docA, Document docB, string propertyName) where TKey : notnull

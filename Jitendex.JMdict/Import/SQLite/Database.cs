@@ -86,8 +86,6 @@ internal static class Database
 
         using (var transaction = context.Database.BeginTransaction())
         {
-            FileHeaderTable.InsertItem(context, document.Header);
-
             ReadingInfoTagTable.InsertItems(context, document.ReadingInfoTags.Values);
             KanjiFormInfoTagTable.InsertItems(context, document.KanjiFormInfoTags.Values);
             PartOfSpeechTagTable.InsertItems(context, document.PartOfSpeechTags.Values);
@@ -100,20 +98,18 @@ internal static class Database
             PriorityTagTable.InsertItems(context, document.PriorityTags.Values);
             LanguageTable.InsertItems(context, document.Languages.Values);
 
-            SequenceTable.InsertItems(context, document.Sequences());
-            EntryTable.InsertItems(context, document.Entries.Values);
+            FileHeaderTable.InsertItem(context, document.Header);
+            SequenceTable.InsertItems(context, document.GetSequences());
 
+            EntryTable.InsertItems(context, document.Entries.Values);
             KanjiFormTable.InsertItems(context, document.KanjiForms.Values);
             ReadingTable.InsertItems(context, document.Readings.Values);
             SenseTable.InsertItems(context, document.Senses.Values);
-
             KanjiFormInfoTable.InsertItems(context, document.KanjiFormInfos.Values);
             KanjiFormPriorityTable.InsertItems(context, document.KanjiFormPriorities.Values);
-
             ReadingInfoTable.InsertItems(context, document.ReadingInfos.Values);
             ReadingPriorityTable.InsertItems(context, document.ReadingPriorities.Values);
             RestrictionTable.InsertItems(context, document.Restrictions.Values);
-
             CrossReferenceTable.InsertItems(context, document.CrossReferences.Values);
             DialectTable.InsertItems(context, document.Dialects.Values);
             FieldTable.InsertItems(context, document.Fields.Values);
@@ -132,19 +128,14 @@ internal static class Database
 
     public static void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.Sequences.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
 
         using var context = new Context();
-        var ids = (IReadOnlyCollection<int>)diff.Sequences.Keys;
-        var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, ids);
+        var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         using (var transaction = context.Database.BeginTransaction())
         {
             context.ExecuteDeferForeignKeysPragma();
-
-            FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
-
-            SequenceTable.InsertOrIgnoreItems(context, diff.Sequences.Values);
 
             ReadingInfoTagTable.InsertOrIgnoreItems(context, diff.InsertDocument.ReadingInfoTags.Values);
             KanjiFormInfoTagTable.InsertOrIgnoreItems(context, diff.InsertDocument.KanjiFormInfoTags.Values);
@@ -157,6 +148,9 @@ internal static class Database
             LanguageSourceTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.LanguageSourceTypes.Values);
             PriorityTagTable.InsertOrIgnoreItems(context, diff.InsertDocument.PriorityTags.Values);
             LanguageTable.InsertOrIgnoreItems(context, diff.InsertDocument.Languages.Values);
+
+            FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
+            SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
             EntryTable.InsertItems(context, diff.InsertDocument.Entries.Values);
             KanjiFormTable.InsertItems(context, diff.InsertDocument.KanjiForms.Values);
@@ -218,10 +212,10 @@ internal static class Database
             transaction.Commit();
         }
 
-        var bSequences = DtoMapper.LoadSequencesWithoutRevisions(context, ids);
+        var bSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         var sequences = context.Sequences
-            .Where(seq => ids.Contains(seq.Id))
+            .Where(seq => diff.SequenceIds.Contains(seq.Id))
             .Include(static seq => seq.Revisions)
             .ToList();
 
