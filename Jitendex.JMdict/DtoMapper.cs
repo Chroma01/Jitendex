@@ -53,7 +53,7 @@ public static class DtoMapper
             })
             .ToDictionary(static dto => dto.Id);
 
-    private static readonly Expression<Func<KanjiForm, KanjiFormDto>> KanjiFormProjection =
+    private static Expression<Func<KanjiForm, KanjiFormDto>> KanjiFormProjection =>
         static kanjiForm => new KanjiFormDto(kanjiForm.Text)
         {
             Infos = kanjiForm.Infos
@@ -66,7 +66,7 @@ public static class DtoMapper
                 .ToList(),
         };
 
-    private static readonly Expression<Func<Reading, ReadingDto>> ReadingProjection =
+    private static Expression<Func<Reading, ReadingDto>> ReadingProjection =>
         static reading => new ReadingDto(reading.Text, reading.NoKanji)
         {
             Infos = reading.Infos
@@ -83,7 +83,7 @@ public static class DtoMapper
                 .ToList(),
         };
 
-    private static readonly Expression<Func<Sense, SenseDto>> SenseProjection =
+    private static Expression<Func<Sense, SenseDto>> SenseProjection =>
         static sense => new SenseDto(sense.Note)
         {
             CrossReferences = sense.CrossReferences
