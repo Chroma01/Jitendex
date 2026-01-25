@@ -60,7 +60,6 @@ internal sealed class Document
 
     public IEnumerable<int> ConcatAllExampleIds()
         => Examples.Keys
-            .Concat(Translations.Keys)
             .Concat(Segmentations.Keys.Select(static key => key.Item1))
             .Concat(Tokens.Keys.Select(static key => key.Item1));
 }
