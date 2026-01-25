@@ -33,7 +33,7 @@ internal sealed class TatoebaReader
 
     public async Task<Document> ReadAsync(DateOnly date)
     {
-        Document document = new(date, expectedSentenceCount: 300_000);
+        Document document = new(date);
 
         while (await _reader.ReadLineAsync() is string lineA)
         {
@@ -61,11 +61,11 @@ internal sealed class TatoebaReader
 
     private void MakeIndex(in ExampleText text, Document document)
     {
-        var jp = GetJapaneseSentence(text, document);
-        var en = GetEnglishSentence(text, document);
-        var index = document.NextSegmentationIndex(jp.EntryId);
+        var example = GetExample(text, document);
+        var translation = GetTranslation(text, document);
+        var index = document.NextSegmentationIndex(example.Id);
 
-        var segmentation = new SegmentationElement(jp.EntryId, index, en.EntryId);
+        var segmentation = new SegmentationElement(example.Id, index, translation.Id);
 
         var key = segmentation.GetKey();
         document.Segmentations.Add(key, segmentation);
@@ -75,12 +75,12 @@ internal sealed class TatoebaReader
             var elementText = text.GetElementText(range);
             var token = new TokenElement
             {
-                TatoebaId = segmentation.JapaneseId,
+                ExampleId = segmentation.ExampleId,
                 SegmentationIndex = segmentation.Index,
                 Index = document.NextTokenIndex(key),
                 Headword = elementText.GetHeadword(),
                 Reading = elementText.GetReading(),
-                JmdictEntryId = elementText.GetEntryId(),
+                EntryId = elementText.GetEntryId(),
                 SenseNumber = elementText.GetSenseNumber(),
                 SentenceForm = elementText.GetSentenceForm(),
                 IsPriority = elementText.GetIsPriority(),
@@ -89,51 +89,49 @@ internal sealed class TatoebaReader
         }
     }
 
-    private JapaneseSentenceElement GetJapaneseSentence(in ExampleText text, Document document)
+    private ExampleElement GetExample(in ExampleText text, Document document)
     {
-        var id = text.GetJapaneseSentenceId();
-        document.Entries.TryAdd(id, new EntryElement(id));
+        var id = text.GetExampleId();
 
-        if (document.EnglishSentences.ContainsKey(id))
+        if (document.Translations.ContainsKey(id))
         {
             _logger.LogWarning("Sequence ID {Id} is used for different language sentences", id);
         }
 
-        var sentence = new JapaneseSentenceElement(id, text.GetJapaneseSentenceText());
+        var example = new ExampleElement(id, text.GetExampleText());
 
-        if (!document.JapaneseSentences.TryGetValue(id, out var oldSentence))
+        if (!document.Examples.TryGetValue(id, out var oldSentence))
         {
-            document.JapaneseSentences.Add(id, sentence);
+            document.Examples.Add(id, example);
         }
-        else if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
+        else if (!string.Equals(example.Text, oldSentence.Text, StringComparison.Ordinal))
         {
             _logger.LogWarning("Japanese sentence #{ID} has more than one distinct text", id);
         }
 
-        return sentence;
+        return example;
     }
 
-    private EnglishSentenceElement GetEnglishSentence(in ExampleText text, Document document)
+    private TranslationElement GetTranslation(in ExampleText text, Document document)
     {
-        var id = text.GetEnglishSentenceId();
-        document.Entries.TryAdd(id, new EntryElement(id));
+        var id = text.GetTranslationId();
 
-        if (document.JapaneseSentences.ContainsKey(id))
+        if (document.Examples.ContainsKey(id))
         {
             _logger.LogWarning("Sequence ID {Id} is used for different language sentences", id);
         }
 
-        var sentence = new EnglishSentenceElement(id, text.GetEnglishSentenceText());
+        var translation = new TranslationElement(id, text.GetTranslationText());
 
-        if (!document.EnglishSentences.TryGetValue(id, out var oldSentence))
+        if (!document.Translations.TryGetValue(id, out var oldSentence))
         {
-            document.EnglishSentences.Add(id, sentence);
+            document.Translations.Add(id, translation);
         }
-        else if (!string.Equals(sentence.Text, oldSentence.Text, StringComparison.Ordinal))
+        else if (!string.Equals(translation.Text, oldSentence.Text, StringComparison.Ordinal))
         {
             _logger.LogWarning("English sentence #{ID} has more than one distinct text", id);
         }
 
-        return sentence;
+        return translation;
     }
 }

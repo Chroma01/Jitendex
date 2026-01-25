@@ -27,8 +27,8 @@ public sealed class Context : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
     public DbSet<Sequence> Sequences { get; set; } = null!;
-    public DbSet<EnglishSentence> EnglishSentences { get; set; } = null!;
-    public DbSet<JapaneseSentence> JapaneseSentences { get; set; } = null!;
+    public DbSet<Example> Examples { get; set; } = null!;
+    public DbSet<Translation> EnglishSentences { get; set; } = null!;
     public DbSet<Segmentation> Segmentations { get; set; } = null!;
     public DbSet<Token> Tokens { get; set; } = null!;
     public DbSet<Revision> Revisions { get; set; } = null!;

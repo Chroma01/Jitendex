@@ -21,20 +21,18 @@ namespace Jitendex.Tatoeba.Import.Models;
 internal sealed class Document
 {
     public DocumentHeader Header { get; init; }
-    public Dictionary<int, EntryElement> Entries { get; init; }
-    public Dictionary<int, EnglishSentenceElement> EnglishSentences { get; init; }
-    public Dictionary<int, JapaneseSentenceElement> JapaneseSentences { get; init; }
+    public Dictionary<int, ExampleElement> Examples { get; init; }
+    public Dictionary<int, TranslationElement> Translations { get; init; }
     public Dictionary<(int, int), SegmentationElement> Segmentations { get; init; }
     public Dictionary<(int, int, int), TokenElement> Tokens { get; init; }
 
-    public Document(DateOnly date, int expectedSentenceCount = 0)
+    public Document(DateOnly date, int expectedExampleCount = 150_000)
     {
         Header = new(date);
-        Entries = new(expectedSentenceCount);
-        EnglishSentences = new(expectedSentenceCount / 2);
-        JapaneseSentences = new(expectedSentenceCount / 2);
-        Segmentations = new(expectedSentenceCount / 2);
-        Tokens = new(expectedSentenceCount * 4);
+        Examples = new(expectedExampleCount);
+        Translations = new(expectedExampleCount);
+        Segmentations = new(expectedExampleCount);
+        Tokens = new(expectedExampleCount * 8);
     }
 
     public int NextSegmentationIndex(int id)
@@ -58,12 +56,11 @@ internal sealed class Document
     }
 
     public IEnumerable<SequenceElement> GetSequences()
-        => Entries.Select(e => new SequenceElement(e.Key, Header.Date));
+        => Examples.Select(e => new SequenceElement(e.Key, Header.Date));
 
-    public IEnumerable<int> ConcatAllSequenceIds()
-        => Entries.Keys
-            .Concat(EnglishSentences.Keys)
-            .Concat(JapaneseSentences.Keys)
+    public IEnumerable<int> ConcatAllExampleIds()
+        => Examples.Keys
+            .Concat(Translations.Keys)
             .Concat(Segmentations.Keys.Select(static key => key.Item1))
             .Concat(Tokens.Keys.Select(static key => key.Item1));
 }

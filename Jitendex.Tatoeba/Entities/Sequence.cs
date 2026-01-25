@@ -29,8 +29,8 @@ public sealed class Sequence
     public required int Id { get; init; }
     public required DateOnly CreatedDate { get; init; }
 
-    [InverseProperty(nameof(Entry.Sequence))]
-    public Entry? Entry { get; set; }
+    [InverseProperty(nameof(Entities.Example.Sequence))]
+    public Example? Example { get; set; }
 
     [InverseProperty(nameof(Revision.Sequence))]
     public List<Revision> Revisions { get; init; } = [];

@@ -18,22 +18,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.Tatoeba;
 
-public sealed record EntryDto
+public sealed record TranslationDto(int Id)
 {
-    public string? EnglishSentenceText { get; set; }
-    public JapaneseSentenceDto? JapaneseSentence { get; set; }
-
-    public override string ToString()
-    {
-        var sb = new StringBuilder();
-        if (JapaneseSentence is not null)
-        {
-            sb.AppendLine(JapaneseSentence.ToString());
-        }
-        if (EnglishSentenceText is not null)
-        {
-            sb.AppendLine(EnglishSentenceText);
-        }
-        return sb.ToString();
-    }
+    public required string Text { get; set; }
+    public override string ToString() => $"#{Id}: {Text}";
 }

@@ -23,18 +23,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Tatoeba.Entities;
 
 [Table(nameof(Segmentation))]
-[PrimaryKey(nameof(JapaneseSentenceId), nameof(Index))]
+[PrimaryKey(nameof(ExampleId), nameof(Index))]
 public sealed class Segmentation
 {
-    public required int JapaneseSentenceId { get; init; }
+    public required int ExampleId { get; init; }
     public required int Index { get; init; }
-    public required int EnglishSentenceId { get; set; }
+    public required int TranslationId { get; set; }
 
-    [ForeignKey(nameof(JapaneseSentenceId))]
-    public required JapaneseSentence JapaneseSentence { get; init; }
+    [ForeignKey(nameof(ExampleId))]
+    public required Example Example { get; init; }
 
-    [ForeignKey(nameof(EnglishSentenceId))]
-    public required EnglishSentence EnglishSentence { get; set; }
+    [ForeignKey(nameof(TranslationId))]
+    public required Translation Translation { get; set; }
 
     [InverseProperty(nameof(Token.Segmentation))]
     public List<Token> Tokens { get; init; } = [];

@@ -32,19 +32,14 @@ public static class DtoMapper
             .Where(seq => sequenceIds.Contains(seq.Id))
             .Select(static seq => new SequenceDto(seq.Id, seq.CreatedDate)
             {
-                Entry = seq.Entry == null ? null : new EntryDto
+                Example = seq.Example == null ? null : new ExampleDto
                 {
-                    EnglishSentenceText = seq.Entry.EnglishSentence == null ? null
-                        : seq.Entry.EnglishSentence.Text,
-                    JapaneseSentence = seq.Entry.JapaneseSentence == null ? null
-                        : new JapaneseSentenceDto
-                        {
-                            Text = seq.Entry.JapaneseSentence.Text,
-                            Segmentations = seq.Entry.JapaneseSentence.Segmentations
-                                .AsQueryable()
-                                .Select(SegmentationProjection)
-                                .ToList(),
-                        }
+                    Text = seq.Example.Text,
+                    Segmentations = seq.Example.Segmentations
+                        .AsQueryable()
+                        .OrderBy(static s => s.Index)
+                        .Select(SegmentationProjection)
+                        .ToList()
                 }
             })
             .ToDictionary(static dto => dto.Id);
@@ -52,12 +47,13 @@ public static class DtoMapper
     private static Expression<Func<Segmentation, SegmentationDto>> SegmentationProjection =>
         static segmentation => new SegmentationDto
         {
-            EnglishSentence = new EnglishSentenceDto(segmentation.EnglishSentence.EntryId)
+            Translation = new TranslationDto(segmentation.Translation.Id)
             {
-                Text = segmentation.EnglishSentence.Text
+                Text = segmentation.Translation.Text
             },
             Tokens = segmentation.Tokens
                 .AsQueryable()
+                .OrderBy(static t => t.Index)
                 .Select(TokenProjection)
                 .ToList()
         };
@@ -67,7 +63,7 @@ public static class DtoMapper
         {
             Headword = token.Headword,
             Reading = token.Reading,
-            EntryId = token.JmdictEntryId,
+            EntryId = token.EntryId,
             SenseNumber = token.SenseNumber,
             SentenceForm = token.SentenceForm,
             IsPriority = token.IsPriority,

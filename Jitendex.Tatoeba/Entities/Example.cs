@@ -22,16 +22,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jitendex.Tatoeba.Entities;
 
-[Table(nameof(JapaneseSentence))]
-public sealed class JapaneseSentence
+[Table(nameof(Example))]
+public sealed class Example
 {
     [Key]
-    public required int EntryId { get; init; }
+    public required int Id { get; init; }
     public required string Text { get; set; }
 
-    [ForeignKey(nameof(EntryId))]
-    public required Entry Entry { get; init; }
-
-    [InverseProperty(nameof(Segmentation.JapaneseSentence))]
+    [InverseProperty(nameof(Segmentation.Example))]
     public List<Segmentation> Segmentations { get; init; } = [];
+
+    [ForeignKey(nameof(Id))]
+    public required Sequence Sequence { get; init; }
 }

@@ -45,7 +45,7 @@ internal readonly ref struct ExampleText
             : -1;
     }
 
-    public string GetJapaneseSentenceText()
+    public string GetExampleText()
     {
         if (_tabIdx == -1)
         {
@@ -54,7 +54,7 @@ internal readonly ref struct ExampleText
         return _lineA[.._tabIdx].ToString();
     }
 
-    public string GetEnglishSentenceText()
+    public string GetTranslationText()
     {
         if (_tabIdx == -1)
         {
@@ -67,7 +67,7 @@ internal readonly ref struct ExampleText
         return _lineA[(_tabIdx + 1).._idIdx].ToString();
     }
 
-    public int GetEnglishSentenceId()
+    public int GetTranslationId()
     {
         if (_idIdx == -1)
         {
@@ -86,7 +86,7 @@ internal readonly ref struct ExampleText
         }
     }
 
-    public int GetJapaneseSentenceId()
+    public int GetExampleId()
     {
         if (_underscoreIdx == -1)
         {

@@ -20,16 +20,16 @@ namespace Jitendex.Dto.Tatoeba;
 
 public sealed record SequenceDto(int Id, DateOnly CreatedDate)
 {
-    public EntryDto? Entry { get; set; }
+    public ExampleDto? Example { get; set; }
     public List<RevisionDto> Revisions { get; init; } = [];
 
     public override string ToString()
     {
         var sb = new StringBuilder();
         sb.AppendLine($"Tatoeba Sentence #{Id}");
-        if (Entry is not null)
+        if (Example is not null)
         {
-            sb.AppendLine(Entry.ToString());
+            sb.AppendLine(Example.ToString());
         }
         else
         {

@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.Tatoeba;
 
-public sealed record JapaneseSentenceDto
+public sealed record ExampleDto
 {
     public required string Text { get; set; }
     public List<SegmentationDto> Segmentations { get; init; } = [];

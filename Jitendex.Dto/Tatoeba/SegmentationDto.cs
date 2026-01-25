@@ -20,13 +20,13 @@ namespace Jitendex.Dto.Tatoeba;
 
 public sealed record SegmentationDto
 {
-    public required EnglishSentenceDto EnglishSentence { get; set; }
+    public required TranslationDto Translation { get; set; }
     public List<TokenDto> Tokens { get; init; } = [];
 
     public override string ToString() =>
         $"""
         --Translation--
-        {EnglishSentence}
+        {Translation}
         --Tokens--
         {string.Join(' ', Tokens.Select(static t => t.ToString()))}
         """;

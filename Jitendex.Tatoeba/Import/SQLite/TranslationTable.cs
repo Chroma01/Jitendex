@@ -17,23 +17,31 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Sqlite;
+using Jitendex.SQLite;
+using Jitendex.Tatoeba.Entities;
+using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Entities;
+namespace Jitendex.Tatoeba.Import.SQLite;
 
-[Table(nameof(Entry))]
-public sealed class Entry
+internal sealed class TranslationTable : Table<TranslationElement>
 {
-    [Key]
-    public required int SequenceId { get; init; }
+    protected override string Name => nameof(Translation);
 
-    [InverseProperty(nameof(JapaneseSentence.Entry))]
-    public JapaneseSentence? JapaneseSentence { get; set; }
+    protected override IReadOnlyList<string> ColumnNames =>
+    [
+        nameof(Translation.Id),
+        nameof(Translation.Text),
+    ];
 
-    [InverseProperty(nameof(EnglishSentence.Entry))]
-    public EnglishSentence? EnglishSentence { get; set; }
+    protected override IReadOnlyList<string> KeyColNames =>
+    [
+        nameof(Translation.Id)
+    ];
 
-    [ForeignKey(nameof(SequenceId))]
-    public required Sequence Sequence { get; init; }
+    protected override SqliteParameter[] Parameters(TranslationElement translation) =>
+    [
+        new("@0", translation.Id),
+        new("@1", translation.Text),
+    ];
 }

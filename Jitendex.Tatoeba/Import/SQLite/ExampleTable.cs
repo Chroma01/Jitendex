@@ -24,24 +24,24 @@ using Jitendex.Tatoeba.Import.Models;
 
 namespace Jitendex.Tatoeba.Import.SQLite;
 
-internal sealed class EnglishSentenceTable : Table<EnglishSentenceElement>
+internal sealed class ExampleTable : Table<ExampleElement>
 {
-    protected override string Name => nameof(EnglishSentence);
+    protected override string Name => nameof(Example);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(EnglishSentence.EntryId),
-        nameof(EnglishSentence.Text),
+        nameof(Example.Id),
+        nameof(Example.Text),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(EnglishSentence.EntryId)
+        nameof(Example.Id)
     ];
 
-    protected override SqliteParameter[] Parameters(EnglishSentenceElement sentence) =>
+    protected override SqliteParameter[] Parameters(ExampleElement example) =>
     [
-        new("@0", sentence.EntryId),
-        new("@1", sentence.Text),
+        new("@0", example.Id),
+        new("@1", example.Text),
     ];
 }

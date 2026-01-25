@@ -20,25 +20,24 @@ namespace Jitendex.Tatoeba.Import.Models;
 
 internal sealed record DocumentHeader(DateOnly Date);
 internal sealed record SequenceElement(int Id, DateOnly CreatedDate);
-internal sealed record EntryElement(int SequenceId);
-internal sealed record EnglishSentenceElement(int EntryId, string Text);
-internal sealed record JapaneseSentenceElement(int EntryId, string Text);
+internal sealed record ExampleElement(int Id, string Text);
+internal sealed record TranslationElement(int Id, string Text);
 
-internal sealed record SegmentationElement(int JapaneseId, int Index, int EnglishId)
+internal sealed record SegmentationElement(int ExampleId, int Index, int TranslationId)
 {
-    public (int, int) GetKey() => (JapaneseId, Index);
+    public (int, int) GetKey() => (ExampleId, Index);
 }
 
 internal sealed record TokenElement
 {
-    public required int TatoebaId { get; init; }
+    public required int ExampleId { get; init; }
     public required int SegmentationIndex { get; init; }
     public required int Index { get; init; }
     public required string Headword { get; init; }
     public required string? Reading { get; init; }
-    public required int? JmdictEntryId { get; init; }
+    public required int? EntryId { get; init; }
     public required int? SenseNumber { get; init; }
     public required string? SentenceForm { get; init; }
     public required bool IsPriority { get; init; }
-    public (int, int, int) GetKey() => (TatoebaId, SegmentationIndex, Index);
+    public (int, int, int) GetKey() => (ExampleId, SegmentationIndex, Index);
 }

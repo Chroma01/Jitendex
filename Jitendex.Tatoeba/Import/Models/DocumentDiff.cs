@@ -29,19 +29,18 @@ internal sealed class DocumentDiff
     public DocumentDiff(Document docA, Document docB)
     {
         Date = docB.Header.Date;
-        InsertDocument = new Document(Date);
-        UpdateDocument = new Document(Date);
-        DeleteDocument = new Document(Date);
+        InsertDocument = new Document(Date, 0);
+        UpdateDocument = new Document(Date, 0);
+        DeleteDocument = new Document(Date, 0);
 
-        DiffDictionaryProperties<int, EntryElement>(docA, docB, propertyName: nameof(Document.Entries));
-        DiffDictionaryProperties<int, EnglishSentenceElement>(docA, docB, propertyName: nameof(Document.EnglishSentences));
-        DiffDictionaryProperties<int, JapaneseSentenceElement>(docA, docB, propertyName: nameof(Document.JapaneseSentences));
+        DiffDictionaryProperties<int, ExampleElement>(docA, docB, propertyName: nameof(Document.Examples));
+        DiffDictionaryProperties<int, TranslationElement>(docA, docB, propertyName: nameof(Document.Translations));
         DiffDictionaryProperties<(int, int), SegmentationElement>(docA, docB, propertyName: nameof(Document.Segmentations));
         DiffDictionaryProperties<(int, int, int), TokenElement>(docA, docB, propertyName: nameof(Document.Tokens));
 
-        SequenceIds = InsertDocument.ConcatAllSequenceIds()
-            .Concat(UpdateDocument.ConcatAllSequenceIds())
-            .Concat(DeleteDocument.ConcatAllSequenceIds())
+        SequenceIds = InsertDocument.ConcatAllExampleIds()
+            .Concat(UpdateDocument.ConcatAllExampleIds())
+            .Concat(DeleteDocument.ConcatAllExampleIds())
             .ToHashSet();
     }
 

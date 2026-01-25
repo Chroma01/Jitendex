@@ -23,20 +23,20 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Tatoeba.Entities;
 
 [Table(nameof(Token))]
-[PrimaryKey(nameof(SentenceId), nameof(SegmentationIndex), nameof(Index))]
+[PrimaryKey(nameof(ExampleId), nameof(SegmentationIndex), nameof(Index))]
 public sealed class Token
 {
-    public required int SentenceId { get; init; }
+    public required int ExampleId { get; init; }
     public required int SegmentationIndex { get; init; }
     public required int Index { get; init; }
 
     public required string Headword { get; set; }
     public required string? Reading { get; set; }
-    public required int? JmdictEntryId { get; set; }
+    public required int? EntryId { get; set; }
     public required int? SenseNumber { get; set; }
     public required string? SentenceForm { get; set; }
     public required bool IsPriority { get; set; }
 
-    [ForeignKey($"{nameof(SentenceId)}, {nameof(SegmentationIndex)}")]
+    [ForeignKey($"{nameof(ExampleId)}, {nameof(SegmentationIndex)}")]
     public required Segmentation Segmentation { get; init; }
 }

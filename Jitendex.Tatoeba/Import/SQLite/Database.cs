@@ -27,9 +27,8 @@ internal static class Database
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly SequenceTable SequenceTable = new();
-    private static readonly EntryTable EntryTable = new();
-    private static readonly JapaneseSentenceTable JapaneseSentenceTable = new();
-    private static readonly EnglishSentenceTable EnglishSentenceTable = new();
+    private static readonly ExampleTable ExampleTable = new();
+    private static readonly TranslationTable TranslationTable = new();
     private static readonly SegmentationTable SegmentationTable = new();
     private static readonly TokenTable TokenTable = new();
 
@@ -45,11 +44,11 @@ internal static class Database
         {
             FileHeaderTable.InsertItem(context, document.Header);
             SequenceTable.InsertItems(context, document.GetSequences());
-            EntryTable.InsertItems(context, document.Entries.Values);
-            JapaneseSentenceTable.InsertItems(context, document.JapaneseSentences.Values);
-            EnglishSentenceTable.InsertItems(context, document.EnglishSentences.Values);
+            ExampleTable.InsertItems(context, document.Examples.Values);
+            TranslationTable.InsertItems(context, document.Translations.Values);
             SegmentationTable.InsertItems(context, document.Segmentations.Values);
             TokenTable.InsertItems(context, document.Tokens.Values);
+
             transaction.Commit();
         }
 
@@ -70,23 +69,20 @@ internal static class Database
             FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
             SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
-            EntryTable.InsertItems(context, diff.InsertDocument.Entries.Values);
-            EnglishSentenceTable.InsertItems(context, diff.InsertDocument.EnglishSentences.Values);
-            JapaneseSentenceTable.InsertItems(context, diff.InsertDocument.JapaneseSentences.Values);
+            ExampleTable.InsertItems(context, diff.InsertDocument.Examples.Values);
+            TranslationTable.InsertItems(context, diff.InsertDocument.Translations.Values);
             SegmentationTable.InsertItems(context, diff.InsertDocument.Segmentations.Values);
             TokenTable.InsertItems(context, diff.InsertDocument.Tokens.Values);
 
-            EntryTable.UpdateItems(context, diff.UpdateDocument.Entries.Values);
-            EnglishSentenceTable.UpdateItems(context, diff.UpdateDocument.EnglishSentences.Values);
-            JapaneseSentenceTable.UpdateItems(context, diff.UpdateDocument.JapaneseSentences.Values);
+            ExampleTable.UpdateItems(context, diff.UpdateDocument.Examples.Values);
+            TranslationTable.UpdateItems(context, diff.UpdateDocument.Translations.Values);
             SegmentationTable.UpdateItems(context, diff.UpdateDocument.Segmentations.Values);
             TokenTable.UpdateItems(context, diff.UpdateDocument.Tokens.Values);
 
             TokenTable.DeleteItems(context, diff.DeleteDocument.Tokens.Values);
             SegmentationTable.DeleteItems(context, diff.DeleteDocument.Segmentations.Values);
-            JapaneseSentenceTable.DeleteItems(context, diff.DeleteDocument.JapaneseSentences.Values);
-            EnglishSentenceTable.DeleteItems(context, diff.DeleteDocument.EnglishSentences.Values);
-            EntryTable.DeleteItems(context, diff.DeleteDocument.Entries.Values);
+            TranslationTable.DeleteItems(context, diff.DeleteDocument.Translations.Values);
+            ExampleTable.DeleteItems(context, diff.DeleteDocument.Examples.Values);
 
             transaction.Commit();
         }
