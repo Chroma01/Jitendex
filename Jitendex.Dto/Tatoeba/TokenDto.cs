@@ -31,15 +31,25 @@ public sealed record TokenDto
     {
         var sb = new StringBuilder(Headword);
         if (Reading is not null)
+        {
             sb.Append($"({Reading})");
+        }
         if (EntryId is not null)
+        {
             sb.Append($"(#{EntryId})");
+        }
         if (SenseNumber is not null)
+        {
             sb.Append($"[{SenseNumber}]");
+        }
         if (SentenceForm is not null)
+        {
             sb.Append($"{{{SentenceForm}}}");
+        }
         if (IsPriority)
+        {
             sb.Append('~');
+        }
         return sb.ToString();
     }
 }
