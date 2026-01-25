@@ -105,6 +105,7 @@ internal static class Database
                     SequenceId = sequence.Id,
                     Number = sequence.Revisions.Count,
                     CreatedDate = diff.Date,
+                    IsPriority = diff.PrioritySequenceIds.Contains(sequence.Id),
                     DiffJson = baDiff,
                     Sequence = sequence,
                 });

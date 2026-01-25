@@ -25,6 +25,7 @@ internal sealed class DocumentDiff
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
     public IReadOnlySet<int> SequenceIds { get; init; }
+    public IReadOnlySet<int> PrioritySequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
@@ -41,6 +42,11 @@ internal sealed class DocumentDiff
         SequenceIds = InsertDocument.ConcatAllExampleIds()
             .Concat(UpdateDocument.ConcatAllExampleIds())
             .Concat(DeleteDocument.ConcatAllExampleIds())
+            .ToHashSet();
+
+        PrioritySequenceIds = InsertDocument.PriorityEntryIds()
+            .Concat(UpdateDocument.PriorityEntryIds())
+            .Concat(DeleteDocument.PriorityEntryIds())
             .ToHashSet();
     }
 

@@ -62,4 +62,9 @@ internal sealed class Document
         => Examples.Keys
             .Concat(Segmentations.Keys.Select(static key => key.Item1))
             .Concat(Tokens.Keys.Select(static key => key.Item1));
+
+    public IEnumerable<int> PriorityEntryIds()
+        => Tokens.Values
+            .Where(static token => token.IsPriority)
+            .Select(static token => token.ExampleId);
 }
