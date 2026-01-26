@@ -34,7 +34,7 @@ internal sealed class FileHeaderTable : Table<DocumentHeader>
     ];
 
     protected override IReadOnlyList<string> KeyColNames
-        => throw new NotImplementedException();
+        => throw new NotImplementedException($"The primary key for table {nameof(FileHeader)} is auto-incremented.");
 
     protected override SqliteParameter[] Parameters(DocumentHeader header) =>
     [
