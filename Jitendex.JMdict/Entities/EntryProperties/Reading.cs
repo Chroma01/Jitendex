@@ -25,7 +25,7 @@ namespace Jitendex.JMdict.Entities.EntryProperties;
 
 [Table(nameof(Reading))]
 [PrimaryKey(nameof(EntryId), nameof(Order))]
-public class Reading
+public sealed class Reading
 {
     public required int EntryId { get; set; }
     public required int Order { get; set; }

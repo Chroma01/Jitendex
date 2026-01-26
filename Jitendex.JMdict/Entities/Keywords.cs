@@ -33,7 +33,7 @@ public interface IKeyword
 }
 
 [Table(nameof(ReadingInfoTag))]
-public class ReadingInfoTag : IKeyword
+public sealed class ReadingInfoTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -44,7 +44,7 @@ public class ReadingInfoTag : IKeyword
 }
 
 [Table(nameof(KanjiFormInfoTag))]
-public class KanjiFormInfoTag : IKeyword
+public sealed class KanjiFormInfoTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -55,7 +55,7 @@ public class KanjiFormInfoTag : IKeyword
 }
 
 [Table(nameof(PartOfSpeechTag))]
-public class PartOfSpeechTag : IKeyword
+public sealed class PartOfSpeechTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -66,7 +66,7 @@ public class PartOfSpeechTag : IKeyword
 }
 
 [Table(nameof(FieldTag))]
-public class FieldTag : IKeyword
+public sealed class FieldTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -77,7 +77,7 @@ public class FieldTag : IKeyword
 }
 
 [Table(nameof(MiscTag))]
-public class MiscTag : IKeyword
+public sealed class MiscTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -88,7 +88,7 @@ public class MiscTag : IKeyword
 }
 
 [Table(nameof(DialectTag))]
-public class DialectTag : IKeyword
+public sealed class DialectTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -99,7 +99,7 @@ public class DialectTag : IKeyword
 }
 
 [Table(nameof(GlossType))]
-public class GlossType : IKeyword
+public sealed class GlossType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -110,7 +110,7 @@ public class GlossType : IKeyword
 }
 
 [Table(nameof(CrossReferenceType))]
-public class CrossReferenceType : IKeyword
+public sealed class CrossReferenceType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -121,7 +121,7 @@ public class CrossReferenceType : IKeyword
 }
 
 [Table(nameof(LanguageSourceType))]
-public class LanguageSourceType : IKeyword
+public sealed class LanguageSourceType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -132,7 +132,7 @@ public class LanguageSourceType : IKeyword
 }
 
 [Table(nameof(PriorityTag))]
-public class PriorityTag : IKeyword
+public sealed class PriorityTag : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -156,7 +156,7 @@ public class PriorityTag : IKeyword
 }
 
 [Table(nameof(Language))]
-public class Language : IKeyword
+public sealed class Language : IKeyword
 {
     [Key]
     public required string Name { get; init; }
