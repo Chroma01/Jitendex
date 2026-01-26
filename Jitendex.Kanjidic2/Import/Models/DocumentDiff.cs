@@ -45,7 +45,7 @@ internal sealed class DocumentDiff
         FindNew<string, ReadingTypeElement>(docA, docB, propertyName: nameof(Document.ReadingTypes));
         FindNew<string, VariantTypeElement>(docA, docB, propertyName: nameof(Document.VariantTypes));
 
-        FindNew<int, EntryElement>(docA, docB, propertyName: nameof(Document.Entries));
+        DiffDictionaryProperties<int, EntryElement>(docA, docB, propertyName: nameof(Document.Entries));
 
         DiffDictionaryProperties<(int, int), CodepointGroupElement>(docA, docB, propertyName: nameof(Document.CodepointGroups));
         DiffDictionaryProperties<(int, int), DictionaryGroupElement>(docA, docB, propertyName: nameof(Document.DictionaryGroups));
