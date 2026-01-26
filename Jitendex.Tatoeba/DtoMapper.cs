@@ -30,19 +30,22 @@ public static class DtoMapper
         => context.Sequences
             .AsSplitQuery()
             .Where(seq => sequenceIds.Contains(seq.Id))
-            .Select(static seq => new SequenceDto(seq.Id, seq.CreatedDate)
-            {
-                Example = seq.Example == null ? null : new ExampleDto
-                {
-                    Text = seq.Example.Text,
-                    Segmentations = seq.Example.Segmentations
-                        .AsQueryable()
-                        .OrderBy(static s => s.Index)
-                        .Select(SegmentationProjection)
-                        .ToList()
-                }
-            })
+            .Select(RevisionlessSequenceProjection)
             .ToDictionary(static dto => dto.Id);
+
+    private static Expression<Func<Sequence, SequenceDto>> RevisionlessSequenceProjection =>
+        static seq => new SequenceDto(seq.Id, seq.CreatedDate)
+        {
+            Example = seq.Example == null ? null : new ExampleDto
+            {
+                Text = seq.Example.Text,
+                Segmentations = seq.Example.Segmentations
+                    .AsQueryable()
+                    .OrderBy(static s => s.Index)
+                    .Select(SegmentationProjection)
+                    .ToList()
+            }
+        };
 
     private static Expression<Func<Segmentation, SegmentationDto>> SegmentationProjection =>
         static segmentation => new SegmentationDto
