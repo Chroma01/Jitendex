@@ -20,6 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Dto.JMdict;
+using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Entities.EntryProperties;
 
 namespace Jitendex.JMdict;
@@ -30,28 +31,31 @@ public static class DtoMapper
         => context.Sequences
             .AsSplitQuery()
             .Where(seq => sequenceIds.Contains(seq.Id))
-            .Select(static seq => new SequenceDto(seq.Id, seq.CreatedDate)
-            {
-                Entry = seq.Entry == null ? null : new EntryDto
-                {
-                    KanjiForms = seq.Entry.KanjiForms
-                        .AsQueryable()
-                        .OrderBy(static kanjiForm => kanjiForm.Order)
-                        .Select(KanjiFormProjection)
-                        .ToList(),
-                    Readings = seq.Entry.Readings
-                        .AsQueryable()
-                        .OrderBy(static reading => reading.Order)
-                        .Select(ReadingProjection)
-                        .ToList(),
-                    Senses = seq.Entry.Senses
-                        .AsQueryable()
-                        .OrderBy(static sense => sense.Order)
-                        .Select(SenseProjection)
-                        .ToList()
-                }
-            })
+            .Select(RevisionlessSequenceProjection)
             .ToDictionary(static dto => dto.Id);
+
+    private static Expression<Func<Sequence, SequenceDto>> RevisionlessSequenceProjection =>
+        static seq => new SequenceDto(seq.Id, seq.CreatedDate)
+        {
+            Entry = seq.Entry == null ? null : new EntryDto
+            {
+                KanjiForms = seq.Entry.KanjiForms
+                    .AsQueryable()
+                    .OrderBy(static kanjiForm => kanjiForm.Order)
+                    .Select(KanjiFormProjection)
+                    .ToList(),
+                Readings = seq.Entry.Readings
+                    .AsQueryable()
+                    .OrderBy(static reading => reading.Order)
+                    .Select(ReadingProjection)
+                    .ToList(),
+                Senses = seq.Entry.Senses
+                    .AsQueryable()
+                    .OrderBy(static sense => sense.Order)
+                    .Select(SenseProjection)
+                    .ToList()
+            }
+        };
 
     private static Expression<Func<KanjiForm, KanjiFormDto>> KanjiFormProjection =>
         static kanjiForm => new KanjiFormDto(kanjiForm.Text)
