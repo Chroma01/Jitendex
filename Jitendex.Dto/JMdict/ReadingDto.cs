@@ -18,15 +18,33 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.JMdict;
 
-public sealed record ReadingDto(string Text, bool NoKanji)
+public sealed class ReadingDto
 {
+    public required string Text { get; init; }
+    public required bool NoKanji { get; init; }
     public List<string> Infos { get; init; } = [];
     public List<string> Priorities { get; init; } = [];
     public List<string> Restrictions { get; init; } = [];
 
-    public override string ToString() => Text
-        + (Infos.Count > 0 ? $" [{string.Join(", ", Infos)}]" : string.Empty)
-        + (Priorities.Count > 0 ? $" [{string.Join(", ", Priorities)}]" : string.Empty)
-        + (Restrictions.Count > 0 ? $" [{string.Join(", ", Restrictions)}]" : string.Empty)
-        + (NoKanji ? " [nokanji]" : string.Empty);
+    public override string ToString()
+    {
+        var sb = new StringBuilder(Text);
+        if (Infos.Count > 0)
+        {
+            sb.Append($"[{string.Join(",", Infos)}]");
+        }
+        if (Priorities.Count > 0)
+        {
+            sb.Append($"[{string.Join(",", Priorities)}]");
+        }
+        if (Restrictions.Count > 0)
+        {
+            sb.Append($"[{string.Join("；", Restrictions)}]");
+        }
+        if (NoKanji)
+        {
+            sb.Append("[nokanji]");
+        }
+        return sb.ToString();
+    }
 }

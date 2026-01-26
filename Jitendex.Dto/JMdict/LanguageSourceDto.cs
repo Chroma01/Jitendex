@@ -18,16 +18,23 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.JMdict;
 
-public sealed class SequenceDto
+public sealed record LanguageSourceDto(string? Text, string LanguageCode, string TypeName, bool IsWasei)
 {
-    public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-    public EntryDto? Entry { get; init; } = null;
-    public List<RevisionDto> Revisions { get; init; } = [];
-
-    public override string ToString() => Entry is null
-        ? $"Entry #{Id}\n< deleted >"
-        : $"Entry #{Id}\n{Entry}";
+    public override string ToString()
+    {
+        var sb = new StringBuilder(LanguageCode);
+        if (!string.Equals(TypeName, "full", StringComparison.Ordinal))
+        {
+            sb.Append($" ({TypeName})");
+        }
+        if (IsWasei)
+        {
+            sb.Append(" [wasei]");
+        }
+        if (Text is not null)
+        {
+            sb.Append($": {Text}");
+        }
+        return sb.ToString();
+    }
 }
-
-public sealed record RevisionDto(int Number, DateOnly Date, string DiffJson);

@@ -18,21 +18,33 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.JMdict;
 
-public sealed record EntryDto
+public sealed class EntryDto
 {
     public List<KanjiFormDto> KanjiForms { get; init; } = [];
     public List<ReadingDto> Readings { get; init; } = [];
     public List<SenseDto> Senses { get; init; } = [];
 
-    public override string ToString() => (KanjiForms.Count > 0 ?
-        $"""
-        Kanji Forms
-        {KanjiForms.Select(static (k, idx) => $"\t{idx + 1}: {k}\n")}\n
-        """ : string.Empty) +
-        $"""
-        Readings
-        {Readings.Select(static (r, idx) => $"\t{idx + 1}: {r}\n")}
-        Senses
-        {Readings.Select(static (s, idx) => $"\t{idx + 1}. {s}\n")}
-        """;
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        if (KanjiForms.Count > 0)
+        {
+            sb.AppendLine("Kanji Forms");
+            for (int i = 0; i < KanjiForms.Count; i++)
+            {
+                sb.AppendLine($"\t{i + 1}: {KanjiForms[i]}");
+            }
+        }
+        sb.AppendLine("Readings");
+        for (int i = 0; i < Readings.Count; i++)
+        {
+            sb.AppendLine($"\t{i + 1}: {Readings[i]}");
+        }
+        sb.AppendLine("Senses");
+        for (int i = 0; i < Senses.Count; i++)
+        {
+            sb.AppendLine($"\t{i + 1}. {Senses[i]}");
+        }
+        return sb.ToString();
+    }
 }

@@ -18,16 +18,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.JMdict;
 
-public sealed class SequenceDto
+public sealed record CrossReferenceDto(string TypeName, string RefText1, string? RefText2, int RefSenseOrder)
 {
-    public required int Id { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-    public EntryDto? Entry { get; init; } = null;
-    public List<RevisionDto> Revisions { get; init; } = [];
-
-    public override string ToString() => Entry is null
-        ? $"Entry #{Id}\n< deleted >"
-        : $"Entry #{Id}\n{Entry}";
+    public override string ToString() => RefText2 is not null
+        ? $"⇒{TypeName}: {RefText1}・{RefText2}・{RefSenseOrder + 1}"
+        : $"⇒{TypeName}: {RefText1}・{RefSenseOrder + 1}";
 }
-
-public sealed record RevisionDto(int Number, DateOnly Date, string DiffJson);

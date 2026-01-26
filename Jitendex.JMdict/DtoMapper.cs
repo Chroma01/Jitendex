@@ -35,8 +35,10 @@ public static class DtoMapper
             .ToDictionary(static dto => dto.Id);
 
     private static Expression<Func<Sequence, SequenceDto>> RevisionlessSequenceProjection =>
-        static seq => new SequenceDto(seq.Id, seq.CreatedDate)
+        static seq => new SequenceDto
         {
+            Id = seq.Id,
+            CreatedDate = seq.CreatedDate,
             Entry = seq.Entry == null ? null : new EntryDto
             {
                 KanjiForms = seq.Entry.KanjiForms
@@ -58,8 +60,9 @@ public static class DtoMapper
         };
 
     private static Expression<Func<KanjiForm, KanjiFormDto>> KanjiFormProjection =>
-        static kanjiForm => new KanjiFormDto(kanjiForm.Text)
+        static kanjiForm => new KanjiFormDto
         {
+            Text = kanjiForm.Text,
             Infos = kanjiForm.Infos
                 .OrderBy(static info => info.Order)
                 .Select(static info => info.TagName)
@@ -71,8 +74,10 @@ public static class DtoMapper
         };
 
     private static Expression<Func<Reading, ReadingDto>> ReadingProjection =>
-        static reading => new ReadingDto(reading.Text, reading.NoKanji)
+        static reading => new ReadingDto
         {
+            Text = reading.Text,
+            NoKanji = reading.NoKanji,
             Infos = reading.Infos
                 .OrderBy(static info => info.Order)
                 .Select(static info => info.TagName)
@@ -88,8 +93,9 @@ public static class DtoMapper
         };
 
     private static Expression<Func<Sense, SenseDto>> SenseProjection =>
-        static sense => new SenseDto(sense.Note)
+        static sense => new SenseDto
         {
+            Note = sense.Note,
             CrossReferences = sense.CrossReferences
                 .OrderBy(static x => x.Order)
                 .Select(static x => new CrossReferenceDto(x.TypeName, x.RefText1, x.RefText2, x.SenseOrder))

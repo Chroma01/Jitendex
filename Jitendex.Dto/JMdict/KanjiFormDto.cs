@@ -18,8 +18,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.JMdict;
 
-public sealed record KanjiFormDto(string Text)
+public sealed class KanjiFormDto
 {
+    public required string Text { get; init; }
     public List<string> Infos { get; init; } = [];
     public List<string> Priorities { get; init; } = [];
 
