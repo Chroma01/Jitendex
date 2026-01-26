@@ -24,50 +24,50 @@ namespace Jitendex.Kanjidic2.Import.Models;
 
 internal sealed class DocumentDiff
 {
-    public FileHeader FileHeader { get; init; }
+    public DocumentHeader FileHeader { get; init; }
     public Document InsertDocument { get; init; }
     public Document UpdateDocument { get; init; }
     public Document DeleteDocument { get; init; }
-    public IReadOnlySet<int> EntryIds { get; init; }
+    public IReadOnlySet<int> SequenceIds { get; init; }
 
     public DocumentDiff(Document docA, Document docB)
     {
-        FileHeader = docB.FileHeader;
-        InsertDocument = new Document(0) { FileHeader = docB.FileHeader };
-        UpdateDocument = new Document(0) { FileHeader = docB.FileHeader };
-        DeleteDocument = new Document(0) { FileHeader = docB.FileHeader };
+        FileHeader = docB.Header;
+        InsertDocument = new Document(0) { Header = docB.Header };
+        UpdateDocument = new Document(0) { Header = docB.Header };
+        DeleteDocument = new Document(0) { Header = docB.Header };
 
-        FindNew<string, CodepointType>(docA, docB, propertyName: nameof(Document.CodepointTypes));
-        FindNew<string, DictionaryType>(docA, docB, propertyName: nameof(Document.DictionaryTypes));
-        FindNew<string, QueryCodeType>(docA, docB, propertyName: nameof(Document.QueryCodeTypes));
-        FindNew<string, MisclassificationType>(docA, docB, propertyName: nameof(Document.MisclassificationTypes));
-        FindNew<string, RadicalType>(docA, docB, propertyName: nameof(Document.RadicalTypes));
-        FindNew<string, ReadingType>(docA, docB, propertyName: nameof(Document.ReadingTypes));
-        FindNew<string, VariantType>(docA, docB, propertyName: nameof(Document.VariantTypes));
+        FindNew<string, CodepointTypeElement>(docA, docB, propertyName: nameof(Document.CodepointTypes));
+        FindNew<string, DictionaryTypeElement>(docA, docB, propertyName: nameof(Document.DictionaryTypes));
+        FindNew<string, QueryCodeTypeElement>(docA, docB, propertyName: nameof(Document.QueryCodeTypes));
+        FindNew<string, MisclassificationTypeElement>(docA, docB, propertyName: nameof(Document.MisclassificationTypes));
+        FindNew<string, RadicalTypeElement>(docA, docB, propertyName: nameof(Document.RadicalTypes));
+        FindNew<string, ReadingTypeElement>(docA, docB, propertyName: nameof(Document.ReadingTypes));
+        FindNew<string, VariantTypeElement>(docA, docB, propertyName: nameof(Document.VariantTypes));
 
-        FindNew<int, Entry>(docA, docB, propertyName: nameof(Document.Entries));
+        FindNew<int, EntryElement>(docA, docB, propertyName: nameof(Document.Entries));
 
-        DiffDictionaryProperties<(int, int), CodepointGroup>(docA, docB, propertyName: nameof(Document.CodepointGroups));
-        DiffDictionaryProperties<(int, int), DictionaryGroup>(docA, docB, propertyName: nameof(Document.DictionaryGroups));
-        DiffDictionaryProperties<(int, int), MiscGroup>(docA, docB, propertyName: nameof(Document.MiscGroups));
-        DiffDictionaryProperties<(int, int), QueryCodeGroup>(docA, docB, propertyName: nameof(Document.QueryCodeGroups));
-        DiffDictionaryProperties<(int, int), RadicalGroup>(docA, docB, propertyName: nameof(Document.RadicalGroups));
-        DiffDictionaryProperties<(int, int), ReadingMeaningGroup>(docA, docB, propertyName: nameof(Document.ReadingMeaningGroups));
+        DiffDictionaryProperties<(int, int), CodepointGroupElement>(docA, docB, propertyName: nameof(Document.CodepointGroups));
+        DiffDictionaryProperties<(int, int), DictionaryGroupElement>(docA, docB, propertyName: nameof(Document.DictionaryGroups));
+        DiffDictionaryProperties<(int, int), MiscGroupElement>(docA, docB, propertyName: nameof(Document.MiscGroups));
+        DiffDictionaryProperties<(int, int), QueryCodeGroupElement>(docA, docB, propertyName: nameof(Document.QueryCodeGroups));
+        DiffDictionaryProperties<(int, int), RadicalGroupElement>(docA, docB, propertyName: nameof(Document.RadicalGroups));
+        DiffDictionaryProperties<(int, int), ReadingMeaningGroupElement>(docA, docB, propertyName: nameof(Document.ReadingMeaningGroups));
 
-        DiffDictionaryProperties<(int, int, int), Codepoint>(docA, docB, propertyName: nameof(Document.Codepoints));
-        DiffDictionaryProperties<(int, int, int), Dictionary>(docA, docB, propertyName: nameof(Document.Dictionaries));
-        DiffDictionaryProperties<(int, int, int), Nanori>(docA, docB, propertyName: nameof(Document.Nanoris));
-        DiffDictionaryProperties<(int, int, int), QueryCode>(docA, docB, propertyName: nameof(Document.QueryCodes));
-        DiffDictionaryProperties<(int, int, int), Radical>(docA, docB, propertyName: nameof(Document.Radicals));
-        DiffDictionaryProperties<(int, int, int), RadicalName>(docA, docB, propertyName: nameof(Document.RadicalNames));
-        DiffDictionaryProperties<(int, int, int), ReadingMeaning>(docA, docB, propertyName: nameof(Document.ReadingMeanings));
-        DiffDictionaryProperties<(int, int, int), StrokeCount>(docA, docB, propertyName: nameof(Document.StrokeCounts));
-        DiffDictionaryProperties<(int, int, int), Variant>(docA, docB, propertyName: nameof(Document.Variants));
+        DiffDictionaryProperties<(int, int, int), CodepointElement>(docA, docB, propertyName: nameof(Document.Codepoints));
+        DiffDictionaryProperties<(int, int, int), DictionaryElement>(docA, docB, propertyName: nameof(Document.Dictionaries));
+        DiffDictionaryProperties<(int, int, int), NanoriElement>(docA, docB, propertyName: nameof(Document.Nanoris));
+        DiffDictionaryProperties<(int, int, int), QueryCodeElement>(docA, docB, propertyName: nameof(Document.QueryCodes));
+        DiffDictionaryProperties<(int, int, int), RadicalElement>(docA, docB, propertyName: nameof(Document.Radicals));
+        DiffDictionaryProperties<(int, int, int), RadicalNameElement>(docA, docB, propertyName: nameof(Document.RadicalNames));
+        DiffDictionaryProperties<(int, int, int), ReadingMeaningElement>(docA, docB, propertyName: nameof(Document.ReadingMeanings));
+        DiffDictionaryProperties<(int, int, int), StrokeCountElement>(docA, docB, propertyName: nameof(Document.StrokeCounts));
+        DiffDictionaryProperties<(int, int, int), VariantElement>(docA, docB, propertyName: nameof(Document.Variants));
 
-        DiffDictionaryProperties<(int, int, int, int), Meaning>(docA, docB, propertyName: nameof(Document.Meanings));
-        DiffDictionaryProperties<(int, int, int, int), Reading>(docA, docB, propertyName: nameof(Document.Readings));
+        DiffDictionaryProperties<(int, int, int, int), MeaningElement>(docA, docB, propertyName: nameof(Document.Meanings));
+        DiffDictionaryProperties<(int, int, int, int), ReadingElement>(docA, docB, propertyName: nameof(Document.Readings));
 
-        EntryIds = InsertDocument.ConcatAllEntryIds()
+        SequenceIds = InsertDocument.ConcatAllEntryIds()
             .Concat(UpdateDocument.ConcatAllEntryIds())
             .Concat(DeleteDocument.ConcatAllEntryIds())
             .ToHashSet();

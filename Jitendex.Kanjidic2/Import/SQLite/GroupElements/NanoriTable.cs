@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
 
-internal sealed class NanoriTable : Table<Nanori>
+internal sealed class NanoriTable : Table<NanoriElement>
 {
     protected override string Name => nameof(Nanori);
 
@@ -42,9 +43,9 @@ internal sealed class NanoriTable : Table<Nanori>
         nameof(Nanori.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(Nanori nanori) =>
+    protected override SqliteParameter[] Parameters(NanoriElement nanori) =>
     [
-        new("@0", nanori.UnicodeScalarValue),
+        new("@0", nanori.EntryId),
         new("@1", nanori.GroupOrder),
         new("@2", nanori.Order),
         new("@3", nanori.Text),

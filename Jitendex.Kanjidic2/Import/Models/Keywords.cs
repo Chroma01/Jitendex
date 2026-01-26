@@ -19,50 +19,16 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Kanjidic2.Import.Models;
 
-internal interface IKeyword
+internal interface IKeywordElement
 {
     string Name { get; init; }
-    DateOnly CreatedDate { get; init; }
+    DateOnly Date { get; init; }
 }
 
-internal sealed record CodepointType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
-
-internal sealed record DictionaryType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
-
-internal sealed record QueryCodeType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
-
-internal sealed record MisclassificationType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
-
-internal sealed record RadicalType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
-
-internal sealed record ReadingType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
-
-internal sealed record VariantType : IKeyword
-{
-    public required string Name { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-}
+internal sealed record CodepointTypeElement(string Name, DateOnly Date) : IKeywordElement;
+internal sealed record DictionaryTypeElement(string Name, DateOnly Date) : IKeywordElement;
+internal sealed record QueryCodeTypeElement(string Name, DateOnly Date) : IKeywordElement;
+internal sealed record MisclassificationTypeElement(string Name, DateOnly Date) : IKeywordElement;
+internal sealed record RadicalTypeElement(string Name, DateOnly Date) : IKeywordElement;
+internal sealed record ReadingTypeElement(string Name, DateOnly Date) : IKeywordElement;
+internal sealed record VariantTypeElement(string Name, DateOnly Date) : IKeywordElement;

@@ -26,26 +26,17 @@ using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
-internal partial class RadicalGroupReader
+internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
 {
-    private readonly ILogger<RadicalGroupReader> _logger;
-    private readonly XmlReader _xmlReader;
-    private readonly Dictionary<int, int> _usedGroupOrders = [];
-    private readonly Dictionary<(int, int), int> _usedOrders = [];
+    public RadicalGroupReader(ILogger<RadicalGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public RadicalGroupReader(ILogger<RadicalGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
-
-    public async Task ReadAsync(Document document, Entry entry)
+    public async Task ReadAsync(Document document, EntryElement entry)
     {
-        var group = new RadicalGroup
+        var group = new RadicalGroupElement
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
-            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
+            EntryId = entry.Id,
+            Order = document.RadicalGroups.NextOrder(entry.Id),
         };
-
-        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -56,11 +47,10 @@ internal partial class RadicalGroupReader
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.ToRune(), RadicalGroup.XmlTagName, text);
+                    await LogUnexpectedTextNodeAsync(entry.Id, RadicalGroupElement.XmlTagName);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == RadicalGroup.XmlTagName;
+                    exit = _xmlReader.Name == RadicalGroupElement.XmlTagName;
                     break;
             }
         }
@@ -68,34 +58,33 @@ internal partial class RadicalGroupReader
         document.RadicalGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry, RadicalGroup group)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry, RadicalGroupElement group)
     {
         switch (_xmlReader.Name)
         {
-            case Radical.XmlTagName:
+            case RadicalElement.XmlTagName:
                 await ReadRadical(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, RadicalGroup.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, RadicalGroupElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadRadical(Document document, Entry entry, RadicalGroup group)
+    private async Task ReadRadical(Document document, EntryElement entry, RadicalGroupElement group)
     {
-        var radical = new Radical
+        var radical = new RadicalElement
         {
-            UnicodeScalarValue = group.UnicodeScalarValue,
+            EntryId = group.EntryId,
             GroupOrder = group.Order,
-            Order = _usedOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            Order = document.Radicals.NextOrder(group.Key()),
             TypeName = GetTypeName(document, entry),
             Number = await GetNumber(entry),
         };
-        _usedOrders[group.Key()] = radical.Order;
         document.Radicals.Add(radical.Key(), radical);
     }
 
-    private string GetTypeName(Document document, Entry entry)
+    private string GetTypeName(Document document, EntryElement entry)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("rad_type");
@@ -110,17 +99,13 @@ internal partial class RadicalGroupReader
         }
         if (!document.RadicalTypes.ContainsKey(typeName))
         {
-            var type = new RadicalType
-            {
-                Name = typeName,
-                CreatedDate = document.FileHeader.Date,
-            };
+            var type = new RadicalTypeElement(typeName, document.Header.Date);
             document.RadicalTypes.Add(typeName, type);
         }
         return typeName;
     }
 
-    private async Task<int> GetNumber(Entry entry)
+    private async Task<int> GetNumber(EntryElement entry)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))

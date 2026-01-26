@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
 
-internal sealed class RadicalTable : Table<Radical>
+internal sealed class RadicalTable : Table<RadicalElement>
 {
     protected override string Name => nameof(Radical);
 
@@ -43,9 +44,9 @@ internal sealed class RadicalTable : Table<Radical>
         nameof(Radical.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(Radical radical) =>
+    protected override SqliteParameter[] Parameters(RadicalElement radical) =>
     [
-        new("@0", radical.UnicodeScalarValue),
+        new("@0", radical.EntryId),
         new("@1", radical.GroupOrder),
         new("@2", radical.Order),
         new("@3", radical.Number),

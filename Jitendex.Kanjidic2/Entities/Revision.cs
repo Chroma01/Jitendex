@@ -23,14 +23,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.Kanjidic2.Entities;
 
 [Table(nameof(Revision))]
-[PrimaryKey(nameof(EntryId), nameof(Number))]
+[PrimaryKey(nameof(SequenceId), nameof(Number))]
 public sealed class Revision
 {
-    public required int EntryId { get; init; }
+    public required int SequenceId { get; init; }
     public required int Number { get; init; }
     public required DateOnly CreatedDate { get; init; }
     public required string DiffJson { get; init; }
 
-    [ForeignKey(nameof(EntryId))]
-    public Entry Entry { get; init; } = null!;
+    [ForeignKey(nameof(SequenceId))]
+    public required Sequence Sequence { get; init; }
 }

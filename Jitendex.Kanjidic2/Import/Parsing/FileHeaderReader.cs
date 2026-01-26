@@ -23,18 +23,13 @@ using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;
 
-internal partial class HeaderReader
+internal partial class HeaderReader : BaseReader<HeaderReader>
 {
-    private readonly ILogger<EntriesReader> _logger;
-    private readonly XmlReader _xmlReader;
+    public HeaderReader(ILogger<HeaderReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public HeaderReader(ILogger<EntriesReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
-
-    public async Task<FileHeader> ReadAsync()
+    public async Task<DocumentHeader> ReadAsync()
     {
-        var header = new FileHeader
+        var header = new DocumentHeader
         {
             DatabaseVersion = null!,
             FileVersion = null!,
@@ -57,7 +52,7 @@ internal partial class HeaderReader
                     LogUnexpectedTextNode(text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == FileHeader.XmlTagName;
+                    exit = _xmlReader.Name == DocumentHeader.XmlTagName;
                     break;
             }
         }
@@ -80,21 +75,21 @@ internal partial class HeaderReader
         return header;
     }
 
-    private async Task ReadElementAsync(FileHeader header)
+    private async Task ReadElementAsync(DocumentHeader header)
     {
         switch (_xmlReader.Name)
         {
             case "kanjidic2":
                 break;
-            case FileHeader.XmlTagName:
+            case DocumentHeader.XmlTagName:
                 break;
-            case FileHeader.database_XmlTagName:
+            case DocumentHeader.database_XmlTagName:
                 header.DatabaseVersion = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
-            case FileHeader.file_XmlTagName:
+            case DocumentHeader.file_XmlTagName:
                 header.FileVersion = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
-            case FileHeader.date_XmlTagName:
+            case DocumentHeader.date_XmlTagName:
                 var content = await _xmlReader.ReadElementContentAsStringAsync();
                 if (DateOnly.TryParse(content, out var date))
                 {

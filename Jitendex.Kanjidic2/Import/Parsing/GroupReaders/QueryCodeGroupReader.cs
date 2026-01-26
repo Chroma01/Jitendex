@@ -26,26 +26,17 @@ using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
-internal partial class QueryCodeGroupReader
+internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
 {
-    private readonly ILogger<QueryCodeGroupReader> _logger;
-    private readonly XmlReader _xmlReader;
-    private readonly Dictionary<int, int> _usedGroupOrders = [];
-    private readonly Dictionary<(int, int), int> _usedOrders = [];
+    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
-
-    public async Task ReadAsync(Document document, Entry entry)
+    public async Task ReadAsync(Document document, EntryElement entry)
     {
-        var group = new QueryCodeGroup
+        var group = new QueryCodeGroupElement
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
-            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
+            EntryId = entry.Id,
+            Order = document.QueryCodeGroups.NextOrder(entry.Id),
         };
-
-        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -56,11 +47,10 @@ internal partial class QueryCodeGroupReader
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.ToRune(), QueryCodeGroup.XmlTagName, text);
+                    await LogUnexpectedTextNodeAsync(entry.Id, QueryCodeGroupElement.XmlTagName);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == QueryCodeGroup.XmlTagName;
+                    exit = _xmlReader.Name == QueryCodeGroupElement.XmlTagName;
                     break;
             }
         }
@@ -68,35 +58,34 @@ internal partial class QueryCodeGroupReader
         document.QueryCodeGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry, QueryCodeGroup group)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry, QueryCodeGroupElement group)
     {
         switch (_xmlReader.Name)
         {
-            case QueryCode.XmlTagName:
+            case QueryCodeElement.XmlTagName:
                 await ReadQueryCode(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, QueryCodeGroup.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, QueryCodeGroupElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadQueryCode(Document document, Entry entry, QueryCodeGroup group)
+    private async Task ReadQueryCode(Document document, EntryElement entry, QueryCodeGroupElement group)
     {
-        var queryCode = new QueryCode
+        var queryCode = new QueryCodeElement
         {
-            UnicodeScalarValue = group.UnicodeScalarValue,
+            EntryId = group.EntryId,
             GroupOrder = group.Order,
-            Order = _usedOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            Order = document.QueryCodes.NextOrder(group.Key()),
             TypeName = GetTypeName(document, entry),
             Misclassification = GetMisclassification(document),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
-        _usedOrders[group.Key()] = queryCode.Order;
         document.QueryCodes.Add(queryCode.Key(), queryCode);
     }
 
-    private string GetTypeName(Document document, Entry entry)
+    private string GetTypeName(Document document, EntryElement entry)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("qc_type");
@@ -111,11 +100,7 @@ internal partial class QueryCodeGroupReader
         }
         if (!document.QueryCodeTypes.ContainsKey(typeName))
         {
-            var type = new QueryCodeType
-            {
-                Name = typeName,
-                CreatedDate = document.FileHeader.Date,
-            };
+            var type = new QueryCodeTypeElement(typeName, document.Header.Date);
             document.QueryCodeTypes.Add(typeName, type);
         }
         return typeName;
@@ -130,11 +115,7 @@ internal partial class QueryCodeGroupReader
         }
         if (!document.MisclassificationTypes.ContainsKey(typeName))
         {
-            var type = new MisclassificationType
-            {
-                Name = typeName,
-                CreatedDate = document.FileHeader.Date,
-            };
+            var type = new MisclassificationTypeElement(typeName, document.Header.Date);
             document.MisclassificationTypes.Add(typeName, type);
         }
         return typeName;

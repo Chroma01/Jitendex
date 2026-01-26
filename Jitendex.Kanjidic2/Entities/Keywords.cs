@@ -19,13 +19,19 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.Kanjidic2.Entities.GroupElements;
-using Jitendex.Kanjidic2.Entities.SubgroupElements;
+using Jitendex.Kanjidic2.Entities.GroupItems;
+using Jitendex.Kanjidic2.Entities.SubgroupItems;
 
 namespace Jitendex.Kanjidic2.Entities;
 
+public interface IKeyword
+{
+    string Name { get; init; }
+    DateOnly CreatedDate { get; init; }
+}
+
 [Table(nameof(CodepointType))]
-public sealed class CodepointType
+public sealed class CodepointType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -34,7 +40,7 @@ public sealed class CodepointType
 }
 
 [Table(nameof(DictionaryType))]
-public sealed class DictionaryType
+public sealed class DictionaryType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -43,7 +49,7 @@ public sealed class DictionaryType
 }
 
 [Table(nameof(QueryCodeType))]
-public sealed class QueryCodeType
+public sealed class QueryCodeType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -52,7 +58,7 @@ public sealed class QueryCodeType
 }
 
 [Table(nameof(MisclassificationType))]
-public sealed class MisclassificationType
+public sealed class MisclassificationType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -61,7 +67,7 @@ public sealed class MisclassificationType
 }
 
 [Table(nameof(RadicalType))]
-public sealed class RadicalType
+public sealed class RadicalType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -70,7 +76,7 @@ public sealed class RadicalType
 }
 
 [Table(nameof(ReadingType))]
-public sealed class ReadingType
+public sealed class ReadingType : IKeyword
 {
     [Key]
     public required string Name { get; init; }
@@ -79,7 +85,7 @@ public sealed class ReadingType
 }
 
 [Table(nameof(VariantType))]
-public sealed class VariantType
+public sealed class VariantType : IKeyword
 {
     [Key]
     public required string Name { get; init; }

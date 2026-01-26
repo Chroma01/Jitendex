@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities;
 using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.SQLite;
 
-internal sealed class FileHeaderTable : Table<FileHeader>
+internal sealed class FileHeaderTable : Table<DocumentHeader>
 {
     protected override string Name => nameof(FileHeader);
 
@@ -35,9 +36,9 @@ internal sealed class FileHeaderTable : Table<FileHeader>
     ];
 
     protected override IReadOnlyList<string> KeyColNames
-        => throw new NotImplementedException();
+        => throw new NotImplementedException($"The primary key for table {nameof(FileHeader)} is auto-incremented.");
 
-    protected override SqliteParameter[] Parameters(FileHeader header) =>
+    protected override SqliteParameter[] Parameters(DocumentHeader header) =>
     [
         new("@0", header.DatabaseVersion),
         new("@1", header.FileVersion),

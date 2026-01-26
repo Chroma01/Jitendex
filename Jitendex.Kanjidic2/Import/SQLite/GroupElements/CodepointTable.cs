@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
 
-internal sealed class CodepointTable : Table<Codepoint>
+internal sealed class CodepointTable : Table<CodepointElement>
 {
     protected override string Name => nameof(Codepoint);
 
@@ -43,9 +44,9 @@ internal sealed class CodepointTable : Table<Codepoint>
         nameof(Codepoint.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(Codepoint codepoint) =>
+    protected override SqliteParameter[] Parameters(CodepointElement codepoint) =>
     [
-        new("@0", codepoint.UnicodeScalarValue),
+        new("@0", codepoint.EntryId),
         new("@1", codepoint.GroupOrder),
         new("@2", codepoint.Order),
         new("@3", codepoint.Text),

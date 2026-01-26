@@ -26,6 +26,7 @@ namespace Jitendex.Kanjidic2;
 public class Kanjidic2Context : SqliteContext
 {
     public DbSet<FileHeader> FileHeaders { get; set; } = null!;
+    public DbSet<Sequence> Sequences { get; set; } = null!;
     public DbSet<Entry> Entries { get; set; } = null!;
 
     #region Keywords

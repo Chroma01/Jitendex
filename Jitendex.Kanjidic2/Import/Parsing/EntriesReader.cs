@@ -23,15 +23,14 @@ using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;
 
-internal partial class EntriesReader
+internal partial class EntriesReader : BaseReader<EntriesReader>
 {
-    private readonly ILogger<EntriesReader> _logger;
-    private readonly XmlReader _xmlReader;
     private readonly EntryReader _entryReader;
 
-    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, EntryReader entryReader) =>
-        (_logger, _xmlReader, _entryReader) =
-        (@logger, @xmlReader, @entryReader);
+    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, EntryReader entryReader) : base(logger, xmlReader)
+    {
+        _entryReader = entryReader;
+    }
 
     public async Task ReadAsync(Document document)
     {
@@ -54,7 +53,7 @@ internal partial class EntriesReader
     {
         switch (_xmlReader.Name)
         {
-            case Entry.XmlTagName:
+            case EntryElement.XmlTagName:
                 await _entryReader.ReadAsync(document);
                 break;
             default:

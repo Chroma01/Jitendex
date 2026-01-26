@@ -26,27 +26,23 @@ using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
-internal partial class ReadingMeaningGroupReader
+internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGroupReader>
 {
-    private readonly ILogger<ReadingMeaningGroupReader> _logger;
-    private readonly XmlReader _xmlReader;
     private readonly ReadingMeaningReader _readingMeaningReader;
-    private readonly Dictionary<int, int> _usedGroupOrders = [];
-    private readonly Dictionary<(int, int), int> _usedOrders = [];
 
-    public ReadingMeaningGroupReader(ILogger<ReadingMeaningGroupReader> logger, XmlReader xmlReader, ReadingMeaningReader readingMeaningReader) =>
-        (_logger, _xmlReader, _readingMeaningReader) =
-        (@logger, @xmlReader, @readingMeaningReader);
-
-    public async Task ReadAsync(Document document, Entry entry)
+    public ReadingMeaningGroupReader(ILogger<ReadingMeaningGroupReader> logger, XmlReader xmlReader, ReadingMeaningReader readingMeaningReader)
+        : base(logger, xmlReader)
     {
-        var group = new ReadingMeaningGroup
-        {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
-            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
-        };
+        _readingMeaningReader = readingMeaningReader;
+    }
 
-        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
+    public async Task ReadAsync(Document document, EntryElement entry)
+    {
+        var group = new ReadingMeaningGroupElement
+        {
+            EntryId = entry.Id,
+            Order = document.ReadingMeaningGroups.NextOrder(entry.Id),
+        };
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -57,11 +53,10 @@ internal partial class ReadingMeaningGroupReader
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.ToRune(), ReadingMeaningGroup.XmlTagName, text);
+                    await LogUnexpectedTextNodeAsync(entry.Id, ReadingMeaningGroupElement.XmlTagName);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == ReadingMeaningGroup.XmlTagName;
+                    exit = _xmlReader.Name == ReadingMeaningGroupElement.XmlTagName;
                     break;
             }
         }
@@ -69,32 +64,31 @@ internal partial class ReadingMeaningGroupReader
         document.ReadingMeaningGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry, ReadingMeaningGroup group)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group)
     {
         switch (_xmlReader.Name)
         {
-            case ReadingMeaning.XmlTagName:
+            case ReadingMeaningElement.XmlTagName:
                 await _readingMeaningReader.ReadAsync(document, entry, group);
                 break;
-            case Nanori.XmlTagName:
+            case NanoriElement.XmlTagName:
                 await ReadNanori(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, ReadingMeaningGroup.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, ReadingMeaningGroupElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadNanori(Document document, Entry entry, ReadingMeaningGroup group)
+    private async Task ReadNanori(Document document, EntryElement entry, ReadingMeaningGroupElement group)
     {
-        var nanori = new Nanori
+        var nanori = new NanoriElement
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
+            EntryId = entry.Id,
             GroupOrder = group.Order,
-            Order = _usedOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            Order = document.Nanoris.NextOrder(group.Key()),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
-        _usedOrders[group.Key()] = nanori.Order;
         document.Nanoris.Add(nanori.Key(), nanori);
     }
 

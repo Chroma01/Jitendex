@@ -26,10 +26,8 @@ using Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;
 
-internal partial class EntryReader
+internal partial class EntryReader : BaseReader<EntryReader>
 {
-    private readonly ILogger<EntryReader> _logger;
-    private readonly XmlReader _xmlReader;
     private readonly CodepointGroupReader _codepointGroupReader;
     private readonly DictionaryGroupReader _dictionaryGroupReader;
     private readonly MiscGroupReader _miscGroupReader;
@@ -37,16 +35,15 @@ internal partial class EntryReader
     private readonly RadicalGroupReader _radicalGroupReader;
     private readonly ReadingMeaningGroupReader _readingMeaningGroupReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) =>
-        (_logger, _xmlReader, _codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
-        (@logger, @xmlReader, @codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
+    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) : base(logger, xmlReader) =>
+        (_codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
+        (@codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
 
     public async Task ReadAsync(Document document)
     {
-        var entry = new Entry
+        var entry = new EntryElement
         {
-            UnicodeScalarValue = default,
-            CreatedDate = document.FileHeader.Date
+            Id = default
         };
 
         var exit = false;
@@ -58,28 +55,27 @@ internal partial class EntryReader
                     await ReadChildElementAsync(document, entry);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.ToRune(), Entry.XmlTagName, text);
+                    await LogUnexpectedTextNodeAsync(entry.Id, EntryElement.XmlTagName);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == Entry.XmlTagName;
+                    exit = _xmlReader.Name == EntryElement.XmlTagName;
                     break;
             }
         }
 
-        if (entry.UnicodeScalarValue != default)
+        if (entry.Id != default)
         {
-            document.Entries.Add(entry.UnicodeScalarValue, entry);
+            document.Entries.Add(entry.Id, entry);
         }
         else
         {
-            LogMissingCharacter(Entry.Character_XmlTagName);
+            LogMissingCharacter(EntryElement.Character_XmlTagName);
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry)
     {
-        if (_xmlReader.Name != Entry.Character_XmlTagName && entry.UnicodeScalarValue == default)
+        if (_xmlReader.Name != EntryElement.Character_XmlTagName && entry.Id == default)
         {
             LogPrematureElement(_xmlReader.Name);
             return;
@@ -87,45 +83,45 @@ internal partial class EntryReader
 
         switch (_xmlReader.Name)
         {
-            case Entry.Character_XmlTagName:
+            case EntryElement.Character_XmlTagName:
                 await ReadCharacterAsync(entry);
                 break;
-            case CodepointGroup.XmlTagName:
+            case CodepointGroupElement.XmlTagName:
                 await _codepointGroupReader.ReadAsync(document, entry);
                 break;
-            case DictionaryGroup.XmlTagName:
+            case DictionaryGroupElement.XmlTagName:
                 await _dictionaryGroupReader.ReadAsync(document, entry);
                 break;
-            case MiscGroup.XmlTagName:
+            case MiscGroupElement.XmlTagName:
                 await _miscGroupReader.ReadAsync(document, entry);
                 break;
-            case QueryCodeGroup.XmlTagName:
+            case QueryCodeGroupElement.XmlTagName:
                 await _queryCodeGroupReader.ReadAsync(document, entry);
                 break;
-            case RadicalGroup.XmlTagName:
+            case RadicalGroupElement.XmlTagName:
                 await _radicalGroupReader.ReadAsync(document, entry);
                 break;
-            case ReadingMeaningGroup.XmlTagName:
+            case ReadingMeaningGroupElement.XmlTagName:
                 await _readingMeaningGroupReader.ReadAsync(document, entry);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, Entry.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, EntryElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadCharacterAsync(Entry entry)
+    private async Task ReadCharacterAsync(EntryElement entry)
     {
-        if (entry.UnicodeScalarValue != default)
+        if (entry.Id != default)
         {
-            LogUnexpectedGroup(entry.ToRune(), Entry.Character_XmlTagName);
+            LogUnexpectedGroup(entry.ToRune(), EntryElement.Character_XmlTagName);
         }
 
         var text = await _xmlReader.ReadElementContentAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(text))
         {
-            LogEmptyElement(Entry.Character_XmlTagName);
+            LogEmptyElement(EntryElement.Character_XmlTagName);
             return;
         }
 
@@ -133,10 +129,10 @@ internal partial class EntryReader
 
         if (runes.Length > 1)
         {
-            LogMultipleCharacters(Entry.Character_XmlTagName, text);
+            LogMultipleCharacters(EntryElement.Character_XmlTagName, text);
         }
 
-        entry.UnicodeScalarValue = runes[0].Value;
+        entry.Id = runes[0].Value;
     }
 
     [LoggerMessage(LogLevel.Error,

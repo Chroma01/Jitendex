@@ -27,28 +27,18 @@ using Jitendex.Kanjidic2.Import.Models.SubgroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
-internal partial class ReadingMeaningReader
+internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
 {
-    private readonly ILogger<ReadingMeaningReader> _logger;
-    private readonly XmlReader _xmlReader;
-    private readonly Dictionary<(int, int), int> _usedReadingMeaningOrders = [];
-    private readonly Dictionary<(int, int, int), int> _usedReadingOrders = [];
-    private readonly Dictionary<(int, int, int), int> _usedMeaningOrders = [];
+    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
-
-    public async Task ReadAsync(Document document, Entry entry, ReadingMeaningGroup group)
+    public async Task ReadAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group)
     {
-        var readingMeaning = new ReadingMeaning
+        var readingMeaning = new ReadingMeaningElement
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
+            EntryId = entry.Id,
             GroupOrder = group.Order,
-            Order = _usedReadingMeaningOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            Order = document.ReadingMeanings.NextOrder(group.Key()),
         };
-
-        _usedReadingMeaningOrders[group.Key()] = group.Order;
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -59,11 +49,10 @@ internal partial class ReadingMeaningReader
                     await ReadChildElementAsync(document, entry, group, readingMeaning);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.ToRune(), ReadingMeaning.XmlTagName, text);
+                    await LogUnexpectedTextNodeAsync(entry.Id, ReadingMeaningElement.XmlTagName);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == ReadingMeaning.XmlTagName;
+                    exit = _xmlReader.Name == ReadingMeaningElement.XmlTagName;
                     break;
             }
         }
@@ -71,38 +60,37 @@ internal partial class ReadingMeaningReader
         document.ReadingMeanings.Add(readingMeaning.Key(), readingMeaning);
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry, ReadingMeaningGroup group, ReadingMeaning readingMeaning)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
     {
         switch (_xmlReader.Name)
         {
-            case Reading.XmlTagName:
+            case ReadingElement.XmlTagName:
                 await ReadReading(document, entry, group, readingMeaning);
                 break;
-            case Meaning.XmlTagName:
+            case MeaningElement.XmlTagName:
                 await ReadMeaning(document, entry, group, readingMeaning);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, ReadingMeaning.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, ReadingMeaningElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadReading(Document document, Entry entry, ReadingMeaningGroup group, ReadingMeaning readingMeaning)
+    private async Task ReadReading(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
     {
-        var reading = new Reading
+        var reading = new ReadingElement
         {
-            UnicodeScalarValue = readingMeaning.UnicodeScalarValue,
+            EntryId = readingMeaning.EntryId,
             GroupOrder = group.Order,
             ReadingMeaningOrder = readingMeaning.Order,
-            Order = _usedReadingOrders.TryGetValue(readingMeaning.Key(), out var order) ? order + 1 : 0,
+            Order = document.Readings.NextOrder(readingMeaning.Key()),
             TypeName = GetReadingTypeName(document, entry),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
-        _usedReadingOrders[readingMeaning.Key()] = reading.Order;
         document.Readings.Add(reading.Key(), reading);
     }
 
-    private string GetReadingTypeName(Document document, Entry entry)
+    private string GetReadingTypeName(Document document, EntryElement entry)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("r_type");
@@ -117,44 +105,42 @@ internal partial class ReadingMeaningReader
         }
         if (!document.ReadingTypes.ContainsKey(typeName))
         {
-            var type = new ReadingType
-            {
-                Name = typeName,
-                CreatedDate = document.FileHeader.Date,
-            };
+            var type = new ReadingTypeElement(typeName, document.Header.Date);
             document.ReadingTypes.Add(typeName, type);
         }
         return typeName;
     }
 
-    private async Task ReadMeaning(Document document, Entry entry, ReadingMeaningGroup group, ReadingMeaning readingMeaning)
+    private async Task ReadMeaning(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
     {
-        var language = _xmlReader.GetAttribute("m_lang") ?? "en";
-        var meaning = new Meaning
+        if (_xmlReader.GetAttribute("m_lang") is not null)
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
+            // This is not an English-language meaning; skip.
+            await _xmlReader.SkipAsync();
+            return;
+        }
+
+        var meaning = new MeaningElement
+        {
+            EntryId = entry.Id,
             GroupOrder = group.Order,
             ReadingMeaningOrder = readingMeaning.Order,
-            Order = _usedMeaningOrders.TryGetValue(readingMeaning.Key(), out var order) ? order + 1 : 0,
+            Order = document.Meanings.NextOrder(readingMeaning.Key()),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
 
-        if (language != "en")
-        {
-            return;
-        }
-        if (meaning.Text == "(kokuji)")
+        if (string.Equals(meaning.Text, "(kokuji)", StringComparison.Ordinal))
         {
             readingMeaning.IsKokuji = true;
             return;
         }
-        if (meaning.Text == "(ghost kanji)")
+
+        if (string.Equals(meaning.Text, "(ghost kanji)", StringComparison.Ordinal))
         {
             readingMeaning.IsGhost = true;
             return;
         }
 
-        _usedMeaningOrders[readingMeaning.Key()] = meaning.Order;
         document.Meanings.Add(meaning.Key(), meaning);
     }
 

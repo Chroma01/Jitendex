@@ -29,6 +29,7 @@ namespace Jitendex.Kanjidic2.Import.SQLite;
 internal static class Database
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
+    private static readonly SequenceTable SequenceTable = new();
     private static readonly EntryTable EntryTable = new();
 
     #region Group Tables
@@ -58,18 +59,18 @@ internal static class Database
     #endregion
 
     #region Keyword tables
-    private static readonly KeywordTable<CodepointType> CodepointTypeTable = new();
-    private static readonly KeywordTable<DictionaryType> DictionaryTypeTable = new();
-    private static readonly KeywordTable<QueryCodeType> QueryCodeTypeTable = new();
-    private static readonly KeywordTable<MisclassificationType> MisclassificationTypeTable = new();
-    private static readonly KeywordTable<RadicalType> RadicalTypeTable = new();
-    private static readonly KeywordTable<ReadingType> ReadingTypeTable = new();
-    private static readonly KeywordTable<VariantType> VariantTypeTable = new();
+    private static readonly KeywordTable<CodepointTypeElement> CodepointTypeTable = new();
+    private static readonly KeywordTable<DictionaryTypeElement> DictionaryTypeTable = new();
+    private static readonly KeywordTable<QueryCodeTypeElement> QueryCodeTypeTable = new();
+    private static readonly KeywordTable<MisclassificationTypeElement> MisclassificationTypeTable = new();
+    private static readonly KeywordTable<RadicalTypeElement> RadicalTypeTable = new();
+    private static readonly KeywordTable<ReadingTypeElement> ReadingTypeTable = new();
+    private static readonly KeywordTable<VariantTypeElement> VariantTypeTable = new();
     #endregion
 
     public static void Initialize(Document document)
     {
-        Console.Error.WriteLine($"Initializing database with data from {document.FileHeader.Date:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
 
         using var context = new Kanjidic2Context();
         context.InitializeDatabase();
@@ -77,7 +78,8 @@ internal static class Database
 
         using (var transaction = context.Database.BeginTransaction())
         {
-            FileHeaderTable.InsertItem(context, document.FileHeader);
+            FileHeaderTable.InsertItem(context, document.Header);
+            SequenceTable.InsertItems(context, document.GetSequences());
 
             CodepointTypeTable.InsertItems(context, document.CodepointTypes.Values);
             DictionaryTypeTable.InsertItems(context, document.DictionaryTypes.Values);
@@ -117,16 +119,17 @@ internal static class Database
 
     public static void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.EntryIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
+        Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
 
         using var context = new Kanjidic2Context();
-        var aEntries = LoadEntries(context, diff.EntryIds);
+        var aEntries = DtoMapper.LoadRevisionlessSequences(context, diff.SequenceIds);
 
         using (var transaction = context.Database.BeginTransaction())
         {
             context.ExecuteDeferForeignKeysPragma();
 
-            FileHeaderTable.InsertItem(context, diff.InsertDocument.FileHeader);
+            FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
+            SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
             CodepointTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.CodepointTypes.Values);
             DictionaryTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.DictionaryTypes.Values);
@@ -136,8 +139,7 @@ internal static class Database
             ReadingTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.ReadingTypes.Values);
             VariantTypeTable.InsertOrIgnoreItems(context, diff.InsertDocument.VariantTypes.Values);
 
-            EntryTable.InsertOrIgnoreItems(context, diff.InsertDocument.Entries.Values);
-
+            EntryTable.InsertItems(context, diff.InsertDocument.Entries.Values);
             CodepointGroupTable.InsertItems(context, diff.InsertDocument.CodepointGroups.Values);
             DictionaryGroupTable.InsertItems(context, diff.InsertDocument.DictionaryGroups.Values);
             MiscGroupTable.InsertItems(context, diff.InsertDocument.MiscGroups.Values);
@@ -156,6 +158,7 @@ internal static class Database
             MeaningTable.InsertItems(context, diff.InsertDocument.Meanings.Values);
             ReadingTable.InsertItems(context, diff.InsertDocument.Readings.Values);
 
+            EntryTable.UpdateItems(context, diff.UpdateDocument.Entries.Values);
             CodepointGroupTable.UpdateItems(context, diff.UpdateDocument.CodepointGroups.Values);
             DictionaryGroupTable.UpdateItems(context, diff.UpdateDocument.DictionaryGroups.Values);
             MiscGroupTable.UpdateItems(context, diff.UpdateDocument.MiscGroups.Values);
@@ -191,61 +194,35 @@ internal static class Database
             MiscGroupTable.DeleteItems(context, diff.DeleteDocument.MiscGroups.Values);
             DictionaryGroupTable.DeleteItems(context, diff.DeleteDocument.DictionaryGroups.Values);
             CodepointGroupTable.DeleteItems(context, diff.DeleteDocument.CodepointGroups.Values);
+            EntryTable.DeleteItems(context, diff.DeleteDocument.Entries.Values);
 
             transaction.Commit();
         }
 
-        var bEntries = LoadEntries(context, diff.EntryIds);
+        var bEntries = DtoMapper.LoadRevisionlessSequences(context, diff.SequenceIds);
 
-        var entries = context.Entries
-            .Where(entry => diff.EntryIds.Contains(entry.UnicodeScalarValue))
-            .Include(static entry => entry.Revisions)
+        var sequences = context.Sequences
+            .Where(sequence => diff.SequenceIds.Contains(sequence.Id))
+            .Include(static sequence => sequence.Revisions)
             .ToList();
 
-        foreach (var entry in entries)
+        foreach (var sequence in sequences)
         {
-            if (aEntries.TryGetValue(entry.UnicodeScalarValue, out var aEntry))
+            if (aEntries.TryGetValue(sequence.Id, out var aEntry))
             {
-                var bEntry = bEntries[entry.UnicodeScalarValue];
+                var bEntry = bEntries[sequence.Id];
                 var baDiff = JsonDiffer.Diff(a: bEntry, b: aEntry);
-                entry.Revisions.Add(new()
+                sequence.Revisions.Add(new()
                 {
-                    EntryId = entry.UnicodeScalarValue,
-                    Number = entry.Revisions.Count,
+                    SequenceId = sequence.Id,
+                    Number = sequence.Revisions.Count,
                     CreatedDate = diff.FileHeader.Date,
                     DiffJson = baDiff,
-                    Entry = entry,
+                    Sequence = sequence,
                 });
             }
         }
 
         context.SaveChanges();
     }
-
-    private static Dictionary<int, Entities.Entry> LoadEntries(Context context, IReadOnlySet<int> ids)
-        => context.Entries.AsNoTracking().AsSplitQuery()
-        .Where(entry => ids.Contains(entry.UnicodeScalarValue))
-        .Include(static entry => entry.CodepointGroups)
-            .ThenInclude(static group => group.Codepoints)
-        .Include(static entry => entry.DictionaryGroups)
-            .ThenInclude(static group => group.Dictionaries)
-        .Include(static entry => entry.MiscGroups)
-            .ThenInclude(static group => group.RadicalNames)
-        .Include(static entry => entry.MiscGroups)
-            .ThenInclude(static group => group.StrokeCounts)
-        .Include(static entry => entry.MiscGroups)
-            .ThenInclude(static group => group.Variants)
-        .Include(static entry => entry.QueryCodeGroups)
-            .ThenInclude(static group => group.QueryCodes)
-        .Include(static entry => entry.RadicalGroups)
-            .ThenInclude(static group => group.Radicals)
-        .Include(static entry => entry.ReadingMeaningGroups)
-            .ThenInclude(static group => group.Nanoris)
-        .Include(static entry => entry.ReadingMeaningGroups)
-            .ThenInclude(static group => group.ReadingMeanings)
-                .ThenInclude(static rm => rm.Meanings)
-        .Include(static entry => entry.ReadingMeaningGroups)
-            .ThenInclude(static group => group.ReadingMeanings)
-                .ThenInclude(static rm => rm.Readings)
-        .ToDictionary(static entry => entry.UnicodeScalarValue);
 }

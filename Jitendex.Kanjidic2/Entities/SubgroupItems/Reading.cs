@@ -1,0 +1,41 @@
+/*
+Copyright (c) 2025-2026 Stephen Kraus
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+This file is part of Jitendex.
+
+Jitendex is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Jitendex is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Jitendex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Jitendex.Kanjidic2.Entities.GroupItems;
+
+namespace Jitendex.Kanjidic2.Entities.SubgroupItems;
+
+[PrimaryKey(nameof(UnicodeScalarValue), nameof(GroupOrder), nameof(ReadingMeaningOrder), nameof(Order))]
+public sealed class Reading
+{
+    public required int UnicodeScalarValue { get; init; }
+    public required int GroupOrder { get; init; }
+    public required int ReadingMeaningOrder { get; init; }
+    public required int Order { get; init; }
+    public required string Text { get; set; }
+    public required string TypeName { get; set; }
+
+    [ForeignKey($"{nameof(UnicodeScalarValue)}, {nameof(GroupOrder)}, {nameof(ReadingMeaningOrder)}")]
+    public ReadingMeaning Group { get; init; } = null!;
+
+    [ForeignKey(nameof(TypeName))]
+    public ReadingType Type { get; set; } = null!;
+}

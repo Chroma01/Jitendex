@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
 
-internal sealed class ReadingMeaningTable : Table<ReadingMeaning>
+internal sealed class ReadingMeaningTable : Table<ReadingMeaningElement>
 {
     protected override string Name => nameof(ReadingMeaning);
 
@@ -43,9 +44,9 @@ internal sealed class ReadingMeaningTable : Table<ReadingMeaning>
         nameof(ReadingMeaning.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(ReadingMeaning codepoint) =>
+    protected override SqliteParameter[] Parameters(ReadingMeaningElement codepoint) =>
     [
-        new("@0", codepoint.UnicodeScalarValue),
+        new("@0", codepoint.EntryId),
         new("@1", codepoint.GroupOrder),
         new("@2", codepoint.Order),
         new("@3", codepoint.IsKokuji),

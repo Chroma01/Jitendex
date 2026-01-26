@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
 
-internal sealed class StrokeCountTable : Table<StrokeCount>
+internal sealed class StrokeCountTable : Table<StrokeCountElement>
 {
     protected override string Name => nameof(StrokeCount);
 
@@ -42,9 +43,9 @@ internal sealed class StrokeCountTable : Table<StrokeCount>
         nameof(StrokeCount.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(StrokeCount strokeCount) =>
+    protected override SqliteParameter[] Parameters(StrokeCountElement strokeCount) =>
     [
-        new("@0", strokeCount.UnicodeScalarValue),
+        new("@0", strokeCount.EntryId),
         new("@1", strokeCount.GroupOrder),
         new("@2", strokeCount.Order),
         new("@3", strokeCount.Value),

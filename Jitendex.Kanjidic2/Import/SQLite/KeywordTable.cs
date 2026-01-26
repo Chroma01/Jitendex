@@ -19,13 +19,14 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities;
 using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.SQLite;
 
-internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
+internal sealed class KeywordTable<T> : Table<T> where T : IKeywordElement
 {
-    protected override string Name => typeof(T).Name;
+    protected override string Name => ElementNameToEntityName(typeof(T).Name);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
@@ -41,6 +42,18 @@ internal sealed class KeywordTable<T> : Table<T> where T : IKeyword
     protected override SqliteParameter[] Parameters(T keyword) =>
     [
         new("@0", keyword.Name),
-        new("@1", keyword.CreatedDate),
+        new("@1", keyword.Date),
     ];
+
+    private static string ElementNameToEntityName(string elementName) => elementName switch
+    {
+        nameof(CodepointTypeElement) => nameof(CodepointType),
+        nameof(DictionaryTypeElement) => nameof(DictionaryType),
+        nameof(QueryCodeTypeElement) => nameof(QueryCodeType),
+        nameof(MisclassificationTypeElement) => nameof(MisclassificationType),
+        nameof(RadicalTypeElement) => nameof(RadicalType),
+        nameof(ReadingTypeElement) => nameof(ReadingType),
+        nameof(VariantTypeElement) => nameof(VariantType),
+        _ => throw new ArgumentOutOfRangeException(nameof(elementName), $"Value: `{elementName}`")
+    };
 }

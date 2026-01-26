@@ -26,26 +26,18 @@ using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
-internal partial class CodepointGroupReader
+internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
 {
-    private readonly ILogger<CodepointGroupReader> _logger;
-    private readonly XmlReader _xmlReader;
-    private readonly Dictionary<int, int> _usedGroupOrders = [];
-    private readonly Dictionary<(int, int), int> _usedOrders = [];
+    public CodepointGroupReader(ILogger<CodepointGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public CodepointGroupReader(ILogger<CodepointGroupReader> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
-
-    public async Task ReadAsync(Document document, Entry entry)
+    public async Task ReadAsync(Document document, EntryElement entry)
     {
-        var group = new CodepointGroup
+        var group = new CodepointGroupElement
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
-            Order = _usedGroupOrders.TryGetValue(entry.UnicodeScalarValue, out var order) ? order + 1 : 0,
+            EntryId = entry.Id,
+            Order = document.CodepointGroups.NextOrder(entry.Id),
         };
 
-        _usedGroupOrders[entry.UnicodeScalarValue] = group.Order;
         document.CodepointGroups.Add(group.Key(), group);
 
         var exit = false;
@@ -57,47 +49,46 @@ internal partial class CodepointGroupReader
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    Log.UnexpectedTextNode(_logger, entry.ToRune(), CodepointGroup.XmlTagName, text);
+                    await LogUnexpectedTextNodeAsync(entry.Id, CodepointGroupElement.XmlTagName);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == CodepointGroup.XmlTagName;
+                    exit = _xmlReader.Name == CodepointGroupElement.XmlTagName;
                     break;
             }
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, Entry entry, CodepointGroup group)
+    private async Task ReadChildElementAsync(Document document, EntryElement entry, CodepointGroupElement group)
     {
         switch (_xmlReader.Name)
         {
-            case Codepoint.XmlTagName:
+            case CodepointElement.XmlTagName:
                 await ReadCodepoint(document, entry, group);
                 break;
             default:
-                Log.UnexpectedChildElement(_logger, entry.ToRune(), _xmlReader.Name, CodepointGroup.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, CodepointGroupElement.XmlTagName);
                 break;
         }
     }
 
-    private async Task ReadCodepoint(Document document, Entry entry, CodepointGroup group)
+    private async Task ReadCodepoint(Document document, EntryElement entry, CodepointGroupElement group)
     {
-        var codepoint = new Codepoint
+        var codepoint = new CodepointElement
         {
-            UnicodeScalarValue = entry.UnicodeScalarValue,
+            EntryId = entry.Id,
             GroupOrder = group.Order,
-            Order = _usedOrders.TryGetValue(group.Key(), out var order) ? order + 1 : 0,
+            Order = document.Codepoints.NextOrder(group.Key()),
             TypeName = GetTypeName(document, entry),
             Text = await _xmlReader.ReadElementContentAsStringAsync(),
         };
-        _usedOrders[group.Key()] = codepoint.Order;
         document.Codepoints.Add(codepoint.Key(), codepoint);
     }
 
-    private string GetTypeName(Document document, Entry entry)
+    private string GetTypeName(Document document, EntryElement entry)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute(Codepoint.TypeName_XmlAttrName);
+        var attribute = _xmlReader.GetAttribute(CodepointElement.TypeName_XmlAttrName);
+
         if (string.IsNullOrWhiteSpace(attribute))
         {
             LogMissingTypeName(entry.ToRune());
@@ -107,15 +98,13 @@ internal partial class CodepointGroupReader
         {
             typeName = attribute;
         }
+
         if (!document.CodepointTypes.ContainsKey(typeName))
         {
-            var type = new CodepointType
-            {
-                Name = typeName,
-                CreatedDate = document.FileHeader.Date,
-            };
+            var type = new CodepointTypeElement(typeName, document.Header.Date);
             document.CodepointTypes.Add(typeName, type);
         }
+
         return typeName;
     }
 

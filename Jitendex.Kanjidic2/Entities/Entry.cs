@@ -28,8 +28,6 @@ public sealed class Entry
 {
     [Key]
     public required int UnicodeScalarValue { get; init; }
-    public required DateOnly CreatedDate { get; init; }
-
     public List<CodepointGroup> CodepointGroups { get; init; } = [];
     public List<DictionaryGroup> DictionaryGroups { get; init; } = [];
     public List<MiscGroup> MiscGroups { get; init; } = [];
@@ -37,5 +35,6 @@ public sealed class Entry
     public List<RadicalGroup> RadicalGroups { get; init; } = [];
     public List<ReadingMeaningGroup> ReadingMeaningGroups { get; init; } = [];
 
-    public List<Revision> Revisions { get; init; } = [];
+    [ForeignKey(nameof(UnicodeScalarValue))]
+    public required Sequence Sequence { get; init; }
 }

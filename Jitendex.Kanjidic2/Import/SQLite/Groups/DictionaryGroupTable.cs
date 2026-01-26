@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.Groups;
 using Jitendex.Kanjidic2.Import.Models.Groups;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.Groups;
 
-internal sealed class DictionaryGroupTable : Table<DictionaryGroup>
+internal sealed class DictionaryGroupTable : Table<DictionaryGroupElement>
 {
     protected override string Name => nameof(DictionaryGroup);
 
@@ -39,9 +40,9 @@ internal sealed class DictionaryGroupTable : Table<DictionaryGroup>
         nameof(DictionaryGroup.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(DictionaryGroup group) =>
+    protected override SqliteParameter[] Parameters(DictionaryGroupElement group) =>
     [
-        new("@0", group.UnicodeScalarValue),
+        new("@0", group.EntryId),
         new("@1", group.Order),
     ];
 }

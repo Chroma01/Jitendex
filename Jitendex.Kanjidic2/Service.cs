@@ -34,7 +34,7 @@ public static class Service
 
         while (true)
         {
-            var (nextFile, _) = GetNextEdrdgFile(kanjidic2, previousDocument.FileHeader.Date, archiveDirectory);
+            var (nextFile, _) = GetNextEdrdgFile(kanjidic2, previousDocument.Header.Date, archiveDirectory);
 
             if (nextFile is null)
             {

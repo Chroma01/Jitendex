@@ -18,9 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Kanjidic2.Entities.GroupElements;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 
 namespace Jitendex.Kanjidic2.Entities.Groups;
 
@@ -30,9 +29,9 @@ public sealed class QueryCodeGroup
     public required int UnicodeScalarValue { get; init; }
     public required int Order { get; init; }
 
-    [JsonIgnore]
     [ForeignKey(nameof(UnicodeScalarValue))]
     public Entry Entry { get; init; } = null!;
 
+    [InverseProperty(nameof(QueryCode.Group))]
     public List<QueryCode> QueryCodes { get; init; } = [];
 }

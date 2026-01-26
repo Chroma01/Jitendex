@@ -19,11 +19,12 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
 
-internal sealed class VariantTable : Table<Variant>
+internal sealed class VariantTable : Table<VariantElement>
 {
     protected override string Name => nameof(Variant);
 
@@ -43,9 +44,9 @@ internal sealed class VariantTable : Table<Variant>
         nameof(Variant.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(Variant variant) =>
+    protected override SqliteParameter[] Parameters(VariantElement variant) =>
     [
-        new("@0", variant.UnicodeScalarValue),
+        new("@0", variant.EntryId),
         new("@1", variant.GroupOrder),
         new("@2", variant.Order),
         new("@3", variant.Text),

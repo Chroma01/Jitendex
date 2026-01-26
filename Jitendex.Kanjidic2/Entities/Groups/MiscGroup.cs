@@ -18,9 +18,8 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.Kanjidic2.Entities.GroupElements;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 
 namespace Jitendex.Kanjidic2.Entities.Groups;
 
@@ -33,11 +32,15 @@ public sealed class MiscGroup
     public int? Frequency { get; set; }
     public int? JlptLevel { get; set; }
 
-    [JsonIgnore]
     [ForeignKey(nameof(UnicodeScalarValue))]
     public Entry Entry { get; init; } = null!;
 
+    [InverseProperty(nameof(RadicalName.Group))]
     public List<RadicalName> RadicalNames { get; init; } = [];
+
+    [InverseProperty(nameof(StrokeCount.Group))]
     public List<StrokeCount> StrokeCounts { get; init; } = [];
+
+    [InverseProperty(nameof(Variant.Group))]
     public List<Variant> Variants { get; init; } = [];
 }

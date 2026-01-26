@@ -25,43 +25,43 @@ namespace Jitendex.Kanjidic2.Import.Models;
 
 internal sealed class Document
 {
-    public required FileHeader FileHeader { get; init; }
-    public Dictionary<int, Entry> Entries { get; init; }
+    public required DocumentHeader Header { get; init; }
+    public Dictionary<int, EntryElement> Entries { get; init; }
 
     #region Keywords
-    public Dictionary<string, CodepointType> CodepointTypes { get; init; } = [];
-    public Dictionary<string, DictionaryType> DictionaryTypes { get; init; } = [];
-    public Dictionary<string, QueryCodeType> QueryCodeTypes { get; init; } = [];
-    public Dictionary<string, MisclassificationType> MisclassificationTypes { get; init; } = [];
-    public Dictionary<string, RadicalType> RadicalTypes { get; init; } = [];
-    public Dictionary<string, ReadingType> ReadingTypes { get; init; } = [];
-    public Dictionary<string, VariantType> VariantTypes { get; init; } = [];
+    public Dictionary<string, CodepointTypeElement> CodepointTypes { get; init; } = [];
+    public Dictionary<string, DictionaryTypeElement> DictionaryTypes { get; init; } = [];
+    public Dictionary<string, QueryCodeTypeElement> QueryCodeTypes { get; init; } = [];
+    public Dictionary<string, MisclassificationTypeElement> MisclassificationTypes { get; init; } = [];
+    public Dictionary<string, RadicalTypeElement> RadicalTypes { get; init; } = [];
+    public Dictionary<string, ReadingTypeElement> ReadingTypes { get; init; } = [];
+    public Dictionary<string, VariantTypeElement> VariantTypes { get; init; } = [];
     #endregion
 
     #region Groups
-    public Dictionary<(int, int), CodepointGroup> CodepointGroups { get; init; }
-    public Dictionary<(int, int), DictionaryGroup> DictionaryGroups { get; init; }
-    public Dictionary<(int, int), MiscGroup> MiscGroups { get; init; }
-    public Dictionary<(int, int), QueryCodeGroup> QueryCodeGroups { get; init; }
-    public Dictionary<(int, int), RadicalGroup> RadicalGroups { get; init; }
-    public Dictionary<(int, int), ReadingMeaningGroup> ReadingMeaningGroups { get; init; }
+    public Dictionary<(int, int), CodepointGroupElement> CodepointGroups { get; init; }
+    public Dictionary<(int, int), DictionaryGroupElement> DictionaryGroups { get; init; }
+    public Dictionary<(int, int), MiscGroupElement> MiscGroups { get; init; }
+    public Dictionary<(int, int), QueryCodeGroupElement> QueryCodeGroups { get; init; }
+    public Dictionary<(int, int), RadicalGroupElement> RadicalGroups { get; init; }
+    public Dictionary<(int, int), ReadingMeaningGroupElement> ReadingMeaningGroups { get; init; }
     #endregion
 
     #region Group Elements
-    public Dictionary<(int, int, int), Codepoint> Codepoints { get; init; }
-    public Dictionary<(int, int, int), Dictionary> Dictionaries { get; init; }
-    public Dictionary<(int, int, int), Nanori> Nanoris { get; init; }
-    public Dictionary<(int, int, int), QueryCode> QueryCodes { get; init; }
-    public Dictionary<(int, int, int), Radical> Radicals { get; init; }
-    public Dictionary<(int, int, int), RadicalName> RadicalNames { get; init; }
-    public Dictionary<(int, int, int), ReadingMeaning> ReadingMeanings { get; init; }
-    public Dictionary<(int, int, int), StrokeCount> StrokeCounts { get; init; }
-    public Dictionary<(int, int, int), Variant> Variants { get; init; }
+    public Dictionary<(int, int, int), CodepointElement> Codepoints { get; init; }
+    public Dictionary<(int, int, int), DictionaryElement> Dictionaries { get; init; }
+    public Dictionary<(int, int, int), NanoriElement> Nanoris { get; init; }
+    public Dictionary<(int, int, int), QueryCodeElement> QueryCodes { get; init; }
+    public Dictionary<(int, int, int), RadicalElement> Radicals { get; init; }
+    public Dictionary<(int, int, int), RadicalNameElement> RadicalNames { get; init; }
+    public Dictionary<(int, int, int), ReadingMeaningElement> ReadingMeanings { get; init; }
+    public Dictionary<(int, int, int), StrokeCountElement> StrokeCounts { get; init; }
+    public Dictionary<(int, int, int), VariantElement> Variants { get; init; }
     #endregion
 
     #region Subgroup Elements
-    public Dictionary<(int, int, int, int), Meaning> Meanings { get; init; }
-    public Dictionary<(int, int, int, int), Reading> Readings { get; init; }
+    public Dictionary<(int, int, int, int), MeaningElement> Meanings { get; init; }
+    public Dictionary<(int, int, int, int), ReadingElement> Readings { get; init; }
     #endregion
 
     public Document(int expectedEntryCount = 13_200)
@@ -89,25 +89,32 @@ internal sealed class Document
         Readings = new(expectedEntryCount * 7);
     }
 
+    public IEnumerable<DocumentSequence> GetSequences()
+        => Entries.Select(e => new DocumentSequence
+        {
+            Id = e.Key,
+            CreatedDate = Header.Date,
+        });
+
     public IEnumerable<int> ConcatAllEntryIds()
         => Entries.Keys
-            .Concat(CodepointGroups.Keys.Select(static key => key.Item1))
-            .Concat(DictionaryGroups.Keys.Select(static key => key.Item1))
-            .Concat(MiscGroups.Keys.Select(static key => key.Item1))
-            .Concat(QueryCodeGroups.Keys.Select(static key => key.Item1))
-            .Concat(RadicalGroups.Keys.Select(static key => key.Item1))
-            .Concat(ReadingMeaningGroups.Keys.Select(static key => key.Item1))
+            .Concat(CodepointGroups.EntryIds())
+            .Concat(DictionaryGroups.EntryIds())
+            .Concat(MiscGroups.EntryIds())
+            .Concat(QueryCodeGroups.EntryIds())
+            .Concat(RadicalGroups.EntryIds())
+            .Concat(ReadingMeaningGroups.EntryIds())
 
-            .Concat(Codepoints.Keys.Select(static key => key.Item1))
-            .Concat(Dictionaries.Keys.Select(static key => key.Item1))
-            .Concat(Nanoris.Keys.Select(static key => key.Item1))
-            .Concat(QueryCodes.Keys.Select(static key => key.Item1))
-            .Concat(Radicals.Keys.Select(static key => key.Item1))
-            .Concat(RadicalNames.Keys.Select(static key => key.Item1))
-            .Concat(ReadingMeanings.Keys.Select(static key => key.Item1))
-            .Concat(StrokeCounts.Keys.Select(static key => key.Item1))
-            .Concat(Variants.Keys.Select(static key => key.Item1))
+            .Concat(Codepoints.EntryIds())
+            .Concat(Dictionaries.EntryIds())
+            .Concat(Nanoris.EntryIds())
+            .Concat(QueryCodes.EntryIds())
+            .Concat(Radicals.EntryIds())
+            .Concat(RadicalNames.EntryIds())
+            .Concat(ReadingMeanings.EntryIds())
+            .Concat(StrokeCounts.EntryIds())
+            .Concat(Variants.EntryIds())
 
-            .Concat(Meanings.Keys.Select(static key => key.Item1))
-            .Concat(Readings.Keys.Select(static key => key.Item1));
+            .Concat(Meanings.EntryIds())
+            .Concat(Readings.EntryIds());
 }
