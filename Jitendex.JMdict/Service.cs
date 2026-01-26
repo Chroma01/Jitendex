@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Parsing;
 using Jitendex.JMdict.Import.SQLite;
