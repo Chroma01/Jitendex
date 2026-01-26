@@ -17,8 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Immutable;
-
 namespace Jitendex.Tatoeba.Import.Parsing;
 
 internal readonly ref struct ExampleText
@@ -105,8 +103,8 @@ internal readonly ref struct ExampleText
         }
     }
 
-    public ImmutableArray<Range> ElementTextRanges()
-        => [.. _lineB.Split(' ')];
+    public MemoryExtensions.SpanSplitEnumerator<char> ElementTextRanges()
+        => _lineB.Split(' ');
 
     public IndexElementText GetElementText(Range range)
         => new(_lineB[range]);
