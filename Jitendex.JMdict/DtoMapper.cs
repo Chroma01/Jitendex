@@ -110,7 +110,7 @@ public static class DtoMapper
                 .ToList(),
             Glosses = sense.Glosses
                 .OrderBy(static gloss => gloss.Order)
-                .Select(static gloss => new GlossDto(gloss.TypeName, gloss.Text))
+                .Select(static gloss => new GlossDto(gloss.Text, gloss.TypeName))
                 .ToList(),
             KanjiFormRestrictions = sense.KanjiFormRestrictions
                 .OrderBy(static rstr => rstr.Order)
