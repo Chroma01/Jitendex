@@ -227,6 +227,7 @@ internal static class Database
                 var baDiff = JsonDiffer.Diff(a: bSeq, b: aSeq);
                 seq.Revisions.Add(new()
                 {
+                    Id = default,  // Auto-incremented ID
                     SequenceId = seq.Id,
                     Number = seq.Revisions.Count,
                     CreatedDate = diff.FileHeader.Date,

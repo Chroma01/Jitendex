@@ -17,15 +17,18 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jitendex.JMdict.Entities;
 
 [Table(nameof(Revision))]
-[PrimaryKey(nameof(SequenceId), nameof(Number))]
+[Index(nameof(SequenceId), nameof(Number), IsUnique = true)]
 public sealed class Revision
 {
+    [Key]
+    public required int Id { get; init; }
     public required int SequenceId { get; init; }
     public required int Number { get; init; }
     public required DateOnly CreatedDate { get; init; }
