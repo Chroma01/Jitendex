@@ -33,17 +33,13 @@ internal abstract partial class BaseReader<T> where T : BaseReader<T>
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
-    protected partial void UnexpectedChildElement(string tagName, string parentTagName);
+    protected partial void LogUnexpectedChildElement(string tagName, string parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
-    protected partial void UnexpectedTextNode(string tagName, string text);
+    protected partial void LogUnexpectedTextNode(string tagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
     "XML document type `{Entity}` was not defined in DTD preamble")]
     protected partial void LogMissingEntityDefinition(string entity);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Entry {EntryId} <{ParentTagName}> #{Order} contains more than one <{TagName}> element with value `{Text}`")]
-    protected partial void DuplicateTag(int entryId, string parentTagName, int order, string text, string tagName);
 }

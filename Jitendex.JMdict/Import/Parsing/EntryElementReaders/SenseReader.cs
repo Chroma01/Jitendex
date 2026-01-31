@@ -61,7 +61,7 @@ internal partial class SenseReader : BaseReader<SenseReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    UnexpectedTextNode(SenseElement.XmlTagName, text);
+                    LogUnexpectedTextNode(SenseElement.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == SenseElement.XmlTagName;
@@ -111,7 +111,7 @@ internal partial class SenseReader : BaseReader<SenseReader>
                 await _xmlReader.SkipAsync();
                 break;
             default:
-                UnexpectedChildElement(_xmlReader.Name, SenseElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, SenseElement.XmlTagName);
                 break;
         }
     }

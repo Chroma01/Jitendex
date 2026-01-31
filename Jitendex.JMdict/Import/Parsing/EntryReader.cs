@@ -56,7 +56,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    UnexpectedTextNode(EntryElement.XmlTagName, text);
+                    LogUnexpectedTextNode(EntryElement.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == EntryElement.XmlTagName;
@@ -106,7 +106,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
                 await _senseReader.ReadAsync(document, entry);
                 break;
             default:
-                UnexpectedChildElement(_xmlReader.Name, EntryElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, EntryElement.XmlTagName);
                 break;
         }
     }

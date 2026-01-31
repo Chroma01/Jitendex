@@ -59,7 +59,7 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    UnexpectedTextNode(ReadingElement.XmlTagName, text);
+                    LogUnexpectedTextNode(ReadingElement.XmlTagName, text);
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == ReadingElement.XmlTagName;
@@ -97,7 +97,7 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
                 await _priorityReader.ReadAsync(document, reading);
                 break;
             default:
-                UnexpectedChildElement(_xmlReader.Name, ReadingElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, ReadingElement.XmlTagName);
                 break;
         }
     }
