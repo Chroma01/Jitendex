@@ -40,6 +40,10 @@ internal abstract partial class BaseReader<T> where T : BaseReader<T>
     protected partial void UnexpectedTextNode(string tagName, string text);
 
     [LoggerMessage(LogLevel.Warning,
+    "XML document type `{Entity}` was not defined in DTD preamble")]
+    protected partial void LogMissingEntityDefinition(string entity);
+
+    [LoggerMessage(LogLevel.Warning,
     "Entry {EntryId} <{ParentTagName}> #{Order} contains more than one <{TagName}> element with value `{Text}`")]
     protected partial void DuplicateTag(int entryId, string parentTagName, int order, string text, string tagName);
 }

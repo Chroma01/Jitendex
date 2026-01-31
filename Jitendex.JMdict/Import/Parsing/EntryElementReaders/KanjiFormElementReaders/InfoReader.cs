@@ -36,7 +36,8 @@ internal class KInfoReader : BaseReader<KInfoReader>
         if (!document.KeywordDescriptionToName.TryGetValue(description, out var tagName))
         {
             tagName = description;
-            // TODO: Log missing tag name
+            document.KeywordDescriptionToName[description] = description;
+            LogMissingEntityDefinition(description);
         }
 
         if (!document.KanjiFormInfoTags.ContainsKey(tagName))

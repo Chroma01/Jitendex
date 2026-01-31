@@ -36,7 +36,8 @@ internal class FieldReader : BaseReader<FieldReader>
         if (!document.KeywordDescriptionToName.TryGetValue(description, out var tagName))
         {
             tagName = description;
-            // TODO: Log missing tag name
+            document.KeywordDescriptionToName[description] = description;
+            LogMissingEntityDefinition(description);
         }
 
         if (!document.FieldTags.ContainsKey(tagName))
