@@ -36,7 +36,7 @@ internal sealed class CrossReferenceTable : Table<CrossReferenceElement>
         nameof(CrossReference.TypeName),
         nameof(CrossReference.RefText1),
         nameof(CrossReference.RefText2),
-        nameof(CrossReference.RefSenseOrder),
+        nameof(CrossReference.RefSenseNumber),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
@@ -54,6 +54,6 @@ internal sealed class CrossReferenceTable : Table<CrossReferenceElement>
         new("@3", xref.TypeName),
         new("@4", xref.RefText1),
         new("@5", xref.RefText2.Nullable()),
-        new("@6", xref.RefSenseOrder),
+        new("@6", xref.RefSenseNumber),
     ];
 }

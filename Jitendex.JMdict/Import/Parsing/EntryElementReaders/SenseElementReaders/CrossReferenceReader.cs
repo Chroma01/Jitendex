@@ -27,9 +27,7 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
 {
-   public CrossReferenceReader(ILogger<CrossReferenceReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
-
-    private record ParsedReference(string Text1, string? Text2, int SenseOrder);
+    public CrossReferenceReader(ILogger<CrossReferenceReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
     public async Task ReadAsync(Document document, SenseElement sense)
     {
@@ -55,36 +53,38 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
             TypeName = typeName,
             RefText1 = parsedRef.Text1,
             RefText2 = parsedRef.Text2,
-            RefSenseOrder = parsedRef.SenseOrder,
+            RefSenseNumber = parsedRef.SenseNumber,
         };
 
         document.CrossReferences.Add(xref.Key(), xref);
     }
 
+    private record ParsedReference(string Text1, string? Text2, int SenseNumber);
+
     private ParsedReference? Parse(string text)
     {
         const char separator = '・';
         var split = text.Split(separator);
-        (string, string?, int) parsed;
+        ParsedReference parsed;
         switch (split.Length)
         {
             case 1:
-                parsed = (split[0], null, 1);
+                parsed = new(split[0], null, 1);
                 break;
             case 2:
                 if (int.TryParse(split[1], out int x))
                 {
-                    parsed = (split[0], null, x);
+                    parsed = new(split[0], null, x);
                 }
                 else
                 {
-                    parsed = (split[0], split[1], 1);
+                    parsed = new(split[0], split[1], 1);
                 }
                 break;
             case 3:
                 if (int.TryParse(split[2], out int y))
                 {
-                    parsed = (split[0], split[1], y);
+                    parsed = new(split[0], split[1], y);
                 }
                 else
                 {
@@ -96,7 +96,7 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
                 LogTooManySeparators(text, separator);
                 return null;
         }
-        return new ParsedReference(parsed.Item1, parsed.Item2, parsed.Item3);
+        return parsed;
     }
 
     [LoggerMessage(LogLevel.Error,

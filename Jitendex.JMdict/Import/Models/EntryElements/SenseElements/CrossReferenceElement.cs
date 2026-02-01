@@ -28,7 +28,7 @@ internal sealed record CrossReferenceElement
 
     public required string RefText1 { get; init; }
     public required string? RefText2 { get; init; }
-    public required int RefSenseOrder { get; init; }
+    public required int RefSenseNumber { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
 
