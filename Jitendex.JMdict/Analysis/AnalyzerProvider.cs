@@ -40,6 +40,7 @@ internal static class AnalyzerProvider
 
         // Analysis units
         .AddTransient<ReferenceSequencer>()
+        .AddTransient<ReadingBridger>()
 
         // Build and return the service
         .AddTransient<Analyzer>()

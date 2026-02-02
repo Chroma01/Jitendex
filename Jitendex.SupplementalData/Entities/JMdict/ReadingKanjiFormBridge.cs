@@ -16,15 +16,16 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.SQLite;
-using Jitendex.SupplementalData.Entities.JMdict;
 
-namespace Jitendex.SupplementalData;
+namespace Jitendex.SupplementalData.Entities.JMdict;
 
-public class SupplementContext : SqliteContext
+[Table(nameof(ReadingKanjiFormBridge))]
+[PrimaryKey(nameof(SequenceId), nameof(ReadingOrder), nameof(KanjiFormOrder))]
+public sealed class ReadingKanjiFormBridge
 {
-    public DbSet<CrossReferenceSequence> CrossReferenceSequences { get; set; } = null!;
-    public DbSet<ReadingKanjiFormBridge> ReadingKanjiFormBridges { get; set; } = null!;
-    public SupplementContext() : base("supplemental_data.db") { }
+    public required int SequenceId { get; init; }
+    public required int ReadingOrder { get; init; }
+    public required int KanjiFormOrder { get; init; }
 }

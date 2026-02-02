@@ -25,12 +25,15 @@ internal partial class Analyzer
 {
     private readonly ILogger<Analyzer> _logger;
     private readonly ReferenceSequencer _referenceSequencer;
-    public Analyzer(ILogger<Analyzer> logger, ReferenceSequencer referenceSequencer) =>
-        (_logger, _referenceSequencer) =
-        (@logger, @referenceSequencer);
+    private readonly ReadingBridger _readingBridger;
+
+    public Analyzer(ILogger<Analyzer> logger, ReferenceSequencer referenceSequencer, ReadingBridger readingBridger) =>
+        (_logger, _referenceSequencer, _readingBridger) =
+        (@logger, @referenceSequencer, @readingBridger);
 
     public void Analyze()
     {
         _referenceSequencer.FindCrossReferenceSequenceIds();
+        _readingBridger.BridgeReadingsToKanjiForms();
     }
 }
