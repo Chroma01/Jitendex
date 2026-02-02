@@ -23,7 +23,6 @@ using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
 using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
-
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
 internal partial class ReadingRestrictionReader : BaseReader<ReadingRestrictionReader>

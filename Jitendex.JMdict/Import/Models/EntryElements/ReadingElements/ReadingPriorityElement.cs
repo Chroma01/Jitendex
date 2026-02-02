@@ -27,6 +27,4 @@ internal sealed record ReadingPriorityElement
     public required string TagName { get; init; }
 
     public (int, int, int) Key() => (EntryId, ReadingOrder, Order);
-
-    public const string XmlTagName = "re_pri";
 }

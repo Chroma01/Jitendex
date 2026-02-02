@@ -26,7 +26,4 @@ internal sealed record KanjiFormElement
     public required string Text { get; set; }
 
     public (int, int) Key() => (EntryId, Order);
-
-    public const string XmlTagName = "k_ele";
-    public const string Text_XmlTagName = "keb";
 }

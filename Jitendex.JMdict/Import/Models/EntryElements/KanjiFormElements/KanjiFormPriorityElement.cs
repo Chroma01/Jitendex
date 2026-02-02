@@ -27,6 +27,4 @@ internal sealed record KanjiFormPriorityElement
     public required string TagName { get; init; }
 
     public (int, int, int) Key() => (EntryId, KanjiFormOrder, Order);
-
-    public const string XmlTagName = "ke_pri";
 }

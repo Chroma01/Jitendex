@@ -27,6 +27,4 @@ internal sealed record RestrictionElement
     public required string KanjiFormText { get; init; }
 
     public (int, int, int) Key() => (EntryId, ReadingOrder, Order);
-
-    public const string XmlTagName = "re_restr";
 }

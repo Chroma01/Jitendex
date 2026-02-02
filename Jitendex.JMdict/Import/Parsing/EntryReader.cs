@@ -20,7 +20,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
-using Jitendex.JMdict.Import.Models.EntryElements;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders;
 
 namespace Jitendex.JMdict.Import.Parsing;
@@ -56,17 +55,17 @@ internal partial class EntryReader : BaseReader<EntryReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(EntryElement.XmlTagName, text);
+                    LogUnexpectedTextNode(XmlTagName.Entry, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == EntryElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.Entry;
                     break;
             }
         }
 
         if (entry.Id.Equals(default))
         {
-            LogMissingEntryId(EntryElement.Id_XmlTagName);
+            LogMissingEntryId(XmlTagName.Sequence);
         }
         else if (entry.IsJmdictEntry())
         {
@@ -78,7 +77,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
     {
         if (entry.Id.Equals(default))
         {
-            if (string.Equals(_xmlReader.Name, EntryElement.Id_XmlTagName, StringComparison.Ordinal))
+            if (string.Equals(_xmlReader.Name, XmlTagName.Sequence, StringComparison.Ordinal))
             {
                 await ReadEntryId(entry);
             }
@@ -96,17 +95,17 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
         switch (_xmlReader.Name)
         {
-            case KanjiFormElement.XmlTagName:
+            case XmlTagName.KanjiForm:
                 await _kanjiFormReader.ReadAsync(document, entry);
                 break;
-            case ReadingElement.XmlTagName:
+            case XmlTagName.Reading:
                 await _readingReader.ReadAsync(document, entry);
                 break;
-            case SenseElement.XmlTagName:
+            case XmlTagName.Sense:
                 await _senseReader.ReadAsync(document, entry);
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, EntryElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Entry);
                 break;
         }
     }

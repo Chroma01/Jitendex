@@ -27,6 +27,4 @@ internal sealed record ReadingRestrictionElement
     public required string ReadingText { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
-
-    public const string XmlTagName = "stagr";
 }

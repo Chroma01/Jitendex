@@ -31,7 +31,4 @@ internal sealed record CrossReferenceElement
     public required int RefSenseNumber { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
-
-    public const string XmlTagName = "xref";
-    public const string XmlTagName_Antonym = "ant";
 }

@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders;
@@ -59,10 +58,10 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(ReadingElement.XmlTagName, text);
+                    LogUnexpectedTextNode(XmlTagName.Reading, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == ReadingElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.Reading;
                     break;
             }
         }
@@ -73,7 +72,7 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
         }
         else
         {
-            LogMissingElement(reading.EntryId, reading.Order, ReadingElement.Text_XmlTagName);
+            LogMissingElement(reading.EntryId, reading.Order, XmlTagName.ReadingText);
         }
     }
 
@@ -81,23 +80,23 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
     {
         switch (_xmlReader.Name)
         {
-            case ReadingElement.Text_XmlTagName:
+            case XmlTagName.ReadingText:
                 await ReadReadingText(reading);
                 break;
-            case ReadingElement.NoKanji_XmlTagName:
+            case XmlTagName.ReadingNoKanji:
                 reading.NoKanji = true;
                 break;
-            case RestrictionElement.XmlTagName:
+            case XmlTagName.ReadingRestriction:
                 await _restrictionReader.ReadAsync(document, reading);
                 break;
-            case ReadingInfoElement.XmlTagName:
+            case XmlTagName.ReadingInfo:
                 await _infoReader.ReadAsync(document, reading);
                 break;
-            case ReadingPriorityElement.XmlTagName:
+            case XmlTagName.ReadingPriority:
                 await _priorityReader.ReadAsync(document, reading);
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, ReadingElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Reading);
                 break;
         }
     }
@@ -106,7 +105,7 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
     {
         if (reading.Text is not null)
         {
-            LogMultipleElements(reading.EntryId, reading.Order, ReadingElement.Text_XmlTagName);
+            LogMultipleElements(reading.EntryId, reading.Order, XmlTagName.ReadingText);
         }
 
         reading.Text = await _xmlReader.ReadElementContentAsStringAsync();

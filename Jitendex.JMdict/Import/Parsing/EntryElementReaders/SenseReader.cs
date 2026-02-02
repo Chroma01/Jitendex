@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders;
@@ -61,10 +60,10 @@ internal partial class SenseReader : BaseReader<SenseReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(SenseElement.XmlTagName, text);
+                    LogUnexpectedTextNode(XmlTagName.Sense, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == SenseElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.Sense;
                     break;
             }
         }
@@ -76,42 +75,42 @@ internal partial class SenseReader : BaseReader<SenseReader>
     {
         switch (_xmlReader.Name)
         {
-            case KanjiFormRestrictionElement.XmlTagName:
+            case XmlTagName.SenseKanjiFormRestriction:
                 await _kRestrictionReader.ReadAsync(document, sense);
                 break;
-            case ReadingRestrictionElement.XmlTagName:
+            case XmlTagName.SenseReadingRestriction:
                 await _rRestrictionReader.ReadAsync(document, sense);
                 break;
-            case GlossElement.XmlTagName:
+            case XmlTagName.Gloss:
                 await _glossReader.ReadAsync(document, sense);
                 break;
-            case PartOfSpeechElement.XmlTagName:
+            case XmlTagName.PartOfSpeech:
                 await _partOfSpeechReader.ReadAsync(document, sense);
                 break;
-            case FieldElement.XmlTagName:
+            case XmlTagName.Field:
                 await _fieldReader.ReadAsync(document, sense);
                 break;
-            case MiscElement.XmlTagName:
+            case XmlTagName.Misc:
                 await _miscReader.ReadAsync(document, sense);
                 break;
-            case DialectElement.XmlTagName:
+            case XmlTagName.Dialect:
                 await _dialectReader.ReadAsync(document, sense);
                 break;
-            case LanguageSourceElement.XmlTagName:
+            case XmlTagName.LanguageSource:
                 await _languageSourceReader.ReadAsync(document, sense);
                 break;
-            case CrossReferenceElement.XmlTagName:
-            case CrossReferenceElement.XmlTagName_Antonym:
+            case XmlTagName.CrossReference:
+            case XmlTagName.Antonym:
                 await _crossReferenceReader.ReadAsync(document, sense);
                 break;
-            case SenseElement.Note_XmlTagName:
+            case XmlTagName.SenseNote:
                 await ReadSenseNote(sense);
                 break;
-            case "example":
+            case XmlTagName.Example:
                 await _xmlReader.SkipAsync();
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, SenseElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Sense);
                 break;
         }
     }

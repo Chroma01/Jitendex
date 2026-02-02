@@ -31,6 +31,4 @@ internal sealed record LanguageSourceElement
     public required bool IsWasei { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
-
-    public const string XmlTagName = "lsource";
 }

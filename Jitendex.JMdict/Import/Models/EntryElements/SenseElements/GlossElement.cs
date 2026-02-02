@@ -29,6 +29,4 @@ internal sealed record GlossElement
     public required string Text { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
-
-    public const string XmlTagName = "gloss";
 }

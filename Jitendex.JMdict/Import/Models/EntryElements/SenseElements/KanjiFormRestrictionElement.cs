@@ -27,6 +27,4 @@ internal sealed record KanjiFormRestrictionElement
     public required string KanjiFormText { get; init; }
 
     public (int, int, int) Key() => (EntryId, SenseOrder, Order);
-
-    public const string XmlTagName = "stagk";
 }

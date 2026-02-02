@@ -28,7 +28,4 @@ internal sealed record EntryElement
         >= 1_000_000 and <= 3_000_000 => true,
         _ => false,
     };
-
-    public const string XmlTagName = "entry";
-    public const string Id_XmlTagName = "ent_seq";
 }

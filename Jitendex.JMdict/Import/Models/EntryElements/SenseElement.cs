@@ -26,7 +26,4 @@ internal sealed record SenseElement
     public string? Note { get; set; }
 
     public (int, int) Key() => (EntryId, Order);
-
-    public const string XmlTagName = "sense";
-    public const string Note_XmlTagName = "s_inf";
 }

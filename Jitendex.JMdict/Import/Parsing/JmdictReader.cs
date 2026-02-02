@@ -49,7 +49,7 @@ internal partial class JmdictReader : BaseReader<JmdictReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    if (_xmlReader.Name == "JMdict")
+                    if (_xmlReader.Name == XmlTagName.Jmdict)
                     {
                         await _entriesReader.ReadAsync(document);
                     }
@@ -59,7 +59,7 @@ internal partial class JmdictReader : BaseReader<JmdictReader>
                     LogUnexpectedTextNode(text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == "JMdict";
+                    exit = _xmlReader.Name == XmlTagName.Jmdict;
                     break;
             }
         }

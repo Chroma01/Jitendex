@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.KanjiFormElements;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementReaders;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders;
@@ -54,10 +53,10 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
                     break;
                 case XmlNodeType.Text:
                     var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(KanjiFormElement.XmlTagName, text);
+                    LogUnexpectedTextNode(XmlTagName.KanjiForm, text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == KanjiFormElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.KanjiForm;
                     break;
             }
         }
@@ -68,7 +67,7 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
         }
         else
         {
-            LogMissingElement(kanjiForm.EntryId, kanjiForm.Order, KanjiFormElement.Text_XmlTagName);
+            LogMissingElement(kanjiForm.EntryId, kanjiForm.Order, XmlTagName.KanjiFormText);
         }
     }
 
@@ -76,17 +75,17 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
     {
         switch (_xmlReader.Name)
         {
-            case KanjiFormElement.Text_XmlTagName:
+            case XmlTagName.KanjiFormText:
                 await ReadKanjiFormText(kanjiForm);
                 break;
-            case KanjiFormInfoElement.XmlTagName:
+            case XmlTagName.KanjiFormInfo:
                 await _infoReader.ReadAsync(document, kanjiForm);
                 break;
-            case KanjiFormPriorityElement.XmlTagName:
+            case XmlTagName.KanjiFormPriority:
                 await _priorityReader.ReadAsync(document, kanjiForm);
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, KanjiFormElement.XmlTagName);
+                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.KanjiForm);
                 break;
         }
     }
@@ -95,7 +94,7 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
     {
         if (kanjiForm.Text is not null)
         {
-            LogMultipleElements(kanjiForm.EntryId, kanjiForm.Order, KanjiFormElement.Text_XmlTagName);
+            LogMultipleElements(kanjiForm.EntryId, kanjiForm.Order, XmlTagName.KanjiFormText);
         }
 
         kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();

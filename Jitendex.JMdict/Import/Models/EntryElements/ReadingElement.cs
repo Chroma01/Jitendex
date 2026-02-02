@@ -27,8 +27,4 @@ internal sealed record ReadingElement
     public required bool NoKanji { get; set; }
 
     public (int, int) Key() => (EntryId, Order);
-
-    public const string XmlTagName = "r_ele";
-    public const string Text_XmlTagName = "reb";
-    public const string NoKanji_XmlTagName = "re_nokanji";
 }
