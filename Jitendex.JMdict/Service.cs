@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.JMdict.Analysis;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Parsing;
 using Jitendex.JMdict.Import.SQLite;
@@ -28,6 +29,14 @@ namespace Jitendex.JMdict;
 public static class Service
 {
     public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
+    {
+        await UpdateJmdictDatabaseAsync(archiveDirectory);
+
+        var analyzer = AnalyzerProvider.GetAnalyzer();
+        analyzer.Analyze();
+    }
+
+    private static async Task UpdateJmdictDatabaseAsync(DirectoryInfo? archiveDirectory)
     {
         var previousDate = GetPreviousDate();
         var previousDocument = await GetPreviousDocumentAsync(previousDate, archiveDirectory);

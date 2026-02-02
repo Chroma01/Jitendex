@@ -35,33 +35,31 @@ internal sealed class CrossReferenceSequencesService
         var dictionary = _context.CrossReferenceSequences
             .Select(static x => new KeyValuePair<string, int?>
             (
-                key: x.RefText2 == string.Empty
-                    ? $"{x.SequenceId}・{x.SenseNumber}・{x.RefText1}・{x.RefSenseNumber}"
-                    : $"{x.SequenceId}・{x.SenseNumber}・{x.RefText1}【{x.RefText2}】・{x.RefSenseNumber}",
+                key: x.ToExportKey(),
                 value: x.RefSequenceId
             ))
             .ToDictionary();
-        await using var stream = File.OpenWrite(GetJsonFilePath(dataDir));
-        await JsonSerializer.SerializeAsync(stream, dictionary, GetJsonSerializerOptions());
+
+        await WriteJsonDictionaryAsync(dataDir, dictionary);
     }
 
     public async Task ImportAsync(DirectoryInfo? dataDir)
     {
-        var dictionary = await LoadJsonDictionaryAsync(dataDir);
+        var dictionary = await ReadJsonDictionaryAsync(dataDir);
 
         using var transaction = _context.Database.BeginTransaction();
         _context.CrossReferenceSequences.ExecuteDelete();
 
         foreach (var (key, value) in dictionary)
         {
-            var (sequenceId, senseNumber, refText1, refText2, refSenseNumber) = ParseKey(key);
+            var parsedKey = CrossReferenceSequenceKeyParser.ParseKey(key);
             _context.CrossReferenceSequences.Add(new()
             {
-                SequenceId = sequenceId,
-                SenseNumber = senseNumber,
-                RefText1 = refText1,
-                RefText2 = refText2 ?? string.Empty,
-                RefSenseNumber = refSenseNumber,
+                SequenceId = parsedKey.SequenceId,
+                SenseNumber = parsedKey.SenseNumber,
+                RefText1 = parsedKey.RefText1,
+                RefText2 = parsedKey.RefText2 ?? string.Empty,
+                RefSenseNumber = parsedKey.RefSenseNumber,
                 RefSequenceId = value,
             });
         }
@@ -70,11 +68,18 @@ internal sealed class CrossReferenceSequencesService
         transaction.Commit();
     }
 
-    private async Task<Dictionary<string, int?>> LoadJsonDictionaryAsync(DirectoryInfo? dataDir)
+    private async Task<Dictionary<string, int?>> ReadJsonDictionaryAsync(DirectoryInfo? dataDir)
     {
         var filePath = GetJsonFilePath(dataDir);
         await using var stream = File.OpenRead(filePath);
         return await JsonSerializer.DeserializeAsync<Dictionary<string, int?>>(stream) ?? [];
+    }
+
+    private async Task WriteJsonDictionaryAsync(DirectoryInfo? dataDir, Dictionary<string, int?> dictionary)
+    {
+        var filePath = GetJsonFilePath(dataDir);
+        await using var stream = File.OpenWrite(filePath);
+        await JsonSerializer.SerializeAsync(stream, dictionary, GetJsonSerializerOptions());
     }
 
     private string GetJsonFilePath(DirectoryInfo? dataDir)
@@ -83,14 +88,24 @@ internal sealed class CrossReferenceSequencesService
         return Path.Join(dataDir.FullName, "jmdict", "cross_reference_sequences.json");
     }
 
-    private static (int, int, string, string?, int) ParseKey(string key)
+    private static JsonSerializerOptions GetJsonSerializerOptions() => new()
+    {
+        WriteIndented = true,
+        IndentSize = 4,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
+}
+
+internal static class CrossReferenceSequenceKeyParser
+{
+    public static ParsedKey ParseKey(string key)
     {
         var splitKey = key.Split('・');
         var sequenceId = int.Parse(splitKey[0]);
         var senseNumber = int.Parse(splitKey[1]);
         var (refText1, refText2) = ParseText(splitKey[2]);
         var refSenseNumber = int.Parse(splitKey[3]);
-        return (sequenceId, senseNumber, refText1, refText2, refSenseNumber);
+        return new ParsedKey(sequenceId, senseNumber, refText1, refText2, refSenseNumber);
     }
 
     private static (string, string?) ParseText(string text)
@@ -109,10 +124,5 @@ internal sealed class CrossReferenceSequencesService
         return (refText1, refText2);
     }
 
-    private static JsonSerializerOptions GetJsonSerializerOptions() => new()
-    {
-        WriteIndented = true,
-        IndentSize = 4,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
+    public record ParsedKey(int SequenceId, int SenseNumber, string RefText1, string? RefText2, int RefSenseNumber);
 }

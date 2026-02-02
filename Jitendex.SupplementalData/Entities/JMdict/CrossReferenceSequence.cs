@@ -31,4 +31,9 @@ public sealed class CrossReferenceSequence
     public required string RefText2 { get; init; }
     public required int RefSenseNumber { get; init; }
     public required int? RefSequenceId { get; init; }
+
+    public string ToExportKey()
+        => RefText2 == string.Empty
+            ? $"{SequenceId}・{SenseNumber}・{RefText1}・{RefSenseNumber}"
+            : $"{SequenceId}・{SenseNumber}・{RefText1}【{RefText2}】・{RefSenseNumber}";
 }

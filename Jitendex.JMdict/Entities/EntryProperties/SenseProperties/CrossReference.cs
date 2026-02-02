@@ -44,7 +44,7 @@ public sealed class CrossReference
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.
     /// </summary>
-    public string RawKey() => RefText2 is null ?
+    public string ToExportKey() => RefText2 is null ?
         $"{EntryId}・{SenseOrder + 1}・{RefText1}・{RefSenseNumber}" :
         $"{EntryId}・{SenseOrder + 1}・{RefText1}【{RefText2}】・{RefSenseNumber}";
 

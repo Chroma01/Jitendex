@@ -32,8 +32,8 @@ namespace Jitendex.JMdict.Import.Parsing;
 internal static class ReaderProvider
 {
     public static JmdictReader GetReader(FileInfo jmdictFile) => new ServiceCollection()
-        .AddLogging(builder =>
-            builder.AddSimpleConsole(options =>
+        .AddLogging(static builder =>
+            builder.AddSimpleConsole(static options =>
             {
                 options.IncludeScopes = true;
                 options.SingleLine = true;
