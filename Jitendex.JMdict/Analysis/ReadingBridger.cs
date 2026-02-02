@@ -37,8 +37,8 @@ internal partial class ReadingBridger
         (_logger, _jmdictContext, _supplementContext) =
         (@logger, @jmdictContext, @supplementContext);
 
-    private readonly record struct ReadingInfo(int Order, string Text, bool NoKanji, bool IsHidden, ImmutableArray<string> Restrictions);
-    private readonly record struct KanjiFormInfo(int Order, string Text);
+    private readonly record struct ReadingData(int Order, string Text, bool NoKanji, bool IsHidden, ImmutableArray<string> Restrictions);
+    private readonly record struct KanjiFormData(int Order, string Text);
     private readonly record struct Bridge(int EntryId, int ReadingOrder, int KanjiFormOrder);
 
     public void BridgeReadingsToKanjiForms()
@@ -55,17 +55,21 @@ internal partial class ReadingBridger
             {
                 e.Id,
                 Readings = e.Readings
-                    .Select(static r => new ReadingInfo
+                    .Select(static r => new ReadingData
                     (
                         r.Order,
                         r.Text,
                         r.NoKanji,
-                        IsHidden: r.Infos.Select(static i => i.TagName).Any(static t => t == "sk"),
-                        Restrictions: r.Restrictions.Select(static x => x.KanjiFormText).ToImmutableArray()
+                        IsHidden: r.Infos
+                            .Select(static i => i.TagName)
+                            .Any(static t => t == "sk"),
+                        Restrictions: r.Restrictions
+                            .Select(static x => x.KanjiFormText)
+                            .ToImmutableArray()
                     )),
                 KanjiFormInfos = e.KanjiForms
-                    .Where(static k => !k.Infos.Any(static i => i.TagName == "sK"))
-                    .Select(static k => new KanjiFormInfo(k.Order, k.Text))
+                    .Where(static k => k.Infos.All(static i => i.TagName != "sK"))
+                    .Select(static k => new KanjiFormData(k.Order, k.Text))
                     .ToImmutableArray(),
             });
 
@@ -99,7 +103,7 @@ internal partial class ReadingBridger
         return bridges;
     }
 
-    private int[] GetRestrictionOrders(int entryId, in ReadingInfo reading, in ImmutableArray<KanjiFormInfo> kanjiForms)
+    private int[] GetRestrictionOrders(int entryId, in ReadingData reading, in ImmutableArray<KanjiFormData> kanjiForms)
     {
         var restrictions = reading.Restrictions;
         var orders = kanjiForms
@@ -115,7 +119,7 @@ internal partial class ReadingBridger
         return orders;
     }
 
-    private void CheckForRedundancies(int entryId, int visibleKanjiFormCount, in ReadingInfo reading)
+    private void CheckForRedundancies(int entryId, int visibleKanjiFormCount, in ReadingData reading)
     {
         // A reading shouldn't have both [NoKanji] and restrictions.
         int count0 = (reading.NoKanji ? 1 : 0) + (reading.Restrictions.Length > 0 ? 1 : 0);
