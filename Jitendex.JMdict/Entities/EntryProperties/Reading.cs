@@ -19,9 +19,9 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Jitendex.JMdict.Entities.EntryProperties.ReadingProperties;
+using Jitendex.JMdict.Entities.EntryItems.ReadingItems;
 
-namespace Jitendex.JMdict.Entities.EntryProperties;
+namespace Jitendex.JMdict.Entities.EntryItems;
 
 [Table(nameof(Reading))]
 [PrimaryKey(nameof(EntryId), nameof(Order))]

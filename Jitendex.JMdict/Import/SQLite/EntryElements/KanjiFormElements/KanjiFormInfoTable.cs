@@ -19,7 +19,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.JMdict.Entities.EntryProperties.KanjiFormProperties;
+using Jitendex.JMdict.Entities.EntryItems.KanjiFormItems;
 using Jitendex.JMdict.Import.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.KanjiFormElements;

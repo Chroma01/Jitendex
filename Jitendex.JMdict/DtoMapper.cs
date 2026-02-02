@@ -21,7 +21,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Dto.JMdict;
 using Jitendex.JMdict.Entities;
-using Jitendex.JMdict.Entities.EntryProperties;
+using Jitendex.JMdict.Entities.EntryItems;
 
 namespace Jitendex.JMdict;
 

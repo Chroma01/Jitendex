@@ -20,22 +20,22 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Jitendex.JMdict.Entities.EntryProperties.ReadingProperties;
+namespace Jitendex.JMdict.Entities.EntryItems.KanjiFormItems;
 
-[Table(nameof(ReadingPriority))]
-[PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]
-public sealed class ReadingPriority
+[Table(nameof(KanjiFormPriority))]
+[PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
+public sealed class KanjiFormPriority
 {
     public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
+    public required int KanjiFormOrder { get; set; }
     public required int Order { get; set; }
     public required string TagName { get; set; }
 
-    [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public Reading Reading { get; set; } = null!;
+    [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
+    public KanjiForm KanjiForm { get; set; } = null!;
 
     [ForeignKey(nameof(TagName))]
     public PriorityTag Tag { get; set; } = null!;
 
-    public (int, int) ParentKey() => (EntryId, ReadingOrder);
+    public (int, int) ParentKey() => (EntryId, KanjiFormOrder);
 }

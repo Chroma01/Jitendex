@@ -21,7 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Jitendex.SupplementalData;
 using Jitendex.SupplementalData.Entities.JMdict;
-using Jitendex.JMdict.Entities.EntryProperties.SenseProperties;
+using Jitendex.JMdict.Entities.EntryItems.SenseItems;
 
 namespace Jitendex.JMdict.Analysis;
 

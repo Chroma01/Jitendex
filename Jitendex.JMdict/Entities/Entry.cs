@@ -18,7 +18,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Jitendex.JMdict.Entities.EntryProperties;
+using Jitendex.JMdict.Entities.EntryItems;
 
 namespace Jitendex.JMdict.Entities;
 
