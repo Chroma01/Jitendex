@@ -18,9 +18,6 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.KanjiFormElements;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.Models;
 

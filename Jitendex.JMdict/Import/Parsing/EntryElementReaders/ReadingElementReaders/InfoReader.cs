@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 
@@ -47,12 +46,12 @@ internal class RInfoReader : BaseReader<RInfoReader>
         }
 
         var info = new ReadingInfoElement
-        {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
-            Order = document.ReadingInfos.NextOrder(reading.Key()),
-            TagName = tagName,
-        };
+        (
+            EntryId: reading.EntryId,
+            ParentOrder: reading.Order,
+            Order: document.ReadingInfos.NextOrder(reading.Key()),
+            TagName: tagName
+        );
 
         document.ReadingInfos.Add(info.Key(), info);
     }

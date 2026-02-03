@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -46,7 +46,7 @@ internal sealed class MiscTable : Table<MiscElement>
     protected override SqliteParameter[] Parameters(MiscElement misc) =>
     [
         new("@0", misc.EntryId),
-        new("@1", misc.SenseOrder),
+        new("@1", misc.ParentOrder),
         new("@2", misc.Order),
         new("@3", misc.TagName),
     ];

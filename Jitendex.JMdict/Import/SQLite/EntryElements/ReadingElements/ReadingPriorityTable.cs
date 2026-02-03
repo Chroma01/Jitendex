@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.ReadingItems;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
 
@@ -46,7 +46,7 @@ internal sealed class ReadingPriorityTable : Table<ReadingPriorityElement>
     protected override SqliteParameter[] Parameters(ReadingPriorityElement priority) =>
     [
         new("@0", priority.EntryId),
-        new("@1", priority.ReadingOrder),
+        new("@1", priority.ParentOrder),
         new("@2", priority.Order),
         new("@3", priority.TagName),
     ];

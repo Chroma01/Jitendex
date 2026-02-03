@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -49,7 +49,7 @@ internal sealed class CrossReferenceTable : Table<CrossReferenceElement>
     protected override SqliteParameter[] Parameters(CrossReferenceElement xref) =>
     [
         new("@0", xref.EntryId),
-        new("@1", xref.SenseOrder),
+        new("@1", xref.ParentOrder),
         new("@2", xref.Order),
         new("@3", xref.TypeName),
         new("@4", xref.RefText1),

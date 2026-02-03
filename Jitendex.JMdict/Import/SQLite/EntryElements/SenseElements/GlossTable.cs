@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -47,7 +47,7 @@ internal sealed class GlossTable : Table<GlossElement>
     protected override SqliteParameter[] Parameters(GlossElement gloss) =>
     [
         new("@0", gloss.EntryId),
-        new("@1", gloss.SenseOrder),
+        new("@1", gloss.ParentOrder),
         new("@2", gloss.Order),
         new("@3", gloss.TypeName),
         new("@4", gloss.Text),

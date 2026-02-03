@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 
@@ -40,12 +39,12 @@ internal class RPriorityReader : BaseReader<RPriorityReader>
         }
 
         var priority = new ReadingPriorityElement
-        {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
-            Order = document.ReadingPriorities.NextOrder(reading.Key()),
-            TagName = tagName,
-        };
+        (
+            EntryId: reading.EntryId,
+            ParentOrder: reading.Order,
+            Order: document.ReadingPriorities.NextOrder(reading.Key()),
+            TagName: tagName
+        );
 
         document.ReadingPriorities.Add(priority.Key(), priority);
     }

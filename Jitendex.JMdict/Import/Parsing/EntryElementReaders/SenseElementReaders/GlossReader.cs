@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
@@ -40,13 +39,13 @@ internal partial class GlossReader : BaseReader<GlossReader>
         }
 
         var gloss = new GlossElement
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = document.Glosses.NextOrder(sense.Key()),
-            TypeName = typeName,
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: sense.EntryId,
+            ParentOrder: sense.Order,
+            Order: document.Glosses.NextOrder(sense.Key()),
+            TypeName: typeName,
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
 
         document.Glosses.Add(gloss.Key(), gloss);
     }

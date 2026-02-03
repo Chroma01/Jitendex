@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
@@ -56,15 +55,15 @@ internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
             : await _xmlReader.ReadElementContentAsStringAsync();
 
         var languageSource = new LanguageSourceElement
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = document.LanguageSources.NextOrder(sense.Key()),
-            Text = text,
-            LanguageCode = languageCode,
-            TypeName = typeName,
-            IsWasei = wasei == "y",
-        };
+        (
+            EntryId: sense.EntryId,
+            ParentOrder: sense.Order,
+            Order: document.LanguageSources.NextOrder(sense.Key()),
+            Text: text,
+            LanguageCode: languageCode,
+            TypeName: typeName,
+            IsWasei: wasei == "y"
+        );
 
         document.LanguageSources.Add(languageSource.Key(), languageSource);
     }

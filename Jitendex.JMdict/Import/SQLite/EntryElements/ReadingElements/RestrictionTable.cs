@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.ReadingItems;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
 
@@ -46,7 +46,7 @@ internal sealed class RestrictionTable : Table<RestrictionElement>
     protected override SqliteParameter[] Parameters(RestrictionElement restriction) =>
     [
         new("@0", restriction.EntryId),
-        new("@1", restriction.ReadingOrder),
+        new("@1", restriction.ParentOrder),
         new("@2", restriction.Order),
         new("@3", restriction.KanjiFormText),
     ];

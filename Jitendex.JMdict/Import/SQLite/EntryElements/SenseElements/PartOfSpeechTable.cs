@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -46,7 +46,7 @@ internal sealed class PartOfSpeechTable : Table<PartOfSpeechElement>
     protected override SqliteParameter[] Parameters(PartOfSpeechElement pos) =>
     [
         new("@0", pos.EntryId),
-        new("@1", pos.SenseOrder),
+        new("@1", pos.ParentOrder),
         new("@2", pos.Order),
         new("@3", pos.TagName),
     ];

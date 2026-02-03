@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -46,7 +46,7 @@ internal sealed class KanjiFormRestrictionTable : Table<KanjiFormRestrictionElem
     protected override SqliteParameter[] Parameters(KanjiFormRestrictionElement restriction) =>
     [
         new("@0", restriction.EntryId),
-        new("@1", restriction.SenseOrder),
+        new("@1", restriction.ParentOrder),
         new("@2", restriction.Order),
         new("@3", restriction.KanjiFormText),
     ];

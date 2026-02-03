@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
@@ -46,15 +45,15 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
         }
 
         var xref = new CrossReferenceElement
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = document.CrossReferences.NextOrder(sense.Key()),
-            TypeName = typeName,
-            RefText1 = parsedRef.Text1,
-            RefText2 = parsedRef.Text2,
-            RefSenseNumber = parsedRef.SenseNumber,
-        };
+        (
+            EntryId: sense.EntryId,
+            ParentOrder: sense.Order,
+            Order: document.CrossReferences.NextOrder(sense.Key()),
+            TypeName: typeName,
+            RefText1: parsedRef.Text1,
+            RefText2: parsedRef.Text2,
+            RefSenseNumber: parsedRef.SenseNumber
+        );
 
         document.CrossReferences.Add(xref.Key(), xref);
     }

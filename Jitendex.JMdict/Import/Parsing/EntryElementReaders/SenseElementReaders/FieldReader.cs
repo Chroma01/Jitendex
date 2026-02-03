@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
@@ -47,12 +46,12 @@ internal class FieldReader : BaseReader<FieldReader>
         }
 
         var field = new FieldElement
-        {
-            EntryId = sense.EntryId,
-            SenseOrder = sense.Order,
-            Order = document.Fields.NextOrder(sense.Key()),
-            TagName = tagName,
-        };
+        (
+            EntryId: sense.EntryId,
+            ParentOrder: sense.Order,
+            Order: document.Fields.NextOrder(sense.Key()),
+            TagName: tagName
+        );
 
         document.Fields.Add(field.Key(), field);
     }

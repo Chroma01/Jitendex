@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -46,7 +46,7 @@ internal sealed class DialectTable : Table<DialectElement>
     protected override SqliteParameter[] Parameters(DialectElement dialect) =>
     [
         new("@0", dialect.EntryId),
-        new("@1", dialect.SenseOrder),
+        new("@1", dialect.ParentOrder),
         new("@2", dialect.Order),
         new("@3", dialect.TagName),
     ];

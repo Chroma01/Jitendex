@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.KanjiFormElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementReaders;
 
@@ -47,12 +46,12 @@ internal class KInfoReader : BaseReader<KInfoReader>
         }
 
         var info = new KanjiFormInfoElement
-        {
-            EntryId = kanjiForm.EntryId,
-            KanjiFormOrder = kanjiForm.Order,
-            Order = document.KanjiFormInfos.NextOrder(kanjiForm.Key()),
-            TagName = tagName,
-        };
+        (
+            EntryId: kanjiForm.EntryId,
+            ParentOrder: kanjiForm.Order,
+            Order: document.KanjiFormInfos.NextOrder(kanjiForm.Key()),
+            TagName: tagName
+        );
 
         document.KanjiFormInfos.Add(info.Key(), info);
     }

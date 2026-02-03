@@ -23,7 +23,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Jitendex.SupplementalData;
 using Jitendex.SupplementalData.Entities.JMdict;
-using System.Diagnostics;
 
 namespace Jitendex.JMdict.Analysis;
 

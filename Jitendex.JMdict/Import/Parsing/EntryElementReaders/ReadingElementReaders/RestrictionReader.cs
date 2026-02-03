@@ -21,7 +21,6 @@ using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Models.EntryElements;
-using Jitendex.JMdict.Import.Models.EntryElements.ReadingElements;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 
@@ -34,12 +33,12 @@ internal partial class RestrictionReader : BaseReader<RestrictionReader>
         var kanjiFormText = await _xmlReader.ReadElementContentAsStringAsync();
 
         var restriction = new RestrictionElement
-        {
-            EntryId = reading.EntryId,
-            ReadingOrder = reading.Order,
-            Order = document.Restrictions.NextOrder(reading.Key()),
-            KanjiFormText = kanjiFormText,
-        };
+        (
+            EntryId: reading.EntryId,
+            ParentOrder: reading.Order,
+            Order: document.Restrictions.NextOrder(reading.Key()),
+            KanjiFormText: kanjiFormText
+        );
 
         document.Restrictions.Add(restriction.Key(), restriction);
     }

@@ -20,7 +20,7 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
-using Jitendex.JMdict.Import.Models.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Models.EntryElements;
 
 namespace Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
@@ -46,7 +46,7 @@ internal sealed class FieldTable : Table<FieldElement>
     protected override SqliteParameter[] Parameters(FieldElement field) =>
     [
         new("@0", field.EntryId),
-        new("@1", field.SenseOrder),
+        new("@1", field.ParentOrder),
         new("@2", field.Order),
         new("@3", field.TagName),
     ];
