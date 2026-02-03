@@ -24,16 +24,16 @@ namespace Jitendex.JMdict.Analysis;
 internal partial class Analyzer
 {
     private readonly ILogger<Analyzer> _logger;
-    private readonly ReferenceSequencer _referenceSequencer;
     private readonly ReadingBridger _readingBridger;
+    private readonly ReferenceSequencer _referenceSequencer;
 
-    public Analyzer(ILogger<Analyzer> logger, ReferenceSequencer referenceSequencer, ReadingBridger readingBridger) =>
-        (_logger, _referenceSequencer, _readingBridger) =
-        (@logger, @referenceSequencer, @readingBridger);
+    public Analyzer(ILogger<Analyzer> logger, ReadingBridger readingBridger, ReferenceSequencer referenceSequencer) =>
+        (_logger, _readingBridger, _referenceSequencer) =
+        (@logger, @readingBridger, @referenceSequencer);
 
     public void Analyze()
     {
-        _referenceSequencer.FindCrossReferenceSequenceIds();
         _readingBridger.BridgeReadingsToKanjiForms();
+        _referenceSequencer.FindCrossReferenceSequenceIds();
     }
 }

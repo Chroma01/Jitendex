@@ -17,10 +17,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Jitendex.SupplementalData;
 using Jitendex.SupplementalData.Entities.JMdict;
+using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
 
 namespace Jitendex.JMdict.Analysis;
@@ -37,8 +39,15 @@ internal partial class ReferenceSequencer
 
     private readonly record struct ReferenceText(string Text1, string? Text2);
     private readonly record struct EntryInfo(int Id, int SenseCount);
+    private readonly record struct SequencedRef(int SequenceId, int SenseNumber, string RefText1, string? RefText2, int RefSenseNumber, int? RefSequenceId);
 
     public void FindCrossReferenceSequenceIds()
+    {
+        var sequencedRefs = GetSequencedRefs();
+        WriteRefsToDatabase(sequencedRefs);
+    }
+
+    private List<SequencedRef> GetSequencedRefs()
     {
         var referenceTextToEntryInfos = GetReferenceTextToEntryInfos();
 
@@ -50,8 +59,7 @@ internal partial class ReferenceSequencer
             .AsNoTracking()
             .ToDictionary(static x => x.ToExportKey());
 
-        var transaction = _supplementContext.Database.BeginTransaction();
-        _supplementContext.CrossReferenceSequences.ExecuteDelete();
+        var sequencedRefs = new List<SequencedRef>(40_000);
 
         foreach (var xref in allCrossReferences)
         {
@@ -63,19 +71,18 @@ internal partial class ReferenceSequencer
                 ? potentialEntryIds[0]
                 : CheckCache(xref, potentialEntryIds, xrefCache);
 
-            _supplementContext.CrossReferenceSequences.Add(new()
-            {
-                SequenceId = xref.EntryId,
-                SenseNumber = xref.SenseOrder + 1,
-                RefText1 = xref.RefText1,
-                RefText2 = xref.RefText2 ?? string.Empty,
-                RefSenseNumber = xref.RefSenseNumber,
-                RefSequenceId = entryId,
-            });
+            sequencedRefs.Add(new
+            (
+                SequenceId: xref.EntryId,
+                SenseNumber: xref.SenseOrder + 1,
+                RefText1: xref.RefText1,
+                RefText2: xref.RefText2,
+                RefSenseNumber: xref.RefSenseNumber,
+                RefSequenceId: entryId
+            ));
         }
 
-        _supplementContext.SaveChanges();
-        transaction.Commit();
+        return sequencedRefs;
     }
 
     private int? CheckCache(CrossReference xref, int[] potentialIds, Dictionary<string, CrossReferenceSequence> xrefCache)
@@ -180,6 +187,43 @@ internal partial class ReferenceSequencer
         {
             yield return new ReferenceText(reading, null);
         }
+    }
+
+    private void WriteRefsToDatabase(List<SequencedRef> refs)
+    {
+        using var transaction = _supplementContext.Database.BeginTransaction();
+        _supplementContext.CrossReferenceSequences.ExecuteDelete();
+
+        using var command = _supplementContext.Database.GetDbConnection().CreateCommand();
+        command.CommandText =
+            $"""
+            INSERT INTO {nameof(CrossReferenceSequence)}
+            ( {nameof(CrossReferenceSequence.SequenceId)}
+            , {nameof(CrossReferenceSequence.SenseNumber)}
+            , {nameof(CrossReferenceSequence.RefText1)}
+            , {nameof(CrossReferenceSequence.RefText2)}
+            , {nameof(CrossReferenceSequence.RefSenseNumber)}
+            , {nameof(CrossReferenceSequence.RefSequenceId)}
+            ) VALUES (@0, @1, @2, @3, @4, @5);
+            """;
+
+        foreach (var xref in refs)
+        {
+            command.Parameters.AddRange(new SqliteParameter[]
+            {
+                new("@0", xref.SequenceId),
+                new("@1", xref.SenseNumber),
+                new("@2", xref.RefText1),
+                new("@3", xref.RefText2 ?? string.Empty),
+                new("@4", xref.RefSenseNumber),
+                new("@5", xref.RefSequenceId.Nullable()),
+            });
+            command.ExecuteNonQuery();
+            command.Parameters.Clear();
+        }
+
+        _supplementContext.SaveChanges();
+        transaction.Commit();
     }
 
     [LoggerMessage(LogLevel.Warning,
