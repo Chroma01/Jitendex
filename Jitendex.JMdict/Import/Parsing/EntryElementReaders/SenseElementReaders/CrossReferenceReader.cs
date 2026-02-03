@@ -47,7 +47,7 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
         var xref = new CrossReferenceElement
         (
             EntryId: sense.EntryId,
-            ParentOrder: sense.Order,
+            SenseOrder: sense.Order,
             Order: document.CrossReferences.NextOrder(sense.Key()),
             TypeName: typeName,
             RefText1: parsedRef.Text1,

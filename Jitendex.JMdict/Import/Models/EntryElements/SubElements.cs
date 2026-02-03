@@ -25,57 +25,57 @@ internal abstract record SubElement(int EntryId, int ParentOrder, int Order)
 }
 
 internal sealed record KanjiFormInfoElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int KanjiFormOrder, int Order, string TagName)
+    : SubElement(EntryId, KanjiFormOrder, Order);
 
 internal sealed record KanjiFormPriorityElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int KanjiFormOrder, int Order, string TagName)
+    : SubElement(EntryId, KanjiFormOrder, Order);
 
 internal sealed record ReadingInfoElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int ReadingOrder, int Order, string TagName)
+    : SubElement(EntryId, ReadingOrder, Order);
 
 internal sealed record ReadingPriorityElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int ReadingOrder, int Order, string TagName)
+    : SubElement(EntryId, ReadingOrder, Order);
 
 internal sealed record RestrictionElement
-    (int EntryId, int ParentOrder, int Order, string KanjiFormText)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int ReadingOrder, int Order, string KanjiFormText)
+    : SubElement(EntryId, ReadingOrder, Order);
 
 internal sealed record CrossReferenceElement
-    (int EntryId, int ParentOrder, int Order, string TypeName, string RefText1, string? RefText2, int RefSenseNumber)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string TypeName, string RefText1, string? RefText2, int RefSenseNumber)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record DialectElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string TagName)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record FieldElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string TagName)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record GlossElement
-    (int EntryId, int ParentOrder, int Order, string TypeName, string Text)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string TypeName, string Text)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record KanjiFormRestrictionElement
-    (int EntryId, int ParentOrder, int Order, string KanjiFormText)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string KanjiFormText)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record LanguageSourceElement
-    (int EntryId, int ParentOrder, int Order, string? Text, string LanguageCode, string TypeName, bool IsWasei)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string? Text, string LanguageCode, string TypeName, bool IsWasei)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record MiscElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string TagName)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record PartOfSpeechElement
-    (int EntryId, int ParentOrder, int Order, string TagName)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string TagName)
+    : SubElement(EntryId, SenseOrder, Order);
 
 internal sealed record ReadingRestrictionElement
-    (int EntryId, int ParentOrder, int Order, string ReadingText)
-    : SubElement(EntryId, ParentOrder, Order);
+    (int EntryId, int SenseOrder, int Order, string ReadingText)
+    : SubElement(EntryId, SenseOrder, Order);

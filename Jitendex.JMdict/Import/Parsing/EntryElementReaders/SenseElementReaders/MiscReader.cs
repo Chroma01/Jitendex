@@ -48,7 +48,7 @@ internal class MiscReader : BaseReader<MiscReader>
         var misc = new MiscElement
         (
             EntryId: sense.EntryId,
-            ParentOrder: sense.Order,
+            SenseOrder: sense.Order,
             Order: document.Miscs.NextOrder(sense.Key()),
             TagName: tagName
         );

@@ -48,7 +48,7 @@ internal class PartOfSpeechReader : BaseReader<PartOfSpeechReader>
         var partOfSpeech = new PartOfSpeechElement
         (
             EntryId: sense.EntryId,
-            ParentOrder: sense.Order,
+            SenseOrder: sense.Order,
             Order: document.PartsOfSpeech.NextOrder(sense.Key()),
             TagName: tagName
         );

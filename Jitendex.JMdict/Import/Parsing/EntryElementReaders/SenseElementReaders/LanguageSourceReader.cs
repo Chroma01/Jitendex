@@ -57,7 +57,7 @@ internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
         var languageSource = new LanguageSourceElement
         (
             EntryId: sense.EntryId,
-            ParentOrder: sense.Order,
+            SenseOrder: sense.Order,
             Order: document.LanguageSources.NextOrder(sense.Key()),
             Text: text,
             LanguageCode: languageCode,

@@ -35,7 +35,7 @@ internal partial class KanjiFormRestrictionReader : BaseReader<KanjiFormRestrict
         var restriction = new KanjiFormRestrictionElement
         (
             EntryId: sense.EntryId,
-            ParentOrder: sense.Order,
+            SenseOrder: sense.Order,
             Order: document.KanjiFormRestrictions.NextOrder(sense.Key()),
             KanjiFormText: text
         );

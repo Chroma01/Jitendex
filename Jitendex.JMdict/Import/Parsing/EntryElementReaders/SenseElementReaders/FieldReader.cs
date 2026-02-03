@@ -48,7 +48,7 @@ internal class FieldReader : BaseReader<FieldReader>
         var field = new FieldElement
         (
             EntryId: sense.EntryId,
-            ParentOrder: sense.Order,
+            SenseOrder: sense.Order,
             Order: document.Fields.NextOrder(sense.Key()),
             TagName: tagName
         );

@@ -98,11 +98,7 @@ internal sealed class Document
     }
 
     public IEnumerable<DocumentSequence> GetSequences()
-        => Entries.Select(e => new DocumentSequence
-        {
-            Id = e.Key,
-            CreatedDate = Header.Date,
-        });
+        => Entries.Select(e => new DocumentSequence(e.Key, Header.Date));
 
     public IEnumerable<int> ConcatAllEntryIds()
         => Entries.Keys
@@ -124,3 +120,6 @@ internal sealed class Document
             .Concat(PartsOfSpeech.EntryIds())
             .Concat(ReadingRestrictions.EntryIds());
 }
+
+internal sealed record DocumentHeader(DateOnly Date);
+internal sealed record DocumentSequence(int Id, DateOnly CreatedDate);
