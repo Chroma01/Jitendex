@@ -46,8 +46,7 @@ internal partial class ReferenceSequencer
         int SenseCount,
         ImmutableArray<string> Readings,
         ImmutableArray<string> KanjiForms,
-        ImmutableHashSet<int> HiddenReadingIndices,
-        ImmutableHashSet<int> HiddenKanjiFormIndices);
+        FrozenSet<int> HiddenReadingIndices);
 
     private sealed record SequencedRef(
         int SequenceId,
@@ -74,7 +73,7 @@ internal partial class ReferenceSequencer
             .ToList();
 
         var kanjiFormToReadings = _supplementContext.ReadingKanjiFormBridges
-            .GroupBy(static x => new {x.SequenceId, x.KanjiFormOrder})
+            .GroupBy(static x => new { x.SequenceId, x.KanjiFormOrder })
             .ToFrozenDictionary(
                 static g => (g.Key.SequenceId, g.Key.KanjiFormOrder),
                 static g => g
@@ -98,7 +97,7 @@ internal partial class ReferenceSequencer
                 ? null
                 : potentialEntries.Length == 1
                 ? potentialEntries[0].Id
-                : CheckCache(xref, potentialEntryIds.ToArray(), sequenceIdCache);
+                : FindIdInCache(xref, potentialEntryIds.ToArray(), sequenceIdCache);
 
             var entry = entryId is null ? null
                 : potentialEntries.First(e => e.Id == entryId);
@@ -119,6 +118,8 @@ internal partial class ReferenceSequencer
                 ? readingOrders.First()
                 : null;
 
+            LogReferenceInconsistencies(xref, entry, readingOrder, kanjiFormOrder, kanjiFormToReadings);
+
             sequencedRefs.Add(new
             (
                 SequenceId: xref.EntryId,
@@ -135,7 +136,7 @@ internal partial class ReferenceSequencer
         return sequencedRefs;
     }
 
-    private int? CheckCache(CrossReference xref, int[] potentialEntryIds, FrozenDictionary<string, int?> xrefCache)
+    private int? FindIdInCache(CrossReference xref, int[] potentialEntryIds, FrozenDictionary<string, int?> xrefCache)
     {
         int? entryId;
         if (!xrefCache.TryGetValue(xref.ToExportKey(), out var cachedId))
@@ -223,11 +224,7 @@ internal partial class ReferenceSequencer
             HiddenReadingIndices: e.Readings
                 .Where(static r => r.Infos.Any(static i => i.TagName == "sk"))
                 .Select(static r => r.Order)
-                .ToImmutableHashSet(),
-            HiddenKanjiFormIndices: e.KanjiForms
-                .Where(static k => k.Infos.Any(static i => i.TagName == "sK"))
-                .Select(static k => k.Order)
-                .ToImmutableHashSet()
+                .ToFrozenSet()
         ))
         .ToImmutableList();
 
@@ -249,6 +246,37 @@ internal partial class ReferenceSequencer
         foreach (var reading in readings)
         {
             yield return new ReferenceText(reading, null);
+        }
+    }
+
+    private void LogReferenceInconsistencies(
+        CrossReference xref,
+        EntryData? entry,
+        int? readingOrder,
+        int? kanjiFormOrder,
+        FrozenDictionary<(int SequenceId, int KanjiFormOrder), ImmutableArray<int>> kanjiFormToReadings)
+    {
+        if (entry is null)
+        {
+            return;
+        }
+        else if (readingOrder is null)
+        {
+            LogMissingReading(xref.ToExportKey());
+        }
+        else if (entry.HiddenReadingIndices.Contains((int)readingOrder))
+        {
+            LogReferenceToSearchOnlyReading(xref.ToExportKey());
+        }
+        else if (kanjiFormOrder is null && xref.RefText2 is not null)
+        {
+            LogMissingKanjiForm(xref.ToExportKey());
+        }
+        else if (kanjiFormOrder is not null &&
+                kanjiFormToReadings.TryGetValue((entry.Id, (int)kanjiFormOrder), out var readings) &&
+                !readings.Contains((int)readingOrder))
+        {
+            LogInvalidPair(xref.ToExportKey());
         }
     }
 
@@ -304,4 +332,20 @@ internal partial class ReferenceSequencer
     [LoggerMessage(LogLevel.Warning,
     "Reference `{CacheKey}` is invalid either because it points to itself or to an invalid sense number")]
     partial void LogBizarreReference(string cacheKey);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Reference `{CacheKey}` could not be assigned to a reading")]
+    partial void LogMissingReading(string cacheKey);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Reference `{CacheKey}` could not be assigned to a kanji form")]
+    partial void LogMissingKanjiForm(string cacheKey);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Reference `{CacheKey}` refers to a reading that is search-only")]
+    partial void LogReferenceToSearchOnlyReading(string cacheKey);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Reference `{CacheKey}` refers to an invalid reading / kanji-form pair")]
+    partial void LogInvalidPair(string cacheKey);
 }
