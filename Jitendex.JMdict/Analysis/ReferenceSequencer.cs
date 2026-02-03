@@ -17,6 +17,8 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Frozen;
+using System.Collections.Immutable;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,9 +39,25 @@ internal partial class ReferenceSequencer
         (_logger, _jmdictContext, _supplementContext) =
         (@logger, @jmdictContext, @supplementContext);
 
-    private readonly record struct ReferenceText(string Text1, string? Text2);
-    private readonly record struct EntryInfo(int Id, int SenseCount);
-    private readonly record struct SequencedRef(int SequenceId, int SenseNumber, string RefText1, string? RefText2, int RefSenseNumber, int? RefSequenceId);
+    private sealed record ReferenceText(string Text1, string? Text2);
+
+    private sealed record EntryData(
+        int Id,
+        int SenseCount,
+        ImmutableArray<string> Readings,
+        ImmutableArray<string> KanjiForms,
+        ImmutableHashSet<int> HiddenReadingIndices,
+        ImmutableHashSet<int> HiddenKanjiFormIndices);
+
+    private sealed record SequencedRef(
+        int SequenceId,
+        int SenseNumber,
+        string RefText1,
+        string? RefText2,
+        int RefSenseNumber,
+        int? RefSequenceId,
+        int? RefReadingOrder,
+        int? RefKanjiFormOrder);
 
     public void FindCrossReferenceSequenceIds()
     {
@@ -49,27 +67,57 @@ internal partial class ReferenceSequencer
 
     private List<SequencedRef> GetSequencedRefs()
     {
-        var referenceTextToEntryInfos = GetReferenceTextToEntryInfos();
+        var referenceTextToEntries = GetReferenceTextToEntries();
 
         var allCrossReferences = _jmdictContext.CrossReferences
             .AsNoTracking()
             .ToList();
 
-        var xrefCache = _supplementContext.CrossReferenceSequences
-            .AsNoTracking()
-            .ToDictionary(static x => x.ToExportKey());
+        var kanjiFormToReadings = _supplementContext.ReadingKanjiFormBridges
+            .GroupBy(static x => new {x.SequenceId, x.KanjiFormOrder})
+            .ToFrozenDictionary(
+                static g => (g.Key.SequenceId, g.Key.KanjiFormOrder),
+                static g => g
+                    .OrderBy(static bridge => bridge.ReadingOrder)
+                    .Select(static bridge => bridge.ReadingOrder)
+                    .ToImmutableArray());
+
+        var sequenceIdCache = _supplementContext.CrossReferenceSequences
+            .ToFrozenDictionary(
+                static x => x.ToExportKey(),
+                static x => x.RefSequenceId);
 
         var sequencedRefs = new List<SequencedRef>(40_000);
 
         foreach (var xref in allCrossReferences)
         {
-            var potentialEntryIds = GetPotentialEntryIds(xref, referenceTextToEntryInfos);
+            var potentialEntries = GetPotentialEntries(xref, referenceTextToEntries);
+            var potentialEntryIds = potentialEntries.Select(static e => e.Id);
 
-            var entryId = potentialEntryIds.Length == 0
+            var entryId = potentialEntries.Length == 0
                 ? null
-                : potentialEntryIds.Length == 1
-                ? potentialEntryIds[0]
-                : CheckCache(xref, potentialEntryIds, xrefCache);
+                : potentialEntries.Length == 1
+                ? potentialEntries[0].Id
+                : CheckCache(xref, potentialEntryIds.ToArray(), sequenceIdCache);
+
+            var entry = entryId is null ? null
+                : potentialEntries.First(e => e.Id == entryId);
+
+            int? kanjiFormOrder = entry is null ? null
+                : entry.KanjiForms.IndexOf(xref.RefText1) is int order and not -1
+                ? order
+                : null;
+
+            int? readingOrder = entry is null ? null
+                : entry.Readings.IndexOf(xref.RefText1) is int order1 and not -1
+                ? order1
+                : xref.RefText2 is not null && entry.Readings.IndexOf(xref.RefText2) is int order2 and not -1
+                ? order2
+                : kanjiFormOrder is null
+                ? null
+                : kanjiFormToReadings.TryGetValue((entry.Id, (int)kanjiFormOrder), out var readingOrders)
+                ? readingOrders.First()
+                : null;
 
             sequencedRefs.Add(new
             (
@@ -78,42 +126,44 @@ internal partial class ReferenceSequencer
                 RefText1: xref.RefText1,
                 RefText2: xref.RefText2,
                 RefSenseNumber: xref.RefSenseNumber,
-                RefSequenceId: entryId
+                RefSequenceId: entryId,
+                RefReadingOrder: readingOrder,
+                RefKanjiFormOrder: kanjiFormOrder
             ));
         }
 
         return sequencedRefs;
     }
 
-    private int? CheckCache(CrossReference xref, int[] potentialIds, Dictionary<string, CrossReferenceSequence> xrefCache)
+    private int? CheckCache(CrossReference xref, int[] potentialEntryIds, FrozenDictionary<string, int?> xrefCache)
     {
         int? entryId;
-        if (!xrefCache.TryGetValue(xref.ToExportKey(), out var crossRefSeq))
+        if (!xrefCache.TryGetValue(xref.ToExportKey(), out var cachedId))
         {
             entryId = null;
         }
-        else if (crossRefSeq.RefSequenceId is null)
+        else if (cachedId is null)
         {
             entryId = null;
         }
-        else if (!potentialIds.Contains((int)crossRefSeq.RefSequenceId))
+        else if (!potentialEntryIds.Contains((int)cachedId))
         {
             entryId = null;
         }
         else
         {
-            entryId = crossRefSeq.RefSequenceId;
+            entryId = cachedId;
         }
 
         if (entryId is null)
         {
-            LogAmbiguousReference(xref.ToExportKey(), potentialIds.Length, potentialIds);
+            LogAmbiguousReference(xref.ToExportKey(), potentialEntryIds.Length, potentialEntryIds);
         }
 
         return entryId;
     }
 
-    private int[] GetPotentialEntryIds(CrossReference xref, IReadOnlyDictionary<ReferenceText, List<EntryInfo>> referenceTextToEntries)
+    private EntryData[] GetPotentialEntries(CrossReference xref, IReadOnlyDictionary<ReferenceText, List<EntryData>> referenceTextToEntries)
     {
         var key = new ReferenceText(xref.RefText1, xref.RefText2);
 
@@ -123,52 +173,65 @@ internal partial class ReferenceSequencer
             return [];
         }
 
-        var possibleTargetEntryIds = entryInfos
+        var possibleTargetEntries = entryInfos
             .Where(e => e.Id != xref.EntryId && e.SenseCount >= xref.RefSenseNumber)
-            .Select(e => e.Id)
             .ToArray();
 
-        if (possibleTargetEntryIds.Length == 0)
+        if (possibleTargetEntries.Length == 0)
         {
             LogBizarreReference(xref.ToExportKey());
         }
 
-        return possibleTargetEntryIds;
+        return possibleTargetEntries;
     }
 
-    private IReadOnlyDictionary<ReferenceText, List<EntryInfo>> GetReferenceTextToEntryInfos()
+    private FrozenDictionary<ReferenceText, List<EntryData>> GetReferenceTextToEntries()
     {
-        var entries = _jmdictContext.Entries
-            .AsSplitQuery()
-            .Select(static e => new
-            {
-                e.Id,
-                Readings = e.Readings.Select(static r => r.Text),
-                KanjiForms = e.KanjiForms.Select(static k => k.Text),
-                SenseCount = e.Senses.Count(),
-            })
-            .ToList();
-
-        var dict = new Dictionary<ReferenceText, List<EntryInfo>>(entries.Count * 4);
+        var entries = LoadEntryData();
+        var dict = new Dictionary<ReferenceText, List<EntryData>>(entries.Count * 4);
         foreach (var entry in entries)
         {
-            var entryInfo = new EntryInfo(entry.Id, entry.SenseCount);
             foreach (var referenceText in GetReferenceTexts(entry.Readings, entry.KanjiForms))
             {
                 if (dict.TryGetValue(referenceText, out var values))
                 {
-                    values.Add(entryInfo);
+                    values.Add(entry);
                 }
                 else
                 {
-                    dict.Add(referenceText, [entryInfo]);
+                    dict.Add(referenceText, [entry]);
                 }
             }
         }
-        return dict;
+        return dict.ToFrozenDictionary();
     }
 
-    private static IEnumerable<ReferenceText> GetReferenceTexts(IEnumerable<string> readings, IEnumerable<string> kanjiForms)
+    private ImmutableList<EntryData> LoadEntryData() => _jmdictContext.Entries
+        .AsSplitQuery()
+        .Select(static e => new EntryData
+        (
+            e.Id,
+            SenseCount: e.Senses.Count(),
+            Readings: e.Readings
+                .OrderBy(static r => r.Order)
+                .Select(static r => r.Text)
+                .ToImmutableArray(),
+            KanjiForms: e.KanjiForms
+                .OrderBy(static k => k.Order)
+                .Select(static k => k.Text)
+                .ToImmutableArray(),
+            HiddenReadingIndices: e.Readings
+                .Where(static r => r.Infos.Any(static i => i.TagName == "sk"))
+                .Select(static r => r.Order)
+                .ToImmutableHashSet(),
+            HiddenKanjiFormIndices: e.KanjiForms
+                .Where(static k => k.Infos.Any(static i => i.TagName == "sK"))
+                .Select(static k => k.Order)
+                .ToImmutableHashSet()
+        ))
+        .ToImmutableList();
+
+    private static IEnumerable<ReferenceText> GetReferenceTexts(ImmutableArray<string> readings, ImmutableArray<string> kanjiForms)
     {
         foreach (var kanjiForm in kanjiForms)
         {
@@ -204,7 +267,9 @@ internal partial class ReferenceSequencer
             , {nameof(CrossReferenceSequence.RefText2)}
             , {nameof(CrossReferenceSequence.RefSenseNumber)}
             , {nameof(CrossReferenceSequence.RefSequenceId)}
-            ) VALUES (@0, @1, @2, @3, @4, @5);
+            , {nameof(CrossReferenceSequence.RefReadingOrder)}
+            , {nameof(CrossReferenceSequence.RefKanjiFormOrder)}
+            ) VALUES (@0, @1, @2, @3, @4, @5, @6, @7);
             """;
 
         foreach (var xref in refs)
@@ -217,6 +282,8 @@ internal partial class ReferenceSequencer
                 new("@3", xref.RefText2 ?? string.Empty),
                 new("@4", xref.RefSenseNumber),
                 new("@5", xref.RefSequenceId.Nullable()),
+                new("@6", xref.RefReadingOrder.Nullable()),
+                new("@7", xref.RefKanjiFormOrder.Nullable()),
             });
             command.ExecuteNonQuery();
             command.Parameters.Clear();

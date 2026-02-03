@@ -30,7 +30,10 @@ public sealed class CrossReferenceSequence
     public required string RefText1 { get; init; }
     public required string RefText2 { get; init; }
     public required int RefSenseNumber { get; init; }
-    public required int? RefSequenceId { get; init; }
+
+    public int? RefSequenceId { get; set; }
+    public int? RefReadingOrder { get; set; }
+    public int? RefKanjiFormOrder { get; set; }
 
     public string ToExportKey()
         => RefText2 == string.Empty

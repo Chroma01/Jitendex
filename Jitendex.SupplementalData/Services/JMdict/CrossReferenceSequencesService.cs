@@ -32,13 +32,9 @@ internal sealed class CrossReferenceSequencesService
 
     public async Task ExportAsync(DirectoryInfo? dataDir)
     {
-        var dictionary = _context.CrossReferenceSequences
-            .Select(static x => new KeyValuePair<string, int?>
-            (
-                key: x.ToExportKey(),
-                value: x.RefSequenceId
-            ))
-            .ToDictionary();
+        var dictionary = _context.CrossReferenceSequences.ToDictionary(
+            keySelector: static x => x.ToExportKey(),
+            elementSelector: static x => x.RefSequenceId);
 
         await WriteJsonDictionaryAsync(dataDir, dictionary);
     }
@@ -98,6 +94,13 @@ internal sealed class CrossReferenceSequencesService
 
 internal static class CrossReferenceSequenceKeyParser
 {
+    public sealed record ParsedKey(
+        int SequenceId,
+        int SenseNumber,
+        string RefText1,
+        string? RefText2,
+        int RefSenseNumber);
+
     public static ParsedKey ParseKey(string key)
     {
         var splitKey = key.Split('・');
@@ -112,7 +115,7 @@ internal static class CrossReferenceSequenceKeyParser
     {
         string refText1;
         string? refText2 = null;
-        if (text.IndexOf('【') is int index and not -1)
+        if (text.EndsWith('】') && text.IndexOf('【') is int index and not -1)
         {
             refText1 = text[..index];
             refText2 = text[(index + 1)..^1];
@@ -123,6 +126,4 @@ internal static class CrossReferenceSequenceKeyParser
         }
         return (refText1, refText2);
     }
-
-    public record ParsedKey(int SequenceId, int SenseNumber, string RefText1, string? RefText2, int RefSenseNumber);
 }
