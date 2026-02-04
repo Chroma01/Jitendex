@@ -111,7 +111,7 @@ public static class DtoMapper
                 .ToImmutableArray(),
             Glosses = sense.Glosses
                 .OrderBy(static gloss => gloss.Order)
-                .Select(static gloss => new GlossDto(gloss.Text, gloss.TypeName))
+                .Select(static gloss => new GlossDto(gloss.TypeName, gloss.Text))
                 .ToImmutableArray(),
             KanjiFormRestrictions = sense.KanjiFormRestrictions
                 .OrderBy(static rstr => rstr.Order)
