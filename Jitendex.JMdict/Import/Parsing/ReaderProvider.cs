@@ -31,7 +31,7 @@ namespace Jitendex.JMdict.Import.Parsing;
 
 internal static class ReaderProvider
 {
-    public static JmdictReader GetReader(FileInfo jmdictFile) => new ServiceCollection()
+    public static DocumentReader GetReader(FileInfo jmdictFile) => new ServiceCollection()
         .AddLogging(static builder =>
             builder.AddSimpleConsole(static options =>
             {
@@ -86,7 +86,7 @@ internal static class ReaderProvider
         .AddTransient<ReadingRestrictionReader>()
 
         // Build and return the Jmdict service.
-        .AddTransient<JmdictReader>()
+        .AddTransient<DocumentReader>()
         .BuildServiceProvider()
-        .GetRequiredService<JmdictReader>();
+        .GetRequiredService<DocumentReader>();
 }

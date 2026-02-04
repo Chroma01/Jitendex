@@ -23,12 +23,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Jitendex.JMdict.Import.Parsing;
 
-internal partial class JmdictReader : BaseReader<JmdictReader>
+internal partial class DocumentReader : BaseReader<DocumentReader>
 {
     private readonly DocumentTypeReader _docTypeReader;
     private readonly EntriesReader _entriesReader;
 
-    public JmdictReader(ILogger<JmdictReader> logger, XmlReader xmlReader, DocumentTypeReader docTypeReader, EntriesReader entriesReader) : base(logger, xmlReader)
+    public DocumentReader(ILogger<DocumentReader> logger, XmlReader xmlReader, DocumentTypeReader docTypeReader, EntriesReader entriesReader) : base(logger, xmlReader)
     {
         _docTypeReader = docTypeReader;
         _entriesReader = entriesReader;

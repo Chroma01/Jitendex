@@ -42,8 +42,7 @@ internal partial class EntriesReader : BaseReader<EntriesReader>
                     await ReadChildElementAsync(document);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(text);
+                    await LogUnexpectedTextNodeAsync(XmlTagName.Jmdict);
                     break;
                 case XmlNodeType.DocumentType:
                     LogUnexpectedDocumentType(_xmlReader.Name);
@@ -60,20 +59,11 @@ internal partial class EntriesReader : BaseReader<EntriesReader>
                 await _entryReader.ReadAsync(document);
                 break;
             default:
-                LogUnexpectedElement(_xmlReader.Name);
+                LogUnexpectedChildElement(XmlTagName.Jmdict);
                 break;
         }
     }
 
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected element node found between entries: <{Name}>")]
-    partial void LogUnexpectedElement(string name);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected text node found between entries: `{Text}`")]
-    partial void LogUnexpectedTextNode(string text);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected document type node `{Name}`")]
+    [LoggerMessage(LogLevel.Warning, "Unexpected document type node `{Name}`")]
     partial void LogUnexpectedDocumentType(string name);
 }
