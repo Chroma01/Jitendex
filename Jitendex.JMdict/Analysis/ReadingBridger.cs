@@ -143,10 +143,10 @@ internal partial class ReadingBridger
         using var command = _supplementContext.Database.GetDbConnection().CreateCommand();
         command.CommandText =
             $"""
-            INSERT INTO {nameof(ReadingKanjiFormBridge)}
-            ( {nameof(ReadingKanjiFormBridge.SequenceId)}
-            , {nameof(ReadingKanjiFormBridge.ReadingOrder)}
-            , {nameof(ReadingKanjiFormBridge.KanjiFormOrder)}
+            INSERT INTO "{nameof(ReadingKanjiFormBridge)}"
+            ( "{nameof(ReadingKanjiFormBridge.SequenceId)}"
+            , "{nameof(ReadingKanjiFormBridge.ReadingOrder)}"
+            , "{nameof(ReadingKanjiFormBridge.KanjiFormOrder)}"
             ) VALUES (@0, @1, @2);
             """;
 

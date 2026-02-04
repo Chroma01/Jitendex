@@ -299,14 +299,14 @@ internal partial class ReferenceSequencer
         using var command = _supplementContext.Database.GetDbConnection().CreateCommand();
         command.CommandText =
             $"""
-            INSERT INTO {nameof(CrossReferenceSequence)}
-            ( {nameof(CrossReferenceSequence.SequenceId)}
-            , {nameof(CrossReferenceSequence.SenseOrder)}
-            , {nameof(CrossReferenceSequence.Text)}
-            , {nameof(CrossReferenceSequence.RefSequenceId)}
-            , {nameof(CrossReferenceSequence.RefReadingOrder)}
-            , {nameof(CrossReferenceSequence.RefKanjiFormOrder)}
-            , {nameof(CrossReferenceSequence.RefSenseOrder)}
+            INSERT INTO "{nameof(CrossReferenceSequence)}"
+            ( "{nameof(CrossReferenceSequence.SequenceId)}"
+            , "{nameof(CrossReferenceSequence.SenseOrder)}"
+            , "{nameof(CrossReferenceSequence.Text)}"
+            , "{nameof(CrossReferenceSequence.RefSequenceId)}"
+            , "{nameof(CrossReferenceSequence.RefReadingOrder)}"
+            , "{nameof(CrossReferenceSequence.RefKanjiFormOrder)}"
+            , "{nameof(CrossReferenceSequence.RefSenseOrder)}"
             ) VALUES (@0, @1, @2, @3, @4, @5, @6);
             """;
 
