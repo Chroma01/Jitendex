@@ -52,11 +52,10 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
                     await ReadChildElementAsync(document, kanjiForm);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(XmlTagName.KanjiForm, text);
+                    await LogUnexpectedTextNodeAsync(XmlTagName.KanjiForm);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.KanjiForm;
+                    exit = IsClosingTag(XmlTagName.KanjiForm);
                     break;
             }
         }

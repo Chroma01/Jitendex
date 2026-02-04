@@ -57,11 +57,10 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
                     await ReadChildElementAsync(document, reading);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(XmlTagName.Reading, text);
+                    await LogUnexpectedTextNodeAsync(XmlTagName.Reading);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.Reading;
+                    exit = IsClosingTag(XmlTagName.Reading);
                     break;
             }
         }
@@ -83,8 +82,8 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
             case XmlTagName.ReadingText:
                 await ReadReadingText(reading);
                 break;
-            case XmlTagName.ReadingNoKanji:
-                reading.NoKanji = true;
+            case XmlTagName.ReadingPriority:
+                await _priorityReader.ReadAsync(document, reading);
                 break;
             case XmlTagName.ReadingRestriction:
                 await _restrictionReader.ReadAsync(document, reading);
@@ -92,8 +91,8 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
             case XmlTagName.ReadingInfo:
                 await _infoReader.ReadAsync(document, reading);
                 break;
-            case XmlTagName.ReadingPriority:
-                await _priorityReader.ReadAsync(document, reading);
+            case XmlTagName.ReadingNoKanji:
+                reading.NoKanji = true;
                 break;
             default:
                 LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Reading);

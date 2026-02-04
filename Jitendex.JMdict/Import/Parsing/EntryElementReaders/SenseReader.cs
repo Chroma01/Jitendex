@@ -59,11 +59,10 @@ internal partial class SenseReader : BaseReader<SenseReader>
                     await ReadChildElementAsync(document, sense);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(XmlTagName.Sense, text);
+                    await LogUnexpectedTextNodeAsync(XmlTagName.Sense);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.Sense;
+                    exit = IsClosingTag(XmlTagName.Sense);
                     break;
             }
         }
@@ -75,39 +74,39 @@ internal partial class SenseReader : BaseReader<SenseReader>
     {
         switch (_xmlReader.Name)
         {
-            case XmlTagName.SenseKanjiFormRestriction:
-                await _kRestrictionReader.ReadAsync(document, sense);
-                break;
-            case XmlTagName.SenseReadingRestriction:
-                await _rRestrictionReader.ReadAsync(document, sense);
-                break;
             case XmlTagName.Gloss:
                 await _glossReader.ReadAsync(document, sense);
                 break;
             case XmlTagName.PartOfSpeech:
                 await _partOfSpeechReader.ReadAsync(document, sense);
                 break;
-            case XmlTagName.Field:
-                await _fieldReader.ReadAsync(document, sense);
-                break;
             case XmlTagName.Misc:
                 await _miscReader.ReadAsync(document, sense);
-                break;
-            case XmlTagName.Dialect:
-                await _dialectReader.ReadAsync(document, sense);
-                break;
-            case XmlTagName.LanguageSource:
-                await _languageSourceReader.ReadAsync(document, sense);
                 break;
             case XmlTagName.CrossReference:
             case XmlTagName.Antonym:
                 await _crossReferenceReader.ReadAsync(document, sense);
                 break;
+            case XmlTagName.Example:
+                await _xmlReader.SkipAsync();
+                break;
+            case XmlTagName.Field:
+                await _fieldReader.ReadAsync(document, sense);
+                break;
+            case XmlTagName.LanguageSource:
+                await _languageSourceReader.ReadAsync(document, sense);
+                break;
             case XmlTagName.SenseNote:
                 await ReadSenseNote(sense);
                 break;
-            case XmlTagName.Example:
-                await _xmlReader.SkipAsync();
+            case XmlTagName.SenseReadingRestriction:
+                await _rRestrictionReader.ReadAsync(document, sense);
+                break;
+            case XmlTagName.SenseKanjiFormRestriction:
+                await _kRestrictionReader.ReadAsync(document, sense);
+                break;
+            case XmlTagName.Dialect:
+                await _dialectReader.ReadAsync(document, sense);
                 break;
             default:
                 LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Sense);

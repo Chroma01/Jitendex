@@ -54,11 +54,10 @@ internal partial class EntryReader : BaseReader<EntryReader>
                     await ReadChildElementAsync(document, entry);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(XmlTagName.Entry, text);
+                    await LogUnexpectedTextNodeAsync(XmlTagName.Entry);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.Entry;
+                    exit = IsClosingTag(XmlTagName.Entry);
                     break;
             }
         }
@@ -95,14 +94,14 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
         switch (_xmlReader.Name)
         {
-            case XmlTagName.KanjiForm:
-                await _kanjiFormReader.ReadAsync(document, entry);
+            case XmlTagName.Sense:
+                await _senseReader.ReadAsync(document, entry);
                 break;
             case XmlTagName.Reading:
                 await _readingReader.ReadAsync(document, entry);
                 break;
-            case XmlTagName.Sense:
-                await _senseReader.ReadAsync(document, entry);
+            case XmlTagName.KanjiForm:
+                await _kanjiFormReader.ReadAsync(document, entry);
                 break;
             default:
                 LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Entry);

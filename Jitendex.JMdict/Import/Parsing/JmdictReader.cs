@@ -49,17 +49,10 @@ internal partial class JmdictReader : BaseReader<JmdictReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    if (_xmlReader.Name == XmlTagName.Jmdict)
-                    {
-                        await _entriesReader.ReadAsync(document);
-                    }
+                    await ReadChildElementAsync(document);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedTextNode(text);
-                    break;
-                case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.Jmdict;
+                    await LogUnexpectedTextNodeAsync(XmlTagName.Root);
                     break;
             }
         }
@@ -67,7 +60,16 @@ internal partial class JmdictReader : BaseReader<JmdictReader>
         return document;
     }
 
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected text node found before entries: `{Text}`")]
-    partial void LogUnexpectedTextNode(string text);
+    private async Task ReadChildElementAsync(Document document)
+    {
+        switch (_xmlReader.Name)
+        {
+            case XmlTagName.Jmdict:
+                await _entriesReader.ReadAsync(document);
+                break;
+            default:
+                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Root);
+                break;
+        }
+    }
 }

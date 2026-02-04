@@ -31,15 +31,24 @@ internal abstract partial class BaseReader<T> where T : BaseReader<T>
         (_logger, _xmlReader) =
         (@logger, @xmlReader);
 
+    protected bool IsClosingTag(ReadOnlySpan<char> tagName)
+        => tagName.SequenceEqual(_xmlReader.Name);
+
+    protected async Task LogUnexpectedTextNodeAsync(string tagName)
+    {
+        var text = await _xmlReader.GetValueAsync();
+        LogUnexpectedTextNode(tagName, text);
+    }
+
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
     protected partial void LogUnexpectedChildElement(string tagName, string parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
-    "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
-    protected partial void LogUnexpectedTextNode(string tagName, string text);
-
-    [LoggerMessage(LogLevel.Warning,
     "XML document type `{Entity}` was not defined in DTD preamble")]
     protected partial void LogMissingEntityDefinition(string entity);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
+    partial void LogUnexpectedTextNode(string tagName, string text);
 }

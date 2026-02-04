@@ -21,6 +21,7 @@ namespace Jitendex.JMdict.Import.Parsing;
 
 internal static class XmlTagName
 {
+    public const string Root = "?xml";
     public const string Jmdict = "JMdict";
     public const string Entry = "entry";
     public const string Sequence = "ent_seq";

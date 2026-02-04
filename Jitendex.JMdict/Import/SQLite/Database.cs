@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.EntityFrameworkCore;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.SQLite.EntryElements;
@@ -210,10 +209,12 @@ internal static class Database
         var bSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         var sequences = context.Sequences
-            .AsNoTracking()
             .Where(seq => diff.SequenceIds.Contains(seq.Id))
-            .Include(static seq => seq.Revisions)
-            .ToList();
+            .Select(seq => new
+            {
+                seq.Id,
+                RevisionCount = seq.Revisions.Count,
+            });
 
         var revisions = new List<DocumentRevision>(aSequences.Count);
 
@@ -223,10 +224,9 @@ internal static class Database
             {
                 var bSeq = bSequences[seq.Id];
                 var baDiff = JsonDiffer.Diff(a: bSeq, b: aSeq);
-                revisions.Add(new
-                (
+                revisions.Add(new(
                     SequenceId: seq.Id,
-                    Number: seq.Revisions.Count,
+                    Number: seq.RevisionCount,
                     CreatedDate: diff.FileHeader.Date,
                     DiffJson: baDiff
                 ));
