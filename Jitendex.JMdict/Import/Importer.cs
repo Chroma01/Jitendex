@@ -17,23 +17,23 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
+using Jitendex.JMdict.Import.Analysis;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Parsing;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
-using Jitendex.JMdict.Import.Analysis;
 
 namespace Jitendex.JMdict.Import;
 
-internal sealed class Updater
+internal sealed class Importer
 {
-    private readonly ILogger<Updater> _logger;
+    private readonly ILogger<Importer> _logger;
     private readonly JmdictContext _context;
     private readonly DocumentReader _reader;
     private readonly Database _database;
     private readonly Analyzer _analyzer;
 
-    public Updater(ILogger<Updater> logger, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
+    public Importer(ILogger<Importer> logger, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
         (_logger, _context, _reader, _database, _analyzer) =
         (@logger, @context, @reader, @database, @analyzer);
 

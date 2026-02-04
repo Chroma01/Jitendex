@@ -28,9 +28,9 @@ using Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
 namespace Jitendex.JMdict.Import;
 
-internal static class UpdaterProvider
+internal static class ImporterProvider
 {
-    public static Updater GetUpdater() => new ServiceCollection()
+    public static Importer GetImporter() => new ServiceCollection()
         .AddLogging(static builder =>
             builder.AddSimpleConsole(static options =>
             {
@@ -82,7 +82,7 @@ internal static class UpdaterProvider
         .AddTransient<CrossReferenceTextParser>()
 
         // Build and return the Jmdict service.
-        .AddTransient<Updater>()
+        .AddTransient<Importer>()
         .BuildServiceProvider()
-        .GetRequiredService<Updater>();
+        .GetRequiredService<Importer>();
 }
