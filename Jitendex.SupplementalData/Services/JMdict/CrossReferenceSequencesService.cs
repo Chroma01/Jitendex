@@ -48,11 +48,11 @@ internal sealed class CrossReferenceSequencesService
 
         foreach (var (key, value) in dictionary)
         {
-            var (sequenceId, senseOrder, text) = Parse(key);
+            var (sequenceId, senseNumber, text) = Parse(key);
             _context.CrossReferenceSequences.Add(new()
             {
                 SequenceId = sequenceId,
-                SenseOrder = senseOrder,
+                SenseOrder = senseNumber - 1,
                 Text = text,
                 RefSequenceId = value,
             });
