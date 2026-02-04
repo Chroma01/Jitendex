@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Dto.Kanjidic2;
@@ -36,42 +37,40 @@ public static class DtoMapper
             .ToDictionary(static dto => dto.Id);
 
     private static Expression<Func<Sequence, SequenceDto>> RevisionlessSequenceProjection =>
-        static seq => new SequenceDto
+        static seq => new SequenceDto(seq.Id, seq.CreatedDate)
         {
-            Id = seq.Id,
-            CreatedDate = seq.CreatedDate,
             Entry = seq.Entry == null ? null : new EntryDto
             {
                 CodepointGroups = seq.Entry.CodepointGroups
                     .AsQueryable()
                     .OrderBy(static g => g.Order)
                     .Select(CodepointGroupProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 DictionaryGroups = seq.Entry.DictionaryGroups
                     .AsQueryable()
                     .OrderBy(static g => g.Order)
                     .Select(DictionaryGroupProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 MiscGroups = seq.Entry.MiscGroups
                     .AsQueryable()
                     .OrderBy(static g => g.Order)
                     .Select(MiscGroupProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 QueryCodeGroups = seq.Entry.QueryCodeGroups
                     .AsQueryable()
                     .OrderBy(static g => g.Order)
                     .Select(QueryCodeGroupProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 RadicalGroups = seq.Entry.RadicalGroups
                     .AsQueryable()
                     .OrderBy(static g => g.Order)
                     .Select(RadicalGroupProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 ReadingMeaningGroups = seq.Entry.ReadingMeaningGroups
                     .AsQueryable()
                     .OrderBy(static g => g.Order)
                     .Select(ReadingMeaningGroupProjection)
-                    .ToList()
+                    .ToImmutableArray()
             }
         };
 
@@ -81,7 +80,7 @@ public static class DtoMapper
             Codepoints = group.Codepoints
                 .OrderBy(static c => c.Order)
                 .Select(static c => new CodepointDto(c.Text, c.TypeName))
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<DictionaryGroup, DictionaryGroupDto>> DictionaryGroupProjection =>
@@ -90,27 +89,24 @@ public static class DtoMapper
             Dictionaries = group.Dictionaries
                 .OrderBy(static d => d.Order)
                 .Select(static d => new DictionaryDto(d.Text, d.TypeName, d.Volume, d.Page))
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<MiscGroup, MiscGroupDto>> MiscGroupProjection =>
-        static group => new MiscGroupDto
+        static group => new MiscGroupDto(group.Grade, group.Frequency, group.JlptLevel)
         {
-            Grade = group.Grade,
-            Frequency = group.Frequency,
-            JlptLevel = group.JlptLevel,
             RadicalNames = group.RadicalNames
                 .OrderBy(static n => n.Order)
                 .Select(static n => n.Text)
-                .ToList(),
+                .ToImmutableArray(),
             StrokeCounts = group.StrokeCounts
                 .OrderBy(static s => s.Order)
                 .Select(static s => s.Value)
-                .ToList(),
+                .ToImmutableArray(),
             Variants = group.Variants
                 .OrderBy(static v => v.Order)
                 .Select(static v => new VariantDto(v.Text, v.TypeName))
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<QueryCodeGroup, QueryCodeGroupDto>> QueryCodeGroupProjection =>
@@ -119,7 +115,7 @@ public static class DtoMapper
             QueryCodes = group.QueryCodes
                 .OrderBy(static qc => qc.Order)
                 .Select(static qc => new QueryCodeDto(qc.Text, qc.TypeName, qc.Misclassification))
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<RadicalGroup, RadicalGroupDto>> RadicalGroupProjection =>
@@ -128,7 +124,7 @@ public static class DtoMapper
             Radicals = group.Radicals
                 .OrderBy(static r => r.Order)
                 .Select(static r => new RadicalDto(r.Number, r.TypeName))
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<ReadingMeaningGroup, ReadingMeaningGroupDto>> ReadingMeaningGroupProjection =>
@@ -138,25 +134,23 @@ public static class DtoMapper
                 .AsQueryable()
                 .OrderBy(static rm => rm.Order)
                 .Select(ReadingMeaningProjection)
-                .ToList(),
+                .ToImmutableArray(),
             Nanoris = group.Nanoris
                 .OrderBy(static n => n.Order)
                 .Select(static n => n.Text)
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<ReadingMeaning, ReadingMeaningDto>> ReadingMeaningProjection =>
-        static group => new ReadingMeaningDto
+        static group => new ReadingMeaningDto(group.IsKokuji, group.IsGhost)
         {
-            IsKokuji = group.IsKokuji,
-            IsGhost = group.IsGhost,
             Meanings = group.Meanings
                 .OrderBy(static m => m.Order)
                 .Select(static m => m.Text)
-                .ToList(),
+                .ToImmutableArray(),
             Readings = group.Readings
                 .OrderBy(static r => r.Order)
                 .Select(static r => new ReadingDto(r.Text, r.TypeName))
-                .ToList()
+                .ToImmutableArray()
         };
 }
