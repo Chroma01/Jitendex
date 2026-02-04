@@ -21,7 +21,7 @@ using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems;
 using Jitendex.JMdict.Import.Models.EntryElements;
 
-namespace Jitendex.JMdict.Import.SQLite.EntryElements;
+namespace Jitendex.JMdict.Import.Tables.EntryElements;
 
 internal sealed class SenseTable : Table<SenseElement>
 {

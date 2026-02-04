@@ -19,11 +19,11 @@ If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.JMdict.Import.Models;
-using Jitendex.JMdict.Import.SQLite;
-using Jitendex.JMdict.Import.SQLite.EntryElements;
-using Jitendex.JMdict.Import.SQLite.EntryElements.KanjiFormElements;
-using Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
-using Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
+using Jitendex.JMdict.Import.Tables;
+using Jitendex.JMdict.Import.Tables.EntryElements;
+using Jitendex.JMdict.Import.Tables.EntryElements.KanjiFormElements;
+using Jitendex.JMdict.Import.Tables.EntryElements.ReadingElements;
+using Jitendex.JMdict.Import.Tables.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import;
 

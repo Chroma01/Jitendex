@@ -21,7 +21,7 @@ using Jitendex.SQLite;
 using Jitendex.JMdict.Entities;
 using Jitendex.JMdict.Import.Models;
 
-namespace Jitendex.JMdict.Import.SQLite;
+namespace Jitendex.JMdict.Import.Tables;
 
 internal sealed class EntryTable : Table<EntryElement>
 {

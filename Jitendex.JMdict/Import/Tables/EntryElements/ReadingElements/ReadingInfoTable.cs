@@ -21,7 +21,7 @@ using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.ReadingItems;
 using Jitendex.JMdict.Import.Models.EntryElements;
 
-namespace Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
+namespace Jitendex.JMdict.Import.Tables.EntryElements.ReadingElements;
 
 internal sealed class ReadingInfoTable : Table<ReadingInfoElement>
 {
