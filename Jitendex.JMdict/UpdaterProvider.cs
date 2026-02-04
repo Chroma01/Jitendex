@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Jitendex.SupplementalData;
 using Jitendex.JMdict.Analysis;
-using Jitendex.JMdict.Import.SQLite;
+using Jitendex.JMdict.Import;
 using Jitendex.JMdict.Import.Parsing;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementReaders;

@@ -19,12 +19,13 @@ If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.JMdict.Import.Models;
+using Jitendex.JMdict.Import.SQLite;
 using Jitendex.JMdict.Import.SQLite.EntryElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.KanjiFormElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.ReadingElements;
 using Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
-namespace Jitendex.JMdict.Import.SQLite;
+namespace Jitendex.JMdict.Import;
 
 internal sealed class Database(ILogger<Database> logger, JmdictContext context)
 {

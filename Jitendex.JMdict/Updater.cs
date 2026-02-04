@@ -18,9 +18,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Analysis;
+using Jitendex.JMdict.Import;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Parsing;
-using Jitendex.JMdict.Import.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
 
