@@ -37,72 +37,15 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
             document.CrossReferenceTypes.Add(typeName, tag);
         }
 
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
-        var parsedRef = Parse(text);
-        if (parsedRef is null)
-        {
-            return;
-        }
-
         var xref = new CrossReferenceElement
         (
             EntryId: sense.EntryId,
-            SenseOrder: sense.Order,
+            ParentOrder: sense.Order,
             Order: document.CrossReferences.NextOrder(sense.Key()),
             TypeName: typeName,
-            RefText1: parsedRef.Text1,
-            RefText2: parsedRef.Text2,
-            RefSenseNumber: parsedRef.SenseNumber
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
         );
 
         document.CrossReferences.Add(xref.Key(), xref);
     }
-
-    private record ParsedReference(string Text1, string? Text2, int SenseNumber);
-
-    private ParsedReference? Parse(string text)
-    {
-        const char separator = '・';
-        var split = text.Split(separator);
-        ParsedReference parsed;
-        switch (split.Length)
-        {
-            case 1:
-                parsed = new(split[0], null, 1);
-                break;
-            case 2:
-                if (int.TryParse(split[1], out int x))
-                {
-                    parsed = new(split[0], null, x);
-                }
-                else
-                {
-                    parsed = new(split[0], split[1], 1);
-                }
-                break;
-            case 3:
-                if (int.TryParse(split[2], out int y))
-                {
-                    parsed = new(split[0], split[1], y);
-                }
-                else
-                {
-                    LogNonIntegerSenseOrder(text, split[2]);
-                    return null;
-                }
-                break;
-            default:
-                LogTooManySeparators(text, separator);
-                return null;
-        }
-        return parsed;
-    }
-
-    [LoggerMessage(LogLevel.Error,
-    "Third value `{ThirdValue}` in reference text `{Text}` must be an integer")]
-    partial void LogNonIntegerSenseOrder(string text, string thirdValue);
-
-    [LoggerMessage(LogLevel.Error,
-    "Too many separator characters `{Separator}` in reference text `{Text}`")]
-    partial void LogTooManySeparators(string text, char separator);
 }

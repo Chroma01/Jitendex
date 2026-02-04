@@ -30,10 +30,7 @@ public sealed class CrossReference
     public required int SenseOrder { get; set; }
     public required int Order { get; set; }
     public required string TypeName { get; set; }
-
-    public required string RefText1 { get; set; }
-    public required string? RefText2 { get; set; }
-    public required int RefSenseNumber { get; set; }
+    public required string Text { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public Sense Sense { get; set; } = null!;
@@ -44,9 +41,7 @@ public sealed class CrossReference
     /// <summary>
     /// Stable and unique identifier for this reference in the raw data.
     /// </summary>
-    public string ToExportKey() => RefText2 is null ?
-        $"{EntryId}・{SenseOrder + 1}・{RefText1}・{RefSenseNumber}" :
-        $"{EntryId}・{SenseOrder + 1}・{RefText1}【{RefText2}】・{RefSenseNumber}";
+    public string ToExportKey() => $"{EntryId}・{SenseOrder + 1}・{Text}";
 
     public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

@@ -39,6 +39,7 @@ internal static class AnalyzerProvider
         .AddDbContext<SupplementContext>()
 
         // Analysis units
+        .AddTransient<CrossReferenceTextParser>()
         .AddTransient<ReferenceSequencer>()
         .AddTransient<ReadingBridger>()
 

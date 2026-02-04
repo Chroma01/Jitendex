@@ -34,10 +34,11 @@ internal partial class ReferenceSequencer
     private readonly ILogger<ReferenceSequencer> _logger;
     private readonly JmdictContext _jmdictContext;
     private readonly SupplementContext _supplementContext;
+    private readonly CrossReferenceTextParser _parser;
 
-    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, JmdictContext jmdictContext, SupplementContext supplementContext) =>
-        (_logger, _jmdictContext, _supplementContext) =
-        (@logger, @jmdictContext, @supplementContext);
+    public ReferenceSequencer(ILogger<ReferenceSequencer> logger, JmdictContext jmdictContext, SupplementContext supplementContext, CrossReferenceTextParser parser) =>
+        (_logger, _jmdictContext, _supplementContext, _parser) =
+        (@logger, @jmdictContext, @supplementContext, @parser);
 
     private sealed record ReferenceText(string Text1, string? Text2);
 
@@ -50,13 +51,12 @@ internal partial class ReferenceSequencer
 
     private sealed record SequencedRef(
         int SequenceId,
-        int SenseNumber,
-        string RefText1,
-        string? RefText2,
-        int RefSenseNumber,
+        int SenseOrder,
+        string Text,
         int? RefSequenceId,
         int? RefReadingOrder,
-        int? RefKanjiFormOrder);
+        int? RefKanjiFormOrder,
+        int? RefSenseOrder);
 
     public void FindCrossReferenceSequenceIds()
     {
@@ -68,7 +68,7 @@ internal partial class ReferenceSequencer
     {
         var referenceTextToEntries = GetReferenceTextToEntries();
 
-        var allCrossReferences = _jmdictContext.CrossReferences
+        var rawCrossReferences = _jmdictContext.CrossReferences
             .AsNoTracking()
             .ToList();
 
@@ -88,29 +88,37 @@ internal partial class ReferenceSequencer
 
         var sequencedRefs = new List<SequencedRef>(40_000);
 
-        foreach (var xref in allCrossReferences)
+        foreach (var xref in rawCrossReferences)
         {
-            var potentialEntries = GetPotentialEntries(xref, referenceTextToEntries);
+            var parsedRef = _parser.Parse(xref.Text);
+
+            if (parsedRef is null)
+            {
+                sequencedRefs.Add(new(xref.EntryId, xref.SenseOrder, xref.Text, null, null, null, null));
+                continue;
+            }
+
+            var potentialEntries = GetPotentialEntries(xref, parsedRef, referenceTextToEntries);
             var potentialEntryIds = potentialEntries.Select(static e => e.Id);
 
             var entryId = potentialEntries.Length == 0
                 ? null
                 : potentialEntries.Length == 1
                 ? potentialEntries[0].Id
-                : FindIdInCache(xref, potentialEntryIds.ToArray(), sequenceIdCache);
+                : FindIdInCache(xref.ToExportKey(), potentialEntryIds.ToArray(), sequenceIdCache);
 
             var entry = entryId is null ? null
                 : potentialEntries.First(e => e.Id == entryId);
 
             int? kanjiFormOrder = entry is null ? null
-                : entry.KanjiForms.IndexOf(xref.RefText1) is int order and not -1
+                : entry.KanjiForms.IndexOf(parsedRef.Text1) is int order and not -1
                 ? order
                 : null;
 
             int? readingOrder = entry is null ? null
-                : entry.Readings.IndexOf(xref.RefText1) is int order1 and not -1
+                : entry.Readings.IndexOf(parsedRef.Text1) is int order1 and not -1
                 ? order1
-                : xref.RefText2 is not null && entry.Readings.IndexOf(xref.RefText2) is int order2 and not -1
+                : parsedRef.Text2 is not null && entry.Readings.IndexOf(parsedRef.Text2) is int order2 and not -1
                 ? order2
                 : kanjiFormOrder is null
                 ? null
@@ -118,28 +126,27 @@ internal partial class ReferenceSequencer
                 ? readingOrders.First()
                 : null;
 
-            LogReferenceInconsistencies(xref, entry, readingOrder, kanjiFormOrder, kanjiFormToReadings);
+            LogReferenceInconsistencies(xref, parsedRef, entry, readingOrder, kanjiFormOrder, kanjiFormToReadings);
 
             sequencedRefs.Add(new
             (
                 SequenceId: xref.EntryId,
-                SenseNumber: xref.SenseOrder + 1,
-                RefText1: xref.RefText1,
-                RefText2: xref.RefText2,
-                RefSenseNumber: xref.RefSenseNumber,
+                SenseOrder: xref.SenseOrder,
+                Text: xref.Text,
                 RefSequenceId: entryId,
                 RefReadingOrder: readingOrder,
-                RefKanjiFormOrder: kanjiFormOrder
+                RefKanjiFormOrder: kanjiFormOrder,
+                RefSenseOrder: parsedRef.SenseNumber - 1
             ));
         }
 
         return sequencedRefs;
     }
 
-    private int? FindIdInCache(CrossReference xref, int[] potentialEntryIds, FrozenDictionary<string, int?> xrefCache)
+    private int? FindIdInCache(string key, int[] potentialEntryIds, FrozenDictionary<string, int?> xrefCache)
     {
         int? entryId;
-        if (!xrefCache.TryGetValue(xref.ToExportKey(), out var cachedId))
+        if (!xrefCache.TryGetValue(key, out var cachedId))
         {
             entryId = null;
         }
@@ -158,15 +165,18 @@ internal partial class ReferenceSequencer
 
         if (entryId is null)
         {
-            LogAmbiguousReference(xref.ToExportKey(), potentialEntryIds.Length, potentialEntryIds);
+            LogAmbiguousReference(key, potentialEntryIds.Length, potentialEntryIds);
         }
 
         return entryId;
     }
 
-    private EntryData[] GetPotentialEntries(CrossReference xref, IReadOnlyDictionary<ReferenceText, List<EntryData>> referenceTextToEntries)
+    private EntryData[] GetPotentialEntries(
+        CrossReference xref,
+        ParsedReferenceText parsed,
+        IReadOnlyDictionary<ReferenceText, List<EntryData>> referenceTextToEntries)
     {
-        var key = new ReferenceText(xref.RefText1, xref.RefText2);
+        var key = new ReferenceText(parsed.Text1, parsed.Text2);
 
         if (!referenceTextToEntries.TryGetValue(key, out var entryInfos))
         {
@@ -175,7 +185,7 @@ internal partial class ReferenceSequencer
         }
 
         var possibleTargetEntries = entryInfos
-            .Where(e => e.Id != xref.EntryId && e.SenseCount >= xref.RefSenseNumber)
+            .Where(e => e.Id != xref.EntryId && e.SenseCount >= parsed.SenseNumber)
             .ToArray();
 
         if (possibleTargetEntries.Length == 0)
@@ -251,6 +261,7 @@ internal partial class ReferenceSequencer
 
     private void LogReferenceInconsistencies(
         CrossReference xref,
+        ParsedReferenceText parsed,
         EntryData? entry,
         int? readingOrder,
         int? kanjiFormOrder,
@@ -268,7 +279,7 @@ internal partial class ReferenceSequencer
         {
             LogReferenceToSearchOnlyReading(xref.ToExportKey());
         }
-        else if (kanjiFormOrder is null && xref.RefText2 is not null)
+        else if (kanjiFormOrder is null && parsed.Text2 is not null)
         {
             LogMissingKanjiForm(xref.ToExportKey());
         }
@@ -290,14 +301,13 @@ internal partial class ReferenceSequencer
             $"""
             INSERT INTO {nameof(CrossReferenceSequence)}
             ( {nameof(CrossReferenceSequence.SequenceId)}
-            , {nameof(CrossReferenceSequence.SenseNumber)}
-            , {nameof(CrossReferenceSequence.RefText1)}
-            , {nameof(CrossReferenceSequence.RefText2)}
-            , {nameof(CrossReferenceSequence.RefSenseNumber)}
+            , {nameof(CrossReferenceSequence.SenseOrder)}
+            , {nameof(CrossReferenceSequence.Text)}
             , {nameof(CrossReferenceSequence.RefSequenceId)}
             , {nameof(CrossReferenceSequence.RefReadingOrder)}
             , {nameof(CrossReferenceSequence.RefKanjiFormOrder)}
-            ) VALUES (@0, @1, @2, @3, @4, @5, @6, @7);
+            , {nameof(CrossReferenceSequence.RefSenseOrder)}
+            ) VALUES (@0, @1, @2, @3, @4, @5, @6);
             """;
 
         foreach (var xref in refs)
@@ -305,13 +315,12 @@ internal partial class ReferenceSequencer
             command.Parameters.AddRange(new SqliteParameter[]
             {
                 new("@0", xref.SequenceId),
-                new("@1", xref.SenseNumber),
-                new("@2", xref.RefText1),
-                new("@3", xref.RefText2 ?? string.Empty),
-                new("@4", xref.RefSenseNumber),
-                new("@5", xref.RefSequenceId.Nullable()),
-                new("@6", xref.RefReadingOrder.Nullable()),
-                new("@7", xref.RefKanjiFormOrder.Nullable()),
+                new("@1", xref.SenseOrder),
+                new("@2", xref.Text),
+                new("@3", xref.RefSequenceId.Nullable()),
+                new("@4", xref.RefReadingOrder.Nullable()),
+                new("@5", xref.RefKanjiFormOrder.Nullable()),
+                new("@6", xref.RefSenseOrder.Nullable()),
             });
             command.ExecuteNonQuery();
             command.Parameters.Clear();

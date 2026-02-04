@@ -48,7 +48,7 @@ internal class DialectReader : BaseReader<DialectReader>
         var dialect = new DialectElement
         (
             EntryId: sense.EntryId,
-            SenseOrder: sense.Order,
+            ParentOrder: sense.Order,
             Order: document.Dialects.NextOrder(sense.Key()),
             TagName: tagName
         );

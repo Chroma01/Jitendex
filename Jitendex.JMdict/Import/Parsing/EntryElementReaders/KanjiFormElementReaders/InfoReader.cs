@@ -48,7 +48,7 @@ internal class KInfoReader : BaseReader<KInfoReader>
         var info = new KanjiFormInfoElement
         (
             EntryId: kanjiForm.EntryId,
-            KanjiFormOrder: kanjiForm.Order,
+            ParentOrder: kanjiForm.Order,
             Order: document.KanjiFormInfos.NextOrder(kanjiForm.Key()),
             TagName: tagName
         );

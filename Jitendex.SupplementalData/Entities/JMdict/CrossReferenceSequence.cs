@@ -22,21 +22,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Jitendex.SupplementalData.Entities.JMdict;
 
 [Table(nameof(CrossReferenceSequence))]
-[PrimaryKey(nameof(SequenceId), nameof(SenseNumber), nameof(RefText1), nameof(RefText2), nameof(RefSenseNumber))]
+[PrimaryKey(nameof(SequenceId), nameof(SenseOrder), nameof(Text))]
 public sealed class CrossReferenceSequence
 {
     public required int SequenceId { get; init; }
-    public required int SenseNumber { get; init; }
-    public required string RefText1 { get; init; }
-    public required string RefText2 { get; init; }
-    public required int RefSenseNumber { get; init; }
+    public required int SenseOrder { get; init; }
+    public required string Text { get; init; }
 
     public int? RefSequenceId { get; set; }
     public int? RefReadingOrder { get; set; }
     public int? RefKanjiFormOrder { get; set; }
+    public int? RefSenseOrder { get; set; }
 
-    public string ToExportKey()
-        => RefText2 == string.Empty
-            ? $"{SequenceId}・{SenseNumber}・{RefText1}・{RefSenseNumber}"
-            : $"{SequenceId}・{SenseNumber}・{RefText1}【{RefText2}】・{RefSenseNumber}";
+    public string ToExportKey() => $"{SequenceId}・{SenseOrder + 1}・{Text}";
 }

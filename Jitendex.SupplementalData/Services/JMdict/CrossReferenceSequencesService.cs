@@ -48,20 +48,28 @@ internal sealed class CrossReferenceSequencesService
 
         foreach (var (key, value) in dictionary)
         {
-            var parsedKey = CrossReferenceSequenceKeyParser.ParseKey(key);
+            var (sequenceId, senseOrder, text) = Parse(key);
             _context.CrossReferenceSequences.Add(new()
             {
-                SequenceId = parsedKey.SequenceId,
-                SenseNumber = parsedKey.SenseNumber,
-                RefText1 = parsedKey.RefText1,
-                RefText2 = parsedKey.RefText2 ?? string.Empty,
-                RefSenseNumber = parsedKey.RefSenseNumber,
+                SequenceId = sequenceId,
+                SenseOrder = senseOrder,
+                Text = text,
                 RefSequenceId = value,
             });
         }
 
         _context.SaveChanges();
         transaction.Commit();
+    }
+
+    private (int, int, string) Parse(string key)
+    {
+        const char separator = '・';
+        var splitKey = key.Split(separator);
+        var sequenceId = int.Parse(splitKey[0]);
+        var senseNumber = int.Parse(splitKey[1]);
+        var text = string.Join(separator, splitKey[2..]);
+        return (sequenceId, senseNumber, text);
     }
 
     private async Task<Dictionary<string, int?>> ReadJsonDictionaryAsync(DirectoryInfo? dataDir)
@@ -90,40 +98,4 @@ internal sealed class CrossReferenceSequencesService
         IndentSize = 4,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
-}
-
-internal static class CrossReferenceSequenceKeyParser
-{
-    public sealed record ParsedKey(
-        int SequenceId,
-        int SenseNumber,
-        string RefText1,
-        string? RefText2,
-        int RefSenseNumber);
-
-    public static ParsedKey ParseKey(string key)
-    {
-        var splitKey = key.Split('・');
-        var sequenceId = int.Parse(splitKey[0]);
-        var senseNumber = int.Parse(splitKey[1]);
-        var (refText1, refText2) = ParseText(splitKey[2]);
-        var refSenseNumber = int.Parse(splitKey[3]);
-        return new ParsedKey(sequenceId, senseNumber, refText1, refText2, refSenseNumber);
-    }
-
-    private static (string, string?) ParseText(string text)
-    {
-        string refText1;
-        string? refText2 = null;
-        if (text.EndsWith('】') && text.IndexOf('【') is int index and not -1)
-        {
-            refText1 = text[..index];
-            refText2 = text[(index + 1)..^1];
-        }
-        else
-        {
-            refText1 = text;
-        }
-        return (refText1, refText2);
-    }
 }

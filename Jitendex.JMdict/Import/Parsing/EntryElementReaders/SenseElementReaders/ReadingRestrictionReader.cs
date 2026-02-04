@@ -35,7 +35,7 @@ internal partial class ReadingRestrictionReader : BaseReader<ReadingRestrictionR
         var restriction = new ReadingRestrictionElement
         (
             EntryId: sense.EntryId,
-            SenseOrder: sense.Order,
+            ParentOrder: sense.Order,
             Order: document.ReadingRestrictions.NextOrder(sense.Key()),
             ReadingText: text
         );

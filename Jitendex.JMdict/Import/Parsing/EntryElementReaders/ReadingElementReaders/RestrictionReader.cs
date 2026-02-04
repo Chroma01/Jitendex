@@ -35,7 +35,7 @@ internal partial class RestrictionReader : BaseReader<RestrictionReader>
         var restriction = new RestrictionElement
         (
             EntryId: reading.EntryId,
-            ReadingOrder: reading.Order,
+            ParentOrder: reading.Order,
             Order: document.Restrictions.NextOrder(reading.Key()),
             KanjiFormText: kanjiFormText
         );

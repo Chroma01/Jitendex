@@ -19,63 +19,57 @@ with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.JMdict.Import.Models.EntryElements;
 
-internal abstract record SubElement(int EntryId, int ParentOrder, int Order)
+internal interface ISubElement
 {
-    public (int, int, int) Key() => (EntryId, ParentOrder, Order);
+    public int EntryId { get; init; }
+    public int ParentOrder { get; init; }
+    public int Order { get; init; }
 }
 
 internal sealed record KanjiFormInfoElement
-    (int EntryId, int KanjiFormOrder, int Order, string TagName)
-    : SubElement(EntryId, KanjiFormOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record KanjiFormPriorityElement
-    (int EntryId, int KanjiFormOrder, int Order, string TagName)
-    : SubElement(EntryId, KanjiFormOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record ReadingInfoElement
-    (int EntryId, int ReadingOrder, int Order, string TagName)
-    : SubElement(EntryId, ReadingOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record ReadingPriorityElement
-    (int EntryId, int ReadingOrder, int Order, string TagName)
-    : SubElement(EntryId, ReadingOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record RestrictionElement
-    (int EntryId, int ReadingOrder, int Order, string KanjiFormText)
-    : SubElement(EntryId, ReadingOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string KanjiFormText) : ISubElement;
 
 internal sealed record CrossReferenceElement
-    (int EntryId, int SenseOrder, int Order, string TypeName, string RefText1, string? RefText2, int RefSenseNumber)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TypeName, string Text) : ISubElement;
 
 internal sealed record DialectElement
-    (int EntryId, int SenseOrder, int Order, string TagName)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record FieldElement
-    (int EntryId, int SenseOrder, int Order, string TagName)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record GlossElement
-    (int EntryId, int SenseOrder, int Order, string TypeName, string Text)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TypeName, string Text) : ISubElement;
 
 internal sealed record KanjiFormRestrictionElement
-    (int EntryId, int SenseOrder, int Order, string KanjiFormText)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string KanjiFormText) : ISubElement;
 
 internal sealed record LanguageSourceElement
-    (int EntryId, int SenseOrder, int Order, string? Text, string LanguageCode, string TypeName, bool IsWasei)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string? Text, string LanguageCode, string TypeName, bool IsWasei) : ISubElement;
 
 internal sealed record MiscElement
-    (int EntryId, int SenseOrder, int Order, string TagName)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record PartOfSpeechElement
-    (int EntryId, int SenseOrder, int Order, string TagName)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record ReadingRestrictionElement
-    (int EntryId, int SenseOrder, int Order, string ReadingText)
-    : SubElement(EntryId, SenseOrder, Order);
+    (int EntryId, int ParentOrder, int Order, string ReadingText) : ISubElement;
+
+internal static class SubElementExtensions
+{
+    public static (int, int, int) Key(this ISubElement x)
+        => (x.EntryId, x.ParentOrder, x.Order);
+}

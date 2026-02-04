@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Jitendex. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Dto.JMdict;
@@ -45,17 +46,17 @@ public static class DtoMapper
                     .AsQueryable()
                     .OrderBy(static kanjiForm => kanjiForm.Order)
                     .Select(KanjiFormProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 Readings = seq.Entry.Readings
                     .AsQueryable()
                     .OrderBy(static reading => reading.Order)
                     .Select(ReadingProjection)
-                    .ToList(),
+                    .ToImmutableArray(),
                 Senses = seq.Entry.Senses
                     .AsQueryable()
                     .OrderBy(static sense => sense.Order)
                     .Select(SenseProjection)
-                    .ToList()
+                    .ToImmutableArray()
             }
         };
 
@@ -66,11 +67,11 @@ public static class DtoMapper
             Infos = kanjiForm.Infos
                 .OrderBy(static info => info.Order)
                 .Select(static info => info.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             Priorities = kanjiForm.Priorities
                 .OrderBy(static prio => prio.Order)
                 .Select(static prio => prio.TagName)
-                .ToList(),
+                .ToImmutableArray(),
         };
 
     private static Expression<Func<Reading, ReadingDto>> ReadingProjection =>
@@ -81,15 +82,15 @@ public static class DtoMapper
             Infos = reading.Infos
                 .OrderBy(static info => info.Order)
                 .Select(static info => info.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             Priorities = reading.Priorities
                 .OrderBy(static prio => prio.Order)
                 .Select(static prio => prio.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             Restrictions = reading.Restrictions
                 .OrderBy(static rstr => rstr.Order)
                 .Select(static rstr => rstr.KanjiFormText)
-                .ToList(),
+                .ToImmutableArray(),
         };
 
     private static Expression<Func<Sense, SenseDto>> SenseProjection =>
@@ -98,39 +99,39 @@ public static class DtoMapper
             Note = sense.Note,
             CrossReferences = sense.CrossReferences
                 .OrderBy(static x => x.Order)
-                .Select(static x => new CrossReferenceDto(x.TypeName, x.RefText1, x.RefText2, x.SenseOrder))
-                .ToList(),
+                .Select(static x => new CrossReferenceDto(x.TypeName, x.Text))
+                .ToImmutableArray(),
             Dialects = sense.Dialects
                 .OrderBy(static dia => dia.Order)
                 .Select(static dia => dia.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             Fields = sense.Fields
                 .OrderBy(static fld => fld.Order)
                 .Select(static fld => fld.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             Glosses = sense.Glosses
                 .OrderBy(static gloss => gloss.Order)
                 .Select(static gloss => new GlossDto(gloss.Text, gloss.TypeName))
-                .ToList(),
+                .ToImmutableArray(),
             KanjiFormRestrictions = sense.KanjiFormRestrictions
                 .OrderBy(static rstr => rstr.Order)
                 .Select(static rstr => rstr.KanjiFormText)
-                .ToList(),
+                .ToImmutableArray(),
             LanguageSources = sense.LanguageSources
                 .OrderBy(static l => l.Order)
                 .Select(static l => new LanguageSourceDto(l.Text, l.LanguageCode, l.TypeName, l.IsWasei))
-                .ToList(),
+                .ToImmutableArray(),
             Miscs = sense.Miscs
                 .OrderBy(static m => m.Order)
                 .Select(static m => m.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             PartsOfSpeech = sense.PartsOfSpeech
                 .OrderBy(static pos => pos.Order)
                 .Select(static pos => pos.TagName)
-                .ToList(),
+                .ToImmutableArray(),
             ReadingRestrictions = sense.ReadingRestrictions
                 .OrderBy(static rstr => rstr.Order)
                 .Select(static restr => restr.ReadingText)
-                .ToList(),
+                .ToImmutableArray(),
         };
 }

@@ -48,7 +48,7 @@ internal class RInfoReader : BaseReader<RInfoReader>
         var info = new ReadingInfoElement
         (
             EntryId: reading.EntryId,
-            ReadingOrder: reading.Order,
+            ParentOrder: reading.Order,
             Order: document.ReadingInfos.NextOrder(reading.Key()),
             TagName: tagName
         );
