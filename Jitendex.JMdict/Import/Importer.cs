@@ -37,18 +37,44 @@ internal sealed class Importer
         (_logger, _context, _reader, _database, _analyzer) =
         (@logger, @context, @reader, @database, @analyzer);
 
-    public async Task UpdateAsync(DirectoryInfo? archiveDirectory)
+    public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {
         _context.Database.EnsureCreated();
-        await UpdateJmdictDatabaseAsync(archiveDirectory);
+        var previousDate = GetPreviousDate();
+
+        var previousDocument = previousDate == default
+            ? await InitializeDatabaseAsync(archiveDirectory)
+            : await GetPreviousDocumentAsync(archiveDirectory, previousDate);
+
+        await UpdateJmdictDatabaseAsync(archiveDirectory, previousDocument);
+
         _analyzer.Analyze();
     }
 
-    private async Task UpdateJmdictDatabaseAsync(DirectoryInfo? archiveDirectory)
-    {
-        var previousDate = GetPreviousDate();
-        var previousDocument = await GetPreviousDocumentAsync(previousDate, archiveDirectory);
+    private DateOnly GetPreviousDate() => _context.FileHeaders
+        .OrderByDescending(static x => x.Id)
+        .Take(1)
+        .Select(static x => x.Date)
+        .FirstOrDefault();
 
+    private async Task<Document> InitializeDatabaseAsync(DirectoryInfo? archiveDirectory)
+    {
+        var (file, date) = GetNextEdrdgFile(JMdict_e_examp, default, archiveDirectory);
+        var document = await _reader.ReadAsync(file!, date);
+        _database.Initialize(document);
+        _context.ExecuteVacuum();
+        return document;
+    }
+
+    private async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory, DateOnly previousDate)
+    {
+        var file = GetEdrdgFile(JMdict_e_examp, previousDate, archiveDirectory);
+        var document = await _reader.ReadAsync(file, previousDate);
+        return document;
+    }
+
+    private async Task UpdateJmdictDatabaseAsync(DirectoryInfo? archiveDirectory, Document previousDocument)
+    {
         while (true)
         {
             var (nextFile, nextDate) = GetNextEdrdgFile(JMdict_e_examp, previousDocument.Header.Date, archiveDirectory);
@@ -65,34 +91,5 @@ internal sealed class Importer
 
             previousDocument = nextDocument;
         }
-
-        if (previousDate == default)
-        {
-            using var context = new JmdictContext();
-            context.ExecuteVacuum();
-        }
-    }
-
-    private DateOnly GetPreviousDate() => _context.FileHeaders
-        .OrderByDescending(static x => x.Id)
-        .Take(1)
-        .Select(static x => x.Date)
-        .FirstOrDefault();
-
-    private async Task<Document> GetPreviousDocumentAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
-    {
-        Document document;
-        if (previousDate == default)
-        {
-            var (file, date) = GetNextEdrdgFile(JMdict_e_examp, previousDate, archiveDirectory);
-            document = await _reader.ReadAsync(file!, date);
-            _database.Initialize(document);
-        }
-        else
-        {
-            var file = GetEdrdgFile(JMdict_e_examp, previousDate, archiveDirectory);
-            document = await _reader.ReadAsync(file, previousDate);
-        }
-        return document;
     }
 }
