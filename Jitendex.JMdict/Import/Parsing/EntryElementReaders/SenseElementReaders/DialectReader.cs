@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal class DialectReader : BaseReader<DialectReader>
 {
-    public DialectReader(ILogger<DialectReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public DialectReader(ILogger<DialectReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, SenseElement sense)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var description = await _xmlReader.ReadElementContentAsStringAsync();
+        var description = await xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.KeywordDescriptionToName.TryGetValue(description, out var tagName))
         {

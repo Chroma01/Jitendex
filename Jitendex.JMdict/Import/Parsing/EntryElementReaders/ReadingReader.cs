@@ -30,14 +30,14 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
     private readonly RInfoReader _infoReader;
     private readonly RPriorityReader _priorityReader;
 
-    public ReadingReader(ILogger<ReadingReader> logger, XmlReader xmlReader, RestrictionReader restrictionReader, RInfoReader infoReader, RPriorityReader priorityReader) : base(logger, xmlReader)
+    public ReadingReader(ILogger<ReadingReader> logger, RestrictionReader restrictionReader, RInfoReader infoReader, RPriorityReader priorityReader) : base(logger)
     {
         _restrictionReader = restrictionReader;
         _infoReader = infoReader;
         _priorityReader = priorityReader;
     }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var reading = new ReadingElement
         {
@@ -48,18 +48,18 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
         };
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, reading);
+                    await ReadChildElementAsync(xmlReader, document, reading);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(XmlTagName.Reading);
+                    await LogUnexpectedTextNodeAsync(xmlReader, XmlTagName.Reading);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = IsClosingTag(XmlTagName.Reading);
+                    exit = IsClosingTag(xmlReader, XmlTagName.Reading);
                     break;
             }
         }
@@ -74,39 +74,39 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, ReadingElement reading)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, ReadingElement reading)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.ReadingText:
-                await ReadReadingText(reading);
+                await ReadReadingText(xmlReader, reading);
                 break;
             case XmlTagName.ReadingPriority:
-                await _priorityReader.ReadAsync(document, reading);
+                await _priorityReader.ReadAsync(xmlReader, document, reading);
                 break;
             case XmlTagName.ReadingRestriction:
-                await _restrictionReader.ReadAsync(document, reading);
+                await _restrictionReader.ReadAsync(xmlReader, document, reading);
                 break;
             case XmlTagName.ReadingInfo:
-                await _infoReader.ReadAsync(document, reading);
+                await _infoReader.ReadAsync(xmlReader, document, reading);
                 break;
             case XmlTagName.ReadingNoKanji:
                 reading.NoKanji = true;
                 break;
             default:
-                LogUnexpectedChildElement(XmlTagName.Reading);
+                LogUnexpectedChildElement(xmlReader, XmlTagName.Reading);
                 break;
         }
     }
 
-    private async Task ReadReadingText(ReadingElement reading)
+    private async Task ReadReadingText(XmlReader xmlReader, ReadingElement reading)
     {
         if (reading.Text is not null)
         {
             LogMultipleElements(reading.EntryId, reading.Order, XmlTagName.ReadingText);
         }
 
-        reading.Text = await _xmlReader.ReadElementContentAsStringAsync();
+        reading.Text = await xmlReader.ReadElementContentAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(reading.Text))
         {

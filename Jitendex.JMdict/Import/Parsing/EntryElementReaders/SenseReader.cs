@@ -36,12 +36,12 @@ internal partial class SenseReader : BaseReader<SenseReader>
     private readonly MiscReader _miscReader;
     private readonly PartOfSpeechReader _partOfSpeechReader;
 
-    public SenseReader(ILogger<SenseReader> logger, XmlReader xmlReader, KanjiFormRestrictionReader kRestrictionReader, ReadingRestrictionReader rRestrictionReader, CrossReferenceReader crossReferenceReader, DialectReader dialectReader, FieldReader fieldReader, GlossReader glossReader, LanguageSourceReader languageSourceReader, MiscReader miscReader, PartOfSpeechReader partOfSpeechReader)
-        : base(logger, xmlReader) =>
+    public SenseReader(ILogger<SenseReader> logger, KanjiFormRestrictionReader kRestrictionReader, ReadingRestrictionReader rRestrictionReader, CrossReferenceReader crossReferenceReader, DialectReader dialectReader, FieldReader fieldReader, GlossReader glossReader, LanguageSourceReader languageSourceReader, MiscReader miscReader, PartOfSpeechReader partOfSpeechReader)
+        : base(logger) =>
         (_kRestrictionReader, _rRestrictionReader, _crossReferenceReader, _dialectReader, _fieldReader, _glossReader, _languageSourceReader, _miscReader, _partOfSpeechReader) =
         (@kRestrictionReader, @rRestrictionReader, @crossReferenceReader, @dialectReader, @fieldReader, @glossReader, @languageSourceReader, @miscReader, @partOfSpeechReader);
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var sense = new SenseElement
         {
@@ -50,18 +50,18 @@ internal partial class SenseReader : BaseReader<SenseReader>
         };
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, sense);
+                    await ReadChildElementAsync(xmlReader, document, sense);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(XmlTagName.Sense);
+                    await LogUnexpectedTextNodeAsync(xmlReader, XmlTagName.Sense);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = IsClosingTag(XmlTagName.Sense);
+                    exit = IsClosingTag(xmlReader, XmlTagName.Sense);
                     break;
             }
         }
@@ -69,51 +69,51 @@ internal partial class SenseReader : BaseReader<SenseReader>
         document.Senses.Add(sense.Key(), sense);
     }
 
-    private async Task ReadChildElementAsync(Document document, SenseElement sense)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Gloss:
-                await _glossReader.ReadAsync(document, sense);
+                await _glossReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.PartOfSpeech:
-                await _partOfSpeechReader.ReadAsync(document, sense);
+                await _partOfSpeechReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.Misc:
-                await _miscReader.ReadAsync(document, sense);
+                await _miscReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.CrossReference:
             case XmlTagName.Antonym:
-                await _crossReferenceReader.ReadAsync(document, sense);
+                await _crossReferenceReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.Example:
-                await _xmlReader.SkipAsync();
+                await xmlReader.SkipAsync();
                 break;
             case XmlTagName.Field:
-                await _fieldReader.ReadAsync(document, sense);
+                await _fieldReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.LanguageSource:
-                await _languageSourceReader.ReadAsync(document, sense);
+                await _languageSourceReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.SenseNote:
-                await ReadSenseNote(sense);
+                await ReadSenseNote(xmlReader, sense);
                 break;
             case XmlTagName.SenseReadingRestriction:
-                await _rRestrictionReader.ReadAsync(document, sense);
+                await _rRestrictionReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.SenseKanjiFormRestriction:
-                await _kRestrictionReader.ReadAsync(document, sense);
+                await _kRestrictionReader.ReadAsync(xmlReader, document, sense);
                 break;
             case XmlTagName.Dialect:
-                await _dialectReader.ReadAsync(document, sense);
+                await _dialectReader.ReadAsync(xmlReader, document, sense);
                 break;
             default:
-                LogUnexpectedChildElement(XmlTagName.Sense);
+                LogUnexpectedChildElement(xmlReader, XmlTagName.Sense);
                 break;
         }
     }
 
-    private async Task ReadSenseNote(SenseElement sense)
+    private async Task ReadSenseNote(XmlReader xmlReader, SenseElement sense)
     {
         // The XML schema allows for more than one note per sense,
         // but in practice there is only one or none.
@@ -121,7 +121,7 @@ internal partial class SenseReader : BaseReader<SenseReader>
         {
             LogTooManySenseNotes(sense.EntryId, sense.Order);
         }
-        sense.Note = await _xmlReader.ReadElementContentAsStringAsync();
+        sense.Note = await xmlReader.ReadElementContentAsStringAsync();
     }
 
     [LoggerMessage(LogLevel.Warning,

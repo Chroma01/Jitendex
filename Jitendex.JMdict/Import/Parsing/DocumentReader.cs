@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.IO.Compression;
 using System.Xml;
 using Jitendex.JMdict.Import.Models;
 using Microsoft.Extensions.Logging;
@@ -27,31 +28,43 @@ internal partial class DocumentReader : BaseReader<DocumentReader>
     private readonly DocumentTypeReader _docTypeReader;
     private readonly EntriesReader _entriesReader;
 
-    public DocumentReader(ILogger<DocumentReader> logger, XmlReader xmlReader, DocumentTypeReader docTypeReader, EntriesReader entriesReader) : base(logger, xmlReader)
+    public DocumentReader(ILogger<DocumentReader> logger, DocumentTypeReader docTypeReader, EntriesReader entriesReader) : base(logger)
     {
         _docTypeReader = docTypeReader;
         _entriesReader = entriesReader;
     }
 
-    public async Task<Document> ReadAsync(DateOnly fileDate)
+    private static readonly XmlReaderSettings XmlReaderSettings = new()
     {
+        Async = true,
+        DtdProcessing = DtdProcessing.Parse,
+        MaxCharactersFromEntities = long.MaxValue,
+        MaxCharactersInDocument = long.MaxValue,
+    };
+
+    public async Task<Document> ReadAsync(FileInfo file, DateOnly fileDate)
+    {
+        FileStream f = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+        BrotliStream b = new(f, CompressionMode.Decompress);
+        using var xmlReader = XmlReader.Create(b, XmlReaderSettings);
+
         var document = new Document
         {
             Header = new(fileDate)
         };
 
-        await _docTypeReader.ReadAsync(document);
+        await _docTypeReader.ReadAsync(xmlReader, document);
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document);
+                    await ReadChildElementAsync(xmlReader, document);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(XmlTagName.Root);
+                    await LogUnexpectedTextNodeAsync(xmlReader, XmlTagName.Root);
                     break;
             }
         }
@@ -59,15 +72,15 @@ internal partial class DocumentReader : BaseReader<DocumentReader>
         return document;
     }
 
-    private async Task ReadChildElementAsync(Document document)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Jmdict:
-                await _entriesReader.ReadAsync(document);
+                await _entriesReader.ReadAsync(xmlReader, document);
                 break;
             default:
-                LogUnexpectedChildElement(XmlTagName.Root);
+                LogUnexpectedChildElement(xmlReader, XmlTagName.Root);
                 break;
         }
     }

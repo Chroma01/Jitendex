@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReade
 
 internal class RPriorityReader : BaseReader<RPriorityReader>
 {
-    public RPriorityReader(ILogger<RPriorityReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public RPriorityReader(ILogger<RPriorityReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, ReadingElement reading)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, ReadingElement reading)
     {
-        var tagName = await _xmlReader.ReadElementContentAsStringAsync();
+        var tagName = await xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.PriorityTags.ContainsKey(tagName))
         {

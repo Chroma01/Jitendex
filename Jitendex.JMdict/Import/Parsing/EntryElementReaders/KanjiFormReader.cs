@@ -29,11 +29,11 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
     private readonly KInfoReader _infoReader;
     private readonly KPriorityReader _priorityReader;
 
-    public KanjiFormReader(ILogger<KanjiFormReader> logger, XmlReader xmlReader, KInfoReader infoReader, KPriorityReader priorityReader) : base(logger, xmlReader) =>
+    public KanjiFormReader(ILogger<KanjiFormReader> logger, KInfoReader infoReader, KPriorityReader priorityReader) : base(logger) =>
         (_infoReader, _priorityReader) =
         (@infoReader, @priorityReader);
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var kanjiForm = new KanjiFormElement
         {
@@ -43,18 +43,18 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
         };
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, kanjiForm);
+                    await ReadChildElementAsync(xmlReader, document, kanjiForm);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(XmlTagName.KanjiForm);
+                    await LogUnexpectedTextNodeAsync(xmlReader, XmlTagName.KanjiForm);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = IsClosingTag(XmlTagName.KanjiForm);
+                    exit = IsClosingTag(xmlReader, XmlTagName.KanjiForm);
                     break;
             }
         }
@@ -69,33 +69,33 @@ internal partial class KanjiFormReader : BaseReader<KanjiFormReader>
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, KanjiFormElement kanjiForm)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, KanjiFormElement kanjiForm)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.KanjiFormText:
-                await ReadKanjiFormText(kanjiForm);
+                await ReadKanjiFormText(xmlReader, kanjiForm);
                 break;
             case XmlTagName.KanjiFormInfo:
-                await _infoReader.ReadAsync(document, kanjiForm);
+                await _infoReader.ReadAsync(xmlReader, document, kanjiForm);
                 break;
             case XmlTagName.KanjiFormPriority:
-                await _priorityReader.ReadAsync(document, kanjiForm);
+                await _priorityReader.ReadAsync(xmlReader, document, kanjiForm);
                 break;
             default:
-                LogUnexpectedChildElement(XmlTagName.KanjiForm);
+                LogUnexpectedChildElement(xmlReader, XmlTagName.KanjiForm);
                 break;
         }
     }
 
-    private async Task ReadKanjiFormText(KanjiFormElement kanjiForm)
+    private async Task ReadKanjiFormText(XmlReader xmlReader, KanjiFormElement kanjiForm)
     {
         if (kanjiForm.Text is not null)
         {
             LogMultipleElements(kanjiForm.EntryId, kanjiForm.Order, XmlTagName.KanjiFormText);
         }
 
-        kanjiForm.Text = await _xmlReader.ReadElementContentAsStringAsync();
+        kanjiForm.Text = await xmlReader.ReadElementContentAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(kanjiForm.Text))
         {

@@ -29,15 +29,15 @@ internal partial class EntryReader : BaseReader<EntryReader>
     private readonly ReadingReader _readingReader;
     private readonly SenseReader _senseReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader)
-        : base(logger, xmlReader)
+    public EntryReader(ILogger<EntryReader> logger, KanjiFormReader kanjiFormReader, ReadingReader readingReader, SenseReader senseReader)
+        : base(logger)
     {
         _kanjiFormReader = kanjiFormReader;
         _readingReader = readingReader;
         _senseReader = senseReader;
     }
 
-    public async Task ReadAsync(Document document)
+    public async Task ReadAsync(XmlReader xmlReader, Document document)
     {
         var entry = new EntryElement
         {
@@ -45,18 +45,18 @@ internal partial class EntryReader : BaseReader<EntryReader>
         };
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry);
+                    await ReadChildElementAsync(xmlReader, document, entry);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(XmlTagName.Entry);
+                    await LogUnexpectedTextNodeAsync(xmlReader, XmlTagName.Entry);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = IsClosingTag(XmlTagName.Entry);
+                    exit = IsClosingTag(xmlReader, XmlTagName.Entry);
                     break;
             }
         }
@@ -71,46 +71,46 @@ internal partial class EntryReader : BaseReader<EntryReader>
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         if (entry.Id.Equals(default))
         {
-            if (string.Equals(_xmlReader.Name, XmlTagName.Sequence, StringComparison.Ordinal))
+            if (string.Equals(xmlReader.Name, XmlTagName.Sequence, StringComparison.Ordinal))
             {
-                await ReadEntryId(entry);
+                await ReadEntryId(xmlReader, entry);
             }
             else
             {
-                LogPrematureElement(_xmlReader.Name);
+                LogPrematureElement(xmlReader.Name);
             }
             return;
         }
         else if (!entry.IsJmdictEntry())
         {
-            await _xmlReader.SkipAsync();
+            await xmlReader.SkipAsync();
             return;
         }
 
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Sense:
-                await _senseReader.ReadAsync(document, entry);
+                await _senseReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.Reading:
-                await _readingReader.ReadAsync(document, entry);
+                await _readingReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.KanjiForm:
-                await _kanjiFormReader.ReadAsync(document, entry);
+                await _kanjiFormReader.ReadAsync(xmlReader, document, entry);
                 break;
             default:
-                LogUnexpectedChildElement(XmlTagName.Entry);
+                LogUnexpectedChildElement(xmlReader, XmlTagName.Entry);
                 break;
         }
     }
 
-    private async Task ReadEntryId(EntryElement entry)
+    private async Task ReadEntryId(XmlReader xmlReader, EntryElement entry)
     {
-        var idText = await _xmlReader.ReadElementContentAsStringAsync();
+        var idText = await xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(idText, out int id))
         {
             entry.Id = id;

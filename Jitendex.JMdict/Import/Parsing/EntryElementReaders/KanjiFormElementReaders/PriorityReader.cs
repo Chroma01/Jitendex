@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementRea
 
 internal class KPriorityReader : BaseReader<KPriorityReader>
 {
-    public KPriorityReader(ILogger<KPriorityReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public KPriorityReader(ILogger<KPriorityReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, KanjiFormElement kanjiForm)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, KanjiFormElement kanjiForm)
     {
-        var tagName = await _xmlReader.ReadElementContentAsStringAsync();
+        var tagName = await xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.PriorityTags.ContainsKey(tagName))
         {

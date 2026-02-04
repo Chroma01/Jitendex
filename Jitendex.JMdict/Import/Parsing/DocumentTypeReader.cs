@@ -25,25 +25,25 @@ namespace Jitendex.JMdict.Import.Parsing;
 
 internal partial class DocumentTypeReader : BaseReader<DocumentTypeReader>
 {
-    public DocumentTypeReader(ILogger<DocumentTypeReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public DocumentTypeReader(ILogger<DocumentTypeReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document)
+    public async Task ReadAsync(XmlReader xmlReader, Document document)
     {
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.DocumentType:
-                    var dtd = await _xmlReader.GetValueAsync();
+                    var dtd = await xmlReader.GetValueAsync();
                     ParseEntities(document, dtd);
                     exit = true;
                     break;
                 case XmlNodeType.Element:
-                    LogUnexpectedChildElement(XmlTagName.Root);
+                    LogUnexpectedChildElement(xmlReader, XmlTagName.Root);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(XmlTagName.Root);
+                    await LogUnexpectedTextNodeAsync(xmlReader, XmlTagName.Root);
                     break;
             }
         }

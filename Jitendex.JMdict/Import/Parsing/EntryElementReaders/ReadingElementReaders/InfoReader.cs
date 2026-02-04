@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReade
 
 internal class RInfoReader : BaseReader<RInfoReader>
 {
-    public RInfoReader(ILogger<RInfoReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public RInfoReader(ILogger<RInfoReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, ReadingElement reading)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, ReadingElement reading)
     {
-        var description = await _xmlReader.ReadElementContentAsStringAsync();
+        var description = await xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.KeywordDescriptionToName.TryGetValue(description, out var tagName))
         {

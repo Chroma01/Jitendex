@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal partial class ReadingRestrictionReader : BaseReader<ReadingRestrictionReader>
 {
-    public ReadingRestrictionReader(ILogger<ReadingRestrictionReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public ReadingRestrictionReader(ILogger<ReadingRestrictionReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, SenseElement sense)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
 
         var restriction = new ReadingRestrictionElement
         (

@@ -24,23 +24,19 @@ namespace Jitendex.JMdict.Import.Parsing;
 internal abstract partial class BaseReader<T> where T : BaseReader<T>
 {
     protected readonly ILogger<T> _logger;
-    protected readonly XmlReader _xmlReader;
+    public BaseReader(ILogger<T> logger) => _logger = logger;
 
-    public BaseReader(ILogger<T> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    protected bool IsClosingTag(XmlReader xmlReader, ReadOnlySpan<char> tagName)
+        => tagName.SequenceEqual(xmlReader.Name);
 
-    protected bool IsClosingTag(ReadOnlySpan<char> tagName)
-        => tagName.SequenceEqual(_xmlReader.Name);
-
-    protected async Task LogUnexpectedTextNodeAsync(string tagName)
+    protected async Task LogUnexpectedTextNodeAsync(XmlReader xmlReader, string tagName)
     {
-        var text = await _xmlReader.GetValueAsync();
+        var text = await xmlReader.GetValueAsync();
         LogUnexpectedTextNode(tagName, text);
     }
 
-    protected void LogUnexpectedChildElement(string parentTagName)
-        => LogUnexpectedChildElement(_xmlReader.Name, parentTagName);
+    protected void LogUnexpectedChildElement(XmlReader xmlReader, string parentTagName)
+        => LogUnexpectedChildElement(xmlReader.Name, parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "XML document type `{Entity}` was not defined in DTD preamble")]

@@ -16,8 +16,6 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.IO.Compression;
-using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,7 +28,7 @@ namespace Jitendex.JMdict.Import.Parsing;
 
 internal static class ReaderProvider
 {
-    public static DocumentReader GetReader(FileInfo jmdictFile) => new ServiceCollection()
+    public static DocumentReader GetReader() => new ServiceCollection()
         .AddLogging(static builder =>
             builder.AddSimpleConsole(static options =>
             {
@@ -38,21 +36,6 @@ internal static class ReaderProvider
                 options.SingleLine = true;
                 options.TimestampFormat = "HH:mm:ss ";
             }))
-
-        // Global XML file reader.
-        .AddSingleton(provider =>
-        {
-            var readerSettings = new XmlReaderSettings
-            {
-                Async = true,
-                DtdProcessing = DtdProcessing.Parse,
-                MaxCharactersFromEntities = long.MaxValue,
-                MaxCharactersInDocument = long.MaxValue,
-            };
-            FileStream f = new(jmdictFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            BrotliStream b = new(f, CompressionMode.Decompress);
-            return XmlReader.Create(b, readerSettings);
-        })
 
         // Top-level readers.
         .AddTransient<DocumentTypeReader>()

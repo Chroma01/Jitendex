@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal partial class GlossReader : BaseReader<GlossReader>
 {
-    public GlossReader(ILogger<GlossReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public GlossReader(ILogger<GlossReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, SenseElement sense)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var typeName = _xmlReader.GetAttribute("g_type") ?? string.Empty;
+        var typeName = xmlReader.GetAttribute("g_type") ?? string.Empty;
 
         if (!document.GlossTypes.ContainsKey(typeName))
         {
@@ -43,7 +43,7 @@ internal partial class GlossReader : BaseReader<GlossReader>
             ParentOrder: sense.Order,
             Order: document.Glosses.NextOrder(sense.Key()),
             TypeName: typeName,
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
 
         document.Glosses.Add(gloss.Key(), gloss);

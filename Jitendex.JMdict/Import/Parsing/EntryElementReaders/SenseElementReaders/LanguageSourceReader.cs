@@ -25,33 +25,33 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal partial class LanguageSourceReader : BaseReader<LanguageSourceReader>
 {
-    public LanguageSourceReader(ILogger<LanguageSourceReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public LanguageSourceReader(ILogger<LanguageSourceReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, SenseElement sense)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var typeName = _xmlReader.GetAttribute("ls_type") ?? "full";
+        var typeName = xmlReader.GetAttribute("ls_type") ?? "full";
         if (!document.LanguageSourceTypes.ContainsKey(typeName))
         {
             var tag = new LanguageSourceTypeElement(typeName, document.Header.Date);
             document.LanguageSourceTypes.Add(typeName, tag);
         }
 
-        var languageCode = _xmlReader.GetAttribute("xml:lang") ?? "eng";
+        var languageCode = xmlReader.GetAttribute("xml:lang") ?? "eng";
         if (!document.Languages.ContainsKey(languageCode))
         {
             var tag = new LanguageElement(languageCode, document.Header.Date);
             document.Languages.Add(languageCode, tag);
         }
 
-        var wasei = _xmlReader.GetAttribute("ls_wasei");
+        var wasei = xmlReader.GetAttribute("ls_wasei");
         if (wasei is not null && wasei != "y")
         {
             LogInvalidWaseiValue(sense.EntryId, sense.Order, wasei);
         }
 
-        var text = _xmlReader.IsEmptyElement
+        var text = xmlReader.IsEmptyElement
             ? null
-            : await _xmlReader.ReadElementContentAsStringAsync();
+            : await xmlReader.ReadElementContentAsStringAsync();
 
         var languageSource = new LanguageSourceElement
         (

@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
 {
-    public CrossReferenceReader(ILogger<CrossReferenceReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public CrossReferenceReader(ILogger<CrossReferenceReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, SenseElement sense)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var typeName = _xmlReader.Name;
+        var typeName = xmlReader.Name;
         if (!document.CrossReferenceTypes.ContainsKey(typeName))
         {
             var tag = new CrossReferenceTypeElement(typeName, document.Header.Date);
@@ -42,7 +42,7 @@ internal partial class CrossReferenceReader : BaseReader<CrossReferenceReader>
             ParentOrder: sense.Order,
             Order: document.CrossReferences.NextOrder(sense.Key()),
             TypeName: typeName,
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
 
         document.CrossReferences.Add(xref.Key(), xref);

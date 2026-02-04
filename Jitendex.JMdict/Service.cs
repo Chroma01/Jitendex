@@ -94,8 +94,8 @@ public static class Service
 
     private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
     {
-        var reader = ReaderProvider.GetReader(file);
-        var document = await reader.ReadAsync(date);
+        var reader = ReaderProvider.GetReader();
+        var document = await reader.ReadAsync(file, date);
         return document;
     }
 }

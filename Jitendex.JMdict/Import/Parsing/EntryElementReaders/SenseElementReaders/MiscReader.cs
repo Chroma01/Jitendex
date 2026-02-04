@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders
 
 internal class MiscReader : BaseReader<MiscReader>
 {
-    public MiscReader(ILogger<MiscReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public MiscReader(ILogger<MiscReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, SenseElement sense)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var description = await _xmlReader.ReadElementContentAsStringAsync();
+        var description = await xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.KeywordDescriptionToName.TryGetValue(description, out var tagName))
         {

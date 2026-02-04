@@ -25,11 +25,11 @@ namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementRea
 
 internal class KInfoReader : BaseReader<KInfoReader>
 {
-    public KInfoReader(ILogger<KInfoReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public KInfoReader(ILogger<KInfoReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, KanjiFormElement kanjiForm)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, KanjiFormElement kanjiForm)
     {
-        var description = await _xmlReader.ReadElementContentAsStringAsync();
+        var description = await xmlReader.ReadElementContentAsStringAsync();
 
         if (!document.KeywordDescriptionToName.TryGetValue(description, out var tagName))
         {
