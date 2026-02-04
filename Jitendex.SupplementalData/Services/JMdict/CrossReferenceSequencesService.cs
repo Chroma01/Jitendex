@@ -82,6 +82,10 @@ internal sealed class CrossReferenceSequencesService
     private async Task WriteJsonDictionaryAsync(DirectoryInfo? dataDir, Dictionary<string, int?> dictionary)
     {
         var filePath = GetJsonFilePath(dataDir);
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
         await using var stream = File.OpenWrite(filePath);
         await JsonSerializer.SerializeAsync(stream, dictionary, GetJsonSerializerOptions());
     }
