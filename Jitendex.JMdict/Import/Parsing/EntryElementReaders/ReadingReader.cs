@@ -19,7 +19,6 @@ If not, see <https://www.gnu.org/licenses/>.
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Import.Models;
-using Jitendex.JMdict.Import.Models.EntryElements;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 
 namespace Jitendex.JMdict.Import.Parsing.EntryElementReaders;

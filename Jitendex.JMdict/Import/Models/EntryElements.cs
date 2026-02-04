@@ -28,3 +28,37 @@ internal sealed record EntryElement
         _ => false,
     };
 }
+
+internal interface IEntryElement
+{
+    public int EntryId { get; init; }
+    public int Order { get; init; }
+}
+
+internal sealed record KanjiFormElement : IEntryElement
+{
+    public required int EntryId { get; init; }
+    public required int Order { get; init; }
+    public required string Text { get; set; }
+}
+
+internal sealed record ReadingElement : IEntryElement
+{
+    public required int EntryId { get; init; }
+    public required int Order { get; init; }
+    public required string Text { get; set; }
+    public required bool NoKanji { get; set; }
+}
+
+internal sealed record SenseElement : IEntryElement
+{
+    public required int EntryId { get; init; }
+    public required int Order { get; init; }
+    public string? Note { get; set; }
+}
+
+internal static class EntryElementExtensions
+{
+    public static (int, int) Key(this IEntryElement element)
+        => (element.EntryId, element.Order);
+}
