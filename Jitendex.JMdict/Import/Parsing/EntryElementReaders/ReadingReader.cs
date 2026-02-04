@@ -95,7 +95,7 @@ internal partial class ReadingReader : BaseReader<ReadingReader>
                 reading.NoKanji = true;
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Reading);
+                LogUnexpectedChildElement(XmlTagName.Reading);
                 break;
         }
     }

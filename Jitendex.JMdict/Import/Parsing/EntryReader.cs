@@ -104,7 +104,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
                 await _kanjiFormReader.ReadAsync(document, entry);
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Entry);
+                LogUnexpectedChildElement(XmlTagName.Entry);
                 break;
         }
     }

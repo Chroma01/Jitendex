@@ -40,9 +40,8 @@ internal abstract partial class BaseReader<T> where T : BaseReader<T>
         LogUnexpectedTextNode(tagName, text);
     }
 
-    [LoggerMessage(LogLevel.Warning,
-    "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
-    protected partial void LogUnexpectedChildElement(string tagName, string parentTagName);
+    protected void LogUnexpectedChildElement(string parentTagName)
+        => LogUnexpectedChildElement(_xmlReader.Name, parentTagName);
 
     [LoggerMessage(LogLevel.Warning,
     "XML document type `{Entity}` was not defined in DTD preamble")]
@@ -51,4 +50,8 @@ internal abstract partial class BaseReader<T> where T : BaseReader<T>
     [LoggerMessage(LogLevel.Warning,
     "Unexpected XML text node found in element <{TagName}>: `{Text}`")]
     partial void LogUnexpectedTextNode(string tagName, string text);
+
+    [LoggerMessage(LogLevel.Warning,
+    "Unexpected XML element node <{TagName}> found in element <{ParentTagName}>")]
+    partial void LogUnexpectedChildElement(string tagName, string parentTagName);
 }

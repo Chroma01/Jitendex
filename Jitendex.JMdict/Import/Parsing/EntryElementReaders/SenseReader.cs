@@ -109,7 +109,7 @@ internal partial class SenseReader : BaseReader<SenseReader>
                 await _dialectReader.ReadAsync(document, sense);
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Sense);
+                LogUnexpectedChildElement(XmlTagName.Sense);
                 break;
         }
     }

@@ -68,7 +68,7 @@ internal partial class JmdictReader : BaseReader<JmdictReader>
                 await _entriesReader.ReadAsync(document);
                 break;
             default:
-                LogUnexpectedChildElement(_xmlReader.Name, XmlTagName.Root);
+                LogUnexpectedChildElement(XmlTagName.Root);
                 break;
         }
     }

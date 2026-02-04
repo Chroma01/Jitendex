@@ -41,11 +41,10 @@ internal partial class DocumentTypeReader : BaseReader<DocumentTypeReader>
                     exit = true;
                     break;
                 case XmlNodeType.Element:
-                    LogUnexpectedElement(_xmlReader.Name);
+                    LogUnexpectedChildElement(XmlTagName.Root);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
-                    LogUnexpectedText(text);
+                    await LogUnexpectedTextNodeAsync(XmlTagName.Root);
                     break;
             }
         }
@@ -62,9 +61,9 @@ internal partial class DocumentTypeReader : BaseReader<DocumentTypeReader>
             {
                 document.KeywordDescriptionToName.Add(description, name);
             }
-            else if (name != oldName)
+            else if (!string.Equals(name, oldName, StringComparison.Ordinal))
             {
-                _logger.LogError("Keyword `{Name}` has multiple descriptions in the Jmdict DTD", name);
+                LogMultipleDescriptions(description);
             }
         }
     }
@@ -73,10 +72,6 @@ internal partial class DocumentTypeReader : BaseReader<DocumentTypeReader>
     private static partial Regex DtdEntityRegex();
 
     [LoggerMessage(LogLevel.Warning,
-    "Element <{xmlTagName}> encountered before the document type definitions have been parsed.")]
-    partial void LogUnexpectedElement(string xmlTagName);
-
-    [LoggerMessage(LogLevel.Warning,
-    "Text node `{Text}` encountered before the document type definitions have been parsed.")]
-    partial void LogUnexpectedText(string text);
+    "Keyword description `{Description}` corresponds to multiple keyword names in the Jmdict DTD")]
+    partial void LogMultipleDescriptions(string description);
 }
