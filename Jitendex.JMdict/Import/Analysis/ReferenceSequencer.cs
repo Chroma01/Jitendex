@@ -26,7 +26,7 @@ using Jitendex.SupplementalData.Entities.JMdict;
 using Jitendex.SQLite;
 using Jitendex.JMdict.Entities.EntryItems.SenseItems;
 
-namespace Jitendex.JMdict.Analysis;
+namespace Jitendex.JMdict.Import.Analysis;
 
 internal partial class ReferenceSequencer
 {

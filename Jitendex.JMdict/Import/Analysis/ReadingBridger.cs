@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 using Jitendex.SupplementalData;
 using Jitendex.SupplementalData.Entities.JMdict;
 
-namespace Jitendex.JMdict.Analysis;
+namespace Jitendex.JMdict.Import.Analysis;
 
 internal partial class ReadingBridger
 {

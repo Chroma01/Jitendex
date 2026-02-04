@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
+using Jitendex.JMdict.Import;
 
 namespace Jitendex.JMdict;
 

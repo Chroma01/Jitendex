@@ -19,15 +19,14 @@ If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Jitendex.SupplementalData;
-using Jitendex.JMdict.Analysis;
-using Jitendex.JMdict.Import;
+using Jitendex.JMdict.Import.Analysis;
 using Jitendex.JMdict.Import.Parsing;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
-namespace Jitendex.JMdict;
+namespace Jitendex.JMdict.Import;
 
 internal static class UpdaterProvider
 {

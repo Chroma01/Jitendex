@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 
-namespace Jitendex.JMdict.Analysis;
+namespace Jitendex.JMdict.Import.Analysis;
 
 internal partial class Analyzer
 {
