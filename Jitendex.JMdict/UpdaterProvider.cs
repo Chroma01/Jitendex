@@ -18,17 +18,20 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-
+using Jitendex.SupplementalData;
+using Jitendex.JMdict.Analysis;
+using Jitendex.JMdict.Import.SQLite;
+using Jitendex.JMdict.Import.Parsing;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
 
-namespace Jitendex.JMdict.Import.Parsing;
+namespace Jitendex.JMdict;
 
-internal static class ReaderProvider
+internal static class UpdaterProvider
 {
-    public static DocumentReader GetReader() => new ServiceCollection()
+    public static Updater GetUpdater() => new ServiceCollection()
         .AddLogging(static builder =>
             builder.AddSimpleConsole(static options =>
             {
@@ -37,7 +40,13 @@ internal static class ReaderProvider
                 options.TimestampFormat = "HH:mm:ss ";
             }))
 
+        // Databases
+        .AddDbContext<JmdictContext>()
+        .AddDbContext<SupplementContext>()
+        .AddTransient<Database>()
+
         // Top-level readers.
+        .AddTransient<DocumentReader>()
         .AddTransient<DocumentTypeReader>()
         .AddTransient<EntriesReader>()
         .AddTransient<EntryReader>()
@@ -67,8 +76,14 @@ internal static class ReaderProvider
         .AddTransient<PartOfSpeechReader>()
         .AddTransient<ReadingRestrictionReader>()
 
+        // Analysis units
+        .AddTransient<Analyzer>()
+        .AddTransient<ReadingBridger>()
+        .AddTransient<ReferenceSequencer>()
+        .AddTransient<CrossReferenceTextParser>()
+
         // Build and return the Jmdict service.
-        .AddTransient<DocumentReader>()
+        .AddTransient<Updater>()
         .BuildServiceProvider()
-        .GetRequiredService<DocumentReader>();
+        .GetRequiredService<Updater>();
 }

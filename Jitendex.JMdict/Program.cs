@@ -44,10 +44,10 @@ public static class Program
             return 1;
         }
 
-        await Service.UpdateAsync
-        (
-            archiveDirectory: parseResult.GetValue(archiveDirOption)
-        );
+        var archiveDirectory = parseResult.GetValue(archiveDirOption);
+
+        var updater = UpdaterProvider.GetUpdater();
+        await updater.UpdateAsync(archiveDirectory);
 
         return 0;
     }

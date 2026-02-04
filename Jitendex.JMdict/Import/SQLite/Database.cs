@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.SQLite.EntryElements;
@@ -25,7 +26,7 @@ using Jitendex.JMdict.Import.SQLite.EntryElements.SenseElements;
 
 namespace Jitendex.JMdict.Import.SQLite;
 
-internal static class Database
+internal sealed class Database(ILogger<Database> logger, JmdictContext context)
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly RevisionTable RevisionTable = new();
@@ -75,11 +76,10 @@ internal static class Database
     private static readonly KeywordTable<LanguageElement> LanguageTable = new();
     #endregion
 
-    public static void Initialize(Document document)
+    public void Initialize(Document document)
     {
-        Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
+        logger.LogInformation("Initializing database with data from {Date:yyyy-MM-dd}", document.Header.Date);
 
-        using var context = new JmdictContext();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
 
@@ -122,11 +122,10 @@ internal static class Database
         transaction.Commit();
     }
 
-    public static void Update(DocumentDiff diff)
+    public void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
+        logger.LogInformation("Updating {Count} entries with data from {Date:yyyy-MM-dd}", diff.SequenceIds.Count, diff.FileHeader.Date);
 
-        using var context = new JmdictContext();
         var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
         using var transaction = context.Database.BeginTransaction();

@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.JMdict.Analysis;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Parsing;
@@ -25,17 +26,26 @@ using static Jitendex.EdrdgDictionaryArchive.Service;
 
 namespace Jitendex.JMdict;
 
-public static class Service
+internal sealed class Updater
 {
-    public static async Task UpdateAsync(DirectoryInfo? archiveDirectory)
-    {
-        await UpdateJmdictDatabaseAsync(archiveDirectory);
+    private readonly ILogger<Updater> _logger;
+    private readonly JmdictContext _context;
+    private readonly DocumentReader _reader;
+    private readonly Database _database;
+    private readonly Analyzer _analyzer;
 
-        var analyzer = AnalyzerProvider.GetAnalyzer();
-        analyzer.Analyze();
+    public Updater(ILogger<Updater> logger, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
+        (_logger, _context, _reader, _database, _analyzer) =
+        (@logger, @context, @reader, @database, @analyzer);
+
+    public async Task UpdateAsync(DirectoryInfo? archiveDirectory)
+    {
+        _context.Database.EnsureCreated();
+        await UpdateJmdictDatabaseAsync(archiveDirectory);
+        _analyzer.Analyze();
     }
 
-    private static async Task UpdateJmdictDatabaseAsync(DirectoryInfo? archiveDirectory)
+    private async Task UpdateJmdictDatabaseAsync(DirectoryInfo? archiveDirectory)
     {
         var previousDate = GetPreviousDate();
         var previousDocument = await GetPreviousDocumentAsync(previousDate, archiveDirectory);
@@ -49,10 +59,10 @@ public static class Service
                 break;
             }
 
-            var nextDocument = await ReadAsync(nextFile, nextDate);
+            var nextDocument = await _reader.ReadAsync(nextFile, nextDate);
             var diff = new DocumentDiff(previousDocument, nextDocument);
 
-            Database.Update(diff);
+            _database.Update(diff);
 
             previousDocument = nextDocument;
         }
@@ -64,38 +74,26 @@ public static class Service
         }
     }
 
-    private static DateOnly GetPreviousDate()
-    {
-        using var context = new JmdictContext();
-        context.Database.EnsureCreated();
-        return context.FileHeaders
-            .OrderByDescending(static x => x.Id)
-            .Take(1)
-            .Select(static x => x.Date)
-            .FirstOrDefault();
-    }
+    private DateOnly GetPreviousDate() => _context.FileHeaders
+        .OrderByDescending(static x => x.Id)
+        .Take(1)
+        .Select(static x => x.Date)
+        .FirstOrDefault();
 
-    private static async Task<Document> GetPreviousDocumentAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
+    private async Task<Document> GetPreviousDocumentAsync(DateOnly previousDate, DirectoryInfo? archiveDirectory)
     {
         Document document;
         if (previousDate == default)
         {
             var (file, date) = GetNextEdrdgFile(JMdict_e_examp, previousDate, archiveDirectory);
-            document = await ReadAsync(file!, date);
-            Database.Initialize(document);
+            document = await _reader.ReadAsync(file!, date);
+            _database.Initialize(document);
         }
         else
         {
             var file = GetEdrdgFile(JMdict_e_examp, previousDate, archiveDirectory);
-            document = await ReadAsync(file, previousDate);
+            document = await _reader.ReadAsync(file, previousDate);
         }
-        return document;
-    }
-
-    private static async Task<Document> ReadAsync(FileInfo file, DateOnly date)
-    {
-        var reader = ReaderProvider.GetReader();
-        var document = await reader.ReadAsync(file, date);
         return document;
     }
 }
