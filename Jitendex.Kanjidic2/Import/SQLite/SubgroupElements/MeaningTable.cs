@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.SubgroupItems;
-using Jitendex.Kanjidic2.Import.Models.SubgroupElements;
+using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.SQLite.SubgroupElements;
 

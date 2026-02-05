@@ -20,8 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -32,10 +30,10 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
     public async Task ReadAsync(Document document, EntryElement entry)
     {
         var group = new CodepointGroupElement
-        {
-            EntryId = entry.Id,
-            Order = document.CodepointGroups.NextOrder(entry.Id),
-        };
+        (
+            EntryId: entry.Id,
+            Order: document.CodepointGroups.NextOrder(entry.Id)
+        );
 
         document.CodepointGroups.Add(group.Key(), group);
 
@@ -73,13 +71,13 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
     private async Task ReadCodepoint(Document document, EntryElement entry, CodepointGroupElement group)
     {
         var codepoint = new CodepointElement
-        {
-            EntryId = entry.Id,
-            GroupOrder = group.Order,
-            Order = document.Codepoints.NextOrder(group.Key()),
-            TypeName = GetTypeName(document, entry),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: entry.Id,
+            GroupOrder: group.Order,
+            Order: document.Codepoints.NextOrder(group.Key()),
+            TypeName: GetTypeName(document, entry),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
         document.Codepoints.Add(codepoint.Key(), codepoint);
     }
 

@@ -20,8 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -38,10 +36,10 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
     public async Task ReadAsync(Document document, EntryElement entry)
     {
         var group = new ReadingMeaningGroupElement
-        {
-            EntryId = entry.Id,
-            Order = document.ReadingMeaningGroups.NextOrder(entry.Id),
-        };
+        (
+            EntryId: entry.Id,
+            Order: document.ReadingMeaningGroups.NextOrder(entry.Id)
+        );
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -82,12 +80,12 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
     private async Task ReadNanori(Document document, EntryElement entry, ReadingMeaningGroupElement group)
     {
         var nanori = new NanoriElement
-        {
-            EntryId = entry.Id,
-            GroupOrder = group.Order,
-            Order = document.Nanoris.NextOrder(group.Key()),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: entry.Id,
+            GroupOrder: group.Order,
+            Order: document.Nanoris.NextOrder(group.Key()),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
         document.Nanoris.Add(nanori.Key(), nanori);
     }
 

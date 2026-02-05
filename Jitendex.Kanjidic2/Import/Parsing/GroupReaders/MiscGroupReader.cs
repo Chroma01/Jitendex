@@ -20,8 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -32,10 +30,10 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
     public async Task ReadAsync(Document document, EntryElement entry)
     {
         var group = new MiscGroupElement
-        {
-            EntryId = entry.Id,
-            Order = document.MiscGroups.NextOrder(entry.Id),
-        };
+        (
+            EntryId: entry.Id,
+            Order: document.MiscGroups.NextOrder(entry.Id)
+        );
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -138,25 +136,25 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
             return;
         }
         var strokeCount = new StrokeCountElement
-        {
-            EntryId = group.EntryId,
-            GroupOrder = group.Order,
-            Order = document.StrokeCounts.NextOrder(group.Key()),
-            Value = value,
-        };
+        (
+            EntryId: group.EntryId,
+            GroupOrder: group.Order,
+            Order: document.StrokeCounts.NextOrder(group.Key()),
+            Value: value
+        );
         document.StrokeCounts.Add(strokeCount.Key(), strokeCount);
     }
 
     private async Task ReadVariant(Document document, EntryElement entry, MiscGroupElement group)
     {
         var variant = new VariantElement
-        {
-            EntryId = group.EntryId,
-            GroupOrder = group.Order,
-            Order = document.Variants.NextOrder(group.Key()),
-            TypeName = GetVariantTypeName(document, entry),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: group.EntryId,
+            GroupOrder: group.Order,
+            Order: document.Variants.NextOrder(group.Key()),
+            TypeName: GetVariantTypeName(document, entry),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
         document.Variants.Add(variant.Key(), variant);
     }
 
@@ -187,12 +185,12 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
     private async Task ReadRadicalName(Document document, MiscGroupElement group)
     {
         var radicalName = new RadicalNameElement
-        {
-            EntryId = group.EntryId,
-            GroupOrder = group.Order,
-            Order = document.RadicalNames.NextOrder(group.Key()),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: group.EntryId,
+            GroupOrder: group.Order,
+            Order: document.RadicalNames.NextOrder(group.Key()),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
         document.RadicalNames.Add(radicalName.Key(), radicalName);
     }
 

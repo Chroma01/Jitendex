@@ -20,9 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
-using Jitendex.Kanjidic2.Import.Models.SubgroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -33,11 +30,11 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
     public async Task ReadAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group)
     {
         var readingMeaning = new ReadingMeaningElement
-        {
-            EntryId = entry.Id,
-            GroupOrder = group.Order,
-            Order = document.ReadingMeanings.NextOrder(group.Key()),
-        };
+        (
+            EntryId: entry.Id,
+            GroupOrder: group.Order,
+            Order: document.ReadingMeanings.NextOrder(group.Key())
+        );
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -78,14 +75,14 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
     private async Task ReadReading(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
     {
         var reading = new ReadingElement
-        {
-            EntryId = readingMeaning.EntryId,
-            GroupOrder = group.Order,
-            ReadingMeaningOrder = readingMeaning.Order,
-            Order = document.Readings.NextOrder(readingMeaning.Key()),
-            TypeName = GetReadingTypeName(document, entry),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: readingMeaning.EntryId,
+            GroupOrder: group.Order,
+            ReadingMeaningOrder: readingMeaning.Order,
+            Order: document.Readings.NextOrder(readingMeaning.Key()),
+            TypeName: GetReadingTypeName(document, entry),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
         document.Readings.Add(reading.Key(), reading);
     }
 
@@ -120,13 +117,13 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
         }
 
         var meaning = new MeaningElement
-        {
-            EntryId = entry.Id,
-            GroupOrder = group.Order,
-            ReadingMeaningOrder = readingMeaning.Order,
-            Order = document.Meanings.NextOrder(readingMeaning.Key()),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: entry.Id,
+            GroupOrder: group.Order,
+            ReadingMeaningOrder: readingMeaning.Order,
+            Order: document.Meanings.NextOrder(readingMeaning.Key()),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
 
         if (string.Equals(meaning.Text, "(kokuji)", StringComparison.Ordinal))
         {

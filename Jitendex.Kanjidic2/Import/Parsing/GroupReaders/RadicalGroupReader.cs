@@ -20,8 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -32,10 +30,10 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
     public async Task ReadAsync(Document document, EntryElement entry)
     {
         var group = new RadicalGroupElement
-        {
-            EntryId = entry.Id,
-            Order = document.RadicalGroups.NextOrder(entry.Id),
-        };
+        (
+            EntryId: entry.Id,
+            Order: document.RadicalGroups.NextOrder(entry.Id)
+        );
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -73,13 +71,13 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
     private async Task ReadRadical(Document document, EntryElement entry, RadicalGroupElement group)
     {
         var radical = new RadicalElement
-        {
-            EntryId = group.EntryId,
-            GroupOrder = group.Order,
-            Order = document.Radicals.NextOrder(group.Key()),
-            TypeName = GetTypeName(document, entry),
-            Number = await GetNumber(entry),
-        };
+        (
+            EntryId: group.EntryId,
+            GroupOrder: group.Order,
+            Order: document.Radicals.NextOrder(group.Key()),
+            TypeName: GetTypeName(document, entry),
+            Number: await GetNumber(entry)
+        );
         document.Radicals.Add(radical.Key(), radical);
     }
 

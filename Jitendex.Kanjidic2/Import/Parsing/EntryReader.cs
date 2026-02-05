@@ -20,7 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
 using Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;

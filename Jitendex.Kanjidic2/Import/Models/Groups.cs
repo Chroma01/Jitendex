@@ -16,15 +16,29 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace Jitendex.Kanjidic2.Import.Models.Groups;
+namespace Jitendex.Kanjidic2.Import.Models;
 
-internal sealed record MiscGroupElement
+internal interface IGroup
 {
-    public required int EntryId { get; init; }
-    public required int Order { get; init; }
+    int EntryId { get; init; }
+    int Order { get; init; }
+}
+
+internal sealed record CodepointGroupElement(int EntryId, int Order) : IGroup;
+internal sealed record DictionaryGroupElement(int EntryId, int Order) : IGroup;
+internal sealed record QueryCodeGroupElement(int EntryId, int Order) : IGroup;
+internal sealed record RadicalGroupElement(int EntryId, int Order) : IGroup;
+internal sealed record ReadingMeaningGroupElement(int EntryId, int Order) : IGroup;
+
+internal sealed record MiscGroupElement(int EntryId, int Order) : IGroup
+{
     public int? Grade { get; set; }
     public int? Frequency { get; set; }
     public int? JlptLevel { get; set; }
+}
 
-    public (int, int) Key() => (EntryId, Order);
+internal static class GroupExtensions
+{
+    public static (int, int) Key(this IGroup group)
+        => (group.EntryId, group.Order);
 }

@@ -16,10 +16,6 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
-using Jitendex.Kanjidic2.Import.Models.SubgroupElements;
-
 namespace Jitendex.Kanjidic2.Import.Models;
 
 internal sealed class Document

@@ -20,8 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -32,10 +30,10 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
     public async Task ReadAsync(Document document, EntryElement entry)
     {
         var group = new DictionaryGroupElement
-        {
-            EntryId = entry.Id,
-            Order = document.DictionaryGroups.NextOrder(entry.Id),
-        };
+        (
+            EntryId: entry.Id,
+            Order: document.DictionaryGroups.NextOrder(entry.Id)
+        );
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -73,15 +71,15 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
     private async Task ReadDictionary(Document document, EntryElement entry, DictionaryGroupElement group)
     {
         var dictionary = new DictionaryElement
-        {
-            EntryId = group.EntryId,
-            GroupOrder = group.Order,
-            Order = document.Dictionaries.NextOrder(group.Key()),
-            TypeName = GetTypeName(document, entry),
-            Volume = GetDictionaryVolume(entry),
-            Page = GetDictionaryPage(entry),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: group.EntryId,
+            GroupOrder: group.Order,
+            Order: document.Dictionaries.NextOrder(group.Key()),
+            TypeName: GetTypeName(document, entry),
+            Volume: GetDictionaryVolume(entry),
+            Page: GetDictionaryPage(entry),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
 
         document.Dictionaries.Add(dictionary.Key(), dictionary);
     }

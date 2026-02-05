@@ -20,8 +20,6 @@ using System.Text;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Jitendex.Kanjidic2.Import.Models;
-using Jitendex.Kanjidic2.Import.Models.Groups;
-using Jitendex.Kanjidic2.Import.Models.GroupElements;
 
 namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -32,10 +30,10 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
     public async Task ReadAsync(Document document, EntryElement entry)
     {
         var group = new QueryCodeGroupElement
-        {
-            EntryId = entry.Id,
-            Order = document.QueryCodeGroups.NextOrder(entry.Id),
-        };
+        (
+            EntryId: entry.Id,
+            Order: document.QueryCodeGroups.NextOrder(entry.Id)
+        );
 
         var exit = false;
         while (!exit && await _xmlReader.ReadAsync())
@@ -73,14 +71,14 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
     private async Task ReadQueryCode(Document document, EntryElement entry, QueryCodeGroupElement group)
     {
         var queryCode = new QueryCodeElement
-        {
-            EntryId = group.EntryId,
-            GroupOrder = group.Order,
-            Order = document.QueryCodes.NextOrder(group.Key()),
-            TypeName = GetTypeName(document, entry),
-            Misclassification = GetMisclassification(document),
-            Text = await _xmlReader.ReadElementContentAsStringAsync(),
-        };
+        (
+            EntryId: group.EntryId,
+            GroupOrder: group.Order,
+            Order: document.QueryCodes.NextOrder(group.Key()),
+            TypeName: GetTypeName(document, entry),
+            Misclassification: GetMisclassification(document),
+            Text: await _xmlReader.ReadElementContentAsStringAsync()
+        );
         document.QueryCodes.Add(queryCode.Key(), queryCode);
     }
 
