@@ -41,7 +41,7 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry, group);
+                    await ReadChildElementAsync(document, group);
                     break;
                 case XmlNodeType.Text:
                     await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.MiscGroup);
@@ -55,35 +55,35 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         document.MiscGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry, MiscGroupElement group)
+    private async Task ReadChildElementAsync(Document document, MiscGroupElement group)
     {
         switch (_xmlReader.Name)
         {
             case XmlTagName.Grade:
-                await ReadGrade(entry, group);
+                await ReadGrade(group);
                 break;
             case XmlTagName.Frequency:
-                await ReadFrequency(entry, group);
+                await ReadFrequency(group);
                 break;
             case XmlTagName.Jlpt:
-                await ReadJlpt(entry, group);
+                await ReadJlpt(group);
                 break;
             case XmlTagName.StrokeCount:
-                await ReadStrokeCount(document, entry, group);
+                await ReadStrokeCount(document, group);
                 break;
             case XmlTagName.Variant:
-                await ReadVariant(document, entry, group);
+                await ReadVariant(document, group);
                 break;
             case XmlTagName.RadicalName:
                 await ReadRadicalName(document, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.MiscGroup);
+                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.MiscGroup);
                 break;
         }
     }
 
-    private async Task ReadGrade(EntryElement entry, MiscGroupElement group)
+    private async Task ReadGrade(MiscGroupElement group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -92,11 +92,11 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
         else
         {
-            LogNonNumeric(entry.ToRune(), XmlTagName.Grade, text);
+            LogNonNumeric(group.ToRune(), XmlTagName.Grade, text);
         }
     }
 
-    private async Task ReadFrequency(EntryElement entry, MiscGroupElement group)
+    private async Task ReadFrequency(MiscGroupElement group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -105,11 +105,11 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
         else
         {
-            LogNonNumeric(entry.ToRune(), XmlTagName.Frequency, text);
+            LogNonNumeric(group.ToRune(), XmlTagName.Frequency, text);
         }
     }
 
-    private async Task ReadJlpt(EntryElement entry, MiscGroupElement group)
+    private async Task ReadJlpt(MiscGroupElement group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
@@ -118,11 +118,11 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
         else
         {
-            LogNonNumeric(entry.ToRune(), XmlTagName.Jlpt, text);
+            LogNonNumeric(group.ToRune(), XmlTagName.Jlpt, text);
         }
     }
 
-    private async Task ReadStrokeCount(Document document, EntryElement entry, MiscGroupElement group)
+    private async Task ReadStrokeCount(Document document, MiscGroupElement group)
     {
         var text = await _xmlReader.ReadElementContentAsStringAsync();
         int value;
@@ -132,7 +132,7 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
         else
         {
-            LogNonNumeric(entry.ToRune(), XmlTagName.StrokeCount, text);
+            LogNonNumeric(group.ToRune(), XmlTagName.StrokeCount, text);
             return;
         }
         var strokeCount = new StrokeCountElement
@@ -145,27 +145,27 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         document.StrokeCounts.Add(strokeCount.Key(), strokeCount);
     }
 
-    private async Task ReadVariant(Document document, EntryElement entry, MiscGroupElement group)
+    private async Task ReadVariant(Document document, MiscGroupElement group)
     {
         var variant = new VariantElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Variants.NextOrder(group.Key()),
-            TypeName: GetVariantTypeName(document, entry),
+            TypeName: GetVariantTypeName(document, group),
             Text: await _xmlReader.ReadElementContentAsStringAsync()
         );
         document.Variants.Add(variant.Key(), variant);
     }
 
-    private string GetVariantTypeName(Document document, EntryElement entry)
+    private string GetVariantTypeName(Document document, MiscGroupElement group)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("var_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(entry.ToRune());
+            LogMissingTypeName(group.ToRune());
             typeName = string.Empty;
         }
         else

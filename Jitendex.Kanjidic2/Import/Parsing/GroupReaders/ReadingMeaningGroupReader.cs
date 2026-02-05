@@ -47,7 +47,7 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry, group);
+                    await ReadChildElementAsync(document, group);
                     break;
                 case XmlNodeType.Text:
                     await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.ReadingMeaningGroup);
@@ -61,27 +61,27 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
         document.ReadingMeaningGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group)
+    private async Task ReadChildElementAsync(Document document, ReadingMeaningGroupElement group)
     {
         switch (_xmlReader.Name)
         {
             case XmlTagName.ReadingMeaning:
-                await _readingMeaningReader.ReadAsync(document, entry, group);
+                await _readingMeaningReader.ReadAsync(document, group);
                 break;
             case XmlTagName.Nanori:
-                await ReadNanori(document, entry, group);
+                await ReadNanori(document, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaningGroup);
+                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaningGroup);
                 break;
         }
     }
 
-    private async Task ReadNanori(Document document, EntryElement entry, ReadingMeaningGroupElement group)
+    private async Task ReadNanori(Document document, ReadingMeaningGroupElement group)
     {
         var nanori = new NanoriElement
         (
-            EntryId: entry.Id,
+            EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Nanoris.NextOrder(group.Key()),
             Text: await _xmlReader.ReadElementContentAsStringAsync()

@@ -27,11 +27,11 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
 {
     public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
 
-    public async Task ReadAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group)
+    public async Task ReadAsync(Document document, ReadingMeaningGroupElement group)
     {
         var readingMeaning = new ReadingMeaningElement
         (
-            EntryId: entry.Id,
+            EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.ReadingMeanings.NextOrder(group.Key())
         );
@@ -42,10 +42,10 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry, group, readingMeaning);
+                    await ReadChildElementAsync(document, readingMeaning);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.ReadingMeaning);
+                    await LogUnexpectedTextNodeAsync(group.EntryId, XmlTagName.ReadingMeaning);
                     break;
                 case XmlNodeType.EndElement:
                     exit = _xmlReader.Name == XmlTagName.ReadingMeaning;
@@ -56,43 +56,43 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
         document.ReadingMeanings.Add(readingMeaning.Key(), readingMeaning);
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
+    private async Task ReadChildElementAsync(Document document, ReadingMeaningElement readingMeaning)
     {
         switch (_xmlReader.Name)
         {
             case XmlTagName.Reading:
-                await ReadReading(document, entry, group, readingMeaning);
+                await ReadReading(document, readingMeaning);
                 break;
             case XmlTagName.Meaning:
-                await ReadMeaning(document, entry, group, readingMeaning);
+                await ReadMeaning(document, readingMeaning);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaning);
+                LogUnexpectedChildElement(readingMeaning.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaning);
                 break;
         }
     }
 
-    private async Task ReadReading(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
+    private async Task ReadReading(Document document, ReadingMeaningElement readingMeaning)
     {
         var reading = new ReadingElement
         (
             EntryId: readingMeaning.EntryId,
-            GroupOrder: group.Order,
+            GroupOrder: readingMeaning.GroupOrder,
             ReadingMeaningOrder: readingMeaning.Order,
             Order: document.Readings.NextOrder(readingMeaning.Key()),
-            TypeName: GetReadingTypeName(document, entry),
+            TypeName: GetReadingTypeName(document, readingMeaning),
             Text: await _xmlReader.ReadElementContentAsStringAsync()
         );
         document.Readings.Add(reading.Key(), reading);
     }
 
-    private string GetReadingTypeName(Document document, EntryElement entry)
+    private string GetReadingTypeName(Document document, ReadingMeaningElement readingMeaning)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("r_type");
         if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(entry.ToRune());
+            LogMissingTypeName(readingMeaning.ToRune());
             typeName = string.Empty;
         }
         else
@@ -107,7 +107,7 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
         return typeName;
     }
 
-    private async Task ReadMeaning(Document document, EntryElement entry, ReadingMeaningGroupElement group, ReadingMeaningElement readingMeaning)
+    private async Task ReadMeaning(Document document, ReadingMeaningElement readingMeaning)
     {
         if (_xmlReader.GetAttribute("m_lang") is not null)
         {
@@ -118,8 +118,8 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
 
         var meaning = new MeaningElement
         (
-            EntryId: entry.Id,
-            GroupOrder: group.Order,
+            EntryId: readingMeaning.EntryId,
+            GroupOrder: readingMeaning.GroupOrder,
             ReadingMeaningOrder: readingMeaning.Order,
             Order: document.Meanings.NextOrder(readingMeaning.Key()),
             Text: await _xmlReader.ReadElementContentAsStringAsync()

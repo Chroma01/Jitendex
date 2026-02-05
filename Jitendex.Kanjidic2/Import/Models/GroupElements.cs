@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Text;
+
 namespace Jitendex.Kanjidic2.Import.Models;
 
 internal interface IGroupElement
@@ -44,4 +46,7 @@ internal static class GroupElementExtensions
 {
     public static (int, int, int) Key(this IGroupElement element)
         => (element.EntryId, element.GroupOrder, element.Order);
+
+    public static Rune ToRune(this IGroupElement element)
+        => new(element.EntryId);
 }

@@ -43,7 +43,7 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry, group);
+                    await ReadChildElementAsync(document, group);
                     break;
                 case XmlNodeType.Text:
                     await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.CodepointGroup);
@@ -55,40 +55,40 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry, CodepointGroupElement group)
+    private async Task ReadChildElementAsync(Document document, CodepointGroupElement group)
     {
         switch (_xmlReader.Name)
         {
             case XmlTagName.Codepoint:
-                await ReadCodepoint(document, entry, group);
+                await ReadCodepoint(document, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.CodepointGroup);
+                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.CodepointGroup);
                 break;
         }
     }
 
-    private async Task ReadCodepoint(Document document, EntryElement entry, CodepointGroupElement group)
+    private async Task ReadCodepoint(Document document, CodepointGroupElement group)
     {
         var codepoint = new CodepointElement
         (
-            EntryId: entry.Id,
+            EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Codepoints.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, entry),
+            TypeName: GetTypeName(document, group),
             Text: await _xmlReader.ReadElementContentAsStringAsync()
         );
         document.Codepoints.Add(codepoint.Key(), codepoint);
     }
 
-    private string GetTypeName(Document document, EntryElement entry)
+    private string GetTypeName(Document document, CodepointGroupElement group)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("cp_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(entry.ToRune());
+            LogMissingTypeName(group.ToRune());
             typeName = string.Empty;
         }
         else

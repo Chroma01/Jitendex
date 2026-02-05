@@ -41,7 +41,7 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry, group);
+                    await ReadChildElementAsync(document, group);
                     break;
                 case XmlNodeType.Text:
                     await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.DictionaryGroup);
@@ -55,43 +55,43 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         document.DictionaryGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry, DictionaryGroupElement group)
+    private async Task ReadChildElementAsync(Document document, DictionaryGroupElement group)
     {
         switch (_xmlReader.Name)
         {
             case XmlTagName.Dictionary:
-                await ReadDictionary(document, entry, group);
+                await ReadDictionary(document, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.DictionaryGroup);
+                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.DictionaryGroup);
                 break;
         }
     }
 
-    private async Task ReadDictionary(Document document, EntryElement entry, DictionaryGroupElement group)
+    private async Task ReadDictionary(Document document, DictionaryGroupElement group)
     {
         var dictionary = new DictionaryElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Dictionaries.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, entry),
-            Volume: GetDictionaryVolume(entry),
-            Page: GetDictionaryPage(entry),
+            TypeName: GetTypeName(document, group),
+            Volume: GetDictionaryVolume(group),
+            Page: GetDictionaryPage(group),
             Text: await _xmlReader.ReadElementContentAsStringAsync()
         );
 
         document.Dictionaries.Add(dictionary.Key(), dictionary);
     }
 
-    private string GetTypeName(Document document, EntryElement entry)
+    private string GetTypeName(Document document, DictionaryGroupElement group)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("dr_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(entry.ToRune());
+            LogMissingTypeName(group.ToRune());
             typeName = string.Empty;
         }
         else
@@ -108,7 +108,7 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         return typeName;
     }
 
-    private int? GetDictionaryVolume(EntryElement entry)
+    private int? GetDictionaryVolume(DictionaryGroupElement group)
     {
         var volume = _xmlReader.GetAttribute("m_vol");
         if (volume is null)
@@ -122,12 +122,12 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         }
         else
         {
-            LogNonNumericVolume(entry.ToRune(), volume);
+            LogNonNumericVolume(group.ToRune(), volume);
             return null;
         }
     }
 
-    private int? GetDictionaryPage(EntryElement entry)
+    private int? GetDictionaryPage(DictionaryGroupElement group)
     {
         var page = _xmlReader.GetAttribute("m_page");
         if (page is null)
@@ -141,7 +141,7 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         }
         else
         {
-            LogNonNumericPage(entry.ToRune(), page);
+            LogNonNumericPage(group.ToRune(), page);
             return null;
         }
     }

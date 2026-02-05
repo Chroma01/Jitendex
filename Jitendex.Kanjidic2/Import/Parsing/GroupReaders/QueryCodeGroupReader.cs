@@ -41,7 +41,7 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
             switch (_xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry, group);
+                    await ReadChildElementAsync(document, group);
                     break;
                 case XmlNodeType.Text:
                     await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.QueryCodeGroup);
@@ -55,40 +55,40 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
         document.QueryCodeGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry, QueryCodeGroupElement group)
+    private async Task ReadChildElementAsync(Document document, QueryCodeGroupElement group)
     {
         switch (_xmlReader.Name)
         {
             case XmlTagName.QueryCode:
-                await ReadQueryCode(document, entry, group);
+                await ReadQueryCode(document, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.QueryCodeGroup);
+                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.QueryCodeGroup);
                 break;
         }
     }
 
-    private async Task ReadQueryCode(Document document, EntryElement entry, QueryCodeGroupElement group)
+    private async Task ReadQueryCode(Document document, QueryCodeGroupElement group)
     {
         var queryCode = new QueryCodeElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.QueryCodes.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, entry),
+            TypeName: GetTypeName(document, group),
             Misclassification: GetMisclassification(document),
             Text: await _xmlReader.ReadElementContentAsStringAsync()
         );
         document.QueryCodes.Add(queryCode.Key(), queryCode);
     }
 
-    private string GetTypeName(Document document, EntryElement entry)
+    private string GetTypeName(Document document, QueryCodeGroupElement group)
     {
         string typeName;
         var attribute = _xmlReader.GetAttribute("qc_type");
         if (string.IsNullOrWhiteSpace(attribute))
         {
-            LogMissingTypeName(entry.ToRune());
+            LogMissingTypeName(group.ToRune());
             typeName = string.Empty;
         }
         else
