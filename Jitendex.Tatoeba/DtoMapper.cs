@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Jitendex.Dto.Tatoeba;
@@ -35,39 +36,35 @@ public static class DtoMapper
     private static Expression<Func<Sequence, SequenceDto>> RevisionlessSequenceProjection =>
         static seq => new SequenceDto(seq.Id, seq.CreatedDate)
         {
-            Example = seq.Example == null ? null : new ExampleDto
+            Example = seq.Example == null ? null : new ExampleDto(seq.Example.Text)
             {
-                Text = seq.Example.Text,
                 Segmentations = seq.Example.Segmentations
                     .AsQueryable()
                     .OrderBy(static s => s.Index)
                     .Select(SegmentationProjection)
-                    .ToList()
+                    .ToImmutableArray()
             }
         };
 
     private static Expression<Func<Segmentation, SegmentationDto>> SegmentationProjection =>
         static segmentation => new SegmentationDto
         {
-            Translation = new TranslationDto(segmentation.Translation.Id)
-            {
-                Text = segmentation.Translation.Text
-            },
+            Translation = new TranslationDto(segmentation.Translation.Id, segmentation.Translation.Text),
             Tokens = segmentation.Tokens
                 .AsQueryable()
                 .OrderBy(static t => t.Index)
                 .Select(TokenProjection)
-                .ToList()
+                .ToImmutableArray()
         };
 
     private static Expression<Func<Token, TokenDto>> TokenProjection =>
         static token => new TokenDto
-        {
-            Headword = token.Headword,
-            Reading = token.Reading,
-            EntryId = token.EntryId,
-            SenseNumber = token.SenseNumber,
-            SentenceForm = token.SentenceForm,
-            IsPriority = token.IsPriority,
-        };
+        (
+            Headword: token.Headword,
+            Reading: token.Reading,
+            EntryId: token.EntryId,
+            SenseNumber: token.SenseNumber,
+            SentenceForm: token.SentenceForm,
+            IsPriority: token.IsPriority
+        );
 }

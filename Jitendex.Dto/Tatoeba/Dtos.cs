@@ -18,16 +18,24 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Dto.Tatoeba;
 
+public sealed record RevisionDto(int Number, DateOnly CreatedDate, bool IsPriority, string DiffJson);
+
+public sealed record SequenceDto(int Id, DateOnly CreatedDate)
+{
+    public ExampleDto? Example { get; init; }
+    public ImmutableArray<RevisionDto> Revisions { get; init; } = [];
+}
+
+public sealed record ExampleDto(string Text)
+{
+    public ImmutableArray<SegmentationDto> Segmentations { get; init; } = [];
+}
+
 public sealed record SegmentationDto
 {
-    public required TranslationDto Translation { get; set; }
-    public List<TokenDto> Tokens { get; init; } = [];
-
-    public override string ToString() =>
-        $"""
-        --Translation--
-        {Translation}
-        --Tokens--
-        {string.Join(' ', Tokens.Select(static t => t.ToString()))}
-        """;
+    public required TranslationDto Translation { get; init; }
+    public ImmutableArray<TokenDto> Tokens { get; init; } = [];
 }
+
+public sealed record TranslationDto(int Id, string Text);
+public sealed record TokenDto(string Headword, string? Reading, int? EntryId, int? SenseNumber, string? SentenceForm, bool IsPriority);
