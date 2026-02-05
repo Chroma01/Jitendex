@@ -19,11 +19,12 @@ If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.EntityFrameworkCore;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.Kanjidic2.Import.Models;
+using Jitendex.Kanjidic2.Import.Tables;
 using Jitendex.Kanjidic2.Import.Tables.Groups;
 using Jitendex.Kanjidic2.Import.Tables.GroupElements;
 using Jitendex.Kanjidic2.Import.Tables.SubgroupElements;
 
-namespace Jitendex.Kanjidic2.Import.Tables;
+namespace Jitendex.Kanjidic2.Import;
 
 internal static class Database
 {
