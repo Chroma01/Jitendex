@@ -16,9 +16,9 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.Kanjidic2.Import;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Parsing;
-using Jitendex.Kanjidic2.Import.Tables;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
 
