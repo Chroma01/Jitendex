@@ -77,7 +77,7 @@ public static class Service
         }
         else
         {
-            var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
+            var file = GetEdrdgFile(kanjidic2, previousDate, archiveDirectory);
             document = await ReadAsync(file);
         }
         return document;
