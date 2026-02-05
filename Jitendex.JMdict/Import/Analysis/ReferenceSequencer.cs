@@ -85,7 +85,7 @@ internal partial class ReferenceSequencer
                 static x => x.ToExportKey(),
                 static x => x.RefSequenceId);
 
-        var sequencedRefs = new List<SequencedRef>(40_000);
+        var sequencedRefs = new List<SequencedRef>(rawCrossReferences.Count);
 
         foreach (var xref in rawCrossReferences)
         {
