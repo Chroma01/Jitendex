@@ -30,7 +30,7 @@ public static class Program
             Description = "Path to the edrdg-dictionary-archive directory",
         };
 
-        var rootCommand = new RootCommand("Jitendex.Kanjidic2: Import a Kanjidic2 XML document")
+        var rootCommand = new RootCommand("Jitendex.Kanjidic2: Import Kanjidic2 XML documents")
         {
             archiveDirOption
         };
