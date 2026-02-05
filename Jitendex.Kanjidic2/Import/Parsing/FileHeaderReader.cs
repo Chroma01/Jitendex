@@ -51,7 +51,7 @@ internal partial class HeaderReader : BaseReader<HeaderReader>
                     LogUnexpectedTextNode(text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == DocumentHeader.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.Header;
                     break;
             }
         }
@@ -80,15 +80,15 @@ internal partial class HeaderReader : BaseReader<HeaderReader>
         {
             case "kanjidic2":
                 break;
-            case DocumentHeader.XmlTagName:
+            case XmlTagName.Header:
                 break;
-            case DocumentHeader.database_XmlTagName:
+            case XmlTagName.DatabaseVersion:
                 header.DatabaseVersion = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
-            case DocumentHeader.file_XmlTagName:
+            case XmlTagName.FileVersion:
                 header.FileVersion = await _xmlReader.ReadElementContentAsStringAsync();
                 break;
-            case DocumentHeader.date_XmlTagName:
+            case XmlTagName.CreationDate:
                 var content = await _xmlReader.ReadElementContentAsStringAsync();
                 if (DateOnly.TryParse(content, out var date))
                 {

@@ -27,5 +27,4 @@ internal sealed record RadicalElement
     public required string TypeName { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "rad_value";
 }

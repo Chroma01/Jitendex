@@ -23,9 +23,4 @@ internal sealed record DocumentHeader
     public required string DatabaseVersion { get; set; }
     public required string FileVersion { get; set; }
     public required DateOnly Date { get; set; }
-
-    public const string XmlTagName = "header";
-    public const string file_XmlTagName = "file_version";
-    public const string database_XmlTagName = "database_version";
-    public const string date_XmlTagName = "date_of_creation";
 }

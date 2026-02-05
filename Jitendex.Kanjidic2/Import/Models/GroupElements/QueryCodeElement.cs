@@ -28,5 +28,4 @@ internal sealed record QueryCodeElement
     public required string? Misclassification { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "q_code";
 }

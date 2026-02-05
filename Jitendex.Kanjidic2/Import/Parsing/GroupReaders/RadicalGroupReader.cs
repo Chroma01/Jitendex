@@ -46,10 +46,10 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, RadicalGroupElement.XmlTagName);
+                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.RadicalGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == RadicalGroupElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.RadicalGroup;
                     break;
             }
         }
@@ -61,11 +61,11 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
     {
         switch (_xmlReader.Name)
         {
-            case RadicalElement.XmlTagName:
+            case XmlTagName.Radical:
                 await ReadRadical(document, entry, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, RadicalGroupElement.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.RadicalGroup);
                 break;
         }
     }

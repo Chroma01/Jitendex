@@ -46,10 +46,10 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, DictionaryGroupElement.XmlTagName);
+                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.DictionaryGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == DictionaryGroupElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.DictionaryGroup;
                     break;
             }
         }
@@ -61,11 +61,11 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
     {
         switch (_xmlReader.Name)
         {
-            case DictionaryElement.XmlTagName:
+            case XmlTagName.Dictionary:
                 await ReadDictionary(document, entry, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, DictionaryGroupElement.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.DictionaryGroup);
                 break;
         }
     }

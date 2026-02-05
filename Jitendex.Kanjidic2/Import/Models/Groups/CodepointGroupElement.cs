@@ -24,5 +24,4 @@ internal sealed record CodepointGroupElement
     public required int Order { get; init; }
 
     public (int, int) Key() => (EntryId, Order);
-    public const string XmlTagName = "codepoint";
 }

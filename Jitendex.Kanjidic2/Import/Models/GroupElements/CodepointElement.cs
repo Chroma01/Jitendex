@@ -27,6 +27,4 @@ internal sealed record CodepointElement
     public required string TypeName { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "cp_value";
-    public const string TypeName_XmlAttrName = "cp_type";
 }

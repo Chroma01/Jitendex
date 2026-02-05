@@ -27,6 +27,4 @@ internal sealed record VariantElement
     public required string TypeName { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "variant";
-    public const string TypeName_XmlAttrName = "var_type";
 }

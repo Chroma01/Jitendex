@@ -26,5 +26,4 @@ internal sealed record StrokeCountElement
     public required int Value { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "stroke_count";
 }

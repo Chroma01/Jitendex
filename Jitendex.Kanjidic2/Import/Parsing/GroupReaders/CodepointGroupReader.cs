@@ -48,10 +48,10 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, CodepointGroupElement.XmlTagName);
+                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.CodepointGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == CodepointGroupElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.CodepointGroup;
                     break;
             }
         }
@@ -61,11 +61,11 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
     {
         switch (_xmlReader.Name)
         {
-            case CodepointElement.XmlTagName:
+            case XmlTagName.Codepoint:
                 await ReadCodepoint(document, entry, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, CodepointGroupElement.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.CodepointGroup);
                 break;
         }
     }
@@ -86,7 +86,7 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
     private string GetTypeName(Document document, EntryElement entry)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute(CodepointElement.TypeName_XmlAttrName);
+        var attribute = _xmlReader.GetAttribute("cp_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {

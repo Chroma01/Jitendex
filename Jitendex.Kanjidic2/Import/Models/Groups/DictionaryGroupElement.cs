@@ -24,5 +24,4 @@ internal sealed record DictionaryGroupElement
     public required int Order { get; init; }
 
     public (int, int) Key() => (EntryId, Order);
-    public const string XmlTagName = "dic_number";
 }

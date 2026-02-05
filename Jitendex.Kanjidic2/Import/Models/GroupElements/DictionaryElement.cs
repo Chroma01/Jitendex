@@ -29,5 +29,4 @@ internal sealed record DictionaryElement
     public int? Page { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "dic_ref";
 }

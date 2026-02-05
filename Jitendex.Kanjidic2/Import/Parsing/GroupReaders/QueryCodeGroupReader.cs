@@ -46,10 +46,10 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
                     await ReadChildElementAsync(document, entry, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, QueryCodeGroupElement.XmlTagName);
+                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.QueryCodeGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == QueryCodeGroupElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.QueryCodeGroup;
                     break;
             }
         }
@@ -61,11 +61,11 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
     {
         switch (_xmlReader.Name)
         {
-            case QueryCodeElement.XmlTagName:
+            case XmlTagName.QueryCode:
                 await ReadQueryCode(document, entry, group);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, QueryCodeGroupElement.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.QueryCodeGroup);
                 break;
         }
     }

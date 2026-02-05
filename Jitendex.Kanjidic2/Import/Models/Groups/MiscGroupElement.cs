@@ -27,9 +27,4 @@ internal sealed record MiscGroupElement
     public int? JlptLevel { get; set; }
 
     public (int, int) Key() => (EntryId, Order);
-
-    public const string XmlTagName = "misc";
-    public const string Grade_XmlTagName = "grade";
-    public const string Frequency_XmlTagName = "freq";
-    public const string Jlpt_XmlTagName = "jlpt";
 }

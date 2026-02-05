@@ -28,5 +28,4 @@ internal sealed record ReadingMeaningElement
     public bool IsGhost  { get; set; } = false;
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "rmgroup";
 }

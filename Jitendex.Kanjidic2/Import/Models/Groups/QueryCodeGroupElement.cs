@@ -24,5 +24,4 @@ internal sealed record QueryCodeGroupElement
     public required int Order { get; init; }
 
     public (int, int) Key() => (EntryId, Order);
-    public const string XmlTagName = "query_code";
 }

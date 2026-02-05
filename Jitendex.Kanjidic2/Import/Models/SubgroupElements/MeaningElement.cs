@@ -27,5 +27,4 @@ internal sealed record MeaningElement
     public required string Text { get; init; }
 
     public (int, int, int, int) Key() => (EntryId, GroupOrder, ReadingMeaningOrder, Order);
-    public const string XmlTagName = "meaning";
 }

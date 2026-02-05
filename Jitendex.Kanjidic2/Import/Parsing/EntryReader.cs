@@ -54,10 +54,10 @@ internal partial class EntryReader : BaseReader<EntryReader>
                     await ReadChildElementAsync(document, entry);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, EntryElement.XmlTagName);
+                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.Entry);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == EntryElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.Entry;
                     break;
             }
         }
@@ -68,13 +68,13 @@ internal partial class EntryReader : BaseReader<EntryReader>
         }
         else
         {
-            LogMissingCharacter(EntryElement.Character_XmlTagName);
+            LogMissingCharacter(XmlTagName.EntryCharacter);
         }
     }
 
     private async Task ReadChildElementAsync(Document document, EntryElement entry)
     {
-        if (_xmlReader.Name != EntryElement.Character_XmlTagName && entry.Id == default)
+        if (_xmlReader.Name != XmlTagName.EntryCharacter && entry.Id == default)
         {
             LogPrematureElement(_xmlReader.Name);
             return;
@@ -82,29 +82,29 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
         switch (_xmlReader.Name)
         {
-            case EntryElement.Character_XmlTagName:
+            case XmlTagName.EntryCharacter:
                 await ReadCharacterAsync(entry);
                 break;
-            case CodepointGroupElement.XmlTagName:
+            case XmlTagName.CodepointGroup:
                 await _codepointGroupReader.ReadAsync(document, entry);
                 break;
-            case DictionaryGroupElement.XmlTagName:
+            case XmlTagName.DictionaryGroup:
                 await _dictionaryGroupReader.ReadAsync(document, entry);
                 break;
-            case MiscGroupElement.XmlTagName:
+            case XmlTagName.MiscGroup:
                 await _miscGroupReader.ReadAsync(document, entry);
                 break;
-            case QueryCodeGroupElement.XmlTagName:
+            case XmlTagName.QueryCodeGroup:
                 await _queryCodeGroupReader.ReadAsync(document, entry);
                 break;
-            case RadicalGroupElement.XmlTagName:
+            case XmlTagName.RadicalGroup:
                 await _radicalGroupReader.ReadAsync(document, entry);
                 break;
-            case ReadingMeaningGroupElement.XmlTagName:
+            case XmlTagName.ReadingMeaningGroup:
                 await _readingMeaningGroupReader.ReadAsync(document, entry);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, EntryElement.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.Entry);
                 break;
         }
     }
@@ -113,14 +113,14 @@ internal partial class EntryReader : BaseReader<EntryReader>
     {
         if (entry.Id != default)
         {
-            LogUnexpectedGroup(entry.ToRune(), EntryElement.Character_XmlTagName);
+            LogUnexpectedGroup(entry.ToRune(), XmlTagName.EntryCharacter);
         }
 
         var text = await _xmlReader.ReadElementContentAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(text))
         {
-            LogEmptyElement(EntryElement.Character_XmlTagName);
+            LogEmptyElement(XmlTagName.EntryCharacter);
             return;
         }
 
@@ -128,7 +128,7 @@ internal partial class EntryReader : BaseReader<EntryReader>
 
         if (runes.Length > 1)
         {
-            LogMultipleCharacters(EntryElement.Character_XmlTagName, text);
+            LogMultipleCharacters(XmlTagName.EntryCharacter, text);
         }
 
         entry.Id = runes[0].Value;

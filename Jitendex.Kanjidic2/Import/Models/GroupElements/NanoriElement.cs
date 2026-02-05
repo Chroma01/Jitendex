@@ -26,5 +26,4 @@ internal sealed record NanoriElement
     public required string Text { get; init; }
 
     public (int, int, int) Key() => (EntryId, GroupOrder, Order);
-    public const string XmlTagName = "nanori";
 }

@@ -28,5 +28,4 @@ internal sealed record ReadingElement
     public required string TypeName { get; init; }
 
     public (int, int, int, int) Key() => (EntryId, GroupOrder, ReadingMeaningOrder, Order);
-    public const string XmlTagName = "reading";
 }

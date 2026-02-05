@@ -48,10 +48,10 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
                     await ReadChildElementAsync(document, entry, group, readingMeaning);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, ReadingMeaningElement.XmlTagName);
+                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.ReadingMeaning);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == ReadingMeaningElement.XmlTagName;
+                    exit = _xmlReader.Name == XmlTagName.ReadingMeaning;
                     break;
             }
         }
@@ -63,14 +63,14 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
     {
         switch (_xmlReader.Name)
         {
-            case ReadingElement.XmlTagName:
+            case XmlTagName.Reading:
                 await ReadReading(document, entry, group, readingMeaning);
                 break;
-            case MeaningElement.XmlTagName:
+            case XmlTagName.Meaning:
                 await ReadMeaning(document, entry, group, readingMeaning);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, ReadingMeaningElement.XmlTagName);
+                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaning);
                 break;
         }
     }

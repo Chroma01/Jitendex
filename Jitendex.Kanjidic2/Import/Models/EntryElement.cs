@@ -24,7 +24,4 @@ internal sealed record EntryElement
 {
     public required int Id { get; set; }
     public Rune ToRune() => new(Id);
-
-    public const string XmlTagName = "character";
-    public const string Character_XmlTagName = "literal";
 }
