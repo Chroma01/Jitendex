@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.Kanjidic2.Import.Models;
 
+internal sealed record DocumentSequence(int Id, DateOnly CreatedDate);
+
 internal sealed class Document
 {
     public required DocumentHeader Header { get; init; }
@@ -85,11 +87,7 @@ internal sealed class Document
     }
 
     public IEnumerable<DocumentSequence> GetSequences()
-        => Entries.Select(e => new DocumentSequence
-        {
-            Id = e.Key,
-            CreatedDate = Header.Date,
-        });
+        => Entries.Select(e => new DocumentSequence(e.Key, Header.Date));
 
     public IEnumerable<int> ConcatAllEntryIds()
         => Entries.Keys
