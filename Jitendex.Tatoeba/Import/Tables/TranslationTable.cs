@@ -21,7 +21,7 @@ using Jitendex.SQLite;
 using Jitendex.Tatoeba.Entities;
 using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Import.SQLite;
+namespace Jitendex.Tatoeba.Import.Tables;
 
 internal sealed class TranslationTable : Table<TranslationElement>
 {

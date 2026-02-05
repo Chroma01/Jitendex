@@ -21,26 +21,29 @@ using Jitendex.SQLite;
 using Jitendex.Tatoeba.Entities;
 using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Import.SQLite;
+namespace Jitendex.Tatoeba.Import.Tables;
 
-internal sealed class ExampleTable : Table<ExampleElement>
+internal sealed class SegmentationTable : Table<SegmentationElement>
 {
-    protected override string Name => nameof(Example);
+    protected override string Name => nameof(Segmentation);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Example.Id),
-        nameof(Example.Text),
+        nameof(Segmentation.ExampleId),
+        nameof(Segmentation.Index),
+        nameof(Segmentation.TranslationId),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Example.Id)
+        nameof(Segmentation.ExampleId),
+        nameof(Segmentation.Index),
     ];
 
-    protected override SqliteParameter[] Parameters(ExampleElement example) =>
+    protected override SqliteParameter[] Parameters(SegmentationElement sentence) =>
     [
-        new("@0", example.Id),
-        new("@1", example.Text),
+        new("@0", sentence.ExampleId),
+        new("@1", sentence.Index),
+        new("@2", sentence.TranslationId),
     ];
 }

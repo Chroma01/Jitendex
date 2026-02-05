@@ -17,11 +17,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.IO.Compression;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Jitendex.Tatoeba.Import;
 using Jitendex.Tatoeba.Import.Parsing;
 using Jitendex.Tatoeba.Import.Models;
-using Jitendex.Tatoeba.Import.SQLite;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 using static Jitendex.EdrdgDictionaryArchive.Service;
 

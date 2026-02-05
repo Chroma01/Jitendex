@@ -19,8 +19,9 @@ If not, see <https://www.gnu.org/licenses/>.
 using Microsoft.EntityFrameworkCore;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.Tatoeba.Import.Models;
+using Jitendex.Tatoeba.Import.Tables;
 
-namespace Jitendex.Tatoeba.Import.SQLite;
+namespace Jitendex.Tatoeba.Import;
 
 internal static class Database
 {

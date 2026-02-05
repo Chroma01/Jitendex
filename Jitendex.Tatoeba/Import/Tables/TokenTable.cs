@@ -21,29 +21,42 @@ using Jitendex.SQLite;
 using Jitendex.Tatoeba.Entities;
 using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Import.SQLite;
+namespace Jitendex.Tatoeba.Import.Tables;
 
-internal sealed class SegmentationTable : Table<SegmentationElement>
+internal sealed class TokenTable : Table<TokenElement>
 {
-    protected override string Name => nameof(Segmentation);
+    protected override string Name => nameof(Token);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Segmentation.ExampleId),
-        nameof(Segmentation.Index),
-        nameof(Segmentation.TranslationId),
+        nameof(Token.ExampleId),
+        nameof(Token.SegmentationIndex),
+        nameof(Token.Index),
+        nameof(Token.Headword),
+        nameof(Token.Reading),
+        nameof(Token.EntryId),
+        nameof(Token.SenseNumber),
+        nameof(Token.SentenceForm),
+        nameof(Token.IsPriority),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Segmentation.ExampleId),
-        nameof(Segmentation.Index),
+        nameof(Token.ExampleId),
+        nameof(Token.SegmentationIndex),
+        nameof(Token.Index),
     ];
 
-    protected override SqliteParameter[] Parameters(SegmentationElement sentence) =>
+    protected override SqliteParameter[] Parameters(TokenElement token) =>
     [
-        new("@0", sentence.ExampleId),
-        new("@1", sentence.Index),
-        new("@2", sentence.TranslationId),
+        new("@0", token.ExampleId),
+        new("@1", token.SegmentationIndex),
+        new("@2", token.Index),
+        new("@3", token.Headword),
+        new("@4", token.Reading.Nullable()),
+        new("@5", token.EntryId.Nullable()),
+        new("@6", token.SenseNumber.Nullable()),
+        new("@7", token.SentenceForm.Nullable()),
+        new("@8", token.IsPriority),
     ];
 }

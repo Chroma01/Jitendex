@@ -21,22 +21,24 @@ using Jitendex.SQLite;
 using Jitendex.Tatoeba.Entities;
 using Jitendex.Tatoeba.Import.Models;
 
-namespace Jitendex.Tatoeba.Import.SQLite;
+namespace Jitendex.Tatoeba.Import.Tables;
 
-internal sealed class FileHeaderTable : Table<DocumentHeader>
+internal sealed class SequenceTable : Table<SequenceElement>
 {
-    protected override string Name => nameof(FileHeader);
+    protected override string Name => nameof(Sequence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(FileHeader.Date)
+        nameof(Sequence.Id),
+        nameof(Sequence.CreatedDate),
     ];
 
     protected override IReadOnlyList<string> KeyColNames
         => throw new NotImplementedException();
 
-    protected override SqliteParameter[] Parameters(DocumentHeader header) =>
+    protected override SqliteParameter[] Parameters(SequenceElement sequence) =>
     [
-        new("@0", header.Date)
+        new("@0", sequence.Id),
+        new("@1", sequence.CreatedDate),
     ];
 }
