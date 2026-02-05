@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.IO.Compression;
 using Microsoft.Extensions.Logging;
 using Jitendex.Tatoeba.Import.Models;
 
@@ -24,34 +25,43 @@ namespace Jitendex.Tatoeba.Import.Parsing;
 internal sealed class TatoebaReader
 {
     private readonly ILogger<TatoebaReader> _logger;
-    private readonly StreamReader _reader;
+    public TatoebaReader(ILogger<TatoebaReader> logger)
+        => _logger = logger;
 
-    public TatoebaReader(ILogger<TatoebaReader> logger, StreamReader reader) =>
-        (_logger, _reader) =
-        (@logger, @reader);
-
-    public async Task<Document> ReadAsync(DateOnly date)
+    public async Task<Document> ReadAsync(FileInfo file, DateOnly date)
     {
+        await using FileStream fs = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+        await using BrotliStream bs = new(fs, CompressionMode.Decompress);
+        using StreamReader reader = new(bs);
+
         Document document = new(date);
 
-        while (await _reader.ReadLineAsync() is string lineA)
+        while (await reader.ReadLineAsync() is string lineA)
         {
             if (!lineA.StartsWith("A: ", StringComparison.Ordinal))
             {
                 _logger.LogError("Expected `{LineA}` to start with \"A: \"", lineA);
+                continue;
             }
-            else if (await _reader.ReadLineAsync() is not string lineB)
+            if (await reader.ReadLineAsync() is not string lineB)
             {
                 _logger.LogError("No B-line found for A-line `{LineA}`", lineA);
+                continue;
             }
-            else if (!lineB.StartsWith("B: ", StringComparison.Ordinal))
+            if (!lineB.StartsWith("B: ", StringComparison.Ordinal))
             {
                 _logger.LogError("Expected `{LineB}` to start with \"B: \"", lineB);
+                continue;
             }
-            else
+
+            try
             {
                 var text = new ExampleText(lineA.AsSpan(3), lineB.AsSpan(3));
                 MakeIndex(text, document);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Exception caught while parsing text: `{Message}`", ex.Message);
             }
         }
 

@@ -17,13 +17,14 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.Tatoeba.Import.Models;
 using Jitendex.Tatoeba.Import.Tables;
 
 namespace Jitendex.Tatoeba.Import;
 
-internal static class Database
+internal sealed class Database(ILogger<Database> logger, TatoebaContext context)
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly SequenceTable SequenceTable = new();
@@ -32,60 +33,52 @@ internal static class Database
     private static readonly SegmentationTable SegmentationTable = new();
     private static readonly TokenTable TokenTable = new();
 
-    public static void Initialize(Document document)
+    public void Initialize(Document document)
     {
-        Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
+        logger.LogInformation("Initializing database with data from {Date:yyyy-MM-dd}", document.Header.Date);
 
-        using var context = new TatoebaContext();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
 
-        using (var transaction = context.Database.BeginTransaction())
-        {
-            FileHeaderTable.InsertItem(context, document.Header);
-            SequenceTable.InsertItems(context, document.GetSequences());
-            ExampleTable.InsertItems(context, document.Examples.Values);
-            TranslationTable.InsertItems(context, document.Translations.Values);
-            SegmentationTable.InsertItems(context, document.Segmentations.Values);
-            TokenTable.InsertItems(context, document.Tokens.Values);
+        using var transaction = context.Database.BeginTransaction();
 
-            transaction.Commit();
-        }
+        FileHeaderTable.InsertItem(context, document.Header);
+        SequenceTable.InsertItems(context, document.GetSequences());
+        ExampleTable.InsertItems(context, document.Examples.Values);
+        TranslationTable.InsertItems(context, document.Translations.Values);
+        SegmentationTable.InsertItems(context, document.Segmentations.Values);
+        TokenTable.InsertItems(context, document.Tokens.Values);
 
-        context.SaveChanges();
+        transaction.Commit();
     }
 
-    public static void Update(DocumentDiff diff)
+    public void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} sequences with data from {diff.Date:yyyy-MM-dd}");
+        logger.LogInformation("Updating {Count} sequences with data from {Date:yyyy-MM-dd}", diff.SequenceIds.Count, diff.Date);
 
-        using var context = new TatoebaContext();
+        using var transaction = context.Database.BeginTransaction();
+
         var aSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
-        using (var transaction = context.Database.BeginTransaction())
-        {
-            context.ExecuteDeferForeignKeysPragma();
+        context.ExecuteDeferForeignKeysPragma();
 
-            FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
-            SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
+        FileHeaderTable.InsertItem(context, diff.InsertDocument.Header);
+        SequenceTable.InsertOrIgnoreItems(context, diff.InsertDocument.GetSequences());
 
-            ExampleTable.InsertItems(context, diff.InsertDocument.Examples.Values);
-            TranslationTable.InsertItems(context, diff.InsertDocument.Translations.Values);
-            SegmentationTable.InsertItems(context, diff.InsertDocument.Segmentations.Values);
-            TokenTable.InsertItems(context, diff.InsertDocument.Tokens.Values);
+        ExampleTable.InsertItems(context, diff.InsertDocument.Examples.Values);
+        TranslationTable.InsertItems(context, diff.InsertDocument.Translations.Values);
+        SegmentationTable.InsertItems(context, diff.InsertDocument.Segmentations.Values);
+        TokenTable.InsertItems(context, diff.InsertDocument.Tokens.Values);
 
-            ExampleTable.UpdateItems(context, diff.UpdateDocument.Examples.Values);
-            TranslationTable.UpdateItems(context, diff.UpdateDocument.Translations.Values);
-            SegmentationTable.UpdateItems(context, diff.UpdateDocument.Segmentations.Values);
-            TokenTable.UpdateItems(context, diff.UpdateDocument.Tokens.Values);
+        ExampleTable.UpdateItems(context, diff.UpdateDocument.Examples.Values);
+        TranslationTable.UpdateItems(context, diff.UpdateDocument.Translations.Values);
+        SegmentationTable.UpdateItems(context, diff.UpdateDocument.Segmentations.Values);
+        TokenTable.UpdateItems(context, diff.UpdateDocument.Tokens.Values);
 
-            TokenTable.DeleteItems(context, diff.DeleteDocument.Tokens.Values);
-            SegmentationTable.DeleteItems(context, diff.DeleteDocument.Segmentations.Values);
-            TranslationTable.DeleteItems(context, diff.DeleteDocument.Translations.Values);
-            ExampleTable.DeleteItems(context, diff.DeleteDocument.Examples.Values);
-
-            transaction.Commit();
-        }
+        TokenTable.DeleteItems(context, diff.DeleteDocument.Tokens.Values);
+        SegmentationTable.DeleteItems(context, diff.DeleteDocument.Segmentations.Values);
+        TranslationTable.DeleteItems(context, diff.DeleteDocument.Translations.Values);
+        ExampleTable.DeleteItems(context, diff.DeleteDocument.Examples.Values);
 
         var bSequences = DtoMapper.LoadSequencesWithoutRevisions(context, diff.SequenceIds);
 
@@ -113,5 +106,6 @@ internal static class Database
         }
 
         context.SaveChanges();
+        transaction.Commit();
     }
 }

@@ -75,8 +75,7 @@ internal readonly ref struct IndexElementText
         int closeIdx = _parenIdx + _text[_parenIdx..].IndexOf(')');
         if (closeIdx < _parenIdx)
         {
-            Console.Error.WriteLine($"Missing closing parenthesis in text `{_text}`");
-            return null;
+            throw new FormatException($"Missing closing parenthesis in text `{_text}`");
         }
 
         var reading = _text[(_parenIdx + 1)..closeIdx];
@@ -97,8 +96,7 @@ internal readonly ref struct IndexElementText
         int closeIdx = _parenIdx + _text[_parenIdx..].IndexOf(')');
         if (closeIdx < _parenIdx)
         {
-            Console.Error.WriteLine($"Missing closing parenthesis in text `{_text}`");
-            return null;
+            throw new FormatException($"Missing closing parenthesis in text `{_text}`");
         }
 
         var text = _text[(_parenIdx + 2)..closeIdx];
@@ -109,8 +107,7 @@ internal readonly ref struct IndexElementText
         }
         else
         {
-            Console.Error.WriteLine($"Non-integer entry ID in element `{_text}`");
-            return null;
+            throw new FormatException($"Non-integer entry ID in element `{_text}`");
         }
     }
 
@@ -124,8 +121,7 @@ internal readonly ref struct IndexElementText
         int closeIdx = _squareIdx + _text[_squareIdx..].IndexOf(']');
         if (closeIdx < _squareIdx)
         {
-            Console.Error.WriteLine($"Missing closing square bracket in text `{_text}`");
-            return null;
+            throw new FormatException($"Missing closing square bracket in text `{_text}`");
         }
 
         var text = _text[(_squareIdx + 1)..closeIdx];
@@ -136,8 +132,7 @@ internal readonly ref struct IndexElementText
         }
         else
         {
-            Console.Error.WriteLine($"Non-integer sense number in element `{_text}`");
-            return null;
+            throw new FormatException($"Non-integer sense number in element `{_text}`");
         }
     }
 
@@ -151,8 +146,7 @@ internal readonly ref struct IndexElementText
         int closeIdx = _curlyIdx + _text[_curlyIdx..].IndexOf('}');
         if (closeIdx < _curlyIdx)
         {
-            Console.Error.WriteLine($"Missing closing curly bracket in text `{_text}`");
-            return null;
+            throw new FormatException($"Missing closing curly bracket in text `{_text}`");
         }
         var sentenceForm = _text[(_curlyIdx + 1)..closeIdx];
         return sentenceForm.ToString();

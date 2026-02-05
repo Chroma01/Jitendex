@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
+using Jitendex.Tatoeba.Import;
 
 namespace Jitendex.Tatoeba;
 
@@ -44,10 +45,10 @@ public static class Program
             return 1;
         }
 
-        await Service.UpdateAsync
-        (
-            archiveDirectory: parseResult.GetValue(archiveDirOption)
-        );
+        var archiveDirectory = parseResult.GetValue(archiveDirOption);
+
+        var importer = ImporterProvider.GetImporter();
+        await importer.ImportAsync(archiveDirectory);
 
         return 0;
     }
