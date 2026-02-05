@@ -18,37 +18,38 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities.GroupItems;
+using Jitendex.Kanjidic2.Entities.SubgroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.SubgroupElements;
 
-internal sealed class VariantTable : Table<VariantElement>
+internal sealed class MeaningTable : Table<MeaningElement>
 {
-    protected override string Name => nameof(Variant);
+    protected override string Name => nameof(Meaning);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Variant.UnicodeScalarValue),
-        nameof(Variant.GroupOrder),
-        nameof(Variant.Order),
-        nameof(Variant.Text),
-        nameof(Variant.TypeName),
+        nameof(Meaning.UnicodeScalarValue),
+        nameof(Meaning.GroupOrder),
+        nameof(Meaning.ReadingMeaningOrder),
+        nameof(Meaning.Order),
+        nameof(Meaning.Text),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Variant.UnicodeScalarValue),
-        nameof(Variant.GroupOrder),
-        nameof(Variant.Order),
+        nameof(Meaning.UnicodeScalarValue),
+        nameof(Meaning.GroupOrder),
+        nameof(Meaning.ReadingMeaningOrder),
+        nameof(Meaning.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(VariantElement variant) =>
+    protected override SqliteParameter[] Parameters(MeaningElement meaning) =>
     [
-        new("@0", variant.EntryId),
-        new("@1", variant.GroupOrder),
-        new("@2", variant.Order),
-        new("@3", variant.Text),
-        new("@4", variant.TypeName),
+        new("@0", meaning.EntryId),
+        new("@1", meaning.GroupOrder),
+        new("@2", meaning.ReadingMeaningOrder),
+        new("@3", meaning.Order),
+        new("@4", meaning.Text),
     ];
 }

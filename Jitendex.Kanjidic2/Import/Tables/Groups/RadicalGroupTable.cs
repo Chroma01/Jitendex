@@ -21,33 +21,27 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.Groups;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.Groups;
+namespace Jitendex.Kanjidic2.Import.Tables.Groups;
 
-internal sealed class MiscGroupTable : Table<MiscGroupElement>
+internal sealed class RadicalGroupTable : Table<RadicalGroupElement>
 {
-    protected override string Name => nameof(MiscGroup);
+    protected override string Name => nameof(RadicalGroup);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(MiscGroup.UnicodeScalarValue),
-        nameof(MiscGroup.Order),
-        nameof(MiscGroup.Grade),
-        nameof(MiscGroup.Frequency),
-        nameof(MiscGroup.JlptLevel),
+        nameof(RadicalGroup.UnicodeScalarValue),
+        nameof(RadicalGroup.Order),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(MiscGroup.UnicodeScalarValue),
-        nameof(MiscGroup.Order),
+        nameof(RadicalGroup.UnicodeScalarValue),
+        nameof(RadicalGroup.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(MiscGroupElement group) =>
+    protected override SqliteParameter[] Parameters(RadicalGroupElement group) =>
     [
         new("@0", group.EntryId),
         new("@1", group.Order),
-        new("@2", group.Grade.Nullable()),
-        new("@3", group.Frequency.Nullable()),
-        new("@4", group.JlptLevel.Nullable()),
     ];
 }

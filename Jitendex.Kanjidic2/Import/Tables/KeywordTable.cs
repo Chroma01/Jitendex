@@ -21,7 +21,7 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite;
+namespace Jitendex.Kanjidic2.Import.Tables;
 
 internal sealed class KeywordTable<T> : Table<T> where T : IKeywordElement
 {

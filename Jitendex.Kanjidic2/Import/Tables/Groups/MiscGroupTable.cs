@@ -18,40 +18,36 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities.SubgroupItems;
+using Jitendex.Kanjidic2.Entities.Groups;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.SubgroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.Groups;
 
-internal sealed class ReadingTable : Table<ReadingElement>
+internal sealed class MiscGroupTable : Table<MiscGroupElement>
 {
-    protected override string Name => nameof(Reading);
+    protected override string Name => nameof(MiscGroup);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Reading.UnicodeScalarValue),
-        nameof(Reading.GroupOrder),
-        nameof(Reading.ReadingMeaningOrder),
-        nameof(Reading.Order),
-        nameof(Reading.Text),
-        nameof(Reading.TypeName),
+        nameof(MiscGroup.UnicodeScalarValue),
+        nameof(MiscGroup.Order),
+        nameof(MiscGroup.Grade),
+        nameof(MiscGroup.Frequency),
+        nameof(MiscGroup.JlptLevel),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Reading.UnicodeScalarValue),
-        nameof(Reading.GroupOrder),
-        nameof(Reading.ReadingMeaningOrder),
-        nameof(Reading.Order),
+        nameof(MiscGroup.UnicodeScalarValue),
+        nameof(MiscGroup.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(ReadingElement reading) =>
+    protected override SqliteParameter[] Parameters(MiscGroupElement group) =>
     [
-        new("@0", reading.EntryId),
-        new("@1", reading.GroupOrder),
-        new("@2", reading.ReadingMeaningOrder),
-        new("@3", reading.Order),
-        new("@4", reading.Text),
-        new("@5", reading.TypeName),
+        new("@0", group.EntryId),
+        new("@1", group.Order),
+        new("@2", group.Grade.Nullable()),
+        new("@3", group.Frequency.Nullable()),
+        new("@4", group.JlptLevel.Nullable()),
     ];
 }

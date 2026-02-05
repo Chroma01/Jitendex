@@ -18,30 +18,37 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities.Groups;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.Groups;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class RadicalGroupTable : Table<RadicalGroupElement>
+internal sealed class VariantTable : Table<VariantElement>
 {
-    protected override string Name => nameof(RadicalGroup);
+    protected override string Name => nameof(Variant);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(RadicalGroup.UnicodeScalarValue),
-        nameof(RadicalGroup.Order),
+        nameof(Variant.UnicodeScalarValue),
+        nameof(Variant.GroupOrder),
+        nameof(Variant.Order),
+        nameof(Variant.Text),
+        nameof(Variant.TypeName),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(RadicalGroup.UnicodeScalarValue),
-        nameof(RadicalGroup.Order),
+        nameof(Variant.UnicodeScalarValue),
+        nameof(Variant.GroupOrder),
+        nameof(Variant.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(RadicalGroupElement group) =>
+    protected override SqliteParameter[] Parameters(VariantElement variant) =>
     [
-        new("@0", group.EntryId),
-        new("@1", group.Order),
+        new("@0", variant.EntryId),
+        new("@1", variant.GroupOrder),
+        new("@2", variant.Order),
+        new("@3", variant.Text),
+        new("@4", variant.TypeName),
     ];
 }

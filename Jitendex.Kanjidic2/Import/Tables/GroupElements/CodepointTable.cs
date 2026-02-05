@@ -21,38 +21,34 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class DictionaryTable : Table<DictionaryElement>
+internal sealed class CodepointTable : Table<CodepointElement>
 {
-    protected override string Name => nameof(Dictionary);
+    protected override string Name => nameof(Codepoint);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Dictionary.UnicodeScalarValue),
-        nameof(Dictionary.GroupOrder),
-        nameof(Dictionary.Order),
-        nameof(Dictionary.Text),
-        nameof(Dictionary.TypeName),
-        nameof(Dictionary.Volume),
-        nameof(Dictionary.Page),
+        nameof(Codepoint.UnicodeScalarValue),
+        nameof(Codepoint.GroupOrder),
+        nameof(Codepoint.Order),
+        nameof(Codepoint.Text),
+        nameof(Codepoint.TypeName),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Dictionary.UnicodeScalarValue),
-        nameof(Dictionary.GroupOrder),
-        nameof(Dictionary.Order),
+        nameof(Codepoint.UnicodeScalarValue),
+        nameof(Codepoint.GroupOrder),
+        nameof(Codepoint.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(DictionaryElement dictionary) =>
+    protected override SqliteParameter[] Parameters(CodepointElement codepoint) =>
     [
-        new("@0", dictionary.EntryId),
-        new("@1", dictionary.GroupOrder),
-        new("@2", dictionary.Order),
-        new("@3", dictionary.Text),
-        new("@4", dictionary.TypeName),
-        new("@5", dictionary.Volume.Nullable()),
-        new("@6", dictionary.Page.Nullable()),
+        new("@0", codepoint.EntryId),
+        new("@1", codepoint.GroupOrder),
+        new("@2", codepoint.Order),
+        new("@3", codepoint.Text),
+        new("@4", codepoint.TypeName),
     ];
 }

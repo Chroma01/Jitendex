@@ -21,34 +21,32 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class ReadingMeaningTable : Table<ReadingMeaningElement>
+internal sealed class RadicalNameTable : Table<RadicalNameElement>
 {
-    protected override string Name => nameof(ReadingMeaning);
+    protected override string Name => nameof(RadicalName);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(ReadingMeaning.UnicodeScalarValue),
-        nameof(ReadingMeaning.GroupOrder),
-        nameof(ReadingMeaning.Order),
-        nameof(ReadingMeaning.IsKokuji),
-        nameof(ReadingMeaning.IsGhost),
+        nameof(RadicalName.UnicodeScalarValue),
+        nameof(RadicalName.GroupOrder),
+        nameof(RadicalName.Order),
+        nameof(RadicalName.Text),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(ReadingMeaning.UnicodeScalarValue),
-        nameof(ReadingMeaning.GroupOrder),
-        nameof(ReadingMeaning.Order),
+        nameof(RadicalName.UnicodeScalarValue),
+        nameof(RadicalName.GroupOrder),
+        nameof(RadicalName.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(ReadingMeaningElement codepoint) =>
+    protected override SqliteParameter[] Parameters(RadicalNameElement radicalName) =>
     [
-        new("@0", codepoint.EntryId),
-        new("@1", codepoint.GroupOrder),
-        new("@2", codepoint.Order),
-        new("@3", codepoint.IsKokuji),
-        new("@4", codepoint.IsGhost),
+        new("@0", radicalName.EntryId),
+        new("@1", radicalName.GroupOrder),
+        new("@2", radicalName.Order),
+        new("@3", radicalName.Text),
     ];
 }

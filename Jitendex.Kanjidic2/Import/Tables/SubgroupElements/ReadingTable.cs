@@ -18,30 +18,40 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities.Groups;
+using Jitendex.Kanjidic2.Entities.SubgroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.Groups;
+namespace Jitendex.Kanjidic2.Import.Tables.SubgroupElements;
 
-internal sealed class ReadingMeaningGroupTable : Table<ReadingMeaningGroupElement>
+internal sealed class ReadingTable : Table<ReadingElement>
 {
-    protected override string Name => nameof(ReadingMeaningGroup);
+    protected override string Name => nameof(Reading);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(ReadingMeaningGroup.UnicodeScalarValue),
-        nameof(ReadingMeaningGroup.Order),
+        nameof(Reading.UnicodeScalarValue),
+        nameof(Reading.GroupOrder),
+        nameof(Reading.ReadingMeaningOrder),
+        nameof(Reading.Order),
+        nameof(Reading.Text),
+        nameof(Reading.TypeName),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(ReadingMeaningGroup.UnicodeScalarValue),
-        nameof(ReadingMeaningGroup.Order),
+        nameof(Reading.UnicodeScalarValue),
+        nameof(Reading.GroupOrder),
+        nameof(Reading.ReadingMeaningOrder),
+        nameof(Reading.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(ReadingMeaningGroupElement group) =>
+    protected override SqliteParameter[] Parameters(ReadingElement reading) =>
     [
-        new("@0", group.EntryId),
-        new("@1", group.Order),
+        new("@0", reading.EntryId),
+        new("@1", reading.GroupOrder),
+        new("@2", reading.ReadingMeaningOrder),
+        new("@3", reading.Order),
+        new("@4", reading.Text),
+        new("@5", reading.TypeName),
     ];
 }

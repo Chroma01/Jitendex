@@ -21,25 +21,25 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.Groups;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.Groups;
+namespace Jitendex.Kanjidic2.Import.Tables.Groups;
 
-internal sealed class DictionaryGroupTable : Table<DictionaryGroupElement>
+internal sealed class CodepointGroupTable : Table<CodepointGroupElement>
 {
-    protected override string Name => nameof(DictionaryGroup);
+    protected override string Name => nameof(CodepointGroup);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(DictionaryGroup.UnicodeScalarValue),
-        nameof(DictionaryGroup.Order),
+        nameof(CodepointGroup.UnicodeScalarValue),
+        nameof(CodepointGroup.Order),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(DictionaryGroup.UnicodeScalarValue),
-        nameof(DictionaryGroup.Order),
+        nameof(CodepointGroup.UnicodeScalarValue),
+        nameof(CodepointGroup.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(DictionaryGroupElement group) =>
+    protected override SqliteParameter[] Parameters(CodepointGroupElement group) =>
     [
         new("@0", group.EntryId),
         new("@1", group.Order),

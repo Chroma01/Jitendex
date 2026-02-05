@@ -21,32 +21,36 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class StrokeCountTable : Table<StrokeCountElement>
+internal sealed class QueryCodeTable : Table<QueryCodeElement>
 {
-    protected override string Name => nameof(StrokeCount);
+    protected override string Name => nameof(QueryCode);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(StrokeCount.UnicodeScalarValue),
-        nameof(StrokeCount.GroupOrder),
-        nameof(StrokeCount.Order),
-        nameof(StrokeCount.Value),
+        nameof(QueryCode.UnicodeScalarValue),
+        nameof(QueryCode.GroupOrder),
+        nameof(QueryCode.Order),
+        nameof(QueryCode.Text),
+        nameof(QueryCode.TypeName),
+        nameof(QueryCode.Misclassification),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(StrokeCount.UnicodeScalarValue),
-        nameof(StrokeCount.GroupOrder),
-        nameof(StrokeCount.Order),
+        nameof(QueryCode.UnicodeScalarValue),
+        nameof(QueryCode.GroupOrder),
+        nameof(QueryCode.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(StrokeCountElement strokeCount) =>
+    protected override SqliteParameter[] Parameters(QueryCodeElement queryCode) =>
     [
-        new("@0", strokeCount.EntryId),
-        new("@1", strokeCount.GroupOrder),
-        new("@2", strokeCount.Order),
-        new("@3", strokeCount.Value),
+        new("@0", queryCode.EntryId),
+        new("@1", queryCode.GroupOrder),
+        new("@2", queryCode.Order),
+        new("@3", queryCode.Text),
+        new("@4", queryCode.TypeName),
+        new("@5", queryCode.Misclassification.Nullable()),
     ];
 }

@@ -21,7 +21,7 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
 internal sealed class NanoriTable : Table<NanoriElement>
 {

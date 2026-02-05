@@ -21,36 +21,34 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class QueryCodeTable : Table<QueryCodeElement>
+internal sealed class RadicalTable : Table<RadicalElement>
 {
-    protected override string Name => nameof(QueryCode);
+    protected override string Name => nameof(Radical);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(QueryCode.UnicodeScalarValue),
-        nameof(QueryCode.GroupOrder),
-        nameof(QueryCode.Order),
-        nameof(QueryCode.Text),
-        nameof(QueryCode.TypeName),
-        nameof(QueryCode.Misclassification),
+        nameof(Radical.UnicodeScalarValue),
+        nameof(Radical.GroupOrder),
+        nameof(Radical.Order),
+        nameof(Radical.Number),
+        nameof(Radical.TypeName),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(QueryCode.UnicodeScalarValue),
-        nameof(QueryCode.GroupOrder),
-        nameof(QueryCode.Order),
+        nameof(Radical.UnicodeScalarValue),
+        nameof(Radical.GroupOrder),
+        nameof(Radical.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(QueryCodeElement queryCode) =>
+    protected override SqliteParameter[] Parameters(RadicalElement radical) =>
     [
-        new("@0", queryCode.EntryId),
-        new("@1", queryCode.GroupOrder),
-        new("@2", queryCode.Order),
-        new("@3", queryCode.Text),
-        new("@4", queryCode.TypeName),
-        new("@5", queryCode.Misclassification.Nullable()),
+        new("@0", radical.EntryId),
+        new("@1", radical.GroupOrder),
+        new("@2", radical.Order),
+        new("@3", radical.Number),
+        new("@4", radical.TypeName),
     ];
 }

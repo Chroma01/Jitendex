@@ -18,37 +18,27 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities.GroupItems;
+using Jitendex.Kanjidic2.Entities;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables;
 
-internal sealed class CodepointTable : Table<CodepointElement>
+internal sealed class EntryTable : Table<EntryElement>
 {
-    protected override string Name => nameof(Codepoint);
+    protected override string Name => nameof(Entry);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Codepoint.UnicodeScalarValue),
-        nameof(Codepoint.GroupOrder),
-        nameof(Codepoint.Order),
-        nameof(Codepoint.Text),
-        nameof(Codepoint.TypeName),
+        nameof(Entry.UnicodeScalarValue)
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Codepoint.UnicodeScalarValue),
-        nameof(Codepoint.GroupOrder),
-        nameof(Codepoint.Order),
+        nameof(Entry.UnicodeScalarValue)
     ];
 
-    protected override SqliteParameter[] Parameters(CodepointElement codepoint) =>
+    protected override SqliteParameter[] Parameters(EntryElement entry) =>
     [
-        new("@0", codepoint.EntryId),
-        new("@1", codepoint.GroupOrder),
-        new("@2", codepoint.Order),
-        new("@3", codepoint.Text),
-        new("@4", codepoint.TypeName),
+        new("@0", entry.Id)
     ];
 }

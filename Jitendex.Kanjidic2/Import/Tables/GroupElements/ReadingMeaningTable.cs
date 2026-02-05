@@ -18,29 +18,37 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities;
+using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class SequenceTable : Table<DocumentSequence>
+internal sealed class ReadingMeaningTable : Table<ReadingMeaningElement>
 {
-    protected override string Name => nameof(Sequence);
+    protected override string Name => nameof(ReadingMeaning);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Sequence.Id),
-        nameof(Sequence.CreatedDate),
+        nameof(ReadingMeaning.UnicodeScalarValue),
+        nameof(ReadingMeaning.GroupOrder),
+        nameof(ReadingMeaning.Order),
+        nameof(ReadingMeaning.IsKokuji),
+        nameof(ReadingMeaning.IsGhost),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Sequence.Id)
+        nameof(ReadingMeaning.UnicodeScalarValue),
+        nameof(ReadingMeaning.GroupOrder),
+        nameof(ReadingMeaning.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(DocumentSequence sequence) =>
+    protected override SqliteParameter[] Parameters(ReadingMeaningElement codepoint) =>
     [
-        new("@0", sequence.Id),
-        new("@1", sequence.CreatedDate),
+        new("@0", codepoint.EntryId),
+        new("@1", codepoint.GroupOrder),
+        new("@2", codepoint.Order),
+        new("@3", codepoint.IsKokuji),
+        new("@4", codepoint.IsGhost),
     ];
 }

@@ -21,34 +21,32 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities.GroupItems;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite.GroupElements;
+namespace Jitendex.Kanjidic2.Import.Tables.GroupElements;
 
-internal sealed class RadicalTable : Table<RadicalElement>
+internal sealed class StrokeCountTable : Table<StrokeCountElement>
 {
-    protected override string Name => nameof(Radical);
+    protected override string Name => nameof(StrokeCount);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Radical.UnicodeScalarValue),
-        nameof(Radical.GroupOrder),
-        nameof(Radical.Order),
-        nameof(Radical.Number),
-        nameof(Radical.TypeName),
+        nameof(StrokeCount.UnicodeScalarValue),
+        nameof(StrokeCount.GroupOrder),
+        nameof(StrokeCount.Order),
+        nameof(StrokeCount.Value),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Radical.UnicodeScalarValue),
-        nameof(Radical.GroupOrder),
-        nameof(Radical.Order),
+        nameof(StrokeCount.UnicodeScalarValue),
+        nameof(StrokeCount.GroupOrder),
+        nameof(StrokeCount.Order),
     ];
 
-    protected override SqliteParameter[] Parameters(RadicalElement radical) =>
+    protected override SqliteParameter[] Parameters(StrokeCountElement strokeCount) =>
     [
-        new("@0", radical.EntryId),
-        new("@1", radical.GroupOrder),
-        new("@2", radical.Order),
-        new("@3", radical.Number),
-        new("@4", radical.TypeName),
+        new("@0", strokeCount.EntryId),
+        new("@1", strokeCount.GroupOrder),
+        new("@2", strokeCount.Order),
+        new("@3", strokeCount.Value),
     ];
 }

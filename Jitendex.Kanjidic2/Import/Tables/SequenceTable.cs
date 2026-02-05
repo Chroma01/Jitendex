@@ -21,24 +21,26 @@ using Jitendex.SQLite;
 using Jitendex.Kanjidic2.Entities;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite;
+namespace Jitendex.Kanjidic2.Import.Tables;
 
-internal sealed class EntryTable : Table<EntryElement>
+internal sealed class SequenceTable : Table<DocumentSequence>
 {
-    protected override string Name => nameof(Entry);
+    protected override string Name => nameof(Sequence);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(Entry.UnicodeScalarValue)
+        nameof(Sequence.Id),
+        nameof(Sequence.CreatedDate),
     ];
 
     protected override IReadOnlyList<string> KeyColNames =>
     [
-        nameof(Entry.UnicodeScalarValue)
+        nameof(Sequence.Id)
     ];
 
-    protected override SqliteParameter[] Parameters(EntryElement entry) =>
+    protected override SqliteParameter[] Parameters(DocumentSequence sequence) =>
     [
-        new("@0", entry.Id)
+        new("@0", sequence.Id),
+        new("@1", sequence.CreatedDate),
     ];
 }

@@ -18,29 +18,30 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Data.Sqlite;
 using Jitendex.SQLite;
-using Jitendex.Kanjidic2.Entities;
+using Jitendex.Kanjidic2.Entities.Groups;
 using Jitendex.Kanjidic2.Import.Models;
 
-namespace Jitendex.Kanjidic2.Import.SQLite;
+namespace Jitendex.Kanjidic2.Import.Tables.Groups;
 
-internal sealed class FileHeaderTable : Table<DocumentHeader>
+internal sealed class ReadingMeaningGroupTable : Table<ReadingMeaningGroupElement>
 {
-    protected override string Name => nameof(FileHeader);
+    protected override string Name => nameof(ReadingMeaningGroup);
 
     protected override IReadOnlyList<string> ColumnNames =>
     [
-        nameof(FileHeader.DatabaseVersion),
-        nameof(FileHeader.FileVersion),
-        nameof(FileHeader.Date),
+        nameof(ReadingMeaningGroup.UnicodeScalarValue),
+        nameof(ReadingMeaningGroup.Order),
     ];
 
-    protected override IReadOnlyList<string> KeyColNames
-        => throw new NotImplementedException($"The primary key for table {nameof(FileHeader)} is auto-incremented.");
-
-    protected override SqliteParameter[] Parameters(DocumentHeader header) =>
+    protected override IReadOnlyList<string> KeyColNames =>
     [
-        new("@0", header.DatabaseVersion),
-        new("@1", header.FileVersion),
-        new("@2", header.Date),
+        nameof(ReadingMeaningGroup.UnicodeScalarValue),
+        nameof(ReadingMeaningGroup.Order),
+    ];
+
+    protected override SqliteParameter[] Parameters(ReadingMeaningGroupElement group) =>
+    [
+        new("@0", group.EntryId),
+        new("@1", group.Order),
     ];
 }
