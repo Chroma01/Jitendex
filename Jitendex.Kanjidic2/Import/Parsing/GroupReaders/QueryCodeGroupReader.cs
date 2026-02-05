@@ -25,9 +25,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
 {
-    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public QueryCodeGroupReader(ILogger<QueryCodeGroupReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var group = new QueryCodeGroupElement
         (
@@ -36,18 +36,18 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
         );
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, group);
+                    await ReadChildElementAsync(xmlReader, document, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.QueryCodeGroup);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.QueryCodeGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.QueryCodeGroup;
+                    exit = xmlReader.Name == XmlTagName.QueryCodeGroup;
                     break;
             }
         }
@@ -55,37 +55,37 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
         document.QueryCodeGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, QueryCodeGroupElement group)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, QueryCodeGroupElement group)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.QueryCode:
-                await ReadQueryCode(document, group);
+                await ReadQueryCode(xmlReader, document, group);
                 break;
             default:
-                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.QueryCodeGroup);
+                LogUnexpectedChildElement(group.ToRune(), xmlReader.Name, XmlTagName.QueryCodeGroup);
                 break;
         }
     }
 
-    private async Task ReadQueryCode(Document document, QueryCodeGroupElement group)
+    private async Task ReadQueryCode(XmlReader xmlReader, Document document, QueryCodeGroupElement group)
     {
         var queryCode = new QueryCodeElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.QueryCodes.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, group),
-            Misclassification: GetMisclassification(document),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            TypeName: GetTypeName(xmlReader, document, group),
+            Misclassification: GetMisclassification(xmlReader, document),
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
         document.QueryCodes.Add(queryCode.Key(), queryCode);
     }
 
-    private string GetTypeName(Document document, QueryCodeGroupElement group)
+    private string GetTypeName(XmlReader xmlReader, Document document, QueryCodeGroupElement group)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute("qc_type");
+        var attribute = xmlReader.GetAttribute("qc_type");
         if (string.IsNullOrWhiteSpace(attribute))
         {
             LogMissingTypeName(group.ToRune());
@@ -103,9 +103,9 @@ internal partial class QueryCodeGroupReader : BaseReader<QueryCodeGroupReader>
         return typeName;
     }
 
-    private string? GetMisclassification(Document document)
+    private string? GetMisclassification(XmlReader xmlReader, Document document)
     {
-        var typeName = _xmlReader.GetAttribute("skip_misclass");
+        var typeName = xmlReader.GetAttribute("skip_misclass");
         if (string.IsNullOrWhiteSpace(typeName))
         {
             return null;

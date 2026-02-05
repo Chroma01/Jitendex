@@ -25,9 +25,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
 {
-    public MiscGroupReader(ILogger<MiscGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public MiscGroupReader(ILogger<MiscGroupReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var group = new MiscGroupElement
         (
@@ -36,18 +36,18 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         );
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, group);
+                    await ReadChildElementAsync(xmlReader, document, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.MiscGroup);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.MiscGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.MiscGroup;
+                    exit = xmlReader.Name == XmlTagName.MiscGroup;
                     break;
             }
         }
@@ -55,37 +55,37 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         document.MiscGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, MiscGroupElement group)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, MiscGroupElement group)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Grade:
-                await ReadGrade(group);
+                await ReadGrade(xmlReader, group);
                 break;
             case XmlTagName.Frequency:
-                await ReadFrequency(group);
+                await ReadFrequency(xmlReader, group);
                 break;
             case XmlTagName.Jlpt:
-                await ReadJlpt(group);
+                await ReadJlpt(xmlReader, group);
                 break;
             case XmlTagName.StrokeCount:
-                await ReadStrokeCount(document, group);
+                await ReadStrokeCount(xmlReader, document, group);
                 break;
             case XmlTagName.Variant:
-                await ReadVariant(document, group);
+                await ReadVariant(xmlReader, document, group);
                 break;
             case XmlTagName.RadicalName:
-                await ReadRadicalName(document, group);
+                await ReadRadicalName(xmlReader, document, group);
                 break;
             default:
-                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.MiscGroup);
+                LogUnexpectedChildElement(group.ToRune(), xmlReader.Name, XmlTagName.MiscGroup);
                 break;
         }
     }
 
-    private async Task ReadGrade(MiscGroupElement group)
+    private async Task ReadGrade(XmlReader xmlReader, MiscGroupElement group)
     {
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
         {
             group.Grade = value;
@@ -96,9 +96,9 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
     }
 
-    private async Task ReadFrequency(MiscGroupElement group)
+    private async Task ReadFrequency(XmlReader xmlReader, MiscGroupElement group)
     {
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
         {
             group.Frequency = value;
@@ -109,9 +109,9 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
     }
 
-    private async Task ReadJlpt(MiscGroupElement group)
+    private async Task ReadJlpt(XmlReader xmlReader, MiscGroupElement group)
     {
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
         {
             group.JlptLevel = value;
@@ -122,9 +122,9 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         }
     }
 
-    private async Task ReadStrokeCount(Document document, MiscGroupElement group)
+    private async Task ReadStrokeCount(XmlReader xmlReader, Document document, MiscGroupElement group)
     {
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
         int value;
         if (int.TryParse(text, out int x))
         {
@@ -145,23 +145,23 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         document.StrokeCounts.Add(strokeCount.Key(), strokeCount);
     }
 
-    private async Task ReadVariant(Document document, MiscGroupElement group)
+    private async Task ReadVariant(XmlReader xmlReader, Document document, MiscGroupElement group)
     {
         var variant = new VariantElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Variants.NextOrder(group.Key()),
-            TypeName: GetVariantTypeName(document, group),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            TypeName: GetVariantTypeName(xmlReader, document, group),
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
         document.Variants.Add(variant.Key(), variant);
     }
 
-    private string GetVariantTypeName(Document document, MiscGroupElement group)
+    private string GetVariantTypeName(XmlReader xmlReader, Document document, MiscGroupElement group)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute("var_type");
+        var attribute = xmlReader.GetAttribute("var_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {
@@ -182,14 +182,14 @@ internal partial class MiscGroupReader : BaseReader<MiscGroupReader>
         return typeName;
     }
 
-    private async Task ReadRadicalName(Document document, MiscGroupElement group)
+    private async Task ReadRadicalName(XmlReader xmlReader, Document document, MiscGroupElement group)
     {
         var radicalName = new RadicalNameElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.RadicalNames.NextOrder(group.Key()),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
         document.RadicalNames.Add(radicalName.Key(), radicalName);
     }

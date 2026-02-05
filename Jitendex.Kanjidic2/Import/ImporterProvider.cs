@@ -16,17 +16,16 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.IO.Compression;
-using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Jitendex.Kanjidic2.Import.Parsing;
 using Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
-namespace Jitendex.Kanjidic2.Import.Parsing;
+namespace Jitendex.Kanjidic2.Import;
 
-internal static class ReaderProvider
+internal static class ImporterProvider
 {
-    public static Kanjidic2Reader GetReader(FileInfo file) => new ServiceCollection()
+    public static Importer GetImporter() => new ServiceCollection()
         .AddLogging(static builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -35,22 +34,12 @@ internal static class ReaderProvider
                 options.TimestampFormat = "HH:mm:ss ";
             }))
 
-        // Global XML file reader.
-        .AddSingleton(_ =>
-            {
-                var readerSettings = new XmlReaderSettings
-                {
-                    Async = true,
-                    DtdProcessing = DtdProcessing.Parse,
-                    MaxCharactersFromEntities = long.MaxValue,
-                    MaxCharactersInDocument = long.MaxValue,
-                };
-                FileStream f = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                BrotliStream b = new(f, CompressionMode.Decompress);
-                return XmlReader.Create(b, readerSettings);
-            })
+        // Database
+        .AddDbContext<Kanjidic2Context>()
+        .AddTransient<Database>()
 
         // Top-level readers.
+        .AddTransient<Kanjidic2Reader>()
         .AddTransient<HeaderReader>()
         .AddTransient<EntriesReader>()
         .AddTransient<EntryReader>()
@@ -67,7 +56,7 @@ internal static class ReaderProvider
         .AddTransient<ReadingMeaningReader>()
 
         // Build and return the Kanjidic2 service.
-        .AddTransient<Kanjidic2Reader>()
+        .AddTransient<Importer>()
         .BuildServiceProvider()
-        .GetRequiredService<Kanjidic2Reader>();
+        .GetRequiredService<Importer>();
 }

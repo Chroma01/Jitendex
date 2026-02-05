@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.IO.Compression;
+using System.Xml;
 using Jitendex.Kanjidic2.Import.Models;
 
 namespace Jitendex.Kanjidic2.Import.Parsing;
@@ -29,14 +31,26 @@ internal class Kanjidic2Reader
         (_headerReader, _entriesReader) =
         (@headerReader, @entriesReader);
 
-    public async Task<Document> ReadAsync()
+   private static readonly XmlReaderSettings XmlReaderSettings = new()
     {
+        Async = true,
+        DtdProcessing = DtdProcessing.Parse,
+        MaxCharactersFromEntities = long.MaxValue,
+        MaxCharactersInDocument = long.MaxValue,
+    };
+
+    public async Task<Document> ReadAsync(FileInfo file, DateOnly fileDate)
+    {
+        FileStream f = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+        BrotliStream b = new(f, CompressionMode.Decompress);
+        using var xmlReader = XmlReader.Create(b, XmlReaderSettings);
+
         var document = new Document
         {
-            Header = await _headerReader.ReadAsync()
+            Header = await _headerReader.ReadAsync(xmlReader)
         };
 
-        await _entriesReader.ReadAsync(document);
+        await _entriesReader.ReadAsync(xmlReader, document);
 
         return document;
     }

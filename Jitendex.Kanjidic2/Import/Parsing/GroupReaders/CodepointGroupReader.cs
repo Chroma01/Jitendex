@@ -25,9 +25,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
 {
-    public CodepointGroupReader(ILogger<CodepointGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public CodepointGroupReader(ILogger<CodepointGroupReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var group = new CodepointGroupElement
         (
@@ -38,53 +38,53 @@ internal partial class CodepointGroupReader : BaseReader<CodepointGroupReader>
         document.CodepointGroups.Add(group.Key(), group);
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, group);
+                    await ReadChildElementAsync(xmlReader, document, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.CodepointGroup);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.CodepointGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.CodepointGroup;
+                    exit = xmlReader.Name == XmlTagName.CodepointGroup;
                     break;
             }
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, CodepointGroupElement group)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, CodepointGroupElement group)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Codepoint:
-                await ReadCodepoint(document, group);
+                await ReadCodepoint(xmlReader, document, group);
                 break;
             default:
-                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.CodepointGroup);
+                LogUnexpectedChildElement(group.ToRune(), xmlReader.Name, XmlTagName.CodepointGroup);
                 break;
         }
     }
 
-    private async Task ReadCodepoint(Document document, CodepointGroupElement group)
+    private async Task ReadCodepoint(XmlReader xmlReader, Document document, CodepointGroupElement group)
     {
         var codepoint = new CodepointElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Codepoints.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, group),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            TypeName: GetTypeName(xmlReader, document, group),
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
         document.Codepoints.Add(codepoint.Key(), codepoint);
     }
 
-    private string GetTypeName(Document document, CodepointGroupElement group)
+    private string GetTypeName(XmlReader xmlReader, Document document, CodepointGroupElement group)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute("cp_type");
+        var attribute = xmlReader.GetAttribute("cp_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {

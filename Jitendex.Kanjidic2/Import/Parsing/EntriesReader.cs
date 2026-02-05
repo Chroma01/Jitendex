@@ -26,37 +26,35 @@ internal partial class EntriesReader : BaseReader<EntriesReader>
 {
     private readonly EntryReader _entryReader;
 
-    public EntriesReader(ILogger<EntriesReader> logger, XmlReader xmlReader, EntryReader entryReader) : base(logger, xmlReader)
-    {
-        _entryReader = entryReader;
-    }
+    public EntriesReader(ILogger<EntriesReader> logger, EntryReader entryReader) : base(logger)
+        => _entryReader = entryReader;
 
-    public async Task ReadAsync(Document document)
+    public async Task ReadAsync(XmlReader xmlReader, Document document)
     {
-        while (await _xmlReader.ReadAsync())
+        while (await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document);
+                    await ReadChildElementAsync(xmlReader, document);
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
+                    var text = await xmlReader.GetValueAsync();
                     LogUnexpectedTextNode(text);
                     break;
             }
         }
     }
 
-    private async Task ReadChildElementAsync(Document document)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Entry:
-                await _entryReader.ReadAsync(document);
+                await _entryReader.ReadAsync(xmlReader, document);
                 break;
             default:
-                LogUnexpectedElement(_xmlReader.Name);
+                LogUnexpectedElement(xmlReader.Name);
                 break;
         }
     }

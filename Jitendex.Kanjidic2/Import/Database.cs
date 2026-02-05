@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.MinimalJsonDiff;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Tables;
@@ -25,7 +26,7 @@ using Jitendex.Kanjidic2.Import.Tables.SubgroupElements;
 
 namespace Jitendex.Kanjidic2.Import;
 
-internal static class Database
+internal sealed class Database(ILogger<Database> logger, Kanjidic2Context context)
 {
     private static readonly FileHeaderTable FileHeaderTable = new();
     private static readonly RevisionTable RevisionTable = new();
@@ -68,11 +69,10 @@ internal static class Database
     private static readonly KeywordTable<VariantTypeElement> VariantTypeTable = new();
     #endregion
 
-    public static void Initialize(Document document)
+    public void Initialize(Document document)
     {
-        Console.Error.WriteLine($"Initializing database with data from {document.Header.Date:yyyy-MM-dd}");
+        logger.LogInformation("Initializing database with data from {Date:yyyy-MM-dd}", document.Header.Date);
 
-        using var context = new Kanjidic2Context();
         context.InitializeDatabase();
         context.ExecuteFastNewDatabasePragma();
 
@@ -114,11 +114,10 @@ internal static class Database
         transaction.Commit();
     }
 
-    public static void Update(DocumentDiff diff)
+    public void Update(DocumentDiff diff)
     {
-        Console.Error.WriteLine($"Updating {diff.SequenceIds.Count} entries with data from {diff.FileHeader.Date:yyyy-MM-dd}");
+        logger.LogInformation("Updating {Count} entries with data from {Date:yyyy-MM-dd}", diff.SequenceIds.Count, diff.FileHeader.Date);
 
-        using var context = new Kanjidic2Context();
         var aSequences = DtoMapper.LoadRevisionlessSequences(context, diff.SequenceIds);
 
         using var transaction = context.Database.BeginTransaction();

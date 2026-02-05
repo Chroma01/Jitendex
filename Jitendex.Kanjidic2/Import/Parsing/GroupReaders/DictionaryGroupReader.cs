@@ -25,9 +25,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
 {
-    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public DictionaryGroupReader(ILogger<DictionaryGroupReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var group = new DictionaryGroupElement
         (
@@ -36,18 +36,18 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         );
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, group);
+                    await ReadChildElementAsync(xmlReader, document, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.DictionaryGroup);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.DictionaryGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.DictionaryGroup;
+                    exit = xmlReader.Name == XmlTagName.DictionaryGroup;
                     break;
             }
         }
@@ -55,39 +55,39 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         document.DictionaryGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, DictionaryGroupElement group)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, DictionaryGroupElement group)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Dictionary:
-                await ReadDictionary(document, group);
+                await ReadDictionary(xmlReader, document, group);
                 break;
             default:
-                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.DictionaryGroup);
+                LogUnexpectedChildElement(group.ToRune(), xmlReader.Name, XmlTagName.DictionaryGroup);
                 break;
         }
     }
 
-    private async Task ReadDictionary(Document document, DictionaryGroupElement group)
+    private async Task ReadDictionary(XmlReader xmlReader, Document document, DictionaryGroupElement group)
     {
         var dictionary = new DictionaryElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Dictionaries.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, group),
-            Volume: GetDictionaryVolume(group),
-            Page: GetDictionaryPage(group),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            TypeName: GetTypeName(xmlReader, document, group),
+            Volume: GetDictionaryVolume(xmlReader, group),
+            Page: GetDictionaryPage(xmlReader, group),
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
 
         document.Dictionaries.Add(dictionary.Key(), dictionary);
     }
 
-    private string GetTypeName(Document document, DictionaryGroupElement group)
+    private string GetTypeName(XmlReader xmlReader, Document document, DictionaryGroupElement group)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute("dr_type");
+        var attribute = xmlReader.GetAttribute("dr_type");
 
         if (string.IsNullOrWhiteSpace(attribute))
         {
@@ -108,9 +108,9 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         return typeName;
     }
 
-    private int? GetDictionaryVolume(DictionaryGroupElement group)
+    private int? GetDictionaryVolume(XmlReader xmlReader, DictionaryGroupElement group)
     {
-        var volume = _xmlReader.GetAttribute("m_vol");
+        var volume = xmlReader.GetAttribute("m_vol");
         if (volume is null)
         {
             // Not an error; allowed to be null
@@ -127,9 +127,9 @@ internal partial class DictionaryGroupReader : BaseReader<DictionaryGroupReader>
         }
     }
 
-    private int? GetDictionaryPage(DictionaryGroupElement group)
+    private int? GetDictionaryPage(XmlReader xmlReader, DictionaryGroupElement group)
     {
-        var page = _xmlReader.GetAttribute("m_page");
+        var page = xmlReader.GetAttribute("m_page");
         if (page is null)
         {
             // Not an error; allowed to be null

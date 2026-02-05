@@ -24,9 +24,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing;
 
 internal partial class HeaderReader : BaseReader<HeaderReader>
 {
-    public HeaderReader(ILogger<HeaderReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public HeaderReader(ILogger<HeaderReader> logger) : base(logger) { }
 
-    public async Task<DocumentHeader> ReadAsync()
+    public async Task<DocumentHeader> ReadAsync(XmlReader xmlReader)
     {
         var header = new DocumentHeader
         {
@@ -36,22 +36,22 @@ internal partial class HeaderReader : BaseReader<HeaderReader>
         };
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadElementAsync(header);
+                    await ReadElementAsync(xmlReader, header);
                     break;
                 case XmlNodeType.DocumentType:
                     // No usable info in here.
                     break;
                 case XmlNodeType.Text:
-                    var text = await _xmlReader.GetValueAsync();
+                    var text = await xmlReader.GetValueAsync();
                     LogUnexpectedTextNode(text);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.Header;
+                    exit = xmlReader.Name == XmlTagName.Header;
                     break;
             }
         }
@@ -74,22 +74,22 @@ internal partial class HeaderReader : BaseReader<HeaderReader>
         return header;
     }
 
-    private async Task ReadElementAsync(DocumentHeader header)
+    private async Task ReadElementAsync(XmlReader xmlReader, DocumentHeader header)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case "kanjidic2":
                 break;
             case XmlTagName.Header:
                 break;
             case XmlTagName.DatabaseVersion:
-                header.DatabaseVersion = await _xmlReader.ReadElementContentAsStringAsync();
+                header.DatabaseVersion = await xmlReader.ReadElementContentAsStringAsync();
                 break;
             case XmlTagName.FileVersion:
-                header.FileVersion = await _xmlReader.ReadElementContentAsStringAsync();
+                header.FileVersion = await xmlReader.ReadElementContentAsStringAsync();
                 break;
             case XmlTagName.CreationDate:
-                var content = await _xmlReader.ReadElementContentAsStringAsync();
+                var content = await xmlReader.ReadElementContentAsStringAsync();
                 if (DateOnly.TryParse(content, out var date))
                 {
                     header.Date = date;
@@ -100,7 +100,7 @@ internal partial class HeaderReader : BaseReader<HeaderReader>
                 }
                 break;
             default:
-                LogUnexpectedElement(_xmlReader.Name);
+                LogUnexpectedElement(xmlReader.Name);
                 break;
         }
     }

@@ -25,9 +25,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
 {
-    public RadicalGroupReader(ILogger<RadicalGroupReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public RadicalGroupReader(ILogger<RadicalGroupReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var group = new RadicalGroupElement
         (
@@ -36,18 +36,18 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
         );
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, group);
+                    await ReadChildElementAsync(xmlReader, document, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.RadicalGroup);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.RadicalGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.RadicalGroup;
+                    exit = xmlReader.Name == XmlTagName.RadicalGroup;
                     break;
             }
         }
@@ -55,36 +55,36 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
         document.RadicalGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, RadicalGroupElement group)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, RadicalGroupElement group)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Radical:
-                await ReadRadical(document, group);
+                await ReadRadical(xmlReader, document, group);
                 break;
             default:
-                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.RadicalGroup);
+                LogUnexpectedChildElement(group.ToRune(), xmlReader.Name, XmlTagName.RadicalGroup);
                 break;
         }
     }
 
-    private async Task ReadRadical(Document document, RadicalGroupElement group)
+    private async Task ReadRadical(XmlReader xmlReader, Document document, RadicalGroupElement group)
     {
         var radical = new RadicalElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Radicals.NextOrder(group.Key()),
-            TypeName: GetTypeName(document, group),
-            Number: await GetNumber(group)
+            TypeName: GetTypeName(xmlReader, document, group),
+            Number: await GetNumber(xmlReader, group)
         );
         document.Radicals.Add(radical.Key(), radical);
     }
 
-    private string GetTypeName(Document document, RadicalGroupElement group)
+    private string GetTypeName(XmlReader xmlReader, Document document, RadicalGroupElement group)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute("rad_type");
+        var attribute = xmlReader.GetAttribute("rad_type");
         if (string.IsNullOrWhiteSpace(attribute))
         {
             LogMissingTypeName(group.ToRune());
@@ -102,9 +102,9 @@ internal partial class RadicalGroupReader : BaseReader<RadicalGroupReader>
         return typeName;
     }
 
-    private async Task<int> GetNumber(RadicalGroupElement group)
+    private async Task<int> GetNumber(XmlReader xmlReader, RadicalGroupElement group)
     {
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
         if (int.TryParse(text, out int value))
         {
             return value;

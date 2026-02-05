@@ -25,15 +25,12 @@ namespace Jitendex.Kanjidic2.Import.Parsing;
 internal abstract partial class BaseReader<T> where T : BaseReader<T>
 {
     protected readonly ILogger<T> _logger;
-    protected readonly XmlReader _xmlReader;
 
-    public BaseReader(ILogger<T> logger, XmlReader xmlReader) =>
-        (_logger, _xmlReader) =
-        (@logger, @xmlReader);
+    public BaseReader(ILogger<T> logger) => _logger = logger;
 
-    protected async Task LogUnexpectedTextNodeAsync(int unicodeScalarValue, string tagName)
+    protected async Task LogUnexpectedTextNodeAsync(XmlReader xmlReader, int unicodeScalarValue, string tagName)
     {
-        var text = await _xmlReader.GetValueAsync();
+        var text = await xmlReader.GetValueAsync();
         LogUnexpectedTextNode(new Rune(unicodeScalarValue), tagName, text);
     }
 

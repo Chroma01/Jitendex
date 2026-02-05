@@ -33,11 +33,11 @@ internal partial class EntryReader : BaseReader<EntryReader>
     private readonly RadicalGroupReader _radicalGroupReader;
     private readonly ReadingMeaningGroupReader _readingMeaningGroupReader;
 
-    public EntryReader(ILogger<EntryReader> logger, XmlReader xmlReader, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) : base(logger, xmlReader) =>
+    public EntryReader(ILogger<EntryReader> logger, CodepointGroupReader codepointGroupReader, DictionaryGroupReader dictionaryGroupReader, MiscGroupReader miscGroupReader, QueryCodeGroupReader queryCodeGroupReader, RadicalGroupReader radicalGroupReader, ReadingMeaningGroupReader readingMeaningGroupReader) : base(logger) =>
         (_codepointGroupReader, _dictionaryGroupReader, _miscGroupReader, _queryCodeGroupReader, _radicalGroupReader, _readingMeaningGroupReader) =
         (@codepointGroupReader, @dictionaryGroupReader, @miscGroupReader, @queryCodeGroupReader, @radicalGroupReader, @readingMeaningGroupReader);
 
-    public async Task ReadAsync(Document document)
+    public async Task ReadAsync(XmlReader xmlReader, Document document)
     {
         var entry = new EntryElement
         {
@@ -45,18 +45,18 @@ internal partial class EntryReader : BaseReader<EntryReader>
         };
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, entry);
+                    await ReadChildElementAsync(xmlReader, document, entry);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.Entry);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.Entry);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.Entry;
+                    exit = xmlReader.Name == XmlTagName.Entry;
                     break;
             }
         }
@@ -71,51 +71,51 @@ internal partial class EntryReader : BaseReader<EntryReader>
         }
     }
 
-    private async Task ReadChildElementAsync(Document document, EntryElement entry)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
-        if (_xmlReader.Name != XmlTagName.EntryCharacter && entry.Id == default)
+        if (xmlReader.Name != XmlTagName.EntryCharacter && entry.Id == default)
         {
-            LogPrematureElement(_xmlReader.Name);
+            LogPrematureElement(xmlReader.Name);
             return;
         }
 
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.EntryCharacter:
-                await ReadCharacterAsync(entry);
+                await ReadCharacterAsync(xmlReader, entry);
                 break;
             case XmlTagName.CodepointGroup:
-                await _codepointGroupReader.ReadAsync(document, entry);
+                await _codepointGroupReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.DictionaryGroup:
-                await _dictionaryGroupReader.ReadAsync(document, entry);
+                await _dictionaryGroupReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.MiscGroup:
-                await _miscGroupReader.ReadAsync(document, entry);
+                await _miscGroupReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.QueryCodeGroup:
-                await _queryCodeGroupReader.ReadAsync(document, entry);
+                await _queryCodeGroupReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.RadicalGroup:
-                await _radicalGroupReader.ReadAsync(document, entry);
+                await _radicalGroupReader.ReadAsync(xmlReader, document, entry);
                 break;
             case XmlTagName.ReadingMeaningGroup:
-                await _readingMeaningGroupReader.ReadAsync(document, entry);
+                await _readingMeaningGroupReader.ReadAsync(xmlReader, document, entry);
                 break;
             default:
-                LogUnexpectedChildElement(entry.ToRune(), _xmlReader.Name, XmlTagName.Entry);
+                LogUnexpectedChildElement(entry.ToRune(), xmlReader.Name, XmlTagName.Entry);
                 break;
         }
     }
 
-    private async Task ReadCharacterAsync(EntryElement entry)
+    private async Task ReadCharacterAsync(XmlReader xmlReader, EntryElement entry)
     {
         if (entry.Id != default)
         {
             LogUnexpectedGroup(entry.ToRune(), XmlTagName.EntryCharacter);
         }
 
-        var text = await _xmlReader.ReadElementContentAsStringAsync();
+        var text = await xmlReader.ReadElementContentAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(text))
         {

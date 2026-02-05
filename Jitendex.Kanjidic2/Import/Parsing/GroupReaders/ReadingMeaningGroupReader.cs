@@ -27,13 +27,12 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
 {
     private readonly ReadingMeaningReader _readingMeaningReader;
 
-    public ReadingMeaningGroupReader(ILogger<ReadingMeaningGroupReader> logger, XmlReader xmlReader, ReadingMeaningReader readingMeaningReader)
-        : base(logger, xmlReader)
+    public ReadingMeaningGroupReader(ILogger<ReadingMeaningGroupReader> logger, ReadingMeaningReader readingMeaningReader) : base(logger)
     {
         _readingMeaningReader = readingMeaningReader;
     }
 
-    public async Task ReadAsync(Document document, EntryElement entry)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, EntryElement entry)
     {
         var group = new ReadingMeaningGroupElement
         (
@@ -42,18 +41,18 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
         );
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, group);
+                    await ReadChildElementAsync(xmlReader, document, group);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(entry.Id, XmlTagName.ReadingMeaningGroup);
+                    await LogUnexpectedTextNodeAsync(xmlReader, entry.Id, XmlTagName.ReadingMeaningGroup);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.ReadingMeaningGroup;
+                    exit = xmlReader.Name == XmlTagName.ReadingMeaningGroup;
                     break;
             }
         }
@@ -61,30 +60,30 @@ internal partial class ReadingMeaningGroupReader : BaseReader<ReadingMeaningGrou
         document.ReadingMeaningGroups.Add(group.Key(), group);
     }
 
-    private async Task ReadChildElementAsync(Document document, ReadingMeaningGroupElement group)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, ReadingMeaningGroupElement group)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.ReadingMeaning:
-                await _readingMeaningReader.ReadAsync(document, group);
+                await _readingMeaningReader.ReadAsync(xmlReader, document, group);
                 break;
             case XmlTagName.Nanori:
-                await ReadNanori(document, group);
+                await ReadNanori(xmlReader, document, group);
                 break;
             default:
-                LogUnexpectedChildElement(group.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaningGroup);
+                LogUnexpectedChildElement(group.ToRune(), xmlReader.Name, XmlTagName.ReadingMeaningGroup);
                 break;
         }
     }
 
-    private async Task ReadNanori(Document document, ReadingMeaningGroupElement group)
+    private async Task ReadNanori(XmlReader xmlReader, Document document, ReadingMeaningGroupElement group)
     {
         var nanori = new NanoriElement
         (
             EntryId: group.EntryId,
             GroupOrder: group.Order,
             Order: document.Nanoris.NextOrder(group.Key()),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
         document.Nanoris.Add(nanori.Key(), nanori);
     }

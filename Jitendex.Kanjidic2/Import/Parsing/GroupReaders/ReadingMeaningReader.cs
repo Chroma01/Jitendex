@@ -25,9 +25,9 @@ namespace Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
 internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
 {
-    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger, XmlReader xmlReader) : base(logger, xmlReader) { }
+    public ReadingMeaningReader(ILogger<ReadingMeaningReader> logger) : base(logger) { }
 
-    public async Task ReadAsync(Document document, ReadingMeaningGroupElement group)
+    public async Task ReadAsync(XmlReader xmlReader, Document document, ReadingMeaningGroupElement group)
     {
         var readingMeaning = new ReadingMeaningElement
         (
@@ -37,18 +37,18 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
         );
 
         var exit = false;
-        while (!exit && await _xmlReader.ReadAsync())
+        while (!exit && await xmlReader.ReadAsync())
         {
-            switch (_xmlReader.NodeType)
+            switch (xmlReader.NodeType)
             {
                 case XmlNodeType.Element:
-                    await ReadChildElementAsync(document, readingMeaning);
+                    await ReadChildElementAsync(xmlReader, document, readingMeaning);
                     break;
                 case XmlNodeType.Text:
-                    await LogUnexpectedTextNodeAsync(group.EntryId, XmlTagName.ReadingMeaning);
+                    await LogUnexpectedTextNodeAsync(xmlReader, group.EntryId, XmlTagName.ReadingMeaning);
                     break;
                 case XmlNodeType.EndElement:
-                    exit = _xmlReader.Name == XmlTagName.ReadingMeaning;
+                    exit = xmlReader.Name == XmlTagName.ReadingMeaning;
                     break;
             }
         }
@@ -56,23 +56,23 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
         document.ReadingMeanings.Add(readingMeaning.Key(), readingMeaning);
     }
 
-    private async Task ReadChildElementAsync(Document document, ReadingMeaningElement readingMeaning)
+    private async Task ReadChildElementAsync(XmlReader xmlReader, Document document, ReadingMeaningElement readingMeaning)
     {
-        switch (_xmlReader.Name)
+        switch (xmlReader.Name)
         {
             case XmlTagName.Reading:
-                await ReadReading(document, readingMeaning);
+                await ReadReading(xmlReader, document, readingMeaning);
                 break;
             case XmlTagName.Meaning:
-                await ReadMeaning(document, readingMeaning);
+                await ReadMeaning(xmlReader, document, readingMeaning);
                 break;
             default:
-                LogUnexpectedChildElement(readingMeaning.ToRune(), _xmlReader.Name, XmlTagName.ReadingMeaning);
+                LogUnexpectedChildElement(readingMeaning.ToRune(), xmlReader.Name, XmlTagName.ReadingMeaning);
                 break;
         }
     }
 
-    private async Task ReadReading(Document document, ReadingMeaningElement readingMeaning)
+    private async Task ReadReading(XmlReader xmlReader, Document document, ReadingMeaningElement readingMeaning)
     {
         var reading = new ReadingElement
         (
@@ -80,16 +80,16 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
             GroupOrder: readingMeaning.GroupOrder,
             ReadingMeaningOrder: readingMeaning.Order,
             Order: document.Readings.NextOrder(readingMeaning.Key()),
-            TypeName: GetReadingTypeName(document, readingMeaning),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            TypeName: GetReadingTypeName(xmlReader, document, readingMeaning),
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
         document.Readings.Add(reading.Key(), reading);
     }
 
-    private string GetReadingTypeName(Document document, ReadingMeaningElement readingMeaning)
+    private string GetReadingTypeName(XmlReader xmlReader, Document document, ReadingMeaningElement readingMeaning)
     {
         string typeName;
-        var attribute = _xmlReader.GetAttribute("r_type");
+        var attribute = xmlReader.GetAttribute("r_type");
         if (string.IsNullOrWhiteSpace(attribute))
         {
             LogMissingTypeName(readingMeaning.ToRune());
@@ -107,12 +107,12 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
         return typeName;
     }
 
-    private async Task ReadMeaning(Document document, ReadingMeaningElement readingMeaning)
+    private async Task ReadMeaning(XmlReader xmlReader, Document document, ReadingMeaningElement readingMeaning)
     {
-        if (_xmlReader.GetAttribute("m_lang") is not null)
+        if (xmlReader.GetAttribute("m_lang") is not null)
         {
             // This is not an English-language meaning; skip.
-            await _xmlReader.SkipAsync();
+            await xmlReader.SkipAsync();
             return;
         }
 
@@ -122,7 +122,7 @@ internal partial class ReadingMeaningReader : BaseReader<ReadingMeaningReader>
             GroupOrder: readingMeaning.GroupOrder,
             ReadingMeaningOrder: readingMeaning.Order,
             Order: document.Meanings.NextOrder(readingMeaning.Key()),
-            Text: await _xmlReader.ReadElementContentAsStringAsync()
+            Text: await xmlReader.ReadElementContentAsStringAsync()
         );
 
         if (string.Equals(meaning.Text, "(kokuji)", StringComparison.Ordinal))
