@@ -28,9 +28,12 @@ internal sealed class EdrdgArchiveService : IEdrdgArchiveService
     public FileInfo? GetFile(DictionaryFile file, DateOnly date, DirectoryInfo? archiveDirectory = null)
         => _builder.GetFile(new(file, date, archiveDirectory));
 
-    public (FileInfo?, DateOnly) GetNextFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null)
+    public (FileInfo, DateOnly)? GetNextFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null)
         => _builder.GetNextFile(new(file, previousDate, archiveDirectory));
 
-    public (FileInfo?, DateOnly) GetLatestFile(DictionaryFile file, DirectoryInfo? archiveDirectory = null)
+    public (FileInfo, DateOnly)? GetEarliestFile(DictionaryFile file, DirectoryInfo? archiveDirectory = null)
+        => _builder.GetEarliestFile(new(file, default, archiveDirectory));
+
+    public (FileInfo, DateOnly)? GetLatestFile(DictionaryFile file, DirectoryInfo? archiveDirectory = null)
         => _builder.GetLatestFile(new(file, default, archiveDirectory));
 }

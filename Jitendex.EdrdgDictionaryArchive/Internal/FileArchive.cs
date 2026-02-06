@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
+using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
 
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
@@ -24,7 +25,7 @@ internal sealed record Patch(DateOnly Date, string Path);
 
 internal sealed class FileArchive(ILogger<FileArchive> logger)
 {
-    public FileInfo BaseFile(FileRequest request)
+    public (FileInfo, DateOnly)? GetExistingBaseFile(FileRequest request)
     {
         var baseFilePath = Path.Join
         (
@@ -32,7 +33,14 @@ internal sealed class FileArchive(ILogger<FileArchive> logger)
             request.File.ToDirectoryName(),
             $"{request.File.ToFileName()}.br"
         );
-        return new(baseFilePath);
+        var file = new FileInfo(baseFilePath);
+        if (!file.Exists)
+        {
+            logger.LogInformation("Base file for {File} is missing at path `{Path}`", request.File.ToFileName(), request.ArchiveDirectory.FullName);
+            return null;
+        }
+        var baseFileDate = GetBaseFileDate(request.File);
+        return (file, baseFileDate);
     }
 
     public DateOnly GetLatestPatchDate(FileRequest request)
@@ -113,4 +121,16 @@ internal sealed class FileArchive(ILogger<FileArchive> logger)
 
     private static string GetPatchPath(DirectoryInfo directory, DateOnly date)
         => Path.Join(directory.FullName, $"{date.Year}", $"{date.Month:D2}", $"{date.Day:D2}.patch.br");
+
+     private static DateOnly GetBaseFileDate(DictionaryFile file)
+        => file switch
+        {
+            JMdict => new(2023, 8, 20),
+            JMdict_e => new(2025, 10, 9),
+            JMdict_e_examp => new(2023, 8, 26),
+            JMnedict => new(2023, 8, 20),
+            kanjidic2 => new(2023, 8, 20),
+            examples => new(2023, 9, 25),
+            _ => throw new ArgumentOutOfRangeException(nameof(file))
+        };
 }

@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
 using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Parsing;
@@ -25,14 +26,15 @@ namespace Jitendex.Kanjidic2.Import;
 
 internal sealed class Importer
 {
+    private readonly ILogger<Importer> _logger;
     private readonly IEdrdgArchiveService _fileArchive;
     private readonly Kanjidic2Context _context;
     private readonly Kanjidic2Reader _reader;
     private readonly Database _database;
 
-    public Importer(IEdrdgArchiveService fileArchive, Kanjidic2Context context, Kanjidic2Reader reader, Database database) =>
-        (_fileArchive, _context, _reader, _database) =
-        (@fileArchive, @context, @reader, @database);
+    public Importer(ILogger<Importer> logger, IEdrdgArchiveService fileArchive, Kanjidic2Context context, Kanjidic2Reader reader, Database database) =>
+        (_logger, _fileArchive, _context, _reader, _database) =
+        (@logger, @fileArchive, @context, @reader, @database);
 
     public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {
@@ -43,6 +45,12 @@ internal sealed class Importer
             ? await InitializeDatabaseAsync(archiveDirectory)
             : await GetPreviousDocumentAsync(archiveDirectory, previousDate);
 
+        if (previousDocument is null)
+        {
+            _logger.LogWarning("Unable to retrieve previous document");
+            return;
+        }
+
         await UpdateDatabaseAsync(archiveDirectory, previousDocument);
     }
 
@@ -52,38 +60,40 @@ internal sealed class Importer
         .Select(static x => x.Date)
         .FirstOrDefault();
 
-    private async Task<Document> InitializeDatabaseAsync(DirectoryInfo? archiveDirectory)
+    private async Task<Document?> InitializeDatabaseAsync(DirectoryInfo? archiveDirectory)
     {
-        var (file, date) = _fileArchive.GetNextFile(kanjidic2, default, archiveDirectory);
-        var document = await _reader.ReadAsync(file!, date);
-        _database.Initialize(document);
-        _context.ExecuteVacuum();
-        return document;
+        if (_fileArchive.GetEarliestFile(kanjidic2, archiveDirectory) is (FileInfo file, DateOnly date))
+        {
+            var document = await _reader.ReadAsync(file, date);
+            _database.Initialize(document);
+            _context.ExecuteVacuum();
+            return document;
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    private async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory, DateOnly previousDate)
+    private async Task<Document?> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory, DateOnly previousDate)
     {
-        var file = _fileArchive.GetFile(kanjidic2, previousDate, archiveDirectory);
-        var document = await _reader.ReadAsync(file, previousDate);
-        return document;
+        if (_fileArchive.GetFile(kanjidic2, previousDate, archiveDirectory) is FileInfo file)
+        {
+            return await _reader.ReadAsync(file, previousDate);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private async Task UpdateDatabaseAsync(DirectoryInfo? archiveDirectory, Document previousDocument)
     {
-        while (true)
+        while (_fileArchive.GetNextFile(kanjidic2, previousDocument.Header.Date, archiveDirectory) is (FileInfo nextFile, DateOnly nextDate))
         {
-            var (nextFile, nextDate) = _fileArchive.GetNextFile(kanjidic2, previousDocument.Header.Date, archiveDirectory);
-
-            if (nextFile is null)
-            {
-                break;
-            }
-
             var nextDocument = await _reader.ReadAsync(nextFile, nextDate);
             var diff = new DocumentDiff(previousDocument, nextDocument);
-
             _database.Update(diff);
-
             previousDocument = nextDocument;
         }
     }

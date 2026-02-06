@@ -80,13 +80,13 @@ public static class Program
         var service = GetService();
         if (date is null)
         {
-            var (latestFile, _) = service.GetLatestFile(filename, archiveDirectory);
-            return latestFile;
+            return service.GetLatestFile(filename, archiveDirectory) is (FileInfo latestFile, DateOnly _)
+                ? latestFile
+                : null;
         }
         else
         {
-            var file = service.GetFile(filename, (DateOnly)date, archiveDirectory);
-            return file;
+            return service.GetFile(filename, (DateOnly)date, archiveDirectory);
         }
     }
 
