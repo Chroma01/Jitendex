@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.Extensions.Logging;
 using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Parsing;
@@ -26,15 +25,14 @@ namespace Jitendex.Kanjidic2.Import;
 
 internal sealed class Importer
 {
-    private readonly ILogger<Importer> _logger;
     private readonly IEdrdgArchiveService _fileArchive;
     private readonly Kanjidic2Context _context;
     private readonly Kanjidic2Reader _reader;
     private readonly Database _database;
 
-    public Importer(ILogger<Importer> logger, IEdrdgArchiveService fileArchive, Kanjidic2Context context, Kanjidic2Reader reader, Database database) =>
-        (_logger, _fileArchive, _context, _reader, _database) =
-        (@logger, @fileArchive, @context, @reader, @database);
+    public Importer(IEdrdgArchiveService fileArchive, Kanjidic2Context context, Kanjidic2Reader reader, Database database) =>
+        (_fileArchive, _context, _reader, _database) =
+        (@fileArchive, @context, @reader, @database);
 
     public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {

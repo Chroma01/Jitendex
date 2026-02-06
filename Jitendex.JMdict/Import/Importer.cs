@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.Extensions.Logging;
 using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.JMdict.Import.Analysis;
 using Jitendex.JMdict.Import.Models;
@@ -27,16 +26,15 @@ namespace Jitendex.JMdict.Import;
 
 internal sealed class Importer
 {
-    private readonly ILogger<Importer> _logger;
     private readonly IEdrdgArchiveService _fileArchive;
     private readonly JmdictContext _context;
     private readonly DocumentReader _reader;
     private readonly Database _database;
     private readonly Analyzer _analyzer;
 
-    public Importer(ILogger<Importer> logger, IEdrdgArchiveService fileArchive, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
-        (_logger, _fileArchive, _context, _reader, _database, _analyzer) =
-        (@logger, @fileArchive, @context, @reader, @database, @analyzer);
+    public Importer(IEdrdgArchiveService fileArchive, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
+        (_fileArchive, _context, _reader, _database, _analyzer) =
+        (@fileArchive, @context, @reader, @database, @analyzer);
 
     public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {
@@ -47,7 +45,7 @@ internal sealed class Importer
             ? await InitializeDatabaseAsync(archiveDirectory)
             : await GetPreviousDocumentAsync(archiveDirectory, previousDate);
 
-        await UpdateJmdictDatabaseAsync(archiveDirectory, previousDocument);
+        await UpdateDatabaseAsync(archiveDirectory, previousDocument);
 
         _analyzer.Analyze();
     }
@@ -74,7 +72,7 @@ internal sealed class Importer
         return document;
     }
 
-    private async Task UpdateJmdictDatabaseAsync(DirectoryInfo? archiveDirectory, Document previousDocument)
+    private async Task UpdateDatabaseAsync(DirectoryInfo? archiveDirectory, Document previousDocument)
     {
         while (true)
         {
