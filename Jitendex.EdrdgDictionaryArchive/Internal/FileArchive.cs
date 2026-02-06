@@ -30,7 +30,7 @@ internal sealed class FileArchive(ILogger<FileArchive> logger)
         (
             request.ArchiveDirectory.FullName,
             request.File.ToDirectoryName(),
-            request.File.ToCompressedName()
+            $"{request.File.ToFileName()}.br"
         );
         return new(baseFilePath);
     }

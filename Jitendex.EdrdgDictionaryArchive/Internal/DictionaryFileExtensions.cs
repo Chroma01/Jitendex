@@ -34,9 +34,6 @@ internal static class DictionaryFileExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(file))
         };
 
-    public static string ToCompressedName(this DictionaryFile file)
-        => $"{file.ToFileName()}.br";
-
     public static string ToDirectoryName(this DictionaryFile file)
         => file.ToFileName().Replace('.', '_');
 }
