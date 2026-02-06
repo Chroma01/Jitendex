@@ -17,23 +17,24 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
+using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.Kanjidic2.Import.Models;
 using Jitendex.Kanjidic2.Import.Parsing;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
-using static Jitendex.EdrdgDictionaryArchive.Service;
 
 namespace Jitendex.Kanjidic2.Import;
 
 internal sealed class Importer
 {
     private readonly ILogger<Importer> _logger;
+    private readonly IEdrdgArchiveService _fileArchive;
     private readonly Kanjidic2Context _context;
     private readonly Kanjidic2Reader _reader;
     private readonly Database _database;
 
-    public Importer(ILogger<Importer> logger, Kanjidic2Context context, Kanjidic2Reader reader, Database database) =>
-        (_logger, _context, _reader, _database) =
-        (@logger, @context, @reader, @database);
+    public Importer(ILogger<Importer> logger, IEdrdgArchiveService fileArchive, Kanjidic2Context context, Kanjidic2Reader reader, Database database) =>
+        (_logger, _fileArchive, _context, _reader, _database) =
+        (@logger, @fileArchive, @context, @reader, @database);
 
     public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {
@@ -55,7 +56,7 @@ internal sealed class Importer
 
     private async Task<Document> InitializeDatabaseAsync(DirectoryInfo? archiveDirectory)
     {
-        var (file, date) = GetNextEdrdgFile(kanjidic2, default, archiveDirectory);
+        var (file, date) = _fileArchive.GetNextFile(kanjidic2, default, archiveDirectory);
         var document = await _reader.ReadAsync(file!, date);
         _database.Initialize(document);
         _context.ExecuteVacuum();
@@ -64,7 +65,7 @@ internal sealed class Importer
 
     private async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory, DateOnly previousDate)
     {
-        var file = GetEdrdgFile(kanjidic2, previousDate, archiveDirectory);
+        var file = _fileArchive.GetFile(kanjidic2, previousDate, archiveDirectory);
         var document = await _reader.ReadAsync(file, previousDate);
         return document;
     }
@@ -73,7 +74,7 @@ internal sealed class Importer
     {
         while (true)
         {
-            var (nextFile, nextDate) = GetNextEdrdgFile(kanjidic2, previousDocument.Header.Date, archiveDirectory);
+            var (nextFile, nextDate) = _fileArchive.GetNextFile(kanjidic2, previousDocument.Header.Date, archiveDirectory);
 
             if (nextFile is null)
             {

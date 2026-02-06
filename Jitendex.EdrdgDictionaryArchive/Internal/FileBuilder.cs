@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025, 2026 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -31,31 +31,31 @@ internal sealed class FileBuilder
         (_logger, _cache, _archive) =
         (@logger, @cache, @archive);
 
-    public FileInfo GetFile(DateOnly date)
-    {
-        if (date == default)
-        {
-            date = _archive.GetLatestPatchDate();
-        }
-        return _cache.GetExistingFile(date) ?? BuildFile(date);
-    }
+    public FileInfo GetFile(FileRequest request)
+        => _cache.GetExistingFile(request) ?? BuildFile(request);
 
-    public (FileInfo?, DateOnly) GetNextFile(DateOnly previousDate)
+    public (FileInfo?, DateOnly) GetNextFile(FileRequest request)
     {
-        if (_archive.GetNextPatchDate(previousDate) is DateOnly date)
-        {
-            var file = _cache.GetExistingFile(date) ?? BuildFile(date);
-            return (file, date);
-        }
-        else
+        if (_archive.GetNextPatchDate(request) is not DateOnly nextDate)
         {
             return (null, default);
         }
+        var nextFileRequest = request with { Date = nextDate };
+        var nextFile = GetFile(nextFileRequest);
+        return (nextFile, nextDate);
     }
 
-    private FileInfo BuildFile(DateOnly date)
+    public (FileInfo?, DateOnly) GetLatestFile(FileRequest request)
     {
-        var (baseDate, baseFile, patchDates) = GetBuildBase(date);
+        var latestDate = _archive.GetLatestPatchDate(request);
+        var latestFileRequest = request with { Date = latestDate };
+        var latestFile = GetFile(latestFileRequest);
+        return (latestFile, latestDate);
+    }
+
+    private FileInfo BuildFile(FileRequest request)
+    {
+        var (baseDate, baseFile, patches) = GetBuildBase(request);
 
         int length = baseFile.Length();
         Span<char> @patchBuffer = new char[length / 10];
@@ -63,49 +63,53 @@ internal sealed class FileBuilder
         Span<char> outputBuffer = new char[length * 3 / 2];
         baseFile.ReadInto(originBuffer);
 
-        foreach (var patchDate in patchDates)
+        foreach (var patch in patches)
         {
-            _logger.LogInformation("Patching file to date {PatchDate:yyyy-MM-dd}", patchDate);
-            var patchFile = _archive.GetPatchFile(patchDate);
+            _logger.LogInformation("Patching file to date {Date:yyyy-MM-dd}", patch.Date);
+            var patchFile = new FileInfo(patch.Path);
             int patchLength = patchFile.ReadInto(patchBuffer);
+
             length = Patcher.ApplyPatch
             (
                 @patchBuffer[..patchLength],
                 originBuffer[..length],
                 outputBuffer
             );
-            if (patchDate != date)
-            {
-                var originText = originBuffer[..length];
-                var outputText = outputBuffer[..length];
-                outputText.CopyTo(originText);
-            }
+
+            outputBuffer[..length].CopyTo(originBuffer[..length]);
         }
 
-        var builtFile = _cache.SetFile(date, outputBuffer[..length]);
-        _cache.DeleteFile(baseDate);
+        var builtFile = _cache.WriteFile(request, outputBuffer[..length]);
+
+        var baseFileRequest = request with { Date = baseDate };
+        _cache.DeleteFile(baseFileRequest);
+
         return builtFile;
     }
 
-    private (DateOnly, FileInfo, List<DateOnly>) GetBuildBase(DateOnly date)
+    private (DateOnly, FileInfo, List<Patch>) GetBuildBase(FileRequest request)
     {
         DateOnly baseDate = default;
         FileInfo? baseFile = null;
-        List<DateOnly> patchDates = [];
-        foreach (var patchDate in _archive.GetPatchDates(untilDate: date))
+        List<Patch> patches = [];
+
+        foreach (var patch in _archive.GetPatches(request))
         {
-            if (_cache.GetExistingFile(patchDate) is FileInfo cachedFile)
+            var cachedFileRequest = request with { Date = patch.Date };
+            if (_cache.GetExistingFile(cachedFileRequest) is FileInfo cachedFile)
             {
-                baseDate = patchDate;
+                baseDate = patch.Date;
                 baseFile = cachedFile;
-                patchDates.Clear();
+                patches.Clear();
             }
             else
             {
-                patchDates.Add(patchDate);
+                patches.Add(patch);
             }
         }
-        baseFile ??= _archive.BaseFile;
-        return (baseDate, baseFile, patchDates);
+
+        baseFile ??= _archive.BaseFile(request);
+
+        return (baseDate, baseFile, patches);
     }
 }

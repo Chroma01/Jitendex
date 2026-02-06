@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -23,38 +23,34 @@ namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed class FileCache
 {
-    private readonly DirectoryInfo _directory;
-
-    public FileCache(FileType type)
-    {
-        var cacheRoot = Cache.Get(EdrdgArchiveDirectory);
-        _directory = cacheRoot.CreateSubdirectory(type.DirectoryName.ToString());
-    }
-
-    public FileInfo? GetExistingFile(DateOnly date)
-        => GetCachedFilePath(date) is var path && File.Exists(path)
-            ? new FileInfo(path)
+    public FileInfo? GetExistingFile(FileRequest request)
+        => GetCachedFile(request) is var file && file.Exists
+            ? file
             : null;
 
-    public FileInfo SetFile(DateOnly date, ReadOnlySpan<char> text)
+    public FileInfo WriteFile(FileRequest request, ReadOnlySpan<char> text)
     {
-        var path = GetCachedFilePath(date);
-        var file = new FileInfo(path);
-        file.Write(text);
+        var file = GetCachedFile(request);
+        file.WriteCompressed(text);
         return file;
     }
 
-    public void DeleteFile(DateOnly date)
+    public void DeleteFile(FileRequest request)
     {
-        if (GetExistingFile(date) is FileInfo file)
+        if (GetExistingFile(request) is FileInfo file)
         {
             file.Delete();
         }
     }
 
-    private string GetCachedFilePath(DateOnly date) => Path.Join
-    (
-        _directory.FullName,
-        $"{date.Year}-{date.Month:D2}-{date.Day:D2}.br"
-    );
+    private FileInfo GetCachedFile(FileRequest request)
+        => new(Path.Join
+        (
+            CacheDirectory(request).FullName,
+            $"{request.Date.Year}-{request.Date.Month:D2}-{request.Date.Day:D2}.br")
+        );
+
+    private DirectoryInfo CacheDirectory(FileRequest request)
+        => Cache.Get(EdrdgArchiveDirectory)
+            .CreateSubdirectory(request.File.ToDirectoryName());
 }

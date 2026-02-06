@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -17,6 +17,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System.CommandLine;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Jitendex.EdrdgDictionaryArchive;
 
@@ -29,7 +31,7 @@ public static class Program
             Description = "File to retrieve"
         };
 
-        Option<DateOnly> dateOption = new("--date")
+        Option<DateOnly?> dateOption = new("--date")
         {
             Description = "Date of the file to retrieve"
         };
@@ -56,14 +58,48 @@ public static class Program
             return 1;
         }
 
-        var file = Service.GetEdrdgFile
-        (
-            file: parseResult.GetRequiredValue(filenameArgument),
-            date: parseResult.GetValue(dateOption),
-            archiveDirectory: parseResult.GetValue(archiveDirOption)
-        );
+        var filename = parseResult.GetRequiredValue(filenameArgument);
+        var date = parseResult.GetValue(dateOption);
+        var archiveDirectory = parseResult.GetValue(archiveDirOption);
 
-        Console.WriteLine(file.FullName);
-        return 0;
+        var file = GetFile(filename, date, archiveDirectory);
+
+        if (file is not null)
+        {
+            Console.WriteLine(file.FullName);
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
+
+    private static FileInfo? GetFile(DictionaryFile filename, DateOnly? date, DirectoryInfo? archiveDirectory)
+    {
+        var service = GetService();
+        if (date is null)
+        {
+            var (latestFile, _) = service.GetLatestFile(filename, archiveDirectory);
+            return latestFile;
+        }
+        else
+        {
+            var file = service.GetFile(filename, (DateOnly)date, archiveDirectory);
+            return file;
+        }
+    }
+
+    private static IEdrdgArchiveService GetService()
+        => new ServiceCollection()
+            .AddEdrdgArchiveService()
+            .AddLogging(static builder =>
+                builder.AddSimpleConsole(static options =>
+                {
+                    options.IncludeScopes = true;
+                    options.SingleLine = true;
+                    options.TimestampFormat = "HH:mm:ss ";
+                }))
+            .BuildServiceProvider()
+            .GetRequiredService<IEdrdgArchiveService>();
 }

@@ -16,22 +16,23 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.Tatoeba.Import.Parsing;
 using Jitendex.Tatoeba.Import.Models;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
-using static Jitendex.EdrdgDictionaryArchive.Service;
 
 namespace Jitendex.Tatoeba.Import;
 
 internal sealed class Importer
 {
+    private readonly IEdrdgArchiveService _fileArchive;
     private readonly TatoebaReader _reader;
     private readonly TatoebaContext _context;
     private readonly Database _database;
 
-    public Importer(TatoebaReader reader, TatoebaContext context, Database database) =>
-        (_reader, _context, _database) =
-        (@reader, @context, @database);
+    public Importer(IEdrdgArchiveService fileArchive, TatoebaReader reader, TatoebaContext context, Database database) =>
+        (_fileArchive, _reader, _context, _database) =
+        (@fileArchive, @reader, @context, @database);
 
     public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {
@@ -53,7 +54,7 @@ internal sealed class Importer
 
     private async Task<Document> InitializeDatabaseAsync(DirectoryInfo? archiveDirectory)
     {
-        var (file, date) = GetNextEdrdgFile(examples, default, archiveDirectory);
+        var (file, date) = _fileArchive.GetNextFile(examples, default, archiveDirectory);
         var document = await _reader.ReadAsync(file!, date);
         _database.Initialize(document);
         _context.ExecuteVacuum();
@@ -62,7 +63,7 @@ internal sealed class Importer
 
     private async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory, DateOnly previousDate)
     {
-        var file = GetEdrdgFile(examples, previousDate, archiveDirectory);
+        var file = _fileArchive.GetFile(examples, previousDate, archiveDirectory);
         var document = await _reader.ReadAsync(file, previousDate);
         return document;
     }
@@ -71,7 +72,7 @@ internal sealed class Importer
     {
         while (true)
         {
-            var (nextFile, nextDate) = GetNextEdrdgFile(examples, previousDocument.Header.Date, archiveDirectory);
+            var (nextFile, nextDate) = _fileArchive.GetNextFile(examples, previousDocument.Header.Date, archiveDirectory);
 
             if (nextFile is null)
             {

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -48,20 +48,11 @@ internal static class FileInfoExtensions
         return length;
     }
 
-    public static void Write(this FileInfo file, ReadOnlySpan<char> text)
+    public static void WriteCompressed(this FileInfo file, ReadOnlySpan<char> text)
     {
         using FileStream fs = new(file.FullName, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-        using BrotliStream bs = new(fs, CompressionLevel.Optimal);
+        using BrotliStream bs = new(fs, CompressionLevel.Fastest);
         using StreamWriter sw = new(bs);
         sw.Write(text);
     }
-}
-
-internal static class DirectoryInfoExtensions
-{
-    public static IOrderedEnumerable<DirectoryInfo> GetSortedDirectories(this DirectoryInfo dInfo)
-        => dInfo.GetDirectories().OrderBy(static d => int.Parse(d.Name));
-
-    public static IOrderedEnumerable<FileInfo> GetSortedFiles(this DirectoryInfo dInfo)
-        => dInfo.GetFiles().OrderBy(static d => int.Parse(d.Name.AsSpan(0, 2)));
 }

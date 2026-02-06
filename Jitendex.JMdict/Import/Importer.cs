@@ -17,25 +17,26 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using Microsoft.Extensions.Logging;
+using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.JMdict.Import.Analysis;
 using Jitendex.JMdict.Import.Models;
 using Jitendex.JMdict.Import.Parsing;
 using static Jitendex.EdrdgDictionaryArchive.DictionaryFile;
-using static Jitendex.EdrdgDictionaryArchive.Service;
 
 namespace Jitendex.JMdict.Import;
 
 internal sealed class Importer
 {
     private readonly ILogger<Importer> _logger;
+    private readonly IEdrdgArchiveService _fileArchive;
     private readonly JmdictContext _context;
     private readonly DocumentReader _reader;
     private readonly Database _database;
     private readonly Analyzer _analyzer;
 
-    public Importer(ILogger<Importer> logger, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
-        (_logger, _context, _reader, _database, _analyzer) =
-        (@logger, @context, @reader, @database, @analyzer);
+    public Importer(ILogger<Importer> logger, IEdrdgArchiveService fileArchive, JmdictContext context, DocumentReader reader, Database database, Analyzer analyzer) =>
+        (_logger, _fileArchive, _context, _reader, _database, _analyzer) =
+        (@logger, @fileArchive, @context, @reader, @database, @analyzer);
 
     public async Task ImportAsync(DirectoryInfo? archiveDirectory)
     {
@@ -59,7 +60,7 @@ internal sealed class Importer
 
     private async Task<Document> InitializeDatabaseAsync(DirectoryInfo? archiveDirectory)
     {
-        var (file, date) = GetNextEdrdgFile(JMdict_e_examp, default, archiveDirectory);
+        var (file, date) = _fileArchive.GetNextFile(JMdict_e_examp, default, archiveDirectory);
         var document = await _reader.ReadAsync(file!, date);
         _database.Initialize(document);
         _context.ExecuteVacuum();
@@ -68,7 +69,7 @@ internal sealed class Importer
 
     private async Task<Document> GetPreviousDocumentAsync(DirectoryInfo? archiveDirectory, DateOnly previousDate)
     {
-        var file = GetEdrdgFile(JMdict_e_examp, previousDate, archiveDirectory);
+        var file = _fileArchive.GetFile(JMdict_e_examp, previousDate, archiveDirectory);
         var document = await _reader.ReadAsync(file, previousDate);
         return document;
     }
@@ -77,7 +78,7 @@ internal sealed class Importer
     {
         while (true)
         {
-            var (nextFile, nextDate) = GetNextEdrdgFile(JMdict_e_examp, previousDocument.Header.Date, archiveDirectory);
+            var (nextFile, nextDate) = _fileArchive.GetNextFile(JMdict_e_examp, previousDocument.Header.Date, archiveDirectory);
 
             if (nextFile is null)
             {

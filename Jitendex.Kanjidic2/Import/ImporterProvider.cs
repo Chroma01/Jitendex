@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+
+using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.Kanjidic2.Import.Parsing;
 using Jitendex.Kanjidic2.Import.Parsing.GroupReaders;
 
@@ -26,13 +28,10 @@ namespace Jitendex.Kanjidic2.Import;
 internal static class ImporterProvider
 {
     public static Importer GetImporter() => new ServiceCollection()
-        .AddLogging(static builder =>
-            builder.AddSimpleConsole(options =>
-            {
-                options.IncludeScopes = true;
-                options.SingleLine = true;
-                options.TimestampFormat = "HH:mm:ss ";
-            }))
+        .AddTransient<Importer>()
+
+        // File archive
+        .AddEdrdgArchiveService()
 
         // Database
         .AddDbContext<Kanjidic2Context>()
@@ -55,8 +54,16 @@ internal static class ImporterProvider
         // Subgroup readers.
         .AddTransient<ReadingMeaningReader>()
 
+        // Logging
+        .AddLogging(static builder =>
+            builder.AddSimpleConsole(options =>
+            {
+                options.IncludeScopes = true;
+                options.SingleLine = true;
+                options.TimestampFormat = "HH:mm:ss ";
+            }))
+
         // Build and return the Kanjidic2 service.
-        .AddTransient<Importer>()
         .BuildServiceProvider()
         .GetRequiredService<Importer>();
 }

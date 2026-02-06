@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025, 2026 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -16,46 +16,27 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Jitendex.AppDirectory;
-using static Jitendex.AppDirectory.DataSubdirectory;
-
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
+
+internal sealed record Patch(DateOnly Date, string Path);
 
 internal sealed class FileArchive
 {
-    private readonly DirectoryInfo _patchesDirectory;
-    public FileInfo BaseFile { get; }
-
-    public FileArchive(FileType type, DirectoryInfo? directoryInfo)
+    public FileInfo BaseFile(FileRequest request)
     {
-        var dataRoot = directoryInfo ?? DataHome.Get(EdrdgArchiveDirectory);
-        _patchesDirectory = GetPatchesDirectory(dataRoot, type);
-        BaseFile = GetBaseFile(dataRoot, type);
+        var baseFilePath = Path.Join
+        (
+            request.ArchiveDirectory.FullName,
+            request.File.ToDirectoryName(),
+            request.File.ToCompressedName()
+        );
+        return new(baseFilePath);
     }
 
-    private static DirectoryInfo GetPatchesDirectory(DirectoryInfo root, FileType type) => new
-    (
-        Path.Join
-        (
-            root.FullName,
-            type.DirectoryName,
-            "patches"
-        )
-    );
-
-    private static FileInfo GetBaseFile(DirectoryInfo root, FileType type) => new
-    (
-        Path.Join
-        (
-            root.FullName,
-            type.DirectoryName,
-            type.CompressedName
-        )
-    );
-
-    public DateOnly GetLatestPatchDate()
+    public DateOnly GetLatestPatchDate(FileRequest request)
     {
-        var yearDir = _patchesDirectory.GetSortedDirectories().Last();
+        var patchesDirectory = PatchesDirectory(request);
+        var yearDir = patchesDirectory.GetSortedDirectories().Last();
         var monthDir = yearDir.GetSortedDirectories().Last();
         var patchFile = monthDir.GetSortedFiles().Last();
         return new DateOnly
@@ -66,19 +47,20 @@ internal sealed class FileArchive
         );
     }
 
-    public DateOnly? GetNextPatchDate(DateOnly previousDate)
+    public DateOnly? GetNextPatchDate(FileRequest request)
     {
-        foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
+        var patchesDirectory = PatchesDirectory(request);
+        foreach (var yearDir in patchesDirectory.GetSortedDirectories())
         {
             int year = int.Parse(yearDir.Name);
-            if (year < previousDate.Year)
+            if (year < request.Date.Year)
             {
                 continue;
             }
             foreach (var monthDir in yearDir.GetSortedDirectories())
             {
                 int month = int.Parse(monthDir.Name);
-                if (year == previousDate.Year && month < previousDate.Month)
+                if (year == request.Date.Year && month < request.Date.Month)
                 {
                     continue;
                 }
@@ -86,7 +68,7 @@ internal sealed class FileArchive
                 {
                     int day = int.Parse(patchFile.Name.AsSpan(0, 2));
                     var date = new DateOnly(year, month, day);
-                    if (previousDate < date)
+                    if (request.Date < date)
                     {
                         return date;
                     }
@@ -96,10 +78,15 @@ internal sealed class FileArchive
         return null;
     }
 
-    public List<DateOnly> GetPatchDates(DateOnly afterDate = default, DateOnly untilDate = default)
+    public List<Patch> GetPatches(FileRequest request)
     {
-        List<DateOnly> patchDates = [];
-        foreach (var yearDir in _patchesDirectory.GetSortedDirectories())
+        var patchesDirectory = PatchesDirectory(request);
+        DateOnly afterDate = default;
+        DateOnly untilDate = request.Date;
+
+        List<Patch> patches = [];
+
+        foreach (var yearDir in patchesDirectory.GetSortedDirectories())
         {
             int year = int.Parse(yearDir.Name);
             if (year < afterDate.Year)
@@ -123,23 +110,19 @@ internal sealed class FileArchive
                     }
                     if (patchDate > afterDate)
                     {
-                        patchDates.Add(patchDate);
+                        var patchPath = GetPatchPath(patchesDirectory, patchDate);
+                        patches.Add(new(patchDate, patchPath));
                     }
                 }
             }
         }
     end:
-        return patchDates;
+        return patches;
     }
 
-    public FileInfo GetPatchFile(DateOnly date) => new
-    (
-        Path.Join
-        (
-            _patchesDirectory.FullName,
-            date.Year.ToString(),
-            $"{date.Month:D2}",
-            $"{date.Day:D2}.patch.br"
-        )
-    );
+    private static DirectoryInfo PatchesDirectory(FileRequest request)
+        => new(Path.Join(request.ArchiveDirectory.FullName, request.File.ToDirectoryName(), "patches"));
+
+    private static string GetPatchPath(DirectoryInfo directory, DateOnly date)
+        => Path.Join(directory.FullName, $"{date.Year}", $"{date.Month:D2}", $"{date.Day:D2}.patch.br");
 }

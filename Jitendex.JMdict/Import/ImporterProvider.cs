@@ -25,19 +25,17 @@ using Jitendex.JMdict.Import.Parsing.EntryElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.KanjiFormElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.ReadingElementReaders;
 using Jitendex.JMdict.Import.Parsing.EntryElementReaders.SenseElementReaders;
+using Jitendex.EdrdgDictionaryArchive;
 
 namespace Jitendex.JMdict.Import;
 
 internal static class ImporterProvider
 {
     public static Importer GetImporter() => new ServiceCollection()
-        .AddLogging(static builder =>
-            builder.AddSimpleConsole(static options =>
-            {
-                options.IncludeScopes = true;
-                options.SingleLine = true;
-                options.TimestampFormat = "HH:mm:ss ";
-            }))
+        .AddTransient<Importer>()
+
+        // File archive
+        .AddEdrdgArchiveService()
 
         // Databases
         .AddDbContext<JmdictContext>()
@@ -81,8 +79,16 @@ internal static class ImporterProvider
         .AddTransient<ReferenceSequencer>()
         .AddTransient<CrossReferenceTextParser>()
 
+        // Logging
+        .AddLogging(static builder =>
+            builder.AddSimpleConsole(static options =>
+            {
+                options.IncludeScopes = true;
+                options.SingleLine = true;
+                options.TimestampFormat = "HH:mm:ss ";
+            }))
+
         // Build and return the Jmdict service.
-        .AddTransient<Importer>()
         .BuildServiceProvider()
         .GetRequiredService<Importer>();
 }

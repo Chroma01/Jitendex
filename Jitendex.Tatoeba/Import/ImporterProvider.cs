@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Jitendex.EdrdgDictionaryArchive;
 using Jitendex.Tatoeba.Import.Parsing;
 
 namespace Jitendex.Tatoeba.Import;
@@ -25,6 +26,12 @@ namespace Jitendex.Tatoeba.Import;
 internal static class ImporterProvider
 {
     public static Importer GetImporter() => new ServiceCollection()
+        .AddEdrdgArchiveService()
+        .AddTransient<Importer>()
+        .AddTransient<TatoebaReader>()
+        .AddTransient<Database>()
+        .AddDbContext<TatoebaContext>()
+
         .AddLogging(static builder =>
             builder.AddSimpleConsole(options =>
             {
@@ -32,11 +39,6 @@ internal static class ImporterProvider
                 options.SingleLine = false;
                 options.TimestampFormat = "HH:mm:ss ";
             }))
-
-        .AddDbContext<TatoebaContext>()
-        .AddTransient<Database>()
-        .AddTransient<TatoebaReader>()
-        .AddTransient<Importer>()
 
         .BuildServiceProvider()
         .GetRequiredService<Importer>();
