@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -19,8 +19,8 @@ If not, see <https://www.gnu.org/licenses/>.
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
+using Jitendex.JapaneseTextUtils;
 using Jitendex.Furigana.Models;
-using Jitendex.Furigana.TextExtensions;
 
 namespace Jitendex.Furigana.Solver;
 

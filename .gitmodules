@@ -16,3 +16,6 @@
 [submodule "Libraries/MinimalPatch"]
 	path = Libraries/MinimalPatch
 	url = https://github.com/Jitendex/MinimalPatch
+[submodule "Libraries/JapaneseTextUtils"]
+	path = Libraries/JapaneseTextUtils
+	url = https://github.com/Jitendex/JapaneseTextUtils
