@@ -31,12 +31,9 @@ internal sealed class ResourceCache
     public ResourceCache(IEnumerable<JapaneseCharacter> characters, IEnumerable<JapaneseCompound> compounds)
     {
         Characters = characters
-            .Select(static x => new KeyValuePair<int, JapaneseCharacter>(x.Rune.Value, x))
-            .ToFrozenDictionary();
-
+            .ToFrozenDictionary(static character => character.Rune.Value);
         Compounds = compounds
-            .Select(static x => new KeyValuePair<string, JapaneseCompound>(x.Text, x))
-            .ToFrozenDictionary();
+            .ToFrozenDictionary(static x => x.Text);
     }
 
     public UnknownCharacterReading NewReading(Rune rune, string readingText)
