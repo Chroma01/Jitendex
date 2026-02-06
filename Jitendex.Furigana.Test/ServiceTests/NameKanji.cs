@@ -24,41 +24,34 @@ namespace Jitendex.Furigana.Test.ServiceTests;
 [TestClass]
 public class NameKanji : ServiceTest
 {
-    private static readonly IEnumerable<JapaneseCharacter> _vocabKanji = ResourceMethods.VocabKanji(new()
-    {
-        ["佐"] = ["あ"],
-        ["藤"] = ["あ"],
-    });
-
-    private static readonly IEnumerable<JapaneseCharacter> _nameKanji = ResourceMethods.NameKanji(new()
+    private static readonly IEnumerable<JapaneseCharacter> _kanji = ResourceMethods.NameKanji(new()
     {
         ["佐"] = (["あ"], ["さ"]),
         ["藤"] = (["あ"], ["とう"]),
     });
 
-    private static readonly Service _service = new(_vocabKanji.Concat(_nameKanji), []);
+    private static readonly Service _service = new(_kanji, []);
 
     private const string _kanjiFormText = "佐藤";
     private const string _readingText = "さとう";
     private const string _expectedSolutionText = "[佐|さ][藤|とう]";
 
-    private static readonly VocabEntry _vocabEntry = new(_kanjiFormText, _readingText);
-    private static readonly NameEntry _nameEntry = new(_kanjiFormText, _readingText);
-
-    private static readonly Solution? _vocabSolution = _service.Solve(_vocabEntry);
-    private static readonly Solution? _nameSolution = _service.Solve(_nameEntry);
-    private static readonly Solution _expectedSolution = TextSolution.Parse(_expectedSolutionText, _nameEntry);
-
     [TestMethod]
     public void TestSolvable()
     {
-        Assert.IsNotNull(_nameSolution);
-        Assert.AreEqual(_expectedSolution, _nameSolution);
+        var nameEntry = new NameEntry(_kanjiFormText, _readingText);
+        var nameSolution = _service.Solve(nameEntry);
+        Assert.IsNotNull(nameSolution);
+
+        var expectedSolution = TextSolution.Parse(_expectedSolutionText, nameEntry);
+        Assert.AreEqual(expectedSolution, nameSolution);
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        Assert.IsNull(_vocabSolution);
+        var vocabEntry = new VocabEntry(_kanjiFormText, _readingText);
+        var vocabSolution = _service.Solve(vocabEntry);
+        Assert.IsNull(vocabSolution);
     }
 }
