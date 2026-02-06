@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -47,7 +47,10 @@ public static class KanaTransform
 
     private static string Transform(string text, Func<int, int> transformer)
     {
-        char[] transformedText = new char[text.Length];
+        Span<char> transformedText = text.Length < 100
+            ? stackalloc char[text.Length]
+            : new char[text.Length];
+
         for (int i = 0; i < text.Length; i++)
         {
             transformedText[i] = (char)transformer(text[i]);

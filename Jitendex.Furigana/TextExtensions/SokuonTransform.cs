@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -20,18 +20,16 @@ namespace Jitendex.Furigana.TextExtensions;
 
 public static class SokuonTransform
 {
-    public static string? ToSokuonForm(this string text) => LastCanGeminate(text) switch
-    {
-        true => text[..^1] + "っ",
-        false => null,
-    };
+    public static string? ToSokuonForm(this string text)
+        => LastCanGeminate(text) ? text[..^1] + "っ" : null;
 
-    private static bool LastCanGeminate(string text) => text.LastOrDefault() switch
-    {
-        'つ' or
-        'く' or
-        'き' or
-        'ち' => true,
-        _ => false
-    };
+    private static bool LastCanGeminate(ReadOnlySpan<char> text)
+        => text.Length > 0 && text[^1] switch
+        {
+            'つ' or
+            'く' or
+            'き' or
+            'ち' => true,
+            _ => false
+        };
 }

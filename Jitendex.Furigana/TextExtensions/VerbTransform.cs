@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Stephen Kraus
+Copyright (c) 2025-2026 Stephen Kraus
 SPDX-License-Identifier: AGPL-3.0-or-later
 
 This file is part of Jitendex.
@@ -20,24 +20,26 @@ namespace Jitendex.Furigana.TextExtensions;
 
 public static class VerbTransform
 {
-    public static string? VerbToMasuStem(this string text) => LastToMasuStemLast(text) switch
-    {
-        default(char) => null,
-        char masuStemLast => text[..^1] + masuStemLast,
-    };
+    public static string? VerbToMasuStem(this string text)
+        => LastToMasuStemLast(text) switch
+        {
+            default(char) => null,
+            char masuStemLast => text[..^1] + masuStemLast,
+        };
 
-    private static char LastToMasuStemLast(string text) => text.LastOrDefault() switch
-    {
-        'う' => 'い',
-        'く' => 'き',
-        'ぐ' => 'ぎ',
-        'す' => 'し',
-        'ず' => 'じ',
-        'つ' => 'ち',
-        'ぬ' => 'に',
-        'ぶ' => 'び',
-        'む' => 'み',
-        'る' => 'り',
-        _ => default
-    };
+    private static char LastToMasuStemLast(ReadOnlySpan<char> text)
+        => text.Length == 0 ? default : text[^1] switch
+        {
+            'う' => 'い',
+            'く' => 'き',
+            'ぐ' => 'ぎ',
+            'す' => 'し',
+            'ず' => 'じ',
+            'つ' => 'ち',
+            'ぬ' => 'に',
+            'ぶ' => 'び',
+            'む' => 'み',
+            'る' => 'り',
+            _ => default
+        };
 }
