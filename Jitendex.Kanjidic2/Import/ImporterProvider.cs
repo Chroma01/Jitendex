@@ -59,7 +59,7 @@ internal static class ImporterProvider
             builder.AddSimpleConsole(options =>
             {
                 options.IncludeScopes = true;
-                options.SingleLine = true;
+                options.SingleLine = false;
                 options.TimestampFormat = "HH:mm:ss ";
             }))
 

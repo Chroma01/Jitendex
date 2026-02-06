@@ -101,7 +101,7 @@ internal sealed class FileArchive(ILogger<FileArchive> logger)
                 foreach (var patchFile in monthDir.GetSortedFiles())
                 {
                     int day = int.Parse(patchFile.Name.AsSpan(0, 2));
-                    DateOnly patchDate = new(year, month, day);
+                    var patchDate = new DateOnly(year, month, day);
                     var patchPath = GetPatchPath(patchesDirectory, patchDate);
                     patches.Add(new(patchDate, patchPath));
 
