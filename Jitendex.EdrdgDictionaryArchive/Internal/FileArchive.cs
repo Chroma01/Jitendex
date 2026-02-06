@@ -16,11 +16,13 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Microsoft.Extensions.Logging;
+
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
 internal sealed record Patch(DateOnly Date, string Path);
 
-internal sealed class FileArchive
+internal sealed class FileArchive(ILogger<FileArchive> logger)
 {
     public FileInfo BaseFile(FileRequest request)
     {
@@ -78,46 +80,32 @@ internal sealed class FileArchive
         return null;
     }
 
-    public List<Patch> GetPatches(FileRequest request)
+    public IReadOnlyList<Patch> GetPatches(FileRequest request)
     {
-        var patchesDirectory = PatchesDirectory(request);
-        DateOnly afterDate = default;
-        DateOnly untilDate = request.Date;
-
         List<Patch> patches = [];
-
+        var patchesDirectory = PatchesDirectory(request);
         foreach (var yearDir in patchesDirectory.GetSortedDirectories())
         {
             int year = int.Parse(yearDir.Name);
-            if (year < afterDate.Year)
-            {
-                continue;
-            }
             foreach (var monthDir in yearDir.GetSortedDirectories())
             {
                 int month = int.Parse(monthDir.Name);
-                if (month < afterDate.Month)
-                {
-                    continue;
-                }
                 foreach (var patchFile in monthDir.GetSortedFiles())
                 {
                     int day = int.Parse(patchFile.Name.AsSpan(0, 2));
                     DateOnly patchDate = new(year, month, day);
-                    if (untilDate != default && patchDate > untilDate)
+                    var patchPath = GetPatchPath(patchesDirectory, patchDate);
+                    patches.Add(new(patchDate, patchPath));
+
+                    if (patchDate == request.Date)
                     {
-                        goto end;
-                    }
-                    if (patchDate > afterDate)
-                    {
-                        var patchPath = GetPatchPath(patchesDirectory, patchDate);
-                        patches.Add(new(patchDate, patchPath));
+                        return patches;
                     }
                 }
             }
         }
-    end:
-        return patches;
+        logger.LogInformation("Requested file {File} for date {Date:yyyy-MM-dd} does not exist in the archive", request.File.ToFileName(), request.Date);
+        return [];
     }
 
     private static DirectoryInfo PatchesDirectory(FileRequest request)

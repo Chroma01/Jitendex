@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
 
 public interface IEdrdgArchiveService
 {
-    public FileInfo GetFile(DictionaryFile file, DateOnly date, DirectoryInfo? archiveDirectory = null);
+    public FileInfo? GetFile(DictionaryFile file, DateOnly date, DirectoryInfo? archiveDirectory = null);
     public (FileInfo?, DateOnly) GetNextFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null);
     public (FileInfo?, DateOnly) GetLatestFile(DictionaryFile file, DirectoryInfo? archiveDirectory = null);
 }

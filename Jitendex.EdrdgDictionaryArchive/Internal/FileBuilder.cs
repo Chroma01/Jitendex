@@ -31,7 +31,7 @@ internal sealed class FileBuilder
         (_logger, _cache, _archive) =
         (@logger, @cache, @archive);
 
-    public FileInfo GetFile(FileRequest request)
+    public FileInfo? GetFile(FileRequest request)
         => _cache.GetExistingFile(request) ?? BuildFile(request);
 
     public (FileInfo?, DateOnly) GetNextFile(FileRequest request)
@@ -53,17 +53,22 @@ internal sealed class FileBuilder
         return (latestFile, latestDate);
     }
 
-    private FileInfo BuildFile(FileRequest request)
+    private FileInfo? BuildFile(FileRequest request)
     {
-        var (baseDate, baseFile, patches) = GetBuildBase(request);
+        var buildBase = GetBuildBase(request);
 
-        int length = baseFile.Length();
+        if (buildBase is null)
+        {
+            return null;
+        }
+
+        int length = buildBase.File.Length();
         Span<char> @patchBuffer = new char[length / 10];
         Span<char> originBuffer = new char[length * 3 / 2];
         Span<char> outputBuffer = new char[length * 3 / 2];
-        baseFile.ReadInto(originBuffer);
+        buildBase.File.ReadInto(originBuffer);
 
-        foreach (var patch in patches)
+        foreach (var patch in buildBase.Patches)
         {
             _logger.LogInformation("Patching file to date {Date:yyyy-MM-dd}", patch.Date);
             var patchFile = new FileInfo(patch.Path);
@@ -81,19 +86,27 @@ internal sealed class FileBuilder
 
         var builtFile = _cache.WriteFile(request, outputBuffer[..length]);
 
-        var baseFileRequest = request with { Date = baseDate };
+        var baseFileRequest = request with { Date = buildBase.Date };
         _cache.DeleteFile(baseFileRequest);
 
         return builtFile;
     }
 
-    private (DateOnly, FileInfo, List<Patch>) GetBuildBase(FileRequest request)
+    private sealed record BuildBase(DateOnly Date, FileInfo File, IReadOnlyList<Patch> Patches);
+
+    private BuildBase? GetBuildBase(FileRequest request)
     {
+        var allPatches = _archive.GetPatches(request);
+        if (allPatches.Count == 0)
+        {
+            return null;
+        }
+
         DateOnly baseDate = default;
         FileInfo? baseFile = null;
-        List<Patch> patches = [];
+        List<Patch> patches = new(allPatches.Count);
 
-        foreach (var patch in _archive.GetPatches(request))
+        foreach (var patch in allPatches)
         {
             var cachedFileRequest = request with { Date = patch.Date };
             if (_cache.GetExistingFile(cachedFileRequest) is FileInfo cachedFile)
@@ -110,6 +123,6 @@ internal sealed class FileBuilder
 
         baseFile ??= _archive.BaseFile(request);
 
-        return (baseDate, baseFile, patches);
+        return new(baseDate, baseFile, patches);
     }
 }
