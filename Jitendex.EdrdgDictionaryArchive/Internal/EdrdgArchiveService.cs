@@ -18,22 +18,17 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
-internal sealed class EdrdgArchiveService : IEdrdgArchiveService
+internal sealed class EdrdgArchiveService(FileBuilder builder) : IEdrdgArchiveService
 {
-    private readonly FileBuilder _builder;
-
-    public EdrdgArchiveService(FileBuilder builder)
-        => _builder = builder;
-
     public FileInfo? GetFile(DictionaryFile file, DateOnly date, DirectoryInfo? archiveDirectory = null)
-        => _builder.GetFile(new(file, date, archiveDirectory));
+        => builder.GetFile(new(file, date, archiveDirectory));
 
     public (FileInfo, DateOnly)? GetNextFile(DictionaryFile file, DateOnly previousDate, DirectoryInfo? archiveDirectory = null)
-        => _builder.GetNextFile(new(file, previousDate, archiveDirectory));
+        => builder.GetNextFile(new(file, previousDate, archiveDirectory));
 
     public (FileInfo, DateOnly)? GetEarliestFile(DictionaryFile file, DirectoryInfo? archiveDirectory = null)
-        => _builder.GetEarliestFile(new(file, default, archiveDirectory));
+        => builder.GetEarliestFile(new(file, default, archiveDirectory));
 
     public (FileInfo, DateOnly)? GetLatestFile(DictionaryFile file, DirectoryInfo? archiveDirectory = null)
-        => _builder.GetLatestFile(new(file, default, archiveDirectory));
+        => builder.GetLatestFile(new(file, default, archiveDirectory));
 }

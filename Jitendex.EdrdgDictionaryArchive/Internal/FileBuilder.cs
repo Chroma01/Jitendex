@@ -21,22 +21,14 @@ using Jitendex.MinimalPatch;
 
 namespace Jitendex.EdrdgDictionaryArchive.Internal;
 
-internal sealed class FileBuilder
+internal sealed class FileBuilder(ILogger<FileBuilder> logger, FileCache cache, FileArchive archive)
 {
-    private readonly ILogger<FileBuilder> _logger;
-    private readonly FileCache _cache;
-    private readonly FileArchive _archive;
-
-    public FileBuilder(ILogger<FileBuilder> logger, FileCache cache, FileArchive archive) =>
-        (_logger, _cache, _archive) =
-        (@logger, @cache, @archive);
-
     public FileInfo? GetFile(FileRequest request)
-        => _cache.GetExistingFile(request) ?? BuildFile(request);
+        => cache.GetExistingFile(request) ?? BuildFile(request);
 
     public (FileInfo, DateOnly)? GetNextFile(FileRequest request)
     {
-        if (_archive.GetNextPatchDate(request) is not DateOnly nextDate)
+        if (archive.GetNextPatchDate(request) is not DateOnly nextDate)
         {
             return null;
         }
@@ -48,17 +40,19 @@ internal sealed class FileBuilder
     }
 
     public (FileInfo, DateOnly)? GetEarliestFile(FileRequest request)
-        => _archive.GetExistingBaseFile(request);
+        => archive.GetExistingBaseFile(request);
 
     public (FileInfo, DateOnly)? GetLatestFile(FileRequest request)
     {
-        var latestDate = _archive.GetLatestPatchDate(request);
+        var latestDate = archive.GetLatestPatchDate(request);
         var latestFileRequest = request with { Date = latestDate };
         var latestFile = GetFile(latestFileRequest);
         return latestFile is not null
             ? (latestFile, latestDate)
             : null;
     }
+
+    private sealed record BuildBase(DateOnly Date, FileInfo File, IReadOnlyList<Patch> Patches);
 
     private FileInfo? BuildFile(FileRequest request)
     {
@@ -75,7 +69,7 @@ internal sealed class FileBuilder
 
         foreach (var patch in buildBase.Patches)
         {
-            _logger.LogInformation("Patching file to date {Date:yyyy-MM-dd}", patch.Date);
+            logger.LogInformation("Patching file to date {Date:yyyy-MM-dd}", patch.Date);
             var patchFile = new FileInfo(patch.Path);
             int patchLength = patchFile.ReadInto(patchBuffer);
 
@@ -89,19 +83,17 @@ internal sealed class FileBuilder
             outputBuffer[..length].CopyTo(originBuffer[..length]);
         }
 
-        var builtFile = _cache.WriteFile(request, outputBuffer[..length]);
+        var builtFile = cache.WriteFile(request, outputBuffer[..length]);
 
         var baseFileRequest = request with { Date = buildBase.Date };
-        _cache.DeleteFile(baseFileRequest);
+        cache.DeleteFile(baseFileRequest);
 
         return builtFile;
     }
 
-    private sealed record BuildBase(DateOnly Date, FileInfo File, IReadOnlyList<Patch> Patches);
-
     private BuildBase? GetBuildBase(FileRequest request)
     {
-        var allPatches = _archive.GetPatches(request);
+        var allPatches = archive.GetPatches(request);
         if (allPatches.Count == 0)
         {
             return null;
@@ -110,7 +102,7 @@ internal sealed class FileBuilder
         FileInfo? baseFile = null;
         DateOnly baseDate = default;
 
-        if (_archive.GetExistingBaseFile(request) is (FileInfo file, DateOnly date))
+        if (archive.GetExistingBaseFile(request) is (FileInfo file, DateOnly date))
         {
             baseFile = file;
             baseDate = date;
@@ -121,7 +113,7 @@ internal sealed class FileBuilder
         foreach (var patch in allPatches)
         {
             var cachedFileRequest = request with { Date = patch.Date };
-            if (_cache.GetExistingFile(cachedFileRequest) is FileInfo cachedFile)
+            if (cache.GetExistingFile(cachedFileRequest) is FileInfo cachedFile)
             {
                 baseFile = cachedFile;
                 baseDate = patch.Date;
