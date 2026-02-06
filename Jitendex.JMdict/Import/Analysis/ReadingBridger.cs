@@ -42,6 +42,8 @@ internal partial class ReadingBridger
     public void BridgeReadingsToKanjiForms()
     {
         var bridges = GetBridges();
+        // TODO: check for excessive pairings, e.g. キモ可愛；きも可愛【キモかわ；きもかわ】
+        // Need to include method for normalizing katakana to hiragana.
         WriteBridgesToDatabase(bridges);
     }
 

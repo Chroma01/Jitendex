@@ -5,6 +5,9 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Libraries/" />
+  <Folder Name="/Libraries/JapaneseTextUtils/">
+    <Project Path="Libraries/JapaneseTextUtils/Jitendex.JapaneseTextUtils/Jitendex.JapaneseTextUtils.csproj" />
+  </Folder>
   <Folder Name="/Libraries/MinimalJsonDiff/">
     <Project Path="Libraries/MinimalJsonDiff/Jitendex.MinimalJsonDiff/Jitendex.MinimalJsonDiff.csproj" />
   </Folder>
