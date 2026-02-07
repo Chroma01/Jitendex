@@ -26,5 +26,5 @@ public sealed class FileHeader
 {
     [Key]
     public required int Id { get; init; }
-    public required DateOnly Date { get; set; }
+    public required DateOnly Date { get; init; }
 }

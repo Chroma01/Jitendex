@@ -26,8 +26,8 @@ namespace Jitendex.JMdict.Entities.EntryItems;
 [PrimaryKey(nameof(EntryId), nameof(Order))]
 public sealed class Reading
 {
-    public required int EntryId { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int Order { get; init; }
     public required string Text { get; set; }
     public required bool NoKanji { get; set; }
 
@@ -36,8 +36,6 @@ public sealed class Reading
     public List<Restriction> Restrictions { get; init; } = [];
 
     [ForeignKey(nameof(EntryId))]
-    public Entry Entry { get; set; } = null!;
+    public Entry Entry { get; init; } = null!;
 
-    public (int, int) Key() => (EntryId, Order);
-    public bool IsHidden() => Infos.Any(static x => x.TagName == "sk");
 }

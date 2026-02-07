@@ -25,14 +25,14 @@ namespace Jitendex.JMdict.Entities.EntryItems.SenseItems;
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public sealed class CrossReference
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
+    public required int Order { get; init; }
     public required string TypeName { get; set; }
     public required string Text { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public Sense Sense { get; set; } = null!;
+    public Sense Sense { get; init; } = null!;
 
     [ForeignKey(nameof(TypeName))]
     public CrossReferenceType Type { get; set; } = null!;
@@ -41,6 +41,4 @@ public sealed class CrossReference
     /// Stable and unique identifier for this reference in the raw data.
     /// </summary>
     public string ToExportKey() => $"{EntryId}・{SenseOrder + 1}・{Text}";
-
-    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

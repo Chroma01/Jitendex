@@ -26,24 +26,23 @@ namespace Jitendex.JMdict.Entities.EntryItems;
 [PrimaryKey(nameof(EntryId), nameof(Order))]
 public sealed class Sense
 {
-    public required int EntryId { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int Order { get; init; }
     public string? Note { get; set; }
 
-    public List<KanjiFormRestriction> KanjiFormRestrictions { get; set; } = [];
-    public List<ReadingRestriction> ReadingRestrictions { get; set; } = [];
+    public List<KanjiFormRestriction> KanjiFormRestrictions { get; init; } = [];
+    public List<ReadingRestriction> ReadingRestrictions { get; init; } = [];
 
-    public List<PartOfSpeech> PartsOfSpeech { get; set; } = [];
-    public List<Field> Fields { get; set; } = [];
-    public List<Misc> Miscs { get; set; } = [];
-    public List<Dialect> Dialects { get; set; } = [];
+    public List<PartOfSpeech> PartsOfSpeech { get; init; } = [];
+    public List<Field> Fields { get; init; } = [];
+    public List<Misc> Miscs { get; init; } = [];
+    public List<Dialect> Dialects { get; init; } = [];
 
-    public List<Gloss> Glosses { get; set; } = [];
-    public List<LanguageSource> LanguageSources { get; set; } = [];
     public List<CrossReference> CrossReferences { get; set; } = [];
+    public List<Gloss> Glosses { get; init; } = [];
+    public List<LanguageSource> LanguageSources { get; init; } = [];
+
 
     [ForeignKey(nameof(EntryId))]
-    public Entry Entry { get; set; } = null!;
-
-    public (int, int) Key() => (EntryId, Order);
+    public Entry Entry { get; init; } = null!;
 }

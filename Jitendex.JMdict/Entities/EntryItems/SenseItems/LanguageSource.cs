@@ -25,22 +25,20 @@ namespace Jitendex.JMdict.Entities.EntryItems.SenseItems;
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public sealed class LanguageSource
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
+    public required int Order { get; init; }
     public required string? Text { get; set; }
     public required string LanguageCode { get; set; }
     public required string TypeName { get; set; }
     public required bool IsWasei { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public Sense Sense { get; set; } = null!;
+    public Sense Sense { get; init; } = null!;
 
     [ForeignKey(nameof(LanguageCode))]
     public Language Language { get; set; } = null!;
 
     [ForeignKey(nameof(TypeName))]
     public LanguageSourceType Type { get; set; } = null!;
-
-    public (int, int) ParentKey() => (EntryId, SenseOrder);
 }

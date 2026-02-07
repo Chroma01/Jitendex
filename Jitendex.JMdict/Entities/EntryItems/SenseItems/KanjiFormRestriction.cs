@@ -25,13 +25,11 @@ namespace Jitendex.JMdict.Entities.EntryItems.SenseItems;
 [PrimaryKey(nameof(EntryId), nameof(SenseOrder), nameof(Order))]
 public sealed class KanjiFormRestriction
 {
-    public required int EntryId { get; set; }
-    public required int SenseOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int SenseOrder { get; init; }
+    public required int Order { get; init; }
     public required string KanjiFormText { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
-    public Sense Sense { get; set; } = null!;
-
-    public (int, int) ParentKey() => (EntryId, SenseOrder);
+    public Sense Sense { get; init; } = null!;
 }

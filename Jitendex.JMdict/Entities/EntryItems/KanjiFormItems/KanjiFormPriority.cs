@@ -25,16 +25,14 @@ namespace Jitendex.JMdict.Entities.EntryItems.KanjiFormItems;
 [PrimaryKey(nameof(EntryId), nameof(KanjiFormOrder), nameof(Order))]
 public sealed class KanjiFormPriority
 {
-    public required int EntryId { get; set; }
-    public required int KanjiFormOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int KanjiFormOrder { get; init; }
+    public required int Order { get; init; }
     public required string TagName { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(KanjiFormOrder)}")]
-    public KanjiForm KanjiForm { get; set; } = null!;
+    public KanjiForm KanjiForm { get; init; } = null!;
 
     [ForeignKey(nameof(TagName))]
     public PriorityTag Tag { get; set; } = null!;
-
-    public (int, int) ParentKey() => (EntryId, KanjiFormOrder);
 }

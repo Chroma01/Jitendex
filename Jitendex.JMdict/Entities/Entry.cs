@@ -24,11 +24,11 @@ namespace Jitendex.JMdict.Entities;
 [Table(nameof(Entry))]
 public sealed class Entry
 {
-    public required int Id { get; set; }
-    public List<Reading> Readings { get; set; } = [];
-    public List<KanjiForm> KanjiForms { get; set; } = [];
-    public List<Sense> Senses { get; set; } = [];
+    public required int Id { get; init; }
+    public List<Reading> Readings { get; init; } = [];
+    public List<KanjiForm> KanjiForms { get; init; } = [];
+    public List<Sense> Senses { get; init; } = [];
 
     [ForeignKey(nameof(Id))]
-    public Sequence Sequence { get; set; } = null!;
+    public Sequence Sequence { get; init; } = null!;
 }

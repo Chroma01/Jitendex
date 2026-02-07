@@ -25,13 +25,11 @@ namespace Jitendex.JMdict.Entities.EntryItems.ReadingItems;
 [PrimaryKey(nameof(EntryId), nameof(ReadingOrder), nameof(Order))]
 public sealed class Restriction
 {
-    public required int EntryId { get; set; }
-    public required int ReadingOrder { get; set; }
-    public required int Order { get; set; }
+    public required int EntryId { get; init; }
+    public required int ReadingOrder { get; init; }
+    public required int Order { get; init; }
     public required string KanjiFormText { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(ReadingOrder)}")]
-    public Reading Reading { get; set; } = null!;
-
-    public (int, int) ParentKey() => (EntryId, ReadingOrder);
+    public Reading Reading { get; init; } = null!;
 }

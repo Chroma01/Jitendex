@@ -30,5 +30,5 @@ public sealed class Sequence
     public Entry? Entry { get; set; }
 
     [InverseProperty(nameof(Revision.Sequence))]
-    public List<Revision> Revisions { get; set; } = [];
+    public List<Revision> Revisions { get; init; } = [];
 }
