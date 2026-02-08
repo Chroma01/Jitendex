@@ -166,7 +166,7 @@ public static class DtoTextExtensions
     }
 
     private static string ToText(this GlossDto x)
-        => x.TypeName == string.Empty
+        => x.TypeName is null
             ? x.Text
             : $"[{x.TypeName}] {x.Text}";
 

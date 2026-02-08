@@ -28,12 +28,12 @@ public sealed class Gloss
     public required int EntryId { get; init; }
     public required int SenseOrder { get; init; }
     public required int Order { get; init; }
-    public required string TypeName { get; set; }
+    public required string? TypeName { get; set; }
     public required string Text { get; set; }
 
     [ForeignKey($"{nameof(EntryId)}, {nameof(SenseOrder)}")]
     public Sense Sense { get; init; } = null!;
 
     [ForeignKey(nameof(TypeName))]
-    public GlossType Type { get; set; } = null!;
+    public GlossType? Type { get; set; }
 }

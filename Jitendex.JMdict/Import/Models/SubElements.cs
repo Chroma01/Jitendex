@@ -50,7 +50,7 @@ internal sealed record FieldElement
     (int EntryId, int ParentOrder, int Order, string TagName) : ISubElement;
 
 internal sealed record GlossElement
-    (int EntryId, int ParentOrder, int Order, string TypeName, string Text) : ISubElement;
+    (int EntryId, int ParentOrder, int Order, string? TypeName, string Text) : ISubElement;
 
 internal sealed record KanjiFormRestrictionElement
     (int EntryId, int ParentOrder, int Order, string KanjiFormText) : ISubElement;

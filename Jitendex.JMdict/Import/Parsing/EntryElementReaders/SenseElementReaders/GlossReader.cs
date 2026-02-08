@@ -28,9 +28,9 @@ internal partial class GlossReader : BaseReader<GlossReader>
 
     public async Task ReadAsync(XmlReader xmlReader, Document document, SenseElement sense)
     {
-        var typeName = xmlReader.GetAttribute("g_type") ?? string.Empty;
+        var typeName = xmlReader.GetAttribute("g_type");
 
-        if (!document.GlossTypes.ContainsKey(typeName))
+        if (typeName is not null && !document.GlossTypes.ContainsKey(typeName))
         {
             var tag = new GlossTypeElement(typeName, document.Header.Date);
             document.GlossTypes.Add(typeName, tag);

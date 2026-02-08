@@ -48,7 +48,7 @@ internal sealed class GlossTable : Table<GlossElement>
         new("@0", gloss.EntryId),
         new("@1", gloss.ParentOrder),
         new("@2", gloss.Order),
-        new("@3", gloss.TypeName),
+        new("@3", gloss.TypeName.Nullable()),
         new("@4", gloss.Text),
     ];
 }
